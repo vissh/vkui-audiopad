@@ -22,15 +22,7 @@ import { useState } from "react";
 
 
 const App = () => {
-  const [tracks, setTracks] = useState<ITrackItems>({
-    items: [
-      // {
-      //   image: "https://pp.userapi.com/c841025/v841025503/617f7/bkN1Def0s14.jpg",
-      //   artist: "Arctic Monkeys",
-      //   title: "I Wanna Be Yours",
-      // },
-    ]
-  } as ITrackItems)
+  const [tracks, setTracks] = useState<ITrackItems>({items: []} as ITrackItems)
 
   return (
     <ConfigProvider
