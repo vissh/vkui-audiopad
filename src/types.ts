@@ -19,5 +19,5 @@ export interface SearchValue {
 }
 
 export interface IAddTracks {
-    setTracks: TypeSetState<ITrackItems>
+    setTracks: TypeSetState<ITrackItems>;
 }

@@ -20,21 +20,21 @@ const AUDIO_ITEM_AVATAR = 14
 
 export async function audioSearch(setTracks: TypeSetState<ITrackItems>, value: string) {
     const form = new FormData();
-    form.set('type', 'search')
-    form.set('act', 'load_section')
-    form.set('al', '1')
-    form.set('owner_id', '8902548')
-    form.set('offset', '0')
-    form.set('album_id', '')
-    form.set('search_lyrics', '0')
-    form.set('search_history', '0')
-    form.set('search_sort', '0')
-    form.set('search_performer', '0')
-    form.set('search_q', value)
-    form.set('claim', '0')
+    form.set('type', 'search');
+    form.set('act', 'load_section');
+    form.set('al', '1');
+    form.set('owner_id', '8902548');
+    form.set('offset', '0');
+    form.set('album_id', '');
+    form.set('search_lyrics', '0');
+    form.set('search_history', '0');
+    form.set('search_sort', '0');
+    form.set('search_performer', '0');
+    form.set('search_q', value);
+    form.set('claim', '0');
 
     const iconv = require('iconv-lite');
-    const Buffer = require('buffer/').Buffer
+    const Buffer = require('buffer/').Buffer;
 
     const resp = await fetch('https://vk.com/al_audio.php', {
         method: 'POST',
@@ -44,10 +44,10 @@ export async function audioSearch(setTracks: TypeSetState<ITrackItems>, value: s
         },
     });
 
-    const arrayBuffer = await resp.arrayBuffer()
-    const str = iconv.decode(Buffer.from(arrayBuffer), 'win1251')
-    const data = JSON.parse(str)
-    const tracks: ITrackItem[] = []
+    const arrayBuffer = await resp.arrayBuffer();
+    const str = iconv.decode(Buffer.from(arrayBuffer), 'win1251');
+    const data = JSON.parse(str);
+    const tracks: ITrackItem[] = [];
 
     data.payload[1][0].list.forEach((element: any[]) => {
         tracks.push({
@@ -59,5 +59,5 @@ export async function audioSearch(setTracks: TypeSetState<ITrackItems>, value: s
         })
     });
 
-    setTracks(() => ({ items: tracks }))
+    setTracks(() => ({ items: tracks }));
 }

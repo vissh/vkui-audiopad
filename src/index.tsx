@@ -22,7 +22,7 @@ import { useState } from "react";
 
 
 const App = () => {
-  const [tracks, setTracks] = useState<ITrackItems>({items: []} as ITrackItems)
+  const [tracks, setTracks] = useState<ITrackItems>({items: []} as ITrackItems);
 
   return (
     <ConfigProvider

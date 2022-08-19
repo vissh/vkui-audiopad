@@ -1,10 +1,15 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import { FC } from "react";
 import {
     Avatar,
+    ButtonGroup,
+    Caption,
+    IconButton,
     List,
     RichCell,
     Slider,
+    Subhead,
+    Text,
 } from "@vkontakte/vkui";
 
 import {
@@ -15,6 +20,7 @@ import {
 import "@vkontakte/vkui/dist/vkui.css";
 
 import { ITrackItems } from '../types'
+import { toHHMMSS } from '../utils'
 
 
 export const Tracks: FC<ITrackItems> = ({ items }) => {
@@ -30,9 +36,23 @@ export const Tracks: FC<ITrackItems> = ({ items }) => {
                             overlayMode="dark"
                             mode="image"
                             src={track.image} />}
-                    after={<Icon24MoreHorizontal fill="var(--accent)" />}
+                    after={
+                        <ButtonGroup gap="none">
+                            <IconButton
+                                hasHover={false}
+                                hasActive={false}>
+                                <Caption
+                                    weight={"3"}
+                                    style={{ color: "var(--vkui--color_text_secondary)" }}
+                                >
+                                    {toHHMMSS(track.duration)}
+                                </Caption>
+
+                            </IconButton>
+                            <IconButton hasHover={false}><Icon24MoreHorizontal fill="var(--accent)" /></IconButton>
+                        </ButtonGroup>
+                    }
                     caption={track.title}
-                    afterCaption={toHHMMSS(track.duration)}
                     bottom={
                         <Slider
                             hidden={false}
@@ -45,10 +65,3 @@ export const Tracks: FC<ITrackItems> = ({ items }) => {
         </List>
     );
 };
-
-
-function toHHMMSS(seconds: number): string {
-    let s = new Date(seconds * 1000).toISOString()
-    let result = seconds < 3600 ? s.substring(14, 19) : s.substring(11, 16)
-    return result.startsWith('0') ? result.slice(1, result.length) : result
-}
