@@ -1,4 +1,4 @@
-import { ITrackItem, ITrackItems, TypeSetState } from "../types";
+import { ITrackItem } from "../types";
 
 
 const AUDIO_ITEM_INDEX_ID = 26
@@ -18,7 +18,10 @@ const AUDIO_ITEM_AVATAR = 14
 // const AUDIO_ITEM_INDEX_HASHES = 13
 
 
-export async function audioSearch(setTracks: TypeSetState<ITrackItems>, value: string) {
+export async function audioSearch(
+    value: string,
+    callback: (tracks: ITrackItem[]) => void
+) {
     const form = new FormData();
     form.set('type', 'search');
     form.set('act', 'load_section');
@@ -59,5 +62,5 @@ export async function audioSearch(setTracks: TypeSetState<ITrackItems>, value: s
         })
     });
 
-    setTracks(() => ({ items: tracks }));
+    callback(tracks);
 }

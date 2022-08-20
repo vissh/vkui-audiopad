@@ -1,7 +1,8 @@
+import { ITrackItem } from "../types";
 
 
-export type TypePlaylistState = {
-    items: [],
-    updating: boolean,
+export type TypeCurrentPlaylistState = {
+    tracks: ITrackItem[],
+    loading: boolean,
 }
 

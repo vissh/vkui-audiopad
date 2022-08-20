@@ -17,14 +17,11 @@ import "@vkontakte/vkui/dist/vkui.css";
 
 import { Tracks } from './components/TrackList'
 import { SearchTracks } from './components/SearchTracks'
-import { ITrackItems } from "./types";
-import { useState } from "react";
 import { Provider } from "react-redux";
 import { store } from "./store/store";
 
 
 const App = () => {
-  const [tracks, setTracks] = useState<ITrackItems>({ items: [] } as ITrackItems);
 
   return (
     <ConfigProvider
@@ -37,10 +34,10 @@ const App = () => {
             <SplitLayout>
               <SplitCol>
                 <View activePanel="mytracks">
-                  <Panel id="mytracks">
+                  <Panel id="mytracks" >
                     <Group>
-                      <SearchTracks setTracks={setTracks} />
-                      <Tracks items={tracks.items} />
+                      <SearchTracks />
+                      <Tracks />
                     </Group>
                   </Panel>
                 </View>

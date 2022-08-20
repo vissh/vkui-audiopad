@@ -1,10 +1,10 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { TypePlaylistState } from "./types";
+import { TypeCurrentPlaylistState } from "./types";
 
 
-const initialPlaylistState: TypePlaylistState = {
-    items: [],
-    updating: false,
+const initialPlaylistState: TypeCurrentPlaylistState = {
+    tracks: [],
+    loading: true,
 }
 
 
@@ -13,13 +13,14 @@ export const playlistSlice = createSlice({
     initialState: initialPlaylistState,
     // extraReducers под асинхронные запросы.
     reducers: {
-        setUpdating: (state, action) => {
-            state.updating = action.payload;
+        setLoading: (state) => {
+            state.loading = true;
+            state.tracks = [];
         },
 
         setNewPlaylist: (state, action) => {
-            state.updating = false;
-            state.items = action.payload;
+            state.loading = false;
+            state.tracks = action.payload;
         },
     },
 });
