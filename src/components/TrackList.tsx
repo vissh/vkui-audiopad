@@ -35,7 +35,9 @@ export const Tracks: FC<ITrackItems> = ({ items }) => {
                             overlayIcon={<Icon32PlayCircle width={32} height={32} fill={'white'} />}
                             overlayMode="dark"
                             mode="image"
-                            src={track.image} />}
+                            src={track.image}
+                        />
+                    }
                     after={
                         <ButtonGroup gap="none">
                             <IconButton
@@ -47,7 +49,6 @@ export const Tracks: FC<ITrackItems> = ({ items }) => {
                                 >
                                     {toHHMMSS(track.duration)}
                                 </Caption>
-
                             </IconButton>
                             <IconButton hasHover={false}><Icon24MoreHorizontal fill="var(--accent)" /></IconButton>
                         </ButtonGroup>
@@ -57,7 +58,9 @@ export const Tracks: FC<ITrackItems> = ({ items }) => {
                         <Slider
                             hidden={false}
                             value={Number(position)}
-                            onChange={setPosition} />}
+                            onChange={setPosition}
+                        />
+                    }
                 >
                     {track.artist}
                 </RichCell>
