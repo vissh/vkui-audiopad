@@ -1,27 +1,23 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { FC } from "react";
 import {
     Avatar,
-    Button,
     ButtonGroup,
     Caption,
-    Group,
     IconButton,
     List,
     Panel,
     PanelSpinner,
     Placeholder,
     RichCell,
-    Separator,
     Slider,
 } from "@vkontakte/vkui";
 
 import {
     Icon24MoreHorizontal,
     Icon32PlayCircle,
-    Icon56MentionOutline,
-    Icon56UsersOutline,
-    Icon56SearchOutline,
+    Icon56MusicOutline,
+    Icon28SongOutline,
 } from "@vkontakte/icons"
 
 import "@vkontakte/vkui/dist/vkui.css";
@@ -61,7 +57,9 @@ const Track: FC<TrackProps> = ({ track }) => {
                     overlayMode="dark"
                     mode="image"
                     src={track.image}
-                />
+                >
+                    {track.image ? "" : <Icon28SongOutline />}
+                </Avatar>
             }
             after={
                 <ButtonGroup gap="none">
@@ -81,7 +79,7 @@ const Track: FC<TrackProps> = ({ track }) => {
             caption={track.title}
             bottom={
                 <Slider
-                    hidden={false}
+                    hidden={true}
                     value={Number(position)}
                     onChange={setPosition}
                 />
@@ -96,15 +94,13 @@ const Loading: FC = () => {
     return (
         <Panel>
             <PanelSpinner />
-            <br /><br /><br /><br /><br /><br />
-            <br /><br /><br /><br /><br /><br />
-            <br /><br /><br /><br /><br /><br />
-            <br /><br /><br /><br /><br /><br />
-            <br /><br /><br /><br /><br /><br />
-            <br /><br /><br /><br /><br /><br />
-            <br /><br /><br /><br /><br /><br />
-            <br /><br /><br /><br /><br /><br />
-            <br /><br /><br /><br /><br /><br />
+            <br /><br /><br /><br /><br />
+            <br /><br /><br /><br /><br />
+            <br /><br /><br /><br /><br />
+            <br /><br /><br /><br /><br />
+            <br /><br /><br /><br /><br />
+            <br /><br /><br /><br /><br />
+            <br /><br /><br /><br /><br />
         </Panel>
     );
 };
@@ -112,17 +108,12 @@ const Loading: FC = () => {
 
 const EmptyResult: FC = () => {
     return (
-        <Placeholder icon={<Icon56SearchOutline />}>
-            No tracks found
-            <br /><br /><br /><br /><br /><br />
-            <br /><br /><br /><br /><br /><br />
-            <br /><br /><br /><br /><br /><br />
-            <br /><br /><br /><br /><br /><br />
-            <br /><br /><br /><br /><br /><br />
-            <br /><br /><br /><br /><br /><br />
-            <br /><br /><br /><br /><br /><br />
-            <br /><br /><br /><br /><br /><br />
-            <br /><br /><br /><br /><br /><br />
+        <Placeholder icon={<Icon56MusicOutline />}>
+            По запросу не найдено ни одной аудиозаписи
+            <br /><br /><br /><br /><br />
+            <br /><br /><br /><br /><br />
+            <br /><br /><br /><br /><br />
+            <br /><br /><br /><br /><br />
         </Placeholder>
     );
 };

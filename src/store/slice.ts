@@ -1,4 +1,5 @@
-import { createSlice } from "@reduxjs/toolkit";
+import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { ITrackItem } from "../types";
 import { TypeCurrentPlaylistState } from "./types";
 
 
@@ -18,7 +19,7 @@ export const playlistSlice = createSlice({
             state.tracks = [];
         },
 
-        setNewPlaylist: (state, action) => {
+        setNewPlaylist: (state, action: PayloadAction<ITrackItem[]>) => {
             state.loading = false;
             state.tracks = action.payload;
         },

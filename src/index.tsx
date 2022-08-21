@@ -34,7 +34,7 @@ const App = () => {
             <SplitLayout>
               <SplitCol>
                 <View activePanel="mytracks">
-                  <Panel id="mytracks" >
+                  <Panel id="mytracks">
                     <Group>
                       <SearchTracks />
                       <Tracks />
