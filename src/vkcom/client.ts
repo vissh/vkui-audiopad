@@ -1,27 +1,16 @@
 import { ITrackItem } from "../types";
+import {
+    AUDIO_ITEM_AVATAR,
+    AUDIO_ITEM_INDEX_DURATION,
+    AUDIO_ITEM_INDEX_ID,
+    AUDIO_ITEM_INDEX_PERFORMER,
+    AUDIO_ITEM_INDEX_TITLE
+} from "./constants";
 
 
-const AUDIO_ITEM_INDEX_ID = 26
-const AUDIO_ITEM_INDEX_TITLE = 3
-const AUDIO_ITEM_INDEX_PERFORMER = 4
-const AUDIO_ITEM_INDEX_DURATION = 5
-const AUDIO_ITEM_AVATAR = 14
-// const AUDIO_ITEM_INDEX_OWNER_ID = 1
-// const AUDIO_ITEM_INDEX_URL = 2
-// const AUDIO_ITEM_INDEX_ALBUM_ID = 6
-// const AUDIO_ITEM_INDEX_AUTHOR_ID = 7
-// const AUDIO_ITEM_INDEX_AUTHOR_LINK = 8
-// const AUDIO_ITEM_INDEX_LYRICS = 9
-// const AUDIO_ITEM_INDEX_FLAGS = 10
-// const AUDIO_ITEM_INDEX_CONTEXT = 11
-// const AUDIO_ITEM_INDEX_EXTRA = 12
-// const AUDIO_ITEM_INDEX_HASHES = 13
 
+export async function audioSearch(value: string) {
 
-export async function audioSearch(
-    value: string,
-    callback: (tracks: ITrackItem[]) => void
-) {
     const form = new FormData();
     form.set('type', 'search');
     form.set('act', 'load_section');
@@ -62,8 +51,9 @@ export async function audioSearch(
         })
     });
 
-    callback(tracks);
+    return tracks;
 }
+
 
 
 // https://vk.com/al_audio.php?act=section

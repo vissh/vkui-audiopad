@@ -14,13 +14,15 @@ export const playlistSlice = createSlice({
     initialState: initialPlaylistState,
     // extraReducers под асинхронные запросы.
     reducers: {
-        setLoading: (state) => {
+        loading: (state) => {
             state.loading = true;
-            state.tracks = [];
         },
 
-        setNewPlaylist: (state, action: PayloadAction<ITrackItem[]>) => {
+        loaded: (state) => {
             state.loading = false;
+        },
+
+        setTracks: (state, action: PayloadAction<ITrackItem[]>) => {
             state.tracks = action.payload;
         },
     },

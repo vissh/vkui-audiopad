@@ -1,0 +1,15 @@
+export const AUDIO_ITEM_INDEX_ID = 26
+export const AUDIO_ITEM_INDEX_TITLE = 3
+export const AUDIO_ITEM_INDEX_PERFORMER = 4
+export const AUDIO_ITEM_INDEX_DURATION = 5
+export const AUDIO_ITEM_AVATAR = 14
+export const AUDIO_ITEM_INDEX_OWNER_ID = 1
+export const AUDIO_ITEM_INDEX_URL = 2
+export const AUDIO_ITEM_INDEX_ALBUM_ID = 6
+export const AUDIO_ITEM_INDEX_AUTHOR_ID = 7
+export const AUDIO_ITEM_INDEX_AUTHOR_LINK = 8
+export const AUDIO_ITEM_INDEX_LYRICS = 9
+export const AUDIO_ITEM_INDEX_FLAGS = 10
+export const AUDIO_ITEM_INDEX_CONTEXT = 11
+export const AUDIO_ITEM_INDEX_EXTRA = 12
+export const AUDIO_ITEM_INDEX_HASHES = 13
