@@ -3,8 +3,11 @@ import { FC } from "react";
 import {
     Avatar,
     ButtonGroup,
-    Caption,
+    Group,
+    Header,
+    HorizontalScroll,
     IconButton,
+    Link,
     List,
     Panel,
     PanelSpinner,
@@ -22,23 +25,44 @@ import {
 
 import "@vkontakte/vkui/dist/vkui.css";
 
-import { toHHMMSS } from '../utils'
 import { useTypedSelector } from "../hooks/useTypedSelector";
 import { ITrackItem } from "../types";
+import React from "react";
+import { chunked } from "../utils";
 
 
 export const Tracks: FC = () => {
     const { loading, tracks } = useTypedSelector(state => state.playlist);
 
     return (
-        <List>
-            {loading
-                ? <Loading />
-                : tracks.length
-                    ? tracks.map(track => <Track track={track} />)
-                    : <EmptyResult />
-            }
-        </List>
+        <React.Fragment>
+            {loading ? <Loading /> : tracks.length ? <HorizantalTracks tracks={tracks} /> : <EmptyResult />}
+        </React.Fragment>
+    );
+};
+
+
+type HorizontalTracksProps = {
+    tracks: ITrackItem[];
+};
+
+const HorizantalTracks: FC<HorizontalTracksProps> = ({ tracks }) => {
+    return (
+        <Group
+            mode="plain"
+            header={<Header mode="secondary" aside={<Link>Показать все</Link>}>Недавно прослушанные</Header>}>
+
+            <HorizontalScroll>
+                <div style={{ display: "flex" }}>
+                    {Array.from(chunked(tracks, 3, 6)).map(groupedTracks => (
+                        <List>
+                            {groupedTracks.map(track => <Track track={track} />)}
+                        </List>
+                    ))}
+                </div>
+            </HorizontalScroll>
+
+        </Group>
     );
 };
 
@@ -66,12 +90,6 @@ const Track: FC<TrackProps> = ({ track }) => {
                     <IconButton
                         hasHover={false}
                         hasActive={false}>
-                        <Caption
-                            weight={"3"}
-                            style={{ color: "var(--vkui--color_text_secondary)" }}
-                        >
-                            {toHHMMSS(track.duration)}
-                        </Caption>
                     </IconButton>
                     <IconButton hasHover={false}><Icon24MoreHorizontal fill="var(--accent)" /></IconButton>
                 </ButtonGroup>

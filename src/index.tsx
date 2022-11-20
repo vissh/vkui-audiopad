@@ -25,7 +25,7 @@ import { useState } from "react";
 
 
 const App = () => {
-  const [selected, setSelected] = useState("current-playlist");
+  const [selected, setSelected] = useState("my-music");
 
   return (
     <ConfigProvider
@@ -42,16 +42,6 @@ const App = () => {
                     <PanelHeader>
                       <Tabs>
                         <TabsItem
-                          selected={selected === "current-playlist"}
-                          id="tab-current-playlist"
-                          aria-controls="tab-content-current-playlist"
-                          onClick={() => {
-                            setSelected("current-playlist");
-                          }}
-                        >
-                          Текущий плейлист
-                        </TabsItem>
-                        <TabsItem
                           selected={selected === "my-music"}
                           id="tab-my-music"
                           aria-controls="tab-content-my-music"
@@ -61,28 +51,8 @@ const App = () => {
                         >
                           Моя музыка
                         </TabsItem>
-                        <TabsItem
-                          selected={selected === "recently-played"}
-                          id="tab-recently-played"
-                          aria-controls="tab-content-recently-played"
-                          onClick={() => {
-                            setSelected("recently-played");
-                          }}
-                        >
-                          Недавно прослушанные
-                        </TabsItem>
                       </Tabs>
                     </PanelHeader>
-
-                    <Group
-                      id="tab-content-current-playlist"
-                      aria-labelledby="tab-current-playlist"
-                      role="tabpanel"
-                      hidden={selected !== "current-playlist"}
-                    >
-                      <SearchTracks />
-                      <Tracks />
-                    </Group>
 
                     <Group
                       id="tab-content-my-music"
@@ -90,14 +60,8 @@ const App = () => {
                       role="tabpanel"
                       hidden={selected !== "my-music"}
                     >
-                    </Group>
-
-                    <Group
-                      id="tab-content-recently-played"
-                      aria-labelledby="tab-recently-played"
-                      role="tabpanel"
-                      hidden={selected !== "recently-played"}
-                    >
+                      <SearchTracks />
+                      <Tracks />
                     </Group>
 
                   </Panel>
