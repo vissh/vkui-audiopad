@@ -5,8 +5,8 @@ import { debounceTime, distinctUntilChanged, from, Subject, switchMap, tap } fro
 
 import { Search } from '@vkontakte/vkui';
 
-import { useSearchActions } from '../hooks/useActions';
-import { audioSearch } from '../vkcom/client';
+import { useSearchActions } from '../../hooks/useActions';
+import { audioSearch } from '../../vkcom/client';
 
 export const SearchTracks: FC = () => {
     const { loading, loaded, setTracks } = useSearchActions();

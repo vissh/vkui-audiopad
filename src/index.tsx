@@ -8,11 +8,17 @@ import { useState } from 'react';
 import ReactDOM from 'react-dom';
 import { Provider } from 'react-redux';
 
-import { MyMusic } from './components/MyMusic';
+import { MyMusicPanel } from './components/MyMusicPanel';
+import { SearchPanel } from './components/SearchPanel';
 import { store } from './store/store';
 
 const App = () => {
   const [selected, setSelected] = useState("my-music");
+
+  enum ContentTab {
+    MY_MUSIC = "my-music",
+    SEARCH = "search",
+  }
 
   return (
     <ConfigProvider
@@ -29,7 +35,7 @@ const App = () => {
                     <PanelHeader>
                       <Tabs>
                         <TabsItem
-                          selected={selected === "my-music"}
+                          selected={selected === ContentTab.MY_MUSIC}
                           id="tab-my-music"
                           aria-controls="tab-content-my-music"
                           onClick={() => {
@@ -45,9 +51,18 @@ const App = () => {
                       id="tab-content-my-music"
                       aria-labelledby="tab-my-music"
                       role="tabpanel"
-                      hidden={selected !== "my-music"}
+                      hidden={selected !== ContentTab.MY_MUSIC}
                     >
-                      <MyMusic />
+                      <MyMusicPanel />
+                    </Group>
+
+                    <Group
+                      id="tab-content-search"
+                      aria-labelledby="tab-search"
+                      role="tabpanel"
+                      hidden={selected !== ContentTab.SEARCH}
+                    >
+                      <SearchPanel />
                     </Group>
 
                   </Panel>

@@ -1,8 +1,8 @@
 import { HorizontalScroll } from "@vkontakte/vkui";
 import { FC } from "react";
 
-import { ITrackItem } from "../types";
-import { chunked } from "../utils";
+import { ITrackItem } from "../../types";
+import { chunked } from "../../utils";
 import { TrackList } from "./TrackList";
 
 type HorizontalTracksProps = {

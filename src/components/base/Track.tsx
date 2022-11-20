@@ -9,7 +9,7 @@ import {
     Avatar, ButtonGroup, IconButton, RichCell, Slider
 } from '@vkontakte/vkui';
 
-import { ITrackItem } from '../types';
+import { ITrackItem } from '../../types';
 
 type TrackProps = {
     track: ITrackItem;
