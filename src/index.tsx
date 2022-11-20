@@ -1,28 +1,17 @@
-import ReactDOM from "react-dom";
+import '@vkontakte/vkui/dist/vkui.css';
+
+import { useState } from 'react';
+import ReactDOM from 'react-dom';
+import { Provider } from 'react-redux';
+
 import {
-  AppRoot,
-  SplitLayout,
-  SplitCol,
-  ConfigProvider,
-  AdaptivityProvider,
-  Platform,
-  WebviewType,
-  Panel,
-  Group,
-  View,
-  Tabs,
-  TabsItem,
-  PanelHeader,
-} from "@vkontakte/vkui";
+    AdaptivityProvider, AppRoot, ConfigProvider, Group, Panel, PanelHeader, Platform, SplitCol,
+    SplitLayout, Tabs, TabsItem, View, WebviewType
+} from '@vkontakte/vkui';
 
-import "@vkontakte/vkui/dist/vkui.css";
-
-import { Tracks } from './components/TrackList'
-import { SearchTracks } from './components/SearchTracks'
-import { Provider } from "react-redux";
-import { store } from "./store/store";
-import { useState } from "react";
-
+import { SearchTracks } from './components/SearchTracks';
+import { Tracks } from './components/TrackList';
+import { store } from './store/store';
 
 const App = () => {
   const [selected, setSelected] = useState("my-music");

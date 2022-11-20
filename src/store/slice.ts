@@ -1,7 +1,7 @@
-import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { ITrackItem } from "../types";
-import { TypeCurrentPlaylistState } from "./types";
+import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
+import { ITrackItem } from '../types';
+import { TypeCurrentPlaylistState } from './types';
 
 const initialPlaylistState: TypeCurrentPlaylistState = {
     tracks: [],

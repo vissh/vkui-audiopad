@@ -1,35 +1,18 @@
-import { useState } from "react";
-import { FC } from "react";
-import {
-    Avatar,
-    ButtonGroup,
-    Group,
-    Header,
-    HorizontalScroll,
-    IconButton,
-    Link,
-    List,
-    Panel,
-    PanelSpinner,
-    Placeholder,
-    RichCell,
-    Slider,
-} from "@vkontakte/vkui";
+import '@vkontakte/vkui/dist/vkui.css';
+
+import React, { FC, useState } from 'react';
 
 import {
-    Icon24MoreHorizontal,
-    Icon32PlayCircle,
-    Icon56MusicOutline,
-    Icon28SongOutline,
-} from "@vkontakte/icons"
+    Icon24MoreHorizontal, Icon28SongOutline, Icon32PlayCircle, Icon56MusicOutline
+} from '@vkontakte/icons';
+import {
+    Avatar, ButtonGroup, Group, Header, HorizontalScroll, IconButton, Link, List, Panel,
+    PanelSpinner, Placeholder, RichCell, Slider
+} from '@vkontakte/vkui';
 
-import "@vkontakte/vkui/dist/vkui.css";
-
-import { useTypedSelector } from "../hooks/useTypedSelector";
-import { ITrackItem } from "../types";
-import React from "react";
-import { chunked } from "../utils";
-
+import { useTypedSelector } from '../hooks/useTypedSelector';
+import { ITrackItem } from '../types';
+import { chunked } from '../utils';
 
 export const Tracks: FC = () => {
     const { loading, tracks } = useTypedSelector(state => state.playlist);

@@ -1,6 +1,6 @@
-import { combineReducers, configureStore } from "@reduxjs/toolkit";
-import { playlistSlice } from "./slice";
+import { combineReducers, configureStore } from '@reduxjs/toolkit';
 
+import { playlistSlice } from './slice';
 
 const rootReducer = combineReducers({
     playlist: playlistSlice.reducer,

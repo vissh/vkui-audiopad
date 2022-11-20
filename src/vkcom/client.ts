@@ -1,13 +1,9 @@
-import { ITrackItem } from "../types";
+import { ITrackItem } from '../types';
 import {
-    AUDIO_ITEM_AVATAR,
-    AUDIO_ITEM_INDEX_DURATION,
-    AUDIO_ITEM_INDEX_ID,
-    AUDIO_ITEM_INDEX_PERFORMER,
+    AUDIO_ITEM_AVATAR, AUDIO_ITEM_INDEX_DURATION, AUDIO_ITEM_INDEX_ID, AUDIO_ITEM_INDEX_PERFORMER,
     AUDIO_ITEM_INDEX_TITLE
-} from "./constants";
-import { vkFetch } from "./utils";
-
+} from './constants';
+import { vkFetch } from './utils';
 
 export async function userAccessToken() {
 

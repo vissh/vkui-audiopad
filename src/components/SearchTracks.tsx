@@ -1,19 +1,12 @@
-import { FC } from "react";
-import { Search } from "@vkontakte/vkui";
-import {
-    Subject,
-    debounceTime,
-    switchMap,
-    distinctUntilChanged,
-    tap,
-    from
-} from "rxjs"
+import '@vkontakte/vkui/dist/vkui.css';
 
-import "@vkontakte/vkui/dist/vkui.css";
+import { FC } from 'react';
+import { debounceTime, distinctUntilChanged, from, Subject, switchMap, tap } from 'rxjs';
 
-import { audioSearch } from "../vkcom/client";
-import { useCurrentPlaylistActions } from "../hooks/useActions";
+import { Search } from '@vkontakte/vkui';
 
+import { useCurrentPlaylistActions } from '../hooks/useActions';
+import { audioSearch } from '../vkcom/client';
 
 export const SearchTracks: FC = () => {
     const { loading, loaded, setTracks } = useCurrentPlaylistActions();
