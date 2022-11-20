@@ -6,54 +6,63 @@ import {
     AUDIO_ITEM_INDEX_PERFORMER,
     AUDIO_ITEM_INDEX_TITLE
 } from "./constants";
+import { vkFetch } from "./utils";
 
+
+export async function userAccessToken() {
+
+}
+
+
+export async function myAudioPlaylists(ownerId: string) {
+    // Возвращает плейлисты "Недавно прослушанные" и "Моя музыка".
+
+    const data = await vkFetch('https://vk.com/al_audio.php?act=section',
+        {
+            act: 'section',
+            al: '1',
+            claim: '0',
+            is_layer: '0',
+            owner_id: '8902548',
+            section: 'all',
+        });
+
+    return data
+}
 
 
 export async function audioSearch(value: string) {
 
-    const form = new FormData();
-    form.set('type', 'search');
-    form.set('act', 'load_section');
-    form.set('al', '1');
-    form.set('owner_id', '8902548');
-    form.set('offset', '0');
-    form.set('album_id', '');
-    form.set('search_lyrics', '0');
-    form.set('search_history', '0');
-    form.set('search_sort', '0');
-    form.set('search_performer', '0');
-    form.set('search_q', value);
-    form.set('claim', '0');
+    const parsedData = await vkFetch('https://vk.com/al_audio.php',
+        {
+            type: 'search',
+            act: 'load_section',
+            al: '1',
+            owner_id: '8902548',
+            offset: '0',
+            album_id: '',
+            search_lyrics: '0',
+            search_history: '0',
+            search_sort: '0',
+            search_performer: '0',
+            search_q: value,
+            claim: '0',
+        });
 
-    const iconv = require('iconv-lite');
-    const Buffer = require('buffer/').Buffer;
+    const playlist: any[][] = parsedData.payload[1][0].list
 
-    const resp = await fetch('https://vk.com/al_audio.php', {
-        method: 'POST',
-        body: form,
-        headers: {
-            'x-requested-with': 'XMLHttpRequest',
-        },
-    });
-
-    const arrayBuffer = await resp.arrayBuffer();
-    const str = iconv.decode(Buffer.from(arrayBuffer), 'win1251');
-    const data = JSON.parse(str);
-    const tracks: ITrackItem[] = [];
-
-    data.payload[1][0].list.forEach((element: any[]) => {
-        tracks.push({
-            id: element[AUDIO_ITEM_INDEX_ID],
-            image: element[AUDIO_ITEM_AVATAR].split(',')[0],
-            artist: element[AUDIO_ITEM_INDEX_TITLE],
-            title: element[AUDIO_ITEM_INDEX_PERFORMER],
-            duration: element[AUDIO_ITEM_INDEX_DURATION],
-        })
+    const tracks: ITrackItem[] = playlist.map((trackIfno: any[]) => {
+        return {
+            id: trackIfno[AUDIO_ITEM_INDEX_ID],
+            image: trackIfno[AUDIO_ITEM_AVATAR].split(',')[0],
+            artist: trackIfno[AUDIO_ITEM_INDEX_TITLE],
+            title: trackIfno[AUDIO_ITEM_INDEX_PERFORMER],
+            duration: trackIfno[AUDIO_ITEM_INDEX_DURATION],
+        }
     });
 
     return tracks;
 }
-
 
 
 // https://vk.com/al_audio.php?act=section
@@ -67,3 +76,10 @@ export async function audioSearch(value: string) {
 // https://vk.com/al_audio.php?act=load_catalog_section
 // al=1&section_id=PUldVA8FR0RzSVNUUEwbCikZDFQZFlJEfFpFVA0WUV5_W1tDAQwW&start_from=PUlYVA8AFg
 // section_id и start_from брать из explore payload.1.1.sectionId, next_from
+
+
+
+// https://login.vk.com/?act=web_token
+// version	"1"
+// app_id	"7598768"
+// access_token	""

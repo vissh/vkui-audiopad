@@ -84,23 +84,21 @@ const App = () => {
                       <Tracks />
                     </Group>
 
-                    {selected === "my-music" && (
-                      <Group
-                        id="tab-content-my-music"
-                        aria-labelledby="tab-my-music"
-                        role="tabpanel"
-                      >
-                      </Group>
-                    )}
+                    <Group
+                      id="tab-content-my-music"
+                      aria-labelledby="tab-my-music"
+                      role="tabpanel"
+                      hidden={selected !== "my-music"}
+                    >
+                    </Group>
 
-                    {selected === "recently-played" && (
-                      <Group
-                        id="tab-content-recently-played"
-                        aria-labelledby="tab-recently-played"
-                        role="tabpanel"
-                      >
-                      </Group>
-                    )}
+                    <Group
+                      id="tab-content-recently-played"
+                      aria-labelledby="tab-recently-played"
+                      role="tabpanel"
+                      hidden={selected !== "recently-played"}
+                    >
+                    </Group>
 
                   </Panel>
                 </View>
