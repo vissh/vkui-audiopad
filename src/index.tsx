@@ -1,16 +1,14 @@
 import '@vkontakte/vkui/dist/vkui.css';
 
+import {
+  AdaptivityProvider, AppRoot, ConfigProvider, Group, Panel, PanelHeader, Platform, SplitCol,
+  SplitLayout, Tabs, TabsItem, View, WebviewType
+} from '@vkontakte/vkui';
 import { useState } from 'react';
 import ReactDOM from 'react-dom';
 import { Provider } from 'react-redux';
 
-import {
-    AdaptivityProvider, AppRoot, ConfigProvider, Group, Panel, PanelHeader, Platform, SplitCol,
-    SplitLayout, Tabs, TabsItem, View, WebviewType
-} from '@vkontakte/vkui';
-
-import { SearchTracks } from './components/SearchTracks';
-import { Tracks } from './components/TrackList';
+import { MyMusic } from './components/MyMusic';
 import { store } from './store/store';
 
 const App = () => {
@@ -49,8 +47,7 @@ const App = () => {
                       role="tabpanel"
                       hidden={selected !== "my-music"}
                     >
-                      <SearchTracks />
-                      <Tracks />
+                      <MyMusic />
                     </Group>
 
                   </Panel>
