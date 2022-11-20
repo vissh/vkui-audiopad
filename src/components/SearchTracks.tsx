@@ -5,16 +5,16 @@ import { debounceTime, distinctUntilChanged, from, Subject, switchMap, tap } fro
 
 import { Search } from '@vkontakte/vkui';
 
-import { useCurrentPlaylistActions } from '../hooks/useActions';
+import { useSearchActions } from '../hooks/useActions';
 import { audioSearch } from '../vkcom/client';
 
 export const SearchTracks: FC = () => {
-    const { loading, loaded, setTracks } = useCurrentPlaylistActions();
+    const { loading, loaded, setTracks } = useSearchActions();
 
     const inputStream$ = new Subject();
     inputStream$
         .pipe(
-            debounceTime(600),
+            debounceTime(500),
             distinctUntilChanged(),
             tap(loading),
             switchMap(value => from(audioSearch(value as string))),

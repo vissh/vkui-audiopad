@@ -1,7 +1,13 @@
 import { ITrackItem } from '../types';
 
-export type TypeCurrentPlaylistState = {
-    tracks: ITrackItem[],
+export type TypeMyMusicState = {
     loading: boolean,
+    recentlyPlayed: ITrackItem[],
+    myTracks: ITrackItem[],
 }
 
+export type TypeSearchState = {
+    loading: boolean,
+    searchValue: string,
+    tracks: ITrackItem[],
+}

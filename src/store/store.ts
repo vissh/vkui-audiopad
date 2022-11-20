@@ -1,15 +1,14 @@
 import { combineReducers, configureStore } from '@reduxjs/toolkit';
 
-import { playlistSlice } from './slice';
+import { myMusicSlice, searchSlice } from './slice';
 
 const rootReducer = combineReducers({
-    playlist: playlistSlice.reducer,
+    mymusic: myMusicSlice.reducer,
+    search: searchSlice.reducer,
 });
-
 
 export const store = configureStore({
     reducer: rootReducer,
 });
-
 
 export type TypeRootState = ReturnType<typeof rootReducer>;

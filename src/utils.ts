@@ -19,7 +19,7 @@ export function* chunked(arr: any[], size: number, limit?: number) {
 
         counter++;
 
-        if (limit && counter == limit) {
+        if (limit && counter === limit) {
             break;
         }
 

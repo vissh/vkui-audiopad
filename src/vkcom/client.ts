@@ -1,6 +1,6 @@
 import { ITrackItem } from '../types';
 import {
-    AUDIO_ITEM_AVATAR, AUDIO_ITEM_INDEX_DURATION, AUDIO_ITEM_INDEX_ID, AUDIO_ITEM_INDEX_PERFORMER,
+    AUDIO_ITEM_AVATAR, AUDIO_ITEM_INDEX_CONTEXT, AUDIO_ITEM_INDEX_DURATION, AUDIO_ITEM_INDEX_ID, AUDIO_ITEM_INDEX_PERFORMER,
     AUDIO_ITEM_INDEX_TITLE
 } from './constants';
 import { vkFetch } from './utils';
@@ -10,10 +10,10 @@ export async function userAccessToken() {
 }
 
 
-export async function myAudioPlaylists(ownerId: string) {
+export async function fetchMyMusic(ownerId?: string) {
     // Возвращает плейлисты "Недавно прослушанные" и "Моя музыка".
 
-    const data = await vkFetch('https://vk.com/al_audio.php?act=section',
+    const parsedData = await vkFetch('https://vk.com/al_audio.php?act=section',
         {
             act: 'section',
             al: '1',
@@ -23,7 +23,22 @@ export async function myAudioPlaylists(ownerId: string) {
             section: 'all',
         });
 
-    return data
+    const playlists: any[] = parsedData.payload[1][1].playlists;
+
+    let recentAudios: ITrackItem[] = [];
+    let myAudios: ITrackItem[] = [];
+
+    playlists.forEach(playlist => {
+        if (playlist.list[0][AUDIO_ITEM_INDEX_CONTEXT] === 'my:recent_audios') {
+            recentAudios = toTracksItems(playlist.list);
+        } else if (playlist.list[0][AUDIO_ITEM_INDEX_CONTEXT] === 'my:my_audios') {
+            myAudios = toTracksItems(playlist.list);
+        } else if (!myAudios.length) {
+            myAudios = toTracksItems(playlist.list);
+        }
+    });
+
+    return [recentAudios, myAudios];
 }
 
 
@@ -45,19 +60,20 @@ export async function audioSearch(value: string) {
             claim: '0',
         });
 
-    const playlist: any[][] = parsedData.payload[1][0].list
+    return toTracksItems(parsedData.payload[1][0].list);
+}
 
-    const tracks: ITrackItem[] = playlist.map((trackIfno: any[]) => {
+
+function toTracksItems(arr: any[]): ITrackItem[] {
+    return arr.map(trackInfo => {
         return {
-            id: trackIfno[AUDIO_ITEM_INDEX_ID],
-            image: trackIfno[AUDIO_ITEM_AVATAR].split(',')[0],
-            artist: trackIfno[AUDIO_ITEM_INDEX_TITLE],
-            title: trackIfno[AUDIO_ITEM_INDEX_PERFORMER],
-            duration: trackIfno[AUDIO_ITEM_INDEX_DURATION],
+            id: trackInfo[AUDIO_ITEM_INDEX_ID],
+            image: trackInfo[AUDIO_ITEM_AVATAR].split(',')[0],
+            artist: trackInfo[AUDIO_ITEM_INDEX_TITLE],
+            title: trackInfo[AUDIO_ITEM_INDEX_PERFORMER],
+            duration: trackInfo[AUDIO_ITEM_INDEX_DURATION],
         }
     });
-
-    return tracks;
 }
 
 
