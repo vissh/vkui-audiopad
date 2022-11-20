@@ -1,7 +1,7 @@
 import '@vkontakte/vkui/dist/vkui.css';
 
 import { Icon56MusicOutline } from '@vkontakte/icons';
-import { Group, Header, Link, List, Panel, PanelSpinner, Placeholder } from '@vkontakte/vkui';
+import { Group, Header, Link, Panel, PanelSpinner, Placeholder } from '@vkontakte/vkui';
 import React, { FC, useEffect } from 'react';
 
 import { from, switchMap, tap } from 'rxjs';
@@ -11,7 +11,7 @@ import { ITrackItem } from '../types';
 import { fetchMyMusic } from '../vkcom/client';
 import { HorizantalTracks } from './HorizantalTracksList';
 import { SearchTracks } from './SearchTracks';
-import { Track } from './Track';
+import { TrackList } from './TrackList';
 
 
 export const MyMusic: FC = () => {
@@ -34,7 +34,7 @@ export const MyMusic: FC = () => {
                 setRecentlyPlayed(recentAudios);
                 setMyTracks(myAudios);
             });
-
+        // eslint-disable-next-line
     }, []);
 
     return (
@@ -58,9 +58,7 @@ export const MyMusic: FC = () => {
                             header={<Header mode="secondary">Треки</Header>}
                             hidden={!myTracks.length}
                         >
-                            <List>
-                                {myTracks.map(track => <Track track={track} />)}
-                            </List>
+                            <TrackList tracks={myTracks} />
                         </Group>
 
                     </React.Fragment>
