@@ -1,3 +1,5 @@
+import { decode } from "html-entities";
+
 import { ITrackItem } from '../types';
 import {
     AUDIO_ITEM_AVATAR, AUDIO_ITEM_INDEX_CONTEXT, AUDIO_ITEM_INDEX_DURATION, AUDIO_ITEM_INDEX_ID, AUDIO_ITEM_INDEX_PERFORMER,
@@ -69,8 +71,8 @@ function toTracksItems(arr: any[]): ITrackItem[] {
         return {
             id: trackInfo[AUDIO_ITEM_INDEX_ID],
             image: trackInfo[AUDIO_ITEM_AVATAR].split(',')[0],
-            artist: trackInfo[AUDIO_ITEM_INDEX_TITLE],
-            title: trackInfo[AUDIO_ITEM_INDEX_PERFORMER],
+            artist: decode(trackInfo[AUDIO_ITEM_INDEX_TITLE]),
+            title: decode(trackInfo[AUDIO_ITEM_INDEX_PERFORMER]),
             duration: trackInfo[AUDIO_ITEM_INDEX_DURATION],
         }
     });

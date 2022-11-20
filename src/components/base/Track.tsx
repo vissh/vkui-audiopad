@@ -1,13 +1,12 @@
 import '@vkontakte/vkui/dist/vkui.css';
 
-import { FC, useState } from 'react';
-
 import {
     Icon24MoreHorizontal, Icon28SongOutline, Icon32PlayCircle
 } from '@vkontakte/icons';
 import {
     Avatar, ButtonGroup, IconButton, RichCell, Slider
 } from '@vkontakte/vkui';
+import { FC, useState } from 'react';
 
 import { ITrackItem } from '../../types';
 

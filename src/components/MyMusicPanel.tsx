@@ -3,8 +3,8 @@ import '@vkontakte/vkui/dist/vkui.css';
 import { Icon56MusicOutline } from '@vkontakte/icons';
 import { Group, Header, Link, Panel, PanelSpinner, Placeholder } from '@vkontakte/vkui';
 import React, { FC, useEffect } from 'react';
-
 import { from, tap } from 'rxjs';
+
 import { useMyMusicActions } from '../hooks/useActions';
 import { useTypedSelector } from '../hooks/useTypedSelector';
 import { ITrackItem } from '../types';
