@@ -1,6 +1,6 @@
-import { combineReducers, configureStore } from '@reduxjs/toolkit';
+import { combineReducers, configureStore } from "@reduxjs/toolkit";
 
-import { myMusicSlice, searchSlice } from './slice';
+import { myMusicSlice, searchSlice } from "./slice";
 
 const rootReducer = combineReducers({
     mymusic: myMusicSlice.reducer,

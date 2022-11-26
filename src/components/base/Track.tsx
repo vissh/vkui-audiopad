@@ -1,27 +1,27 @@
-import '@vkontakte/vkui/dist/vkui.css';
-
 import {
     Icon24MoreHorizontal, Icon28SongOutline, Icon32PlayCircle
-} from '@vkontakte/icons';
+} from "@vkontakte/icons";
 import {
     Avatar, ButtonGroup, IconButton, RichCell, Slider
-} from '@vkontakte/vkui';
-import { FC, useState } from 'react';
+} from "@vkontakte/vkui";
+import "@vkontakte/vkui/dist/vkui.css";
+import { FC, useState } from "react";
 
-import { ITrackItem } from '../../types';
+import { ITrackItem } from "../../types";
 
 type TrackProps = {
     track: ITrackItem;
+    cutText: boolean;
 };
 
-export const Track: FC<TrackProps> = ({ track }) => {
+export const Track: FC<TrackProps> = ({ track, cutText }) => {
     const [position, setPosition] = useState(24.4234);
 
     return (
         <RichCell
             before={
                 <Avatar
-                    overlayIcon={<Icon32PlayCircle width={32} height={32} fill={'white'} />}
+                    overlayIcon={<Icon32PlayCircle width={32} height={32} fill={"white"} />}
                     overlayMode="dark"
                     mode="image"
                     src={track.image}
@@ -38,16 +38,22 @@ export const Track: FC<TrackProps> = ({ track }) => {
                     <IconButton hasHover={false}><Icon24MoreHorizontal fill="var(--accent)" /></IconButton>
                 </ButtonGroup>
             }
-            caption={track.title}
-            bottom={
+            // caption={
+            //     <span style={{ display: "inline-block", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", maxWidth: "21ch" }}>
+            //         {track.title}
+            //     </span>
+            // }
+            text={
                 <Slider
-                    hidden={true}
+                    hidden={false}
                     value={Number(position)}
                     onChange={setPosition}
                 />
             }
         >
-            {track.artist}
+            <span style={{ display: "inline-block", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", maxWidth: "21ch" }}>
+                {track.artist}
+            </span>
         </RichCell>
     );
 };

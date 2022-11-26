@@ -1,25 +1,18 @@
-import '@vkontakte/vkui/dist/vkui.css';
+import "@vkontakte/vkui/dist/vkui.css";
 
 import {
   AdaptivityProvider, AppRoot, ConfigProvider, Group, Panel, PanelHeader, Platform, SplitCol,
-  SplitLayout, Tabs, TabsItem, View, WebviewType
-} from '@vkontakte/vkui';
-import { useState } from 'react';
-import ReactDOM from 'react-dom';
-import { Provider } from 'react-redux';
+  SplitLayout, View, WebviewType
+} from "@vkontakte/vkui";
+import ReactDOM from "react-dom";
+import { Provider } from "react-redux";
 
-import { MyMusicPanel } from './components/MyMusicPanel';
-import { SearchPanel } from './components/SearchPanel';
-import { store } from './store/store';
+import { AudioControls } from "./components/AudioControls";
+import { SearchTracks } from "./components/base/SearchTracks";
+import { ContentPanel } from "./components/ContentPanel";
+import { store } from "./store/store";
 
 const App = () => {
-  const [selected, setSelected] = useState("my-music");
-
-  enum ContentTab {
-    MY_MUSIC = "my-music",
-    SEARCH = "search",
-  }
-
   return (
     <ConfigProvider
       platform={Platform.ANDROID}
@@ -33,38 +26,12 @@ const App = () => {
                 <View activePanel="vkaudiopad">
                   <Panel id="vkaudiopad">
                     <PanelHeader>
-                      <Tabs>
-                        <TabsItem
-                          selected={selected === ContentTab.MY_MUSIC}
-                          id="tab-my-music"
-                          aria-controls="tab-content-my-music"
-                          onClick={() => {
-                            setSelected("my-music");
-                          }}
-                        >
-                          Моя музыка
-                        </TabsItem>
-                      </Tabs>
+                      <AudioControls />
                     </PanelHeader>
-
-                    <Group
-                      id="tab-content-my-music"
-                      aria-labelledby="tab-my-music"
-                      role="tabpanel"
-                      hidden={selected !== ContentTab.MY_MUSIC}
-                    >
-                      <MyMusicPanel />
+                    <Group>
+                      <SearchTracks />
+                      <ContentPanel />
                     </Group>
-
-                    <Group
-                      id="tab-content-search"
-                      aria-labelledby="tab-search"
-                      role="tabpanel"
-                      hidden={selected !== ContentTab.SEARCH}
-                    >
-                      <SearchPanel />
-                    </Group>
-
                   </Panel>
                 </View>
               </SplitCol>

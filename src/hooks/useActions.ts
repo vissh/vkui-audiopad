@@ -1,7 +1,7 @@
-import { bindActionCreators } from '@reduxjs/toolkit';
-import { useDispatch } from 'react-redux';
+import { bindActionCreators } from "@reduxjs/toolkit";
+import { useDispatch } from "react-redux";
 
-import { myMusicSlice, searchSlice } from '../store/slice';
+import { myMusicSlice, searchSlice } from "../store/slice";
 
 export const useMyMusicActions = () => {
     const dispatch = useDispatch();

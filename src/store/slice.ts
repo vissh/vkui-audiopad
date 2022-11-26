@@ -1,7 +1,7 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
-import { ITrackItem } from '../types';
-import { TypeMyMusicState, TypeSearchState } from './types';
+import { ITrackItem } from "../types";
+import { TypeMyMusicState, TypeSearchState } from "./types";
 
 const initialMyMusicState: TypeMyMusicState = {
     loading: true,
@@ -12,12 +12,12 @@ const initialMyMusicState: TypeMyMusicState = {
 const initialSearchState: TypeSearchState = {
     loading: false,
     tracks: [],
-    searchValue: '',
+    searchValue: "",
 }
 
 
 export const myMusicSlice = createSlice({
-    name: 'mymusic',
+    name: "mymusic",
     initialState: initialMyMusicState,
     // extraReducers под асинхронные запросы.
     reducers: {
@@ -41,7 +41,7 @@ export const myMusicSlice = createSlice({
 
 
 export const searchSlice = createSlice({
-    name: 'search',
+    name: "search",
     initialState: initialSearchState,
     reducers: {
         loading: (state) => {

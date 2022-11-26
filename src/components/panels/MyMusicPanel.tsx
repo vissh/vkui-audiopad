@@ -1,17 +1,16 @@
-import '@vkontakte/vkui/dist/vkui.css';
+import "@vkontakte/vkui/dist/vkui.css";
 
-import { Icon56MusicOutline } from '@vkontakte/icons';
-import { Group, Header, Link, Panel, PanelSpinner, Placeholder } from '@vkontakte/vkui';
-import React, { FC, useEffect } from 'react';
-import { from, tap } from 'rxjs';
+import { Icon56MusicOutline } from "@vkontakte/icons";
+import { Group, Header, Link, Panel, PanelSpinner, Placeholder } from "@vkontakte/vkui";
+import React, { FC, useEffect } from "react";
+import { from, tap } from "rxjs";
 
-import { useMyMusicActions } from '../hooks/useActions';
-import { useTypedSelector } from '../hooks/useTypedSelector';
-import { ITrackItem } from '../types';
-import { fetchMyMusic } from '../vkcom/client';
-import { HorizantalTracks } from './base/HorizantalTracksList';
-import { SearchTracks } from './base/SearchTracks';
-import { TrackList } from './base/TrackList';
+import { useMyMusicActions } from "../../hooks/useActions";
+import { useTypedSelector } from "../../hooks/useTypedSelector";
+import { ITrackItem } from "../../types";
+import { fetchMyMusic } from "../../vkcom/client";
+import { HorizantalTracks } from "../base/HorizantalTracksList";
+import { TrackList } from "../base/TrackList";
 
 
 export const MyMusicPanel: FC = () => {
@@ -34,7 +33,6 @@ export const MyMusicPanel: FC = () => {
 
     return (
         <React.Fragment>
-            <SearchTracks />
             {loading
                 ? <Loading />
                 : recentlyPlayed.length || myTracks.length
@@ -42,7 +40,11 @@ export const MyMusicPanel: FC = () => {
 
                         <Group
                             mode="plain"
-                            header={<Header mode="secondary" aside={<Link>Показать все</Link>}>Недавно прослушанные</Header>}
+                            header={<Header
+                                mode="secondary"
+                                aside={<Link>Показать все</Link>}>
+                                Недавно прослушанные
+                            </Header>}
                             hidden={!recentlyPlayed.length}
                         >
                             <HorizantalTracks tracks={recentlyPlayed} groupElementCount={3} groupLimit={6} />
@@ -53,7 +55,7 @@ export const MyMusicPanel: FC = () => {
                             header={<Header mode="secondary">Треки</Header>}
                             hidden={!myTracks.length}
                         >
-                            <TrackList tracks={myTracks} />
+                            <TrackList tracks={myTracks} cutText={false} />
                         </Group>
 
                     </React.Fragment>
@@ -68,6 +70,7 @@ const Loading: FC = () => {
     return (
         <Panel>
             <PanelSpinner />
+            {/* TODO: Когда-нибудь, но не сейчас. */}
             <br /><br /><br /><br /><br />
             <br /><br /><br /><br /><br />
             <br /><br /><br /><br /><br />
@@ -84,6 +87,7 @@ const EmptyResult: FC = () => {
     return (
         <Placeholder icon={<Icon56MusicOutline />}>
             По запросу не найдено ни одной аудиозаписи
+            {/* TODO: Когда-нибудь, но не сейчас. */}
             <br /><br /><br /><br /><br />
             <br /><br /><br /><br /><br />
             <br /><br /><br /><br /><br />

@@ -19,7 +19,7 @@ export const HorizantalTracks: FC<HorizontalTracksProps> = ({ tracks, groupEleme
         <HorizontalScroll>
             <div style={{ display: "flex" }}>
                 {columnsTracks.map(columnTracks => (
-                    <TrackList tracks={columnTracks} />
+                    <TrackList tracks={columnTracks} cutText={true} />
                 ))}
             </div>
         </HorizontalScroll>
