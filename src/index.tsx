@@ -1,14 +1,13 @@
 import "@vkontakte/vkui/dist/vkui.css";
 
 import {
-  AdaptivityProvider, AppRoot, ConfigProvider, Group, Panel, PanelHeader, Platform, SplitCol,
+  AdaptivityProvider, AppRoot, ConfigProvider, Panel, Platform, SplitCol,
   SplitLayout, View, WebviewType
 } from "@vkontakte/vkui";
 import ReactDOM from "react-dom";
 import { Provider } from "react-redux";
 
 import { AudioControls } from "./components/AudioControls";
-import { SearchTracks } from "./components/base/SearchTracks";
 import { ContentPanel } from "./components/ContentPanel";
 import { store } from "./store/store";
 
@@ -25,13 +24,8 @@ const App = () => {
               <SplitCol>
                 <View activePanel="vkaudiopad">
                   <Panel id="vkaudiopad">
-                    <PanelHeader>
-                      <AudioControls />
-                    </PanelHeader>
-                    <Group>
-                      <SearchTracks />
-                      <ContentPanel />
-                    </Group>
+                    <AudioControls />
+                    <ContentPanel />
                   </Panel>
                 </View>
               </SplitCol>

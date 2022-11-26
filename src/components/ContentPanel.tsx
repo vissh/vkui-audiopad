@@ -1,11 +1,14 @@
 import { Group, Tabs, TabsItem } from "@vkontakte/vkui";
-import React, { FC, useState } from "react";
+import { FC, useState } from "react";
 
+import { SearchTracks } from "./base/SearchTracks";
 import { MyMusicPanel } from "./panels/MyMusicPanel";
 
 enum ContentTab {
+    CURRENT_PLAYLIST = "current-playlist",
     GENERAL = "general",
     MY_MUSIC = "my-music",
+    EXPLORE = "explore",
     SEARCH = "search",
 };
 
@@ -13,8 +16,18 @@ export const ContentPanel: FC = () => {
     const [selected, setSelected] = useState("my-music");
 
     return (
-        <React.Fragment>
+        <Group>
             <Tabs>
+                <TabsItem
+                    selected={selected === ContentTab.CURRENT_PLAYLIST}
+                    id="tab-current-playlist"
+                    aria-controls="tab-content-current-playlist"
+                    onClick={() => {
+                        setSelected(ContentTab.CURRENT_PLAYLIST);
+                    }}
+                >
+                    Текущий плейлист
+                </TabsItem>
 
                 <TabsItem
                     selected={selected === ContentTab.GENERAL}
@@ -38,6 +51,17 @@ export const ContentPanel: FC = () => {
                     Моя музыка
                 </TabsItem>
 
+                <TabsItem
+                    selected={selected === ContentTab.EXPLORE}
+                    id="tab-explore"
+                    aria-controls="tab-content-explore"
+                    onClick={() => {
+                        setSelected(ContentTab.EXPLORE);
+                    }}
+                >
+                    Обзор
+                </TabsItem>
+
             </Tabs>
 
             <Group
@@ -47,6 +71,7 @@ export const ContentPanel: FC = () => {
                 mode="plain"
                 hidden={selected !== ContentTab.MY_MUSIC}
             >
+                <SearchTracks />
                 <MyMusicPanel />
             </Group>
 
@@ -58,6 +83,6 @@ export const ContentPanel: FC = () => {
                 hidden={selected !== ContentTab.SEARCH}
             >
             </Group>
-        </React.Fragment>
+        </Group>
     );
 };

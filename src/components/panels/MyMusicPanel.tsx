@@ -40,11 +40,7 @@ export const MyMusicPanel: FC = () => {
 
                         <Group
                             mode="plain"
-                            header={<Header
-                                mode="secondary"
-                                aside={<Link>Показать все</Link>}>
-                                Недавно прослушанные
-                            </Header>}
+                            header={<Header mode="secondary" aside={<Link>Показать все</Link>}>Недавно прослушанные</Header>}
                             hidden={!recentlyPlayed.length}
                         >
                             <HorizantalTracks tracks={recentlyPlayed} groupElementCount={3} groupLimit={6} />
