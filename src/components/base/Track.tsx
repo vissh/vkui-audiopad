@@ -2,10 +2,10 @@ import {
     Icon24MoreHorizontal, Icon28SongOutline, Icon32PlayCircle
 } from "@vkontakte/icons";
 import {
-    Avatar, ButtonGroup, IconButton, RichCell, Slider
+    Avatar, ButtonGroup, IconButton, RichCell
 } from "@vkontakte/vkui";
 import "@vkontakte/vkui/dist/vkui.css";
-import { FC, useState } from "react";
+import { FC } from "react";
 
 import { ITrackItem } from "../../types";
 
@@ -15,8 +15,6 @@ type TrackProps = {
 };
 
 export const Track: FC<TrackProps> = ({ track, cutText }) => {
-    const [position, setPosition] = useState(24.4234);
-
     return (
         <RichCell
             before={
@@ -38,20 +36,13 @@ export const Track: FC<TrackProps> = ({ track, cutText }) => {
                     <IconButton hasHover={false}><Icon24MoreHorizontal fill="var(--accent)" /></IconButton>
                 </ButtonGroup>
             }
-            // caption={
-            //     <span style={{ display: "inline-block", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", maxWidth: "21ch" }}>
-            //         {track.title}
-            //     </span>
-            // }
-            text={
-                <Slider
-                    hidden={false}
-                    value={Number(position)}
-                    onChange={setPosition}
-                />
+            caption={
+                <span style={{ display: "inline-block", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", maxWidth: "32ch" }}>
+                    {track.title}
+                </span>
             }
         >
-            <span style={{ display: "inline-block", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", maxWidth: "21ch" }}>
+            <span style={{ display: "inline-block", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", maxWidth: "32ch" }}>
                 {track.artist}
             </span>
         </RichCell>
