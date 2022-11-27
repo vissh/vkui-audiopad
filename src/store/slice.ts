@@ -52,11 +52,11 @@ export const myMusicSlice = createSlice({
 });
 
 export const fetchMyAudios = createAsyncThunk(
-    'vk/fetchMyAudios',
+    "vk/fetchMyAudios",
     async () => await fetchMyMusicSection()
 );
 
 export const fetchGeneral = createAsyncThunk(
-    'vk/fetchGeneral',
+    "vk/fetchGeneral",
     async () => await fetchGeneralSection()
 );

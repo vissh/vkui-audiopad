@@ -1,4 +1,4 @@
-import { Icon28PauseCircle, Icon28PlayCircle, Icon28SkipNext, Icon28SkipPrevious } from '@vkontakte/icons';
+import { Icon28PauseCircle, Icon28PlayCircle, Icon28SkipNext, Icon28SkipPrevious } from "@vkontakte/icons";
 import { Avatar, IconButton, PanelHeader, SimpleCell } from "@vkontakte/vkui";
 import React, { FC } from "react";
 

@@ -1,4 +1,4 @@
-import { ContentTab, ICoverPlaylist, ITrackItem } from '../types';
+import { ContentTab, ICoverPlaylist, ITrackItem } from "../types";
 
 export type TypeTabState = {
     selectedTab: ContentTab,
