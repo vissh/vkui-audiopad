@@ -5,26 +5,23 @@ import { Group, Header, Link, Panel, PanelSpinner, Placeholder } from "@vkontakt
 import React, { FC, useEffect, useState } from "react";
 import { from, tap } from "rxjs";
 
-import { ITrackItem, MyMusicFetchData } from "../../types";
-import { fetchMyMusicSection } from "../../vkcom/client";
+import { GeneralFetchData, ITrackItem } from "../../types";
+import { fetchGeneralSection } from "../../vkcom/client";
 import { HorizantalTracks } from "../base/HorizantalTracksList";
-import { TrackList } from "../base/TrackList";
 
 
-export const MyMusicPanel: FC = () => {
+export const GeneralPanel: FC = () => {
     const [loading, setLoading] = useState(false);
     const [myTracks, setMyTracks] = useState<ITrackItem[]>([]);
-    const [recentlyTracks, setRecentlyTracks] = useState<ITrackItem[]>([]);
 
     useEffect(() => {
 
         setLoading(true);
-        from((async () => await fetchMyMusicSection())())
+        from((async () => await fetchGeneralSection())())
             .pipe(tap(() => setLoading(false)))
             .subscribe(value => {
-                const fetchData = ((value as unknown) as MyMusicFetchData);
-                setRecentlyTracks(fetchData.recentAudios);
-                setMyTracks(fetchData.myAudios);
+                const data = ((value as unknown) as GeneralFetchData);
+                setMyTracks(data.myAudios);
             });
 
         // eslint-disable-next-line
@@ -34,23 +31,15 @@ export const MyMusicPanel: FC = () => {
         <React.Fragment>
             {loading
                 ? <Loading />
-                : recentlyTracks.length || myTracks.length
+                : myTracks.length
                     ? <React.Fragment>
 
                         <Group
                             mode="plain"
-                            header={<Header mode="secondary" aside={<Link>Показать все</Link>}>Недавно прослушанные</Header>}
-                            hidden={!recentlyTracks.length}
-                        >
-                            <HorizantalTracks tracks={recentlyTracks} groupElementCount={3} groupLimit={6} />
-                        </Group>
-
-                        <Group
-                            mode="plain"
-                            header={<Header mode="secondary">Треки</Header>}
+                            header={<Header mode="secondary" aside={<Link>Показать все</Link>}>Мои треки</Header>}
                             hidden={!myTracks.length}
                         >
-                            <TrackList tracks={myTracks} cutText={false} />
+                            <HorizantalTracks tracks={myTracks} groupElementCount={3} groupLimit={6} />
                         </Group>
 
                     </React.Fragment>

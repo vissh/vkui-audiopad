@@ -1,18 +1,67 @@
 import { decode } from "html-entities";
 
-import { ITrackItem } from "../types";
+import { GeneralFetchData, ICoverPlaylist, ITrackItem, MyMusicFetchData } from "../types";
 import {
     AUDIO_ITEM_AVATAR, AUDIO_ITEM_INDEX_CONTEXT, AUDIO_ITEM_INDEX_DURATION, AUDIO_ITEM_INDEX_ID, AUDIO_ITEM_INDEX_PERFORMER,
     AUDIO_ITEM_INDEX_TITLE
 } from "./constants";
 import { vkFetch } from "./utils";
 
+enum PlaylistType {
+    GENERAL_MY_AUDIOS = "general:my_audios_block",
+    RECENT_AUDIOS = "my:recent_audios",
+    MY_AUDIOS = "my:my_audios",
+};
+
+
 export async function userAccessToken() {
 
 }
 
 
-export async function fetchMyMusic(ownerId?: string) {
+export async function fetchGeneralSection(ownerId?: string): Promise<GeneralFetchData> {
+    // Возвращает плейлисты для главной страницы.
+    const parsedData = await vkFetch("https://vk.com/al_audio.php?act=section",
+        {
+            act: "section",
+            al: "1",
+            claim: "0",
+            is_layer: "0",
+            owner_id: "8902548",
+            section: "general",
+        });
+
+    const playlists: any[] = parsedData.payload[1][1].playlists;
+
+    const myAudios: ITrackItem[] = [];
+    const baseOnYourTastes: ICoverPlaylist[] = [];
+
+    playlists.forEach(playlist => {
+        if (playlist.list?.length) {
+            if (playlist.list[0][AUDIO_ITEM_INDEX_CONTEXT] === PlaylistType.GENERAL_MY_AUDIOS) {
+                myAudios.push(...toTracksItems(playlist.list));
+            }
+        } else if (playlist.is_generated_playlist) {
+            baseOnYourTastes.push({
+                id: playlist.id,
+                ownerId: playlist.ownerId,
+                coverUrl: playlist.coverUrl,
+                title: playlist.title,
+                authorLine: playlist.authorLine,
+            });
+        }
+    });
+
+    console.log(playlists, myAudios, baseOnYourTastes);
+
+    return {
+        myAudios: myAudios,
+        baseOnYourTastes: baseOnYourTastes,
+    }
+}
+
+
+export async function fetchMyMusicSection(ownerId?: string): Promise<MyMusicFetchData> {
     // Возвращает плейлисты "Недавно прослушанные" и "Моя музыка".
 
     const parsedData = await vkFetch("https://vk.com/al_audio.php?act=section",
@@ -27,20 +76,25 @@ export async function fetchMyMusic(ownerId?: string) {
 
     const playlists: any[] = parsedData.payload[1][1].playlists;
 
-    let recentAudios: ITrackItem[] = [];
-    let myAudios: ITrackItem[] = [];
+    const recentAudios: ITrackItem[] = [];
+    const myAudios: ITrackItem[] = [];
 
     playlists.forEach(playlist => {
-        if (playlist.list[0][AUDIO_ITEM_INDEX_CONTEXT] === "my:recent_audios") {
-            recentAudios = toTracksItems(playlist.list);
-        } else if (playlist.list[0][AUDIO_ITEM_INDEX_CONTEXT] === "my:my_audios") {
-            myAudios = toTracksItems(playlist.list);
+        if (playlist.list?.length) {
+            if (playlist.list[0][AUDIO_ITEM_INDEX_CONTEXT] === PlaylistType.RECENT_AUDIOS) {
+                recentAudios.push(...toTracksItems(playlist.list));
+            } else if (playlist.list[0][AUDIO_ITEM_INDEX_CONTEXT] === PlaylistType.MY_AUDIOS) {
+                myAudios.push(...toTracksItems(playlist.list));
+            }
         } else if (!myAudios.length) {
-            myAudios = toTracksItems(playlist.list);
+            myAudios.push(...toTracksItems(playlist.list));
         }
     });
 
-    return [recentAudios, myAudios];
+    return {
+        myAudios: myAudios,
+        recentAudios: recentAudios,
+    }
 }
 
 
