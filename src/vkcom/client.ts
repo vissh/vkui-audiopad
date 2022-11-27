@@ -33,13 +33,13 @@ export async function fetchGeneralSection(ownerId?: string): Promise<GeneralFetc
 
     const playlists: any[] = parsedData.payload[1][1].playlists;
 
-    const myAudios: ITrackItem[] = [];
+    const myTracks: ITrackItem[] = [];
     const baseOnYourTastes: ICoverPlaylist[] = [];
 
     playlists.forEach(playlist => {
         if (playlist.list?.length) {
             if (playlist.list[0][AUDIO_ITEM_INDEX_CONTEXT] === PlaylistType.GENERAL_MY_AUDIOS) {
-                myAudios.push(...toTracksItems(playlist.list));
+                myTracks.push(...toTracksItems(playlist.list));
             }
         } else if (playlist.is_generated_playlist) {
             baseOnYourTastes.push({
@@ -53,7 +53,8 @@ export async function fetchGeneralSection(ownerId?: string): Promise<GeneralFetc
     });
 
     return {
-        myAudios: myAudios,
+        myTracks: myTracks,
+        recentTracks: [],
         baseOnYourTastes: baseOnYourTastes,
     }
 }
@@ -74,24 +75,24 @@ export async function fetchMyMusicSection(ownerId?: string): Promise<MyMusicFetc
 
     const playlists: any[] = parsedData.payload[1][1].playlists;
 
-    const recentAudios: ITrackItem[] = [];
-    const myAudios: ITrackItem[] = [];
+    const recentTracks: ITrackItem[] = [];
+    const myTracks: ITrackItem[] = [];
 
     playlists.forEach(playlist => {
         if (playlist.list?.length) {
             if (playlist.list[0][AUDIO_ITEM_INDEX_CONTEXT] === PlaylistType.RECENT_AUDIOS) {
-                recentAudios.push(...toTracksItems(playlist.list));
+                recentTracks.push(...toTracksItems(playlist.list));
             } else if (playlist.list[0][AUDIO_ITEM_INDEX_CONTEXT] === PlaylistType.MY_AUDIOS) {
-                myAudios.push(...toTracksItems(playlist.list));
+                myTracks.push(...toTracksItems(playlist.list));
             }
-        } else if (!myAudios.length) {
-            myAudios.push(...toTracksItems(playlist.list));
+        } else if (!myTracks.length) {
+            myTracks.push(...toTracksItems(playlist.list));
         }
     });
 
     return {
-        myAudios: myAudios,
-        recentAudios: recentAudios,
+        myTracks: myTracks,
+        recentTracks: recentTracks,
     }
 }
 

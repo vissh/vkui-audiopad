@@ -1,9 +1,12 @@
 import { combineReducers, configureStore } from "@reduxjs/toolkit";
+import { useDispatch } from "react-redux";
 
-import { tabSlice } from "./slice";
+import { generalSlice, myMusicSlice, tabSlice } from "./slice";
 
 const rootReducer = combineReducers({
-    activetab: tabSlice.reducer,
+    selectedTab: tabSlice.reducer,
+    myMusic: myMusicSlice.reducer,
+    general: generalSlice.reducer,
 });
 
 export const store = configureStore({
@@ -11,3 +14,4 @@ export const store = configureStore({
 });
 
 export type TypeRootState = ReturnType<typeof rootReducer>;
+export const useAppDispatch = () => useDispatch<typeof store.dispatch>();

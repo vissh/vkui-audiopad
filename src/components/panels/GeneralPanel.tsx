@@ -2,37 +2,29 @@ import "@vkontakte/vkui/dist/vkui.css";
 
 import { Icon56MusicOutline } from "@vkontakte/icons";
 import { Group, Header, Link, Panel, PanelSpinner, Placeholder } from "@vkontakte/vkui";
-import React, { FC, useEffect, useState } from "react";
-import { from, tap } from "rxjs";
+import React, { FC, useEffect } from "react";
 
 import { useTypedSelector } from "../../hooks/useTypedSelector";
-import { ContentTab, GeneralFetchData, ITrackItem } from "../../types";
-import { fetchGeneralSection } from "../../vkcom/client";
+import { fetchGeneral } from "../../store/slice";
+import { useAppDispatch } from "../../store/store";
+import { ContentTab } from "../../types";
 import { HorizantalTracks } from "../base/HorizantalTracksList";
 
 
 export const GeneralPanel: FC = () => {
-    const { activeTab } = useTypedSelector(state => state.activetab);
+    const { selectedTab } = useTypedSelector(state => state.selectedTab);
+    const { loading, loaded, myTracks } = useTypedSelector(state => state.general);
 
-    const [loading, setLoading] = useState(false);
-    const [loaded, setLoaded] = useState(false);
-
-    const [myTracks, setMyTracks] = useState<ITrackItem[]>([]);
+    const dispatch = useAppDispatch();
 
     useEffect(() => {
-        if (activeTab === ContentTab.GENERAL && !loaded) {
-            setLoading(true);
-            from((async () => await fetchGeneralSection())())
-                .pipe(tap(() => setLoading(false)))
-                .subscribe(value => {
-                    const data = ((value as unknown) as GeneralFetchData);
-                    setMyTracks(data.myAudios);
-                    setLoaded(true);
-                });
+        if (selectedTab === ContentTab.GENERAL && !loaded) {
+            const promise = dispatch(fetchGeneral());
+            return () => promise.abort();
         }
 
         // eslint-disable-next-line
-    }, [activeTab]);
+    }, [selectedTab]);
 
     return (
         <React.Fragment>

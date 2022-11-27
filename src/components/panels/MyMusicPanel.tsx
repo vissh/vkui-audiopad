@@ -2,55 +2,44 @@ import "@vkontakte/vkui/dist/vkui.css";
 
 import { Icon56MusicOutline } from "@vkontakte/icons";
 import { Group, Header, Link, Panel, PanelSpinner, Placeholder } from "@vkontakte/vkui";
-import React, { FC, useEffect, useState } from "react";
-import { from, tap } from "rxjs";
+import React, { FC, useEffect } from "react";
 
 import { useTypedSelector } from "../../hooks/useTypedSelector";
-import { ContentTab, ITrackItem, MyMusicFetchData } from "../../types";
-import { fetchMyMusicSection } from "../../vkcom/client";
+import { fetchMyAudios } from "../../store/slice";
+import { useAppDispatch } from "../../store/store";
+import { ContentTab } from "../../types";
 import { HorizantalTracks } from "../base/HorizantalTracksList";
 import { TrackList } from "../base/TrackList";
 
 
 export const MyMusicPanel: FC = () => {
-    const { activeTab } = useTypedSelector(state => state.activetab);
+    const { selectedTab } = useTypedSelector(state => state.selectedTab);
+    const { loading, loaded, myTracks, recentTracks } = useTypedSelector(state => state.myMusic);
 
-    const [loading, setLoading] = useState(false);
-    const [loaded, setLoaded] = useState(false);
-
-    const [myTracks, setMyTracks] = useState<ITrackItem[]>([]);
-    const [recentlyTracks, setRecentlyTracks] = useState<ITrackItem[]>([]);
+    const dispatch = useAppDispatch();
 
     useEffect(() => {
-
-        if (activeTab === ContentTab.MY_MUSIC && !loaded) {
-            setLoading(true);
-            from((async () => await fetchMyMusicSection())())
-                .pipe(tap(() => setLoading(false)))
-                .subscribe(value => {
-                    const fetchData = ((value as unknown) as MyMusicFetchData);
-                    setRecentlyTracks(fetchData.recentAudios);
-                    setMyTracks(fetchData.myAudios);
-                    setLoaded(true);
-                });
+        if (selectedTab === ContentTab.MY_MUSIC && !loaded) {
+            const promise = dispatch(fetchMyAudios());
+            return () => promise.abort();
         }
 
         // eslint-disable-next-line
-    }, [activeTab]);
+    }, [selectedTab]);
 
     return (
         <React.Fragment>
             {loading
                 ? <Loading />
-                : recentlyTracks.length || myTracks.length
+                : recentTracks.length || myTracks.length
                     ? <React.Fragment>
 
                         <Group
                             mode="plain"
                             header={<Header mode="secondary" aside={<Link>Показать все</Link>}>Недавно прослушанные</Header>}
-                            hidden={!recentlyTracks.length}
+                            hidden={!recentTracks.length}
                         >
-                            <HorizantalTracks tracks={recentlyTracks} groupElementCount={3} groupLimit={6} />
+                            <HorizantalTracks tracks={recentTracks} groupElementCount={3} groupLimit={6} />
                         </Group>
 
                         <Group

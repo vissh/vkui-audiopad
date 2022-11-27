@@ -11,22 +11,24 @@ import { MyMusicPanel } from "./panels/MyMusicPanel";
 
 export const ContentPanel: FC = () => {
     const { setTab } = useTabActions();
-    const { activeTab } = useTypedSelector(state => state.activetab);
+    const { selectedTab, displayCurrentPlaylistTab } = useTypedSelector(state => state.selectedTab);
 
     return (
         <Group>
             <Tabs>
-                {/* <TabsItem
-                    selected={selected === ContentTab.CURRENT_PLAYLIST}
-                    id="tab-current-playlist"
-                    aria-controls="tab-content-current-playlist"
-                    onClick={() => { setSelected(ContentTab.CURRENT_PLAYLIST) }}
-                >
-                    Текущий плейлист
-                </TabsItem> */}
+                {displayCurrentPlaylistTab && (
+                    <TabsItem
+                        selected={selectedTab === ContentTab.CURRENT_PLAYLIST}
+                        id="tab-current-playlist"
+                        aria-controls="tab-content-current-playlist"
+                        onClick={() => { setTab(ContentTab.CURRENT_PLAYLIST) }}
+                    >
+                        Текущий плейлист
+                    </TabsItem>
+                )}
 
                 <TabsItem
-                    selected={activeTab === ContentTab.GENERAL}
+                    selected={selectedTab === ContentTab.GENERAL}
                     id="tab-general"
                     aria-controls="tab-content-general"
                     onClick={() => { setTab(ContentTab.GENERAL) }}
@@ -35,7 +37,7 @@ export const ContentPanel: FC = () => {
                 </TabsItem>
 
                 <TabsItem
-                    selected={activeTab === ContentTab.MY_MUSIC}
+                    selected={selectedTab === ContentTab.MY_MUSIC}
                     id="tab-my-music"
                     aria-controls="tab-content-my-music"
                     onClick={() => { setTab(ContentTab.MY_MUSIC) }}
@@ -44,7 +46,7 @@ export const ContentPanel: FC = () => {
                 </TabsItem>
 
                 <TabsItem
-                    selected={activeTab === ContentTab.EXPLORE}
+                    selected={selectedTab === ContentTab.EXPLORE}
                     id="tab-explore"
                     aria-controls="tab-content-explore"
                     onClick={() => { setTab(ContentTab.EXPLORE) }}
@@ -54,27 +56,31 @@ export const ContentPanel: FC = () => {
 
             </Tabs>
 
-            <Group
-                id="tab-content-general"
-                aria-labelledby="tab-general"
-                role="tabpanel"
-                mode="plain"
-                hidden={activeTab !== ContentTab.GENERAL}
-            >
-                <SearchTracks />
-                <GeneralPanel />
-            </Group>
+            {selectedTab === ContentTab.GENERAL && (
+                <Group
+                    id="tab-content-general"
+                    aria-labelledby="tab-general"
+                    role="tabpanel"
+                    mode="plain"
+                    hidden={selectedTab !== ContentTab.GENERAL}
+                >
+                    <SearchTracks />
+                    <GeneralPanel />
+                </Group>
+            )}
 
-            <Group
-                id="tab-content-my-music"
-                aria-labelledby="tab-my-music"
-                role="tabpanel"
-                mode="plain"
-                hidden={activeTab !== ContentTab.MY_MUSIC}
-            >
-                <SearchTracks />
-                <MyMusicPanel />
-            </Group>
+            {selectedTab === ContentTab.MY_MUSIC && (
+                <Group
+                    id="tab-content-my-music"
+                    aria-labelledby="tab-my-music"
+                    role="tabpanel"
+                    mode="plain"
+                    hidden={selectedTab !== ContentTab.MY_MUSIC}
+                >
+                    <SearchTracks />
+                    <MyMusicPanel />
+                </Group>
+            )}
 
         </Group>
     );

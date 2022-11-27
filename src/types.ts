@@ -24,11 +24,12 @@ export interface ICoverPlaylist {
 }
 
 export interface MyMusicFetchData {
-    myAudios: ITrackItem[];
-    recentAudios: ITrackItem[];
+    myTracks: ITrackItem[];
+    recentTracks: ITrackItem[];
 }
 
 export interface GeneralFetchData {
-    myAudios: ITrackItem[];
+    myTracks: ITrackItem[];
+    recentTracks: ITrackItem[];
     baseOnYourTastes: ICoverPlaylist[];
 }
