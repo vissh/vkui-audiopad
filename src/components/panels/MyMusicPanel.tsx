@@ -48,7 +48,7 @@ export const MyMusicPanel: FC = () => {
                                 mode="plain"
                                 header={<Header mode="secondary">Плейлисты</Header>}
                             >
-                                <HorizantalPlaylists playlists={myPlaylists} />
+                                <HorizantalPlaylists playlists={myPlaylists} useGridCovers={true} />
                             </Group>
                         )}
 

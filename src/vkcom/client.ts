@@ -138,14 +138,17 @@ function toTypedPlaylist(playlist: any): ICoverPlaylist {
         });
     }
 
+    const coverUrl = playlist.coverUrl || (gridCoverUrls.length && gridCoverUrls[0]) || "";
+    !gridCoverUrls.length && coverUrl && gridCoverUrls.push(coverUrl);
+
     return {
         id: playlist.id,
         ownerId: playlist.ownerId,
-        coverUrl: playlist.coverUrl || (gridCoverUrls.length && gridCoverUrls[0]) || "",
+        coverUrl: coverUrl,
         gridCoverUrls: gridCoverUrls,
-        title: playlist.title,
+        title: decode(playlist.title),
         authorLine: playlist.authorLine,
-        authorName: playlist.authorName,
+        authorName: decode(playlist.authorName),
     }
 }
 
