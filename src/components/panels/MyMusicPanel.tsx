@@ -5,30 +5,38 @@ import { Group, Header, Link, Panel, PanelSpinner, Placeholder } from "@vkontakt
 import React, { FC, useEffect, useState } from "react";
 import { from, tap } from "rxjs";
 
-import { ITrackItem, MyMusicFetchData } from "../../types";
+import { useTypedSelector } from "../../hooks/useTypedSelector";
+import { ContentTab, ITrackItem, MyMusicFetchData } from "../../types";
 import { fetchMyMusicSection } from "../../vkcom/client";
 import { HorizantalTracks } from "../base/HorizantalTracksList";
 import { TrackList } from "../base/TrackList";
 
 
 export const MyMusicPanel: FC = () => {
+    const { activeTab } = useTypedSelector(state => state.activetab);
+
     const [loading, setLoading] = useState(false);
+    const [loaded, setLoaded] = useState(false);
+
     const [myTracks, setMyTracks] = useState<ITrackItem[]>([]);
     const [recentlyTracks, setRecentlyTracks] = useState<ITrackItem[]>([]);
 
     useEffect(() => {
 
-        setLoading(true);
-        from((async () => await fetchMyMusicSection())())
-            .pipe(tap(() => setLoading(false)))
-            .subscribe(value => {
-                const fetchData = ((value as unknown) as MyMusicFetchData);
-                setRecentlyTracks(fetchData.recentAudios);
-                setMyTracks(fetchData.myAudios);
-            });
+        if (activeTab === ContentTab.MY_MUSIC && !loaded) {
+            setLoading(true);
+            from((async () => await fetchMyMusicSection())())
+                .pipe(tap(() => setLoading(false)))
+                .subscribe(value => {
+                    const fetchData = ((value as unknown) as MyMusicFetchData);
+                    setRecentlyTracks(fetchData.recentAudios);
+                    setMyTracks(fetchData.myAudios);
+                    setLoaded(true);
+                });
+        }
 
         // eslint-disable-next-line
-    }, []);
+    }, [activeTab]);
 
     return (
         <React.Fragment>

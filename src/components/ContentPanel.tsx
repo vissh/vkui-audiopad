@@ -1,20 +1,17 @@
 import { Group, Tabs, TabsItem } from "@vkontakte/vkui";
-import { FC, useState } from "react";
+import { FC } from "react";
 
+import { useTabActions } from "../hooks/useActions";
+import { useTypedSelector } from "../hooks/useTypedSelector";
+import { ContentTab } from "../types";
 import { SearchTracks } from "./base/SearchTracks";
 import { GeneralPanel } from "./panels/GeneralPanel";
 import { MyMusicPanel } from "./panels/MyMusicPanel";
 
-enum ContentTab {
-    CURRENT_PLAYLIST = "current-playlist",
-    GENERAL = "general",
-    MY_MUSIC = "my-music",
-    EXPLORE = "explore",
-    SEARCH = "search",
-};
 
 export const ContentPanel: FC = () => {
-    const [selected, setSelected] = useState<ContentTab>(ContentTab.MY_MUSIC);
+    const { setTab } = useTabActions();
+    const { activeTab } = useTypedSelector(state => state.activetab);
 
     return (
         <Group>
@@ -29,28 +26,28 @@ export const ContentPanel: FC = () => {
                 </TabsItem> */}
 
                 <TabsItem
-                    selected={selected === ContentTab.GENERAL}
+                    selected={activeTab === ContentTab.GENERAL}
                     id="tab-general"
                     aria-controls="tab-content-general"
-                    onClick={() => { setSelected(ContentTab.GENERAL) }}
+                    onClick={() => { setTab(ContentTab.GENERAL) }}
                 >
                     Главная
                 </TabsItem>
 
                 <TabsItem
-                    selected={selected === ContentTab.MY_MUSIC}
+                    selected={activeTab === ContentTab.MY_MUSIC}
                     id="tab-my-music"
                     aria-controls="tab-content-my-music"
-                    onClick={() => { setSelected(ContentTab.MY_MUSIC) }}
+                    onClick={() => { setTab(ContentTab.MY_MUSIC) }}
                 >
                     Моя музыка
                 </TabsItem>
 
                 <TabsItem
-                    selected={selected === ContentTab.EXPLORE}
+                    selected={activeTab === ContentTab.EXPLORE}
                     id="tab-explore"
                     aria-controls="tab-content-explore"
-                    onClick={() => { setSelected(ContentTab.EXPLORE) }}
+                    onClick={() => { setTab(ContentTab.EXPLORE) }}
                 >
                     Обзор
                 </TabsItem>
@@ -62,7 +59,7 @@ export const ContentPanel: FC = () => {
                 aria-labelledby="tab-general"
                 role="tabpanel"
                 mode="plain"
-                hidden={selected !== ContentTab.GENERAL}
+                hidden={activeTab !== ContentTab.GENERAL}
             >
                 <SearchTracks />
                 <GeneralPanel />
@@ -73,7 +70,7 @@ export const ContentPanel: FC = () => {
                 aria-labelledby="tab-my-music"
                 role="tabpanel"
                 mode="plain"
-                hidden={selected !== ContentTab.MY_MUSIC}
+                hidden={activeTab !== ContentTab.MY_MUSIC}
             >
                 <SearchTracks />
                 <MyMusicPanel />

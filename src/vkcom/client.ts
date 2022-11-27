@@ -52,8 +52,6 @@ export async function fetchGeneralSection(ownerId?: string): Promise<GeneralFetc
         }
     });
 
-    console.log(playlists, myAudios, baseOnYourTastes);
-
     return {
         myAudios: myAudios,
         baseOnYourTastes: baseOnYourTastes,

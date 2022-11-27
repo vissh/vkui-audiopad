@@ -5,27 +5,34 @@ import { Group, Header, Link, Panel, PanelSpinner, Placeholder } from "@vkontakt
 import React, { FC, useEffect, useState } from "react";
 import { from, tap } from "rxjs";
 
-import { GeneralFetchData, ITrackItem } from "../../types";
+import { useTypedSelector } from "../../hooks/useTypedSelector";
+import { ContentTab, GeneralFetchData, ITrackItem } from "../../types";
 import { fetchGeneralSection } from "../../vkcom/client";
 import { HorizantalTracks } from "../base/HorizantalTracksList";
 
 
 export const GeneralPanel: FC = () => {
+    const { activeTab } = useTypedSelector(state => state.activetab);
+
     const [loading, setLoading] = useState(false);
+    const [loaded, setLoaded] = useState(false);
+
     const [myTracks, setMyTracks] = useState<ITrackItem[]>([]);
 
     useEffect(() => {
-
-        setLoading(true);
-        from((async () => await fetchGeneralSection())())
-            .pipe(tap(() => setLoading(false)))
-            .subscribe(value => {
-                const data = ((value as unknown) as GeneralFetchData);
-                setMyTracks(data.myAudios);
-            });
+        if (activeTab === ContentTab.GENERAL && !loaded) {
+            setLoading(true);
+            from((async () => await fetchGeneralSection())())
+                .pipe(tap(() => setLoading(false)))
+                .subscribe(value => {
+                    const data = ((value as unknown) as GeneralFetchData);
+                    setMyTracks(data.myAudios);
+                    setLoaded(true);
+                });
+        }
 
         // eslint-disable-next-line
-    }, []);
+    }, [activeTab]);
 
     return (
         <React.Fragment>

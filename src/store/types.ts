@@ -1,4 +1,8 @@
-import { ITrackItem } from '../types';
+import { ContentTab, ITrackItem } from '../types';
+
+export type TypeTabState = {
+    activeTab: ContentTab,
+}
 
 export type TypeMyMusicState = {
     loading: boolean,

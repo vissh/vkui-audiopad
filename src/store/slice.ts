@@ -1,63 +1,20 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
-import { ITrackItem } from "../types";
-import { TypeMyMusicState, TypeSearchState } from "./types";
+import { ContentTab } from "../types";
+import { TypeTabState } from "./types";
 
-const initialMyMusicState: TypeMyMusicState = {
-    loading: true,
-    recentlyPlayed: [],
-    myTracks: [],
+
+const initialTabState: TypeTabState = {
+    activeTab: ContentTab.MY_MUSIC
 }
 
-const initialSearchState: TypeSearchState = {
-    loading: false,
-    tracks: [],
-    searchValue: "",
-}
-
-
-export const myMusicSlice = createSlice({
-    name: "mymusic",
-    initialState: initialMyMusicState,
-    // extraReducers под асинхронные запросы.
+export const tabSlice = createSlice({
+    name: "tab",
+    initialState: initialTabState,
     reducers: {
-        setLoading: (state) => {
-            state.loading = true;
+        setTab: (state, tab: PayloadAction<ContentTab>) => {
+            state.activeTab = tab.payload;
         },
+    }
 
-        setLoaded: (state) => {
-            state.loading = false;
-        },
-
-        setRecentlyPlayed: (state, action: PayloadAction<ITrackItem[]>) => {
-            state.recentlyPlayed = action.payload;
-        },
-
-        setMyTracks: (state, action: PayloadAction<ITrackItem[]>) => {
-            state.myTracks = action.payload;
-        },
-    },
-});
-
-
-export const searchSlice = createSlice({
-    name: "search",
-    initialState: initialSearchState,
-    reducers: {
-        loading: (state) => {
-            state.loading = true;
-        },
-
-        loaded: (state) => {
-            state.loading = false;
-        },
-
-        setSearchValue: (state, action: PayloadAction<string>) => {
-            state.searchValue = action.payload;
-        },
-
-        setTracks: (state, action: PayloadAction<ITrackItem[]>) => {
-            state.tracks = action.payload;
-        },
-    },
 });

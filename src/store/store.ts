@@ -1,10 +1,9 @@
 import { combineReducers, configureStore } from "@reduxjs/toolkit";
 
-import { myMusicSlice, searchSlice } from "./slice";
+import { tabSlice } from "./slice";
 
 const rootReducer = combineReducers({
-    mymusic: myMusicSlice.reducer,
-    search: searchSlice.reducer,
+    activetab: tabSlice.reducer,
 });
 
 export const store = configureStore({

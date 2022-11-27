@@ -1,4 +1,12 @@
 
+export enum ContentTab {
+    CURRENT_PLAYLIST = "current-playlist",
+    GENERAL = "general",
+    MY_MUSIC = "my-music",
+    EXPLORE = "explore",
+    SEARCH = "search",
+}
+
 export interface ITrackItem {
     id: string;
     image: string;
