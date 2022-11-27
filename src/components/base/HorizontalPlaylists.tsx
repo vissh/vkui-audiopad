@@ -1,14 +1,13 @@
-import { Avatar, GridAvatar, HorizontalCell, HorizontalScroll } from "@vkontakte/vkui";
+import { Avatar, HorizontalCell, HorizontalScroll } from "@vkontakte/vkui";
 import { FC } from "react";
 
 import { ICoverPlaylist } from "../../types";
 
 type HorizontalPlailistsProps = {
     playlists: ICoverPlaylist[];
-    useGridCovers: boolean;
 };
 
-export const HorizantalPlaylists: FC<HorizontalPlailistsProps> = ({ playlists, useGridCovers }) => {
+export const HorizantalPlaylists: FC<HorizontalPlailistsProps> = ({ playlists }) => {
 
     return (
         <HorizontalScroll>
@@ -27,16 +26,11 @@ export const HorizantalPlaylists: FC<HorizontalPlailistsProps> = ({ playlists, u
                             </span>
                         }
                     >
-                        {useGridCovers ? (
-                            <GridAvatar
-                                size={96}
-                                src={playlist.gridCoverUrls}
-                            />)
-                            : <Avatar
-                                size={96}
-                                mode="image"
-                                src={playlist.coverUrl}
-                            />}
+                        <Avatar // TODO: GridAvatar или что-то подобное. Для ручных поейлистов бывает несколько коверов.
+                            size={96}
+                            mode="image"
+                            src={playlist.coverUrl}
+                        />
 
                     </HorizontalCell>
                 ))}

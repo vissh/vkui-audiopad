@@ -37,7 +37,14 @@ export const MyMusicPanel: FC = () => {
                         {recentTracks.length && (
                             <Group
                                 mode="plain"
-                                header={<Header mode="secondary" aside={<Link>Показать все</Link>}>Недавно прослушанные</Header>}
+                                header={
+                                    <Header
+                                        mode="secondary"
+                                        aside={recentTracks.length > 6 && <Link>Показать все</Link>}
+                                    >
+                                        Недавно прослушанные
+                                    </Header>
+                                }
                             >
                                 <HorizantalTracks tracks={recentTracks} groupElementCount={3} groupLimit={6} />
                             </Group>
@@ -46,9 +53,17 @@ export const MyMusicPanel: FC = () => {
                         {myPlaylists.length && (
                             <Group
                                 mode="plain"
-                                header={<Header mode="secondary">Плейлисты</Header>}
+                                separator="hide"
+                                header={
+                                    <Header
+                                        mode="secondary"
+                                        aside={myPlaylists.length > 6 && <Link>Показать все</Link>}
+                                    >
+                                        Плейлисты
+                                    </Header>
+                                }
                             >
-                                <HorizantalPlaylists playlists={myPlaylists} useGridCovers={true} />
+                                <HorizantalPlaylists playlists={myPlaylists} />
                             </Group>
                         )}
 

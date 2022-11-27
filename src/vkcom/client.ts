@@ -13,11 +13,9 @@ enum PlaylistType {
     MY_AUDIOS = "my:my_audios",
 };
 
-
 export async function userAccessToken() {
 
 }
-
 
 export async function fetchGeneralSection(ownerId?: string): Promise<GeneralFetchData> {
     // Возвращает плейлисты для главной страницы.
@@ -52,7 +50,6 @@ export async function fetchGeneralSection(ownerId?: string): Promise<GeneralFetc
         baseOnYourTastes: baseOnYourTastes,
     }
 }
-
 
 export async function fetchMyMusicSection(ownerId?: string): Promise<MyMusicFetchData> {
 
@@ -91,7 +88,6 @@ export async function fetchMyMusicSection(ownerId?: string): Promise<MyMusicFetc
     }
 }
 
-
 export async function audioSearch(value: string) {
 
     const parsedData = await vkFetch("https://vk.com/al_audio.php",
@@ -112,7 +108,6 @@ export async function audioSearch(value: string) {
 
     return toTracksItems(parsedData.payload[1][0].list);
 }
-
 
 function toTracksItems(arr: any[]): ITrackItem[] {
     return arr.map(trackInfo => {
@@ -146,10 +141,19 @@ function toTypedPlaylist(playlist: any): ICoverPlaylist {
         ownerId: playlist.ownerId,
         coverUrl: coverUrl,
         gridCoverUrls: gridCoverUrls,
-        title: decode(playlist.title),
-        authorLine: playlist.authorLine,
-        authorName: decode(playlist.authorName),
+        title: getText(playlist.title),
+        authorLine: getText(playlist.authorLine),
+        authorName: getText(playlist.authorName),
     }
+}
+
+function getText(str: string) {
+    if (str.startsWith("<")) {
+        const hmtlElement = document.createElement("html");
+        hmtlElement.innerHTML = str;
+        str = hmtlElement.innerText;
+    }
+    return decode(str);
 }
 
 
@@ -158,13 +162,11 @@ function toTypedPlaylist(playlist: any): ICoverPlaylist {
 // act=section&al=1&claim=0&is_layer=0&owner_id=8902548&performer=1&q=%D0%A1%D0%BA%D1%80%D0%B8%D0%BF%D1%82%D0%BE%D0%BD%D0%B8%D1%82%20x%20104%20x%20Truwer&section=search
 
 
-
 // https://vk.com/al_audio.php?act=section
 // act=section&al=1&claim=0&is_layer=0&owner_id=8902548&section=explore
 // https://vk.com/al_audio.php?act=load_catalog_section
 // al=1&section_id=PUldVA8FR0RzSVNUUEwbCikZDFQZFlJEfFpFVA0WUV5_W1tDAQwW&start_from=PUlYVA8AFg
 // section_id и start_from брать из explore payload.1.1.sectionId, next_from
-
 
 
 // https://login.vk.com/?act=web_token
