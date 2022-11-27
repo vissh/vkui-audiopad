@@ -19,13 +19,16 @@ export interface ICoverPlaylist {
     id: number;
     ownerId: number;
     coverUrl: string;
+    gridCoverUrls: string[];
     title: string;
     authorLine: string;
+    authorName: string;
 }
 
 export interface MyMusicFetchData {
     myTracks: ITrackItem[];
     recentTracks: ITrackItem[];
+    myPlaylists: ICoverPlaylist[];
 }
 
 export interface GeneralFetchData {

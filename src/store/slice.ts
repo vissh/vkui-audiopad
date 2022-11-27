@@ -44,6 +44,7 @@ export const myMusicSlice = createSlice({
             .addCase(fetchMyAudios.fulfilled, (state, action: PayloadAction<MyMusicFetchData>) => {
                 state.myTracks = action.payload.myTracks;
                 state.recentTracks = action.payload.recentTracks;
+                state.myPlaylists = action.payload.myPlaylists;
                 state.loading = false;
                 state.loaded = true;
             });

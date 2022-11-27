@@ -9,12 +9,13 @@ import { fetchMyAudios } from "../../store/slice";
 import { useAppDispatch } from "../../store/store";
 import { ContentTab } from "../../types";
 import { HorizantalTracks } from "../base/HorizantalTracksList";
+import { HorizantalPlaylists } from "../base/HorizontalPlaylists";
 import { TrackList } from "../base/TrackList";
 
 
 export const MyMusicPanel: FC = () => {
     const { selectedTab } = useTypedSelector(state => state.selectedTab);
-    const { loading, loaded, myTracks, recentTracks } = useTypedSelector(state => state.myMusic);
+    const { loading, loaded, myTracks, recentTracks, myPlaylists } = useTypedSelector(state => state.myMusic);
 
     const dispatch = useAppDispatch();
 
@@ -33,22 +34,32 @@ export const MyMusicPanel: FC = () => {
                 ? <Loading />
                 : recentTracks.length || myTracks.length
                     ? <React.Fragment>
+                        {recentTracks.length && (
+                            <Group
+                                mode="plain"
+                                header={<Header mode="secondary" aside={<Link>Показать все</Link>}>Недавно прослушанные</Header>}
+                            >
+                                <HorizantalTracks tracks={recentTracks} groupElementCount={3} groupLimit={6} />
+                            </Group>
+                        )}
 
-                        <Group
-                            mode="plain"
-                            header={<Header mode="secondary" aside={<Link>Показать все</Link>}>Недавно прослушанные</Header>}
-                            hidden={!recentTracks.length}
-                        >
-                            <HorizantalTracks tracks={recentTracks} groupElementCount={3} groupLimit={6} />
-                        </Group>
+                        {myPlaylists.length && (
+                            <Group
+                                mode="plain"
+                                header={<Header mode="secondary">Плейлисты</Header>}
+                            >
+                                <HorizantalPlaylists playlists={myPlaylists} />
+                            </Group>
+                        )}
 
-                        <Group
-                            mode="plain"
-                            header={<Header mode="secondary">Треки</Header>}
-                            hidden={!myTracks.length}
-                        >
-                            <TrackList tracks={myTracks} cutText={false} />
-                        </Group>
+                        {myTracks.length && (
+                            <Group
+                                mode="plain"
+                                header={<Header mode="secondary">Треки</Header>}
+                            >
+                                <TrackList tracks={myTracks} cutText={false} />
+                            </Group>
+                        )}
 
                     </React.Fragment>
                     : <EmptyResult />}

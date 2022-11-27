@@ -42,13 +42,7 @@ export async function fetchGeneralSection(ownerId?: string): Promise<GeneralFetc
                 myTracks.push(...toTracksItems(playlist.list));
             }
         } else if (playlist.is_generated_playlist) {
-            baseOnYourTastes.push({
-                id: playlist.id,
-                ownerId: playlist.ownerId,
-                coverUrl: playlist.coverUrl,
-                title: playlist.title,
-                authorLine: playlist.authorLine,
-            });
+            baseOnYourTastes.push(toTypedPlaylist(playlist));
         }
     });
 
@@ -61,7 +55,6 @@ export async function fetchGeneralSection(ownerId?: string): Promise<GeneralFetc
 
 
 export async function fetchMyMusicSection(ownerId?: string): Promise<MyMusicFetchData> {
-    // Возвращает плейлисты "Недавно прослушанные" и "Моя музыка".
 
     const parsedData = await vkFetch("https://vk.com/al_audio.php?act=section",
         {
@@ -77,22 +70,24 @@ export async function fetchMyMusicSection(ownerId?: string): Promise<MyMusicFetc
 
     const recentTracks: ITrackItem[] = [];
     const myTracks: ITrackItem[] = [];
+    const myPlaylists: ICoverPlaylist[] = [];
 
     playlists.forEach(playlist => {
-        if (playlist.list?.length) {
+        if (playlist.type === "my" && playlist.list?.length) {
             if (playlist.list[0][AUDIO_ITEM_INDEX_CONTEXT] === PlaylistType.RECENT_AUDIOS) {
                 recentTracks.push(...toTracksItems(playlist.list));
             } else if (playlist.list[0][AUDIO_ITEM_INDEX_CONTEXT] === PlaylistType.MY_AUDIOS) {
                 myTracks.push(...toTracksItems(playlist.list));
             }
-        } else if (!myTracks.length) {
-            myTracks.push(...toTracksItems(playlist.list));
+        } else if (playlist.type === "playlist") {
+            myPlaylists.push(toTypedPlaylist(playlist));
         }
     });
 
     return {
         myTracks: myTracks,
         recentTracks: recentTracks,
+        myPlaylists: myPlaylists,
     }
 }
 
@@ -129,6 +124,29 @@ function toTracksItems(arr: any[]): ITrackItem[] {
             duration: trackInfo[AUDIO_ITEM_INDEX_DURATION],
         }
     });
+}
+
+function toTypedPlaylist(playlist: any): ICoverPlaylist {
+    const gridCoverUrls: string[] = [];
+
+    if (!playlist.coverUrl && playlist.gridCovers) {
+        const hmtlElement = document.createElement("html");
+        hmtlElement.innerHTML = playlist.gridCovers;
+        hmtlElement.querySelectorAll('[style^="background-image:url"]').forEach(el => {
+            const url = (el as HTMLInputElement).style?.backgroundImage.slice(4, -1).replace(/"/g, "");
+            url && gridCoverUrls.push(url);
+        });
+    }
+
+    return {
+        id: playlist.id,
+        ownerId: playlist.ownerId,
+        coverUrl: playlist.coverUrl || (gridCoverUrls.length && gridCoverUrls[0]) || "",
+        gridCoverUrls: gridCoverUrls,
+        title: playlist.title,
+        authorLine: playlist.authorLine,
+        authorName: playlist.authorName,
+    }
 }
 
 

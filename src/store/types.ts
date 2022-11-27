@@ -11,6 +11,7 @@ export type TypeMyMusicState = {
     loaded: boolean;
     myTracks: ITrackItem[],
     recentTracks: ITrackItem[],
+    myPlaylists: ICoverPlaylist[];
 }
 
 export type TypeGeneralState = {

@@ -22,4 +22,5 @@ export const initialMyMusicState: TypeMyMusicState = {
     loaded: false,
     myTracks: [],
     recentTracks: [],
+    myPlaylists: [],
 }
