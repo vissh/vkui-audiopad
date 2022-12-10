@@ -9,6 +9,7 @@ import { fetchGeneral } from "../../store/slice";
 import { useAppDispatch } from "../../store/store";
 import { ContentTab } from "../../types";
 import { HorizantalTracks } from "../base/HorizantalTracksList";
+import { SearchTracks } from "../base/SearchTracks";
 
 
 export const GeneralPanel: FC = () => {
@@ -28,6 +29,7 @@ export const GeneralPanel: FC = () => {
 
     return (
         <React.Fragment>
+            <SearchTracks />
             {loading
                 ? <Loading />
                 : myTracks.length

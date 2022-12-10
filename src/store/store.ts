@@ -1,12 +1,13 @@
 import { combineReducers, configureStore } from "@reduxjs/toolkit";
 import { useDispatch } from "react-redux";
 
-import { generalSlice, myMusicSlice, tabSlice } from "./slice";
+import { generalSlice, myMusicSlice, searchTracks, tabSlice } from "./slice";
 
 const rootReducer = combineReducers({
     selectedTab: tabSlice.reducer,
     myMusic: myMusicSlice.reducer,
     general: generalSlice.reducer,
+    search: searchTracks.reducer,
 });
 
 export const store = configureStore({

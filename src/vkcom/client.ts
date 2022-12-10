@@ -1,6 +1,6 @@
 import { decode } from "html-entities";
 
-import { GeneralFetchData, ICoverPlaylist, ITrackItem, MyMusicFetchData } from "../types";
+import { GeneralFetchData, ICoverPlaylist, ITrackItem, MyMusicFetchData, SearchFetchData } from "../types";
 import {
     AUDIO_ITEM_AVATAR, AUDIO_ITEM_INDEX_CONTEXT, AUDIO_ITEM_INDEX_DURATION, AUDIO_ITEM_INDEX_ID, AUDIO_ITEM_INDEX_PERFORMER,
     AUDIO_ITEM_INDEX_TITLE
@@ -88,7 +88,7 @@ export async function fetchMyMusicSection(ownerId?: string): Promise<MyMusicFetc
     }
 }
 
-export async function audioSearch(value: string) {
+export async function fetchSearchTracksSection(value: string): Promise<SearchFetchData> {
 
     const parsedData = await vkFetch("https://vk.com/al_audio.php",
         {
@@ -106,7 +106,9 @@ export async function audioSearch(value: string) {
             claim: "0",
         });
 
-    return toTracksItems(parsedData.payload[1][0].list);
+    return {
+        tracks: toTracksItems(parsedData.payload[1][0].list),
+    }
 }
 
 function toTracksItems(arr: any[]): ITrackItem[] {

@@ -4,9 +4,9 @@ import { FC } from "react";
 import { useTabActions } from "../hooks/useActions";
 import { useTypedSelector } from "../hooks/useTypedSelector";
 import { ContentTab } from "../types";
-import { SearchTracks } from "./base/SearchTracks";
 import { GeneralPanel } from "./panels/GeneralPanel";
 import { MyMusicPanel } from "./panels/MyMusicPanel";
+import { SearchPanel } from "./panels/SearchPanel";
 
 
 export const ContentPanel: FC = () => {
@@ -15,7 +15,7 @@ export const ContentPanel: FC = () => {
 
     return (
         <Group>
-            <Tabs>
+            <Tabs mode="secondary">
                 {displayCurrentPlaylistTab && (
                     <TabsItem
                         selected={selectedTab === ContentTab.CURRENT_PLAYLIST}
@@ -64,7 +64,6 @@ export const ContentPanel: FC = () => {
                     mode="plain"
                     hidden={selectedTab !== ContentTab.GENERAL}
                 >
-                    <SearchTracks />
                     <GeneralPanel />
                 </Group>
             )}
@@ -77,8 +76,19 @@ export const ContentPanel: FC = () => {
                     mode="plain"
                     hidden={selectedTab !== ContentTab.MY_MUSIC}
                 >
-                    <SearchTracks />
                     <MyMusicPanel />
+                </Group>
+            )}
+
+            {selectedTab === ContentTab.SEARCH && (
+                <Group
+                    id="tab-content-search"
+                    aria-labelledby="tab-search"
+                    role="tabpanel"
+                    mode="plain"
+                    hidden={selectedTab !== ContentTab.SEARCH}
+                >
+                    <SearchPanel />
                 </Group>
             )}
 

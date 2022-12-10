@@ -11,15 +11,25 @@ export async function vkFetch(url: string, params: Record<string, string>) {
     //     },
     // });
 
-    const resp = await fetch(url, {
+    // const sleep = (ms: number) => new Promise(r => setTimeout(r, ms));
+    // await sleep(1000);
+
+    const fetchPayload = () => fetch(url, {
         method: "POST",
         body: formData,
         headers: {
             "x-requested-with": "XMLHttpRequest",
         },
-    });
+    })
 
-    return await parseJson(resp);
+    const jsonResp = await parseJson(await fetchPayload());
+    
+    if (jsonResp?.payload && jsonResp.payload.length === 2 && jsonResp.payload[0] === "3") {
+        await fetch('https://vk.com');
+        return await parseJson(await fetchPayload());
+    }
+
+    return jsonResp;
 }
 
 

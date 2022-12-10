@@ -36,3 +36,7 @@ export interface GeneralFetchData {
     recentTracks: ITrackItem[];
     baseOnYourTastes: ICoverPlaylist[];
 }
+
+export interface SearchFetchData {
+    tracks: ITrackItem[];
+}

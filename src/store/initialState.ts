@@ -1,6 +1,6 @@
 
 import { ContentTab } from "../types";
-import { TypeGeneralState, TypeMyMusicState, TypeTabState } from "./types";
+import { TypeGeneralState, TypeMyMusicState, TypeSearchTracksState, TypeTabState } from "./types";
 
 
 export const initialTabState: TypeTabState = {
@@ -23,4 +23,11 @@ export const initialMyMusicState: TypeMyMusicState = {
     myTracks: [],
     recentTracks: [],
     myPlaylists: [],
+}
+
+export const initialSearchTracksState: TypeSearchTracksState = {
+    loading: false,
+    loaded: false,
+    searchValue: "",
+    tracks: [],
 }

@@ -21,3 +21,10 @@ export type TypeGeneralState = {
     recentTracks: ITrackItem[],
     baseOnYourTastes: ICoverPlaylist[];
 }
+
+export type TypeSearchTracksState = {
+    loading: boolean;
+    loaded: boolean;
+    searchValue: string;
+    tracks: ITrackItem[],
+}

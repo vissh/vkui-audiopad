@@ -10,6 +10,7 @@ import { useAppDispatch } from "../../store/store";
 import { ContentTab } from "../../types";
 import { HorizantalTracks } from "../base/HorizantalTracksList";
 import { HorizantalPlaylists } from "../base/HorizontalPlaylists";
+import { SearchTracks } from "../base/SearchTracks";
 import { TrackList } from "../base/TrackList";
 
 
@@ -30,11 +31,12 @@ export const MyMusicPanel: FC = () => {
 
     return (
         <React.Fragment>
+            <SearchTracks />
             {loading
                 ? <Loading />
-                : recentTracks.length || myTracks.length
+                : (recentTracks.length || myTracks.length)
                     ? <React.Fragment>
-                        {recentTracks.length && (
+                        {recentTracks.length ? (
                             <Group
                                 mode="plain"
                                 header={
@@ -48,9 +50,9 @@ export const MyMusicPanel: FC = () => {
                             >
                                 <HorizantalTracks tracks={recentTracks} groupElementCount={3} groupLimit={6} />
                             </Group>
-                        )}
+                        ) : ""}
 
-                        {myPlaylists.length && (
+                        {myPlaylists.length ? (
                             <Group
                                 mode="plain"
                                 separator="hide"
@@ -65,16 +67,16 @@ export const MyMusicPanel: FC = () => {
                             >
                                 <HorizantalPlaylists playlists={myPlaylists} />
                             </Group>
-                        )}
+                        ) : ""}
 
-                        {myTracks.length && (
+                        {myTracks.length ? (
                             <Group
                                 mode="plain"
                                 header={<Header mode="secondary">Треки</Header>}
                             >
                                 <TrackList tracks={myTracks} cutText={false} />
                             </Group>
-                        )}
+                        ) : ""}
 
                     </React.Fragment>
                     : <EmptyResult />}
