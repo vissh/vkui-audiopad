@@ -10,7 +10,6 @@ import { useAppDispatch } from "../../store/store";
 import { ContentTab } from "../../types";
 import { HorizantalTracks } from "../base/HorizantalTracksList";
 import { HorizantalPlaylists } from "../base/HorizontalPlaylists";
-import { SearchTracks } from "../base/SearchTracks";
 import { TrackList } from "../base/TrackList";
 
 
@@ -31,7 +30,6 @@ export const MyMusicPanel: FC = () => {
 
     return (
         <React.Fragment>
-            <SearchTracks />
             {loading
                 ? <Loading />
                 : (recentTracks.length || myTracks.length)

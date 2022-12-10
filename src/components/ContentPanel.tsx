@@ -4,6 +4,7 @@ import { FC } from "react";
 import { useTabActions } from "../hooks/useActions";
 import { useTypedSelector } from "../hooks/useTypedSelector";
 import { ContentTab } from "../types";
+import { SearchTracks } from "./base/SearchTracks";
 import { GeneralPanel } from "./panels/GeneralPanel";
 import { MyMusicPanel } from "./panels/MyMusicPanel";
 import { SearchPanel } from "./panels/SearchPanel";
@@ -56,41 +57,17 @@ export const ContentPanel: FC = () => {
 
             </Tabs>
 
-            {selectedTab === ContentTab.GENERAL && (
-                <Group
-                    id="tab-content-general"
-                    aria-labelledby="tab-general"
-                    role="tabpanel"
-                    mode="plain"
-                    hidden={selectedTab !== ContentTab.GENERAL}
-                >
-                    <GeneralPanel />
-                </Group>
-            )}
-
-            {selectedTab === ContentTab.MY_MUSIC && (
-                <Group
-                    id="tab-content-my-music"
-                    aria-labelledby="tab-my-music"
-                    role="tabpanel"
-                    mode="plain"
-                    hidden={selectedTab !== ContentTab.MY_MUSIC}
-                >
-                    <MyMusicPanel />
-                </Group>
-            )}
-
-            {selectedTab === ContentTab.SEARCH && (
-                <Group
-                    id="tab-content-search"
-                    aria-labelledby="tab-search"
-                    role="tabpanel"
-                    mode="plain"
-                    hidden={selectedTab !== ContentTab.SEARCH}
-                >
-                    <SearchPanel />
-                </Group>
-            )}
+            <Group
+                id="tab-content"
+                aria-labelledby="tab"
+                role="tabpanel"
+                mode="plain"
+            >
+                <SearchTracks />
+                {selectedTab === ContentTab.GENERAL && <GeneralPanel />}
+                {selectedTab === ContentTab.MY_MUSIC && <MyMusicPanel />}
+                {selectedTab === ContentTab.SEARCH && <SearchPanel />}
+            </Group>
 
         </Group>
     );

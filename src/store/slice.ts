@@ -58,6 +58,10 @@ export const searchTracks = createSlice({
         setSearchValue: (state, value: PayloadAction<string>) => {
             state.searchValue = value.payload;
         },
+
+        resetState: (state) => {
+            Object.assign(state, initialSearchTracksState);
+        },
     },
     extraReducers: (builder) => {
         builder

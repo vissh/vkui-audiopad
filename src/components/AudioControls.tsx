@@ -3,14 +3,17 @@ import { Avatar, IconButton, PanelHeader, SimpleCell } from "@vkontakte/vkui";
 import React, { FC } from "react";
 
 export const AudioControls: FC = () => {
+    const paused = true;
 
     return (
         <PanelHeader
             before={
                 <React.Fragment>
                     <IconButton hasHover={false}>
-                        <Icon28PlayCircle />
-                        <Icon28PauseCircle hidden={true} />
+                        {paused
+                            ? <Icon28PlayCircle />
+                            : <Icon28PauseCircle />
+                        }
                     </IconButton>
                     <IconButton hasHover={false}>
                         <Icon28SkipPrevious />
