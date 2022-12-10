@@ -1,4 +1,4 @@
-import { Icon28PauseCircle, Icon28PlayCircle, Icon28SkipNext, Icon28SkipPrevious } from "@vkontakte/icons";
+import { Icon20SkipBack, Icon20SkipForward, Icon28PauseCircle, Icon28PlayCircle } from "@vkontakte/icons";
 import { Avatar, IconButton, PanelHeader, SimpleCell } from "@vkontakte/vkui";
 import React, { FC } from "react";
 
@@ -16,10 +16,10 @@ export const AudioControls: FC = () => {
                         }
                     </IconButton>
                     <IconButton hasHover={false}>
-                        <Icon28SkipPrevious />
+                        <Icon20SkipBack />
                     </IconButton>
                     <IconButton hasHover={false}>
-                        <Icon28SkipNext />
+                        <Icon20SkipForward />
                     </IconButton>
                 </React.Fragment>
             }

@@ -11,58 +11,32 @@ import { SearchPanel } from "./panels/SearchPanel";
 
 
 export const ContentPanel: FC = () => {
-    const { setTab } = useTabActions();
     const { selectedTab, displayCurrentPlaylistTab } = useTypedSelector(state => state.selectedTab);
 
     return (
         <Group>
             <Tabs mode="secondary">
                 {displayCurrentPlaylistTab && (
-                    <TabsItem
-                        selected={selectedTab === ContentTab.CURRENT_PLAYLIST}
-                        id="tab-current-playlist"
-                        aria-controls="tab-content-current-playlist"
-                        onClick={() => { setTab(ContentTab.CURRENT_PLAYLIST) }}
-                    >
-                        Текущий плейлист
-                    </TabsItem>
+                    <ContentTabItem
+                        tab={ContentTab.CURRENT_PLAYLIST}
+                        title="Текущий плейлист"
+                    />
                 )}
-
-                <TabsItem
-                    selected={selectedTab === ContentTab.GENERAL}
-                    id="tab-general"
-                    aria-controls="tab-content-general"
-                    onClick={() => { setTab(ContentTab.GENERAL) }}
-                >
-                    Главная
-                </TabsItem>
-
-                <TabsItem
-                    selected={selectedTab === ContentTab.MY_MUSIC}
-                    id="tab-my-music"
-                    aria-controls="tab-content-my-music"
-                    onClick={() => { setTab(ContentTab.MY_MUSIC) }}
-                >
-                    Моя музыка
-                </TabsItem>
-
-                <TabsItem
-                    selected={selectedTab === ContentTab.EXPLORE}
-                    id="tab-explore"
-                    aria-controls="tab-content-explore"
-                    onClick={() => { setTab(ContentTab.EXPLORE) }}
-                >
-                    Обзор
-                </TabsItem>
-
+                <ContentTabItem
+                    tab={ContentTab.GENERAL}
+                    title="Главная"
+                />
+                <ContentTabItem
+                    tab={ContentTab.MY_MUSIC}
+                    title="Моя музыка"
+                />
+                <ContentTabItem
+                    tab={ContentTab.EXPLORE}
+                    title="Обзор"
+                />
             </Tabs>
 
-            <Group
-                id="tab-content"
-                aria-labelledby="tab"
-                role="tabpanel"
-                mode="plain"
-            >
+            <Group id="tab-content" aria-labelledby="tab" role="tabpanel" mode="plain">
                 <SearchTracks />
                 {selectedTab === ContentTab.GENERAL && <GeneralPanel />}
                 {selectedTab === ContentTab.MY_MUSIC && <MyMusicPanel />}
@@ -70,5 +44,26 @@ export const ContentPanel: FC = () => {
             </Group>
 
         </Group>
+    );
+};
+
+type ContentTabItemProps = {
+    tab: ContentTab;
+    title: string;
+}
+
+const ContentTabItem: FC<ContentTabItemProps> = ({ tab, title }) => {
+    const { setTab } = useTabActions();
+    const { selectedTab } = useTypedSelector(state => state.selectedTab);
+
+    return (
+        <TabsItem
+            selected={selectedTab === tab}
+            id={"tab-" + tab}
+            aria-controls={"tab-content-" + tab}
+            onClick={() => { setTab(tab) }}
+        >
+            {title}
+        </TabsItem>
     );
 };
