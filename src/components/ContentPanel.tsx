@@ -5,6 +5,7 @@ import { useTabActions } from "../hooks/useActions";
 import { useTypedSelector } from "../hooks/useTypedSelector";
 import { ContentTab } from "../types";
 import { SearchTracks } from "./base/SearchTracks";
+import { ExplorePanel } from "./panels/ExplorePanel";
 import { GeneralPanel } from "./panels/GeneralPanel";
 import { MyMusicPanel } from "./panels/MyMusicPanel";
 import { SearchPanel } from "./panels/SearchPanel";
@@ -40,6 +41,7 @@ export const ContentPanel: FC = () => {
                 <SearchTracks />
                 {selectedTab === ContentTab.GENERAL && <GeneralPanel />}
                 {selectedTab === ContentTab.MY_MUSIC && <MyMusicPanel />}
+                {selectedTab === ContentTab.EXPLORE && <ExplorePanel />}
                 {selectedTab === ContentTab.SEARCH && <SearchPanel />}
             </Group>
 

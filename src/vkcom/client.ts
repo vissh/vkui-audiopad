@@ -1,6 +1,6 @@
 import { decode } from "html-entities";
 
-import { GeneralFetchData, ICoverPlaylist, ITrackItem, MyMusicFetchData, SearchFetchData } from "../types";
+import { ExploreFetchData, ExplorePlaylist, GeneralFetchData, ICoverPlaylist, ITrackItem, MyMusicFetchData, SearchFetchData } from "../types";
 import {
     AUDIO_ITEM_AVATAR, AUDIO_ITEM_INDEX_CONTEXT, AUDIO_ITEM_INDEX_DURATION, AUDIO_ITEM_INDEX_ID, AUDIO_ITEM_INDEX_PERFORMER,
     AUDIO_ITEM_INDEX_TITLE
@@ -86,6 +86,74 @@ export async function fetchMyMusicSection(ownerId?: string): Promise<MyMusicFetc
         recentTracks: recentTracks,
         myPlaylists: myPlaylists,
     }
+}
+
+export async function fetchExploreSection(ownerId?: string): Promise<ExploreFetchData> {
+    const result: ExploreFetchData = {
+        playlists: [],
+    };
+
+    type FetchPlaylistResult = {
+        nextFrom: string;
+        sectionId: string;
+        playlist: ExplorePlaylist | null;
+    };
+
+    const getFetchPlaylistResult = (parsedData: any): FetchPlaylistResult => {
+        const payload = parsedData.payload[1][1];
+        const playlist = payload?.playlist;
+
+        let explorePlaylist = null;
+
+        if (playlist) {
+            explorePlaylist = {
+                title: playlist.title,
+                tracks: toTracksItems(playlist.list),
+                hasMore: playlist.hasMore,
+            } as ExplorePlaylist
+        }
+
+        return {
+            nextFrom: payload.nextFrom,
+            sectionId: payload.sectionId,
+            playlist: explorePlaylist,
+        }
+    };
+
+    let fetchPlaylistResult = getFetchPlaylistResult(
+        await vkFetch("https://vk.com/al_audio.php?act=section",
+            {
+                act: "section",
+                al: "1",
+                claim: "0",
+                is_layer: "0",
+                owner_id: "8902548",
+                section: "explore",
+            }
+        )
+    );
+
+    if (fetchPlaylistResult.playlist && fetchPlaylistResult.playlist.tracks.length) {
+        result.playlists.push(fetchPlaylistResult.playlist);
+    }
+
+    while (fetchPlaylistResult.nextFrom && fetchPlaylistResult.sectionId) {
+        fetchPlaylistResult = getFetchPlaylistResult(
+            await vkFetch("https://vk.com/al_audio.php?act=load_catalog_section",
+                {
+                    al: "1",
+                    section_id: fetchPlaylistResult.sectionId,
+                    start_from: fetchPlaylistResult.nextFrom,
+                }
+            )
+        );
+
+        if (fetchPlaylistResult.playlist && fetchPlaylistResult.playlist.tracks.length) {
+            result.playlists.push(fetchPlaylistResult.playlist);
+        }
+    }
+
+    return result;
 }
 
 export async function fetchSearchTracksSection(value: string): Promise<SearchFetchData> {

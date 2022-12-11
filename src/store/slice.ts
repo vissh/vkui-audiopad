@@ -1,8 +1,8 @@
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 
-import { ContentTab, GeneralFetchData, MyMusicFetchData, SearchFetchData } from "../types";
-import { fetchGeneralSection, fetchMyMusicSection, fetchSearchTracksSection } from "../vkcom/client";
-import { initialGeneralState, initialMyMusicState, initialSearchTracksState, initialTabState } from "./initialState";
+import { ContentTab, ExploreFetchData, GeneralFetchData, MyMusicFetchData, SearchFetchData } from "../types";
+import { fetchExploreSection, fetchGeneralSection, fetchMyMusicSection, fetchSearchTracksSection } from "../vkcom/client";
+import { initialExploreState, initialGeneralState, initialMyMusicState, initialSearchTracksState, initialTabState } from "./initialState";
 
 export const tabSlice = createSlice({
     name: "tab",
@@ -51,6 +51,23 @@ export const myMusicSlice = createSlice({
     },
 });
 
+export const exploreSlice = createSlice({
+    name: "explore",
+    initialState: initialExploreState,
+    reducers: {},
+    extraReducers: (builder) => {
+        builder
+            .addCase(fetchExplore.pending, (state) => {
+                state.loading = true;
+            })
+            .addCase(fetchExplore.fulfilled, (state, action: PayloadAction<ExploreFetchData>) => {
+                state.playlists = action.payload.playlists;
+                state.loading = false;
+                state.loaded = true;
+            })
+    },
+});
+
 export const searchTracks = createSlice({
     name: "searchTracks",
     initialState: initialSearchTracksState,
@@ -85,6 +102,11 @@ export const fetchGeneral = createAsyncThunk(
     "vk/fetchGeneral",
     async () => await fetchGeneralSection()
 );
+
+export const fetchExplore = createAsyncThunk(
+    "vk/explore",
+    async () => await fetchExploreSection()
+)
 
 export const fetchSearchTracks = createAsyncThunk(
     "vk/searchTracks",

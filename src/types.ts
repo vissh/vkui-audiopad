@@ -37,6 +37,16 @@ export interface GeneralFetchData {
     baseOnYourTastes: ICoverPlaylist[];
 }
 
+export interface ExplorePlaylist {
+    title: string;
+    tracks: ITrackItem[];
+    hasMore: boolean;
+}
+
+export interface ExploreFetchData {
+    playlists: ExplorePlaylist[];
+}
+
 export interface SearchFetchData {
     tracks: ITrackItem[];
 }

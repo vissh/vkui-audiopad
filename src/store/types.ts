@@ -1,4 +1,4 @@
-import { ContentTab, ICoverPlaylist, ITrackItem } from "../types";
+import { ContentTab, ExplorePlaylist, ICoverPlaylist, ITrackItem } from "../types";
 
 export type TypeTabState = {
     selectedTab: ContentTab,
@@ -21,6 +21,12 @@ export type TypeGeneralState = {
     recentTracks: ITrackItem[],
     baseOnYourTastes: ICoverPlaylist[];
 }
+
+export type TypeExploreState = {
+    loading: boolean;
+    loaded: boolean;
+    playlists: ExplorePlaylist[];
+};
 
 export type TypeSearchTracksState = {
     loading: boolean;
