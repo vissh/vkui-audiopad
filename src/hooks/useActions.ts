@@ -1,7 +1,7 @@
 import { bindActionCreators } from "@reduxjs/toolkit";
 import { useDispatch } from "react-redux";
 
-import { catalogTracks, searchTracks, tabSlice } from "../store/slice";
+import { blockPlaylist, searchTracks, tabSlice } from "../store/slice";
 
 
 export const useTabActions = () => {
@@ -14,7 +14,7 @@ export const useSearchTracksActions = () => {
     return bindActionCreators(searchTracks.actions, dispatch);
 };
 
-export const useCatalogTracksActions = () => {
+export const useBlockPlaylistActions = () => {
     const dispatch = useDispatch();
-    return bindActionCreators(catalogTracks.actions, dispatch);
+    return bindActionCreators(blockPlaylist.actions, dispatch);
 };

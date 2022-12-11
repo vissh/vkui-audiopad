@@ -2,29 +2,22 @@ import { Group, Header } from "@vkontakte/vkui";
 import React, { FC, useEffect } from "react";
 
 import { useTypedSelector } from "../../hooks/useTypedSelector";
-import { fetchCatalogTracks } from "../../store/slice";
+import { fetchBlockPlaylist } from "../../store/slice";
 import { useAppDispatch } from "../../store/store";
 import { ContentTab } from "../../types";
 import { EmptyResult, Loading } from "../base/blocks";
 import { TrackList } from "../base/TrackList";
 
-export const CustomPlaylistPanel: FC = () => {
+export const BlockPlaylistPanel: FC = () => {
     const { selectedTab } = useTypedSelector(state => state.selectedTab);
-    const { loading, data, playlist } = useTypedSelector(state => state.catalog);
+    const { loading, data, blockId } = useTypedSelector(state => state.blockPlaylist);
 
     const dispatch = useAppDispatch();
 
     useEffect(() => {
-        if (selectedTab === ContentTab.CUSTOM_PLAYLIST && playlist) {
-            if (typeof playlist.blockId === "string") {
-                const promise = dispatch(
-                    fetchCatalogTracks({
-                        sectionId: playlist.blockId,
-                        startFrom: playlist.nextOffset
-                    }));
-
-                return () => promise.abort();
-            }
+        if (selectedTab === ContentTab.BLOCK_PLAYLIST) {
+            const promise = dispatch(fetchBlockPlaylist(blockId));
+            return () => promise.abort();
         }
 
         // eslint-disable-next-line

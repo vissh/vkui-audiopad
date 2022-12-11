@@ -5,7 +5,7 @@ export enum ContentTab {
     MY_MUSIC = "my-music",
     EXPLORE = "explore",
     SEARCH = "search",
-    CUSTOM_PLAYLIST = "custom-playlist",
+    BLOCK_PLAYLIST = "block-playlist",
 }
 
 // Базовый интерфейс, описывающий аудиозапись.
@@ -19,8 +19,8 @@ export interface ITrackItem {
 
 // Интерфейс с полями, необходимые для дозагрузки данных.
 interface IOffset {
-    id: string | number;
-    blockId: string | boolean;
+    id: string;
+    blockId: string;
     nextOffset: string;
     hasMore: boolean;
 }
@@ -71,7 +71,7 @@ export interface ISearchFetchData {
     tracks: ITrackItem[];
 }
 
-// Данные для отображения загрузки доп секции, например отображение полного плейлиста.
-export interface ICatalogFetchData extends ITitlePlaylist {
+// Данные для отображения полного плейлиста.
+export interface IBlockPlaylistFetchData extends ITitlePlaylist {
 
 }

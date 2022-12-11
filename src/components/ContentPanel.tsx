@@ -5,7 +5,7 @@ import { useTabActions } from "../hooks/useActions";
 import { useTypedSelector } from "../hooks/useTypedSelector";
 import { ContentTab } from "../types";
 import { SearchTracks } from "./base/SearchTracks";
-import { CustomPlaylistPanel } from "./panels/CustomPlaylistPanel";
+import { BlockPlaylistPanel } from "./panels/BlockPlaylistPanel";
 import { ExplorePanel } from "./panels/ExplorePanel";
 import { GeneralPanel } from "./panels/GeneralPanel";
 import { MyMusicPanel } from "./panels/MyMusicPanel";
@@ -44,7 +44,7 @@ export const ContentPanel: FC = () => {
                 {selectedTab === ContentTab.MY_MUSIC && <MyMusicPanel />}
                 {selectedTab === ContentTab.EXPLORE && <ExplorePanel />}
                 {selectedTab === ContentTab.SEARCH && <SearchPanel />}
-                {selectedTab === ContentTab.CUSTOM_PLAYLIST && <CustomPlaylistPanel />}
+                {selectedTab === ContentTab.BLOCK_PLAYLIST && <BlockPlaylistPanel />}
             </Group>
 
         </Group>

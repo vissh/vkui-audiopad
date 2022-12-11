@@ -1,7 +1,7 @@
 import { combineReducers, configureStore } from "@reduxjs/toolkit";
 import { useDispatch } from "react-redux";
 
-import { catalogTracks, exploreSlice, generalSlice, myMusicSlice, searchTracks, tabSlice } from "./slice";
+import { blockPlaylist, exploreSlice, generalSlice, myMusicSlice, searchTracks, tabSlice } from "./slice";
 
 const rootReducer = combineReducers({
     selectedTab: tabSlice.reducer,
@@ -9,7 +9,7 @@ const rootReducer = combineReducers({
     general: generalSlice.reducer,
     explore: exploreSlice.reducer,
     search: searchTracks.reducer,
-    catalog: catalogTracks.reducer,
+    blockPlaylist: blockPlaylist.reducer,
 });
 
 export const store = configureStore({
