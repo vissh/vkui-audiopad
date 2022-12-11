@@ -1,6 +1,6 @@
 import { decode } from "html-entities";
 
-import { ICoverPlaylist, ITrackItem } from "../types";
+import { ICoverPlaylist, IPlaylist, ITrackItem } from "../types";
 import { AUDIO_ITEM_AVATAR, AUDIO_ITEM_INDEX_DURATION, AUDIO_ITEM_INDEX_ID, AUDIO_ITEM_INDEX_PERFORMER, AUDIO_ITEM_INDEX_TITLE } from "./constants";
 
 export async function parseJson(response: Response) {
@@ -25,14 +25,24 @@ export function toTracksItems(arr: any[]): ITrackItem[] {
     });
 }
 
-export function toTypedPlaylist(playlist: any): ICoverPlaylist {
+export function toPlaylist(playlist: any): IPlaylist {
+    return {
+        id: playlist.id,
+        blockId: playlist.blockId,
+        nextOffset: playlist.nextOffset,
+        hasMore: playlist.hasMore,
+        tracks: toTracksItems(playlist.list),
+    };
+}
+
+export function toCoverPlaylist(playlist: any): ICoverPlaylist {
     const gridCoverUrls: string[] = [];
 
     if (!playlist.coverUrl && playlist.gridCovers) {
         const hmtlElement = document.createElement("html");
         hmtlElement.innerHTML = playlist.gridCovers;
         hmtlElement.querySelectorAll('[style^="background-image:url"]').forEach(el => {
-            const url = (el as HTMLInputElement).style?.backgroundImage.slice(4, -1).replace(/"/g, "");
+            const url = (el as HTMLInputElement).style.backgroundImage.slice(4, -1).replace(/"/g, "");
             url && gridCoverUrls.push(url);
         });
     }
@@ -42,6 +52,9 @@ export function toTypedPlaylist(playlist: any): ICoverPlaylist {
 
     return {
         id: playlist.id,
+        blockId: playlist.blockId,
+        nextOffset: playlist.nextOffset,
+        hasMore: playlist.hasMore,
         ownerId: playlist.ownerId,
         coverUrl: coverUrl,
         gridCoverUrls: gridCoverUrls,

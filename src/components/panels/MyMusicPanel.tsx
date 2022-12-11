@@ -1,6 +1,6 @@
+import { Group, Header, Link } from "@vkontakte/vkui";
 import "@vkontakte/vkui/dist/vkui.css";
 
-import { Group, Header, Link } from "@vkontakte/vkui";
 import React, { FC, useEffect } from "react";
 
 import { useTypedSelector } from "../../hooks/useTypedSelector";
@@ -15,7 +15,7 @@ import { TrackList } from "../base/TrackList";
 
 export const MyMusicPanel: FC = () => {
     const { selectedTab } = useTypedSelector(state => state.selectedTab);
-    const { loading, loaded, myTracks, recentTracks, myPlaylists } = useTypedSelector(state => state.myMusic);
+    const { loading, loaded, data } = useTypedSelector(state => state.myMusic);
 
     const dispatch = useAppDispatch();
 
@@ -32,53 +32,56 @@ export const MyMusicPanel: FC = () => {
         <React.Fragment>
             {loading
                 ? <Loading />
-                : (recentTracks.length || myTracks.length)
+                : (data)
                     ? <React.Fragment>
-                        {recentTracks.length ? (
+                        {data.recentTracksPlaylist?.tracks && data.recentTracksPlaylist?.tracks.length > 0 && (
                             <Group
                                 mode="plain"
                                 header={
                                     <Header
                                         mode="secondary"
-                                        aside={recentTracks.length > 6 && <Link>Показать все</Link>}
+                                        aside={data.recentTracksPlaylist.tracks.length > 6 && <Link>Показать все</Link>}
                                     >
                                         Недавно прослушанные
                                     </Header>
                                 }
                             >
-                                <HorizantalTracks tracks={recentTracks} groupElementCount={3} groupLimit={6} />
+                                <HorizantalTracks
+                                    tracks={data.recentTracksPlaylist.tracks}
+                                    groupElementCount={3}
+                                    groupLimit={6}
+                                />
                             </Group>
-                        ) : ""}
+                        )}
 
-                        {myPlaylists.length ? (
+                        {data.coverPlaylists.length > 0 && (
                             <Group
                                 mode="plain"
                                 separator="hide"
                                 header={
                                     <Header
                                         mode="secondary"
-                                        aside={myPlaylists.length > 6 && <Link>Показать все</Link>}
+                                        aside={data.coverPlaylists.length > 6 && <Link>Показать все</Link>}
                                     >
                                         Плейлисты
                                     </Header>
                                 }
                             >
-                                <HorizantalPlaylists playlists={myPlaylists} />
+                                <HorizantalPlaylists playlists={data.coverPlaylists} />
                             </Group>
-                        ) : ""}
+                        )}
 
-                        {myTracks.length ? (
+                        {data.playlist?.tracks && data.playlist.tracks.length > 0 && (
                             <Group
                                 mode="plain"
                                 header={<Header mode="secondary">Треки</Header>}
                             >
-                                <TrackList tracks={myTracks} />
+                                <TrackList tracks={data.playlist.tracks} />
                             </Group>
-                        ) : ""}
-
+                        )}
                     </React.Fragment>
-                    : <EmptyResult />}
-
+                    : <EmptyResult />
+            }
         </React.Fragment>
     );
 };

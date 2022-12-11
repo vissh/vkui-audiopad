@@ -1,7 +1,7 @@
-import { ICoverPlaylist, ITrackItem, MyMusicFetchData } from "../../types";
+import { ICoverPlaylist, IPlaylist, MyMusicFetchData } from "../../types";
 import { PlaylistType, vkFetch } from "../client";
 import { AUDIO_ITEM_INDEX_CONTEXT } from "../constants";
-import { toTracksItems, toTypedPlaylist } from "../utils";
+import { toCoverPlaylist, toPlaylist } from "../utils";
 
 export async function fetchMyMusicSection(ownerId?: string): Promise<MyMusicFetchData> {
 
@@ -17,25 +17,25 @@ export async function fetchMyMusicSection(ownerId?: string): Promise<MyMusicFetc
 
     const playlists: any[] = parsedData.payload[1][1].playlists;
 
-    const recentTracks: ITrackItem[] = [];
-    const myTracks: ITrackItem[] = [];
-    const myPlaylists: ICoverPlaylist[] = [];
+    let myPlaylist: IPlaylist | null = null;
+    let recentTracksPlaylist: IPlaylist | null = null;
+    const coverPlaylists: ICoverPlaylist[] = [];
 
     playlists.forEach(playlist => {
         if (playlist.type === "my" && playlist.list?.length) {
             if (playlist.list[0][AUDIO_ITEM_INDEX_CONTEXT] === PlaylistType.RECENT_AUDIOS) {
-                recentTracks.push(...toTracksItems(playlist.list));
+                recentTracksPlaylist = toPlaylist(playlist);
             } else if (playlist.list[0][AUDIO_ITEM_INDEX_CONTEXT] === PlaylistType.MY_AUDIOS) {
-                myTracks.push(...toTracksItems(playlist.list));
+                myPlaylist = toPlaylist(playlist);
             }
         } else if (playlist.type === "playlist") {
-            myPlaylists.push(toTypedPlaylist(playlist));
+            coverPlaylists.push(toCoverPlaylist(playlist));
         }
     });
 
     return {
-        myTracks: myTracks,
-        recentTracks: recentTracks,
-        myPlaylists: myPlaylists,
+        playlist: myPlaylist,
+        recentTracksPlaylist: recentTracksPlaylist,
+        coverPlaylists: coverPlaylists,
     }
 }

@@ -53,14 +53,18 @@ function getFetchPlaylistResult(parsedData: any): FetchPlaylistResult {
     const payload = parsedData.payload[1][1];
     const playlist = payload?.playlist;
 
-    let explorePlaylist = null;
+    let explorePlaylist: ExplorePlaylist | null = null;
 
     if (playlist) {
         explorePlaylist = {
+            id: playlist.id,
+            blockId: playlist.blockId,
+            nextOffset: playlist.nextOffset,
+            hasMore: playlist.hasMore,
+
             title: getText(playlist.title),
             tracks: toTracksItems(playlist.list),
-            hasMore: playlist.hasMore,
-        } as ExplorePlaylist
+        };
     }
 
     return {

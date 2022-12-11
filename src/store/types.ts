@@ -1,4 +1,4 @@
-import { ContentTab, ExplorePlaylist, ICoverPlaylist, ITrackItem } from "../types";
+import { ContentTab, ExplorePlaylist, GeneralFetchData, ITrackItem, MyMusicFetchData } from "../types";
 
 export type TypeTabState = {
     selectedTab: ContentTab,
@@ -9,17 +9,13 @@ export type TypeTabState = {
 export type TypeMyMusicState = {
     loading: boolean;
     loaded: boolean;
-    myTracks: ITrackItem[],
-    recentTracks: ITrackItem[],
-    myPlaylists: ICoverPlaylist[];
+    data?: MyMusicFetchData;
 }
 
 export type TypeGeneralState = {
     loading: boolean;
     loaded: boolean;
-    myTracks: ITrackItem[],
-    recentTracks: ITrackItem[],
-    baseOnYourTastes: ICoverPlaylist[];
+    data?: GeneralFetchData;
 }
 
 export type TypeExploreState = {

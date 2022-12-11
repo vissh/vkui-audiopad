@@ -27,8 +27,7 @@ export const generalSlice = createSlice({
                 state.loading = true;
             })
             .addCase(fetchGeneral.fulfilled, (state, action: PayloadAction<GeneralFetchData>) => {
-                state.myTracks = action.payload.myTracks;
-                state.baseOnYourTastes = action.payload.baseOnYourTastes;
+                state.data = action.payload;
                 state.loading = false;
                 state.loaded = true;
             });
@@ -45,9 +44,7 @@ export const myMusicSlice = createSlice({
                 state.loading = true;
             })
             .addCase(fetchMyAudios.fulfilled, (state, action: PayloadAction<MyMusicFetchData>) => {
-                state.myTracks = action.payload.myTracks;
-                state.recentTracks = action.payload.recentTracks;
-                state.myPlaylists = action.payload.myPlaylists;
+                state.data = action.payload;
                 state.loading = false;
                 state.loaded = true;
             });

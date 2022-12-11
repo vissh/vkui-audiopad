@@ -13,7 +13,7 @@ import { HorizantalTracks } from "../base/HorizantalTracksList";
 
 export const GeneralPanel: FC = () => {
     const { selectedTab } = useTypedSelector(state => state.selectedTab);
-    const { loading, loaded, myTracks } = useTypedSelector(state => state.general);
+    const { loading, loaded, data } = useTypedSelector(state => state.general);
 
     const dispatch = useAppDispatch();
 
@@ -30,16 +30,17 @@ export const GeneralPanel: FC = () => {
         <React.Fragment>
             {loading
                 ? <Loading />
-                : myTracks.length
+                : (data)
                     ? <React.Fragment>
-
-                        <Group
-                            mode="plain"
-                            header={<Header mode="secondary" aside={<Link>Показать все</Link>}>Мои треки</Header>}
-                            hidden={!myTracks.length}
-                        >
-                            <HorizantalTracks tracks={myTracks} groupElementCount={3} groupLimit={6} />
-                        </Group>
+                        {data.myTracks.length > 0 && (
+                            <Group
+                                mode="plain"
+                                header={<Header mode="secondary" aside={<Link>Показать все</Link>}>Мои треки</Header>}
+                                hidden={!data.myTracks.length}
+                            >
+                                <HorizantalTracks tracks={data.myTracks} groupElementCount={3} groupLimit={6} />
+                            </Group>
+                        )}
 
                     </React.Fragment>
                     : <EmptyResult />}

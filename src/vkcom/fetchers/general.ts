@@ -1,7 +1,7 @@
 import { GeneralFetchData, ICoverPlaylist, ITrackItem } from "../../types";
 import { PlaylistType, vkFetch } from "../client";
 import { AUDIO_ITEM_INDEX_CONTEXT } from "../constants";
-import { toTracksItems, toTypedPlaylist } from "../utils";
+import { toTracksItems, toCoverPlaylist } from "../utils";
 
 export async function fetchGeneralSection(ownerId?: string): Promise<GeneralFetchData> {
     // Возвращает плейлисты для главной страницы.
@@ -26,7 +26,7 @@ export async function fetchGeneralSection(ownerId?: string): Promise<GeneralFetc
                 myTracks.push(...toTracksItems(playlist.list));
             }
         } else if (playlist.is_generated_playlist) {
-            baseOnYourTastes.push(toTypedPlaylist(playlist));
+            baseOnYourTastes.push(toCoverPlaylist(playlist));
         }
     });
 
