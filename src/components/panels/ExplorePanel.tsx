@@ -1,13 +1,13 @@
 import "@vkontakte/vkui/dist/vkui.css";
 
-import { Icon56MusicOutline } from "@vkontakte/icons";
-import { Group, Header, Link, Panel, PanelSpinner, Placeholder } from "@vkontakte/vkui";
+import { Group, Header, Link } from "@vkontakte/vkui";
 import React, { FC, useEffect } from "react";
 
 import { useTypedSelector } from "../../hooks/useTypedSelector";
 import { fetchExplore } from "../../store/slice";
 import { useAppDispatch } from "../../store/store";
 import { ContentTab } from "../../types";
+import { EmptyResult, Loading } from "../base/blocks";
 import { HorizantalTracks } from "../base/HorizantalTracksList";
 
 
@@ -54,36 +54,5 @@ export const ExplorePanel: FC = () => {
                     : <EmptyResult />}
 
         </React.Fragment>
-    );
-};
-
-
-const Loading: FC = () => {
-    return (
-        <Panel>
-            <PanelSpinner />
-            {/* TODO: Когда-нибудь, но не сейчас. */}
-            <br /><br /><br /><br /><br />
-            <br /><br /><br /><br /><br />
-            <br /><br /><br /><br /><br />
-            <br /><br /><br /><br /><br />
-            <br /><br /><br /><br /><br />
-            <br /><br /><br /><br /><br />
-            <br /><br /><br /><br /><br />
-        </Panel>
-    );
-};
-
-
-const EmptyResult: FC = () => {
-    return (
-        <Placeholder icon={<Icon56MusicOutline />}>
-            По запросу не найдено ни одной аудиозаписи
-            {/* TODO: Когда-нибудь, но не сейчас. */}
-            <br /><br /><br /><br /><br />
-            <br /><br /><br /><br /><br />
-            <br /><br /><br /><br /><br />
-            <br /><br /><br /><br /><br />
-        </Placeholder>
     );
 };

@@ -1,5 +1,3 @@
-import { Icon56MusicOutline } from "@vkontakte/icons";
-import { Panel, PanelSpinner, Placeholder } from "@vkontakte/vkui";
 import React, { FC, useEffect } from "react";
 
 import { useSearchTracksActions } from "../../hooks/useActions";
@@ -7,6 +5,7 @@ import { useTypedSelector } from "../../hooks/useTypedSelector";
 import { fetchSearchTracks } from "../../store/slice";
 import { useAppDispatch } from "../../store/store";
 import { ContentTab } from "../../types";
+import { EmptyResult, Loading } from "../base/blocks";
 import { TrackList } from "../base/TrackList";
 
 export const SearchPanel: FC = () => {
@@ -43,35 +42,5 @@ export const SearchPanel: FC = () => {
                 </React.Fragment>
             }
         </React.Fragment>
-    );
-};
-
-const Loading: FC = () => {
-    return (
-        <Panel>
-            <PanelSpinner />
-            {/* TODO: Когда-нибудь, но не сейчас. */}
-            <br /><br /><br /><br /><br />
-            <br /><br /><br /><br /><br />
-            <br /><br /><br /><br /><br />
-            <br /><br /><br /><br /><br />
-            <br /><br /><br /><br /><br />
-            <br /><br /><br /><br /><br />
-            <br /><br /><br /><br /><br />
-        </Panel>
-    );
-};
-
-
-const EmptyResult: FC = () => {
-    return (
-        <Placeholder icon={<Icon56MusicOutline />}>
-            По запросу не найдено ни одной аудиозаписи
-            {/* TODO: Когда-нибудь, но не сейчас. */}
-            <br /><br /><br /><br /><br />
-            <br /><br /><br /><br /><br />
-            <br /><br /><br /><br /><br />
-            <br /><br /><br /><br /><br />
-        </Placeholder>
     );
 };
