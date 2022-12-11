@@ -1,9 +1,9 @@
-import { ExploreFetchData, ExplorePlaylist } from "../../types";
+import { IExploreFetchData, ITitlePlaylist } from "../../types";
 import { vkFetch } from "../client";
 import { getText, toTracksItems } from "../utils";
 
-export async function fetchExploreSection(ownerId?: string): Promise<ExploreFetchData> {
-    const result: ExploreFetchData = {
+export async function fetchExploreSection(ownerId?: string): Promise<IExploreFetchData> {
+    const result: IExploreFetchData = {
         playlists: [],
     };
 
@@ -46,14 +46,14 @@ export async function fetchExploreSection(ownerId?: string): Promise<ExploreFetc
 type FetchPlaylistResult = {
     nextFrom: string;
     sectionId: string;
-    playlist: ExplorePlaylist | null;
+    playlist: ITitlePlaylist | null;
 };
 
 function getFetchPlaylistResult(parsedData: any): FetchPlaylistResult {
     const payload = parsedData.payload[1][1];
     const playlist = payload?.playlist;
 
-    let explorePlaylist: ExplorePlaylist | null = null;
+    let explorePlaylist: ITitlePlaylist | null = null;
 
     if (playlist) {
         explorePlaylist = {

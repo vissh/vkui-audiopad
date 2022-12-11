@@ -1,9 +1,9 @@
-import { ICoverPlaylist, IPlaylist, MyMusicFetchData } from "../../types";
+import { ICoverPlaylist, IMyMusicFetchData, IPlaylist } from "../../types";
 import { PlaylistType, vkFetch } from "../client";
 import { AUDIO_ITEM_INDEX_CONTEXT } from "../constants";
 import { toCoverPlaylist, toPlaylist } from "../utils";
 
-export async function fetchMyMusicSection(ownerId?: string): Promise<MyMusicFetchData> {
+export async function fetchMyMusicSection(ownerId?: string): Promise<IMyMusicFetchData> {
 
     const parsedData = await vkFetch("https://vk.com/al_audio.php?act=section",
         {

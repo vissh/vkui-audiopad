@@ -5,6 +5,7 @@ export enum ContentTab {
     MY_MUSIC = "my-music",
     EXPLORE = "explore",
     SEARCH = "search",
+    CUSTOM_PLAYLIST = "custom-playlist",
 }
 
 // Базовый интерфейс, описывающий аудиозапись.
@@ -30,6 +31,11 @@ export interface IPlaylist extends IOffset {
     tracks: ITrackItem[];
 }
 
+// Плейлисты, которые содержат свое собственное наименование.
+export interface ITitlePlaylist extends IPlaylist {
+    title: string;
+}
+
 // Интерфейс, описывающий плейлист с картинкой.
 // Плейлист не содержит треков, необходимо загружать по id и nextOffset.
 export interface ICoverPlaylist extends IOffset {
@@ -42,30 +48,30 @@ export interface ICoverPlaylist extends IOffset {
 }
 
 // Данные для отображения во вкладке "Моя музыка".
-export interface MyMusicFetchData {
+export interface IMyMusicFetchData {
     playlist: IPlaylist | null;
     recentTracksPlaylist: IPlaylist | null;
     coverPlaylists: ICoverPlaylist[];
 }
 
 // Данные для отображения во вкладке "Главная".
-export interface GeneralFetchData {
+export interface IGeneralFetchData {
     myTracks: ITrackItem[];
     recentTracks: ITrackItem[];
     baseOnYourTastes: ICoverPlaylist[];
 }
 
-// Плейлисты, которые содержат свое собственное наименование.
-export interface ExplorePlaylist extends IPlaylist {
-    title: string;
-}
-
 // Данные для отображения во вкладке "Обзор".
-export interface ExploreFetchData {
-    playlists: ExplorePlaylist[];
+export interface IExploreFetchData {
+    playlists: ITitlePlaylist[];
 }
 
 // Данные для отображения результата поиска.
-export interface SearchFetchData {
+export interface ISearchFetchData {
     tracks: ITrackItem[];
+}
+
+// Данные для отображения загрузки доп секции, например отображение полного плейлиста.
+export interface ICatalogFetchData extends ITitlePlaylist {
+
 }

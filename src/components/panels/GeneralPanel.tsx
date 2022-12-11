@@ -35,7 +35,14 @@ export const GeneralPanel: FC = () => {
                         {data.myTracks.length > 0 && (
                             <Group
                                 mode="plain"
-                                header={<Header mode="secondary" aside={<Link>Показать все</Link>}>Мои треки</Header>}
+                                header={
+                                    <Header
+                                        mode="secondary"
+                                        aside={<Link>Показать все</Link>}
+                                    >
+                                        Мои треки
+                                    </Header>
+                                }
                                 hidden={!data.myTracks.length}
                             >
                                 <HorizantalTracks tracks={data.myTracks} groupElementCount={3} groupLimit={6} />

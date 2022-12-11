@@ -1,32 +1,39 @@
-import { ContentTab, ExplorePlaylist, GeneralFetchData, ITrackItem, MyMusicFetchData } from "../types";
+import { ContentTab, ICatalogFetchData, IGeneralFetchData, IMyMusicFetchData, ITitlePlaylist, ITrackItem } from "../types";
 
 export type TypeTabState = {
-    selectedTab: ContentTab,
-    customName: string,
-    displayCurrentPlaylistTab: boolean,
+    selectedTab: ContentTab;
+    customName: string;
+    displayCurrentPlaylistTab: boolean;
 }
 
 export type TypeMyMusicState = {
     loading: boolean;
     loaded: boolean;
-    data?: MyMusicFetchData;
+    data?: IMyMusicFetchData;
 }
 
 export type TypeGeneralState = {
     loading: boolean;
     loaded: boolean;
-    data?: GeneralFetchData;
+    data?: IGeneralFetchData;
 }
 
 export type TypeExploreState = {
     loading: boolean;
     loaded: boolean;
-    playlists: ExplorePlaylist[];
+    playlists: ITitlePlaylist[];
 };
 
 export type TypeSearchTracksState = {
     loading: boolean;
     loaded: boolean;
     searchValue: string;
-    tracks: ITrackItem[],
-}
+    tracks: ITrackItem[];
+};
+
+export type TypeCatalogTracksState = {
+    loading: boolean;
+    loaded: boolean;
+    playlist?: ITitlePlaylist;
+    data?: ICatalogFetchData;
+};

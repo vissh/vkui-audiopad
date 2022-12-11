@@ -1,9 +1,9 @@
-import { GeneralFetchData, ICoverPlaylist, ITrackItem } from "../../types";
+import { ICoverPlaylist, IGeneralFetchData, ITrackItem } from "../../types";
 import { PlaylistType, vkFetch } from "../client";
 import { AUDIO_ITEM_INDEX_CONTEXT } from "../constants";
-import { toTracksItems, toCoverPlaylist } from "../utils";
+import { toCoverPlaylist, toTracksItems } from "../utils";
 
-export async function fetchGeneralSection(ownerId?: string): Promise<GeneralFetchData> {
+export async function fetchGeneralSection(ownerId?: string): Promise<IGeneralFetchData> {
     // Возвращает плейлисты для главной страницы.
     const parsedData = await vkFetch("https://vk.com/al_audio.php?act=section",
         {

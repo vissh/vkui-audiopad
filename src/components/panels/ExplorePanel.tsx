@@ -3,6 +3,7 @@ import "@vkontakte/vkui/dist/vkui.css";
 import { Group, Header, Link } from "@vkontakte/vkui";
 import React, { FC, useEffect } from "react";
 
+import { useCatalogTracksActions, useTabActions } from "../../hooks/useActions";
 import { useTypedSelector } from "../../hooks/useTypedSelector";
 import { fetchExplore } from "../../store/slice";
 import { useAppDispatch } from "../../store/store";
@@ -12,6 +13,8 @@ import { HorizantalTracks } from "../base/HorizantalTracksList";
 
 
 export const ExplorePanel: FC = () => {
+    const { setTab } = useTabActions();
+    const { setPlaylist } = useCatalogTracksActions();
     const { selectedTab } = useTypedSelector(state => state.selectedTab);
     const { loading, loaded, playlists } = useTypedSelector(state => state.explore);
 
@@ -39,7 +42,16 @@ export const ExplorePanel: FC = () => {
                                     header={
                                         <Header
                                             mode="secondary"
-                                            aside={playlist.tracks.length > 6 && <Link>Показать все</Link>}
+                                            aside={playlist.tracks.length > 6 && (
+                                                <Link
+                                                    onClick={() => {
+                                                        setPlaylist(playlist);
+                                                        setTab(ContentTab.CUSTOM_PLAYLIST);
+                                                    }}
+                                                >
+                                                    Показать все
+                                                </Link>
+                                            )}
                                         >
                                             {playlist.title}
                                         </Header>

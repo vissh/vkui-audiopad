@@ -1,8 +1,8 @@
-import { SearchFetchData } from "../../types";
+import { ISearchFetchData } from "../../types";
 import { vkFetch } from "../client";
 import { toTracksItems } from "../utils";
 
-export async function fetchSearchTracksSection(value: string): Promise<SearchFetchData> {
+export async function fetchSearchTracksSection(value: string): Promise<ISearchFetchData> {
 
     const parsedData = await vkFetch("https://vk.com/al_audio.php",
         {

@@ -1,11 +1,12 @@
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 
-import { ContentTab, ExploreFetchData, GeneralFetchData, MyMusicFetchData, SearchFetchData } from "../types";
+import { ContentTab, ICatalogFetchData, IExploreFetchData, IGeneralFetchData, IMyMusicFetchData, ISearchFetchData, ITitlePlaylist } from "../types";
+import { fetchCatalogSection } from "../vkcom/fetchers/catalog";
 import { fetchExploreSection } from "../vkcom/fetchers/explore";
 import { fetchGeneralSection } from "../vkcom/fetchers/general";
 import { fetchMyMusicSection } from "../vkcom/fetchers/myMusic";
 import { fetchSearchTracksSection } from "../vkcom/fetchers/search";
-import { initialExploreState, initialGeneralState, initialMyMusicState, initialSearchTracksState, initialTabState } from "./initialState";
+import { initialCatalogTracksState, initialExploreState, initialGeneralState, initialMyMusicState, initialSearchTracksState, initialTabState } from "./initialState";
 
 export const tabSlice = createSlice({
     name: "tab",
@@ -26,7 +27,7 @@ export const generalSlice = createSlice({
             .addCase(fetchGeneral.pending, (state) => {
                 state.loading = true;
             })
-            .addCase(fetchGeneral.fulfilled, (state, action: PayloadAction<GeneralFetchData>) => {
+            .addCase(fetchGeneral.fulfilled, (state, action: PayloadAction<IGeneralFetchData>) => {
                 state.data = action.payload;
                 state.loading = false;
                 state.loaded = true;
@@ -43,7 +44,7 @@ export const myMusicSlice = createSlice({
             .addCase(fetchMyAudios.pending, (state) => {
                 state.loading = true;
             })
-            .addCase(fetchMyAudios.fulfilled, (state, action: PayloadAction<MyMusicFetchData>) => {
+            .addCase(fetchMyAudios.fulfilled, (state, action: PayloadAction<IMyMusicFetchData>) => {
                 state.data = action.payload;
                 state.loading = false;
                 state.loaded = true;
@@ -60,7 +61,7 @@ export const exploreSlice = createSlice({
             .addCase(fetchExplore.pending, (state) => {
                 state.loading = true;
             })
-            .addCase(fetchExplore.fulfilled, (state, action: PayloadAction<ExploreFetchData>) => {
+            .addCase(fetchExplore.fulfilled, (state, action: PayloadAction<IExploreFetchData>) => {
                 state.playlists = action.payload.playlists;
                 state.loading = false;
                 state.loaded = true;
@@ -85,13 +86,34 @@ export const searchTracks = createSlice({
             .addCase(fetchSearchTracks.pending, (state) => {
                 state.loading = true;
             })
-            .addCase(fetchSearchTracks.fulfilled, (state, action: PayloadAction<SearchFetchData>) => {
+            .addCase(fetchSearchTracks.fulfilled, (state, action: PayloadAction<ISearchFetchData>) => {
                 state.tracks = action.payload.tracks;
                 state.loading = false;
                 state.loaded = true;
             });
     },
 });
+
+export const catalogTracks = createSlice({
+    name: "catalogTracks",
+    initialState: initialCatalogTracksState,
+    reducers: {
+        setPlaylist: (state, value: PayloadAction<ITitlePlaylist>) => {
+            state.playlist = value.payload;
+        },
+    },
+    extraReducers: (builder) => {
+        builder
+            .addCase(fetchCatalogTracks.pending, (state) => {
+                state.loading = true;
+            })
+            .addCase(fetchCatalogTracks.fulfilled, (state, action: PayloadAction<ICatalogFetchData>) => {
+                state.data = action.payload;
+                state.loading = false;
+                state.loaded = true;
+            });
+    },
+})
 
 export const fetchMyAudios = createAsyncThunk(
     "vk/fetchMyAudios",
@@ -111,4 +133,14 @@ export const fetchExplore = createAsyncThunk(
 export const fetchSearchTracks = createAsyncThunk(
     "vk/searchTracks",
     async (value: string) => await fetchSearchTracksSection(value)
+);
+
+type fetchCatalogTracksParams = {
+    sectionId: string;
+    startFrom: string;
+}
+
+export const fetchCatalogTracks = createAsyncThunk(
+    "vk/catalog",
+    async (params: fetchCatalogTracksParams) => await fetchCatalogSection(params.sectionId, params.startFrom)
 );
