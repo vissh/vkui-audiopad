@@ -1,39 +1,9 @@
+import { decode } from "html-entities";
 
+import { ICoverPlaylist, ITrackItem } from "../types";
+import { AUDIO_ITEM_AVATAR, AUDIO_ITEM_INDEX_DURATION, AUDIO_ITEM_INDEX_ID, AUDIO_ITEM_INDEX_PERFORMER, AUDIO_ITEM_INDEX_TITLE } from "./constants";
 
-export async function vkFetch(url: string, params: Record<string, string>) {
-    const formData = new FormData();
-    Object.keys(params).forEach(key => formData.set(key, params[key]));
-
-    // await fetch("https://vk.com/", {
-    //     method: "GET",
-    //     headers: {
-    //         "x-requested-with": "XMLHttpRequest",
-    //     },
-    // });
-
-    // const sleep = (ms: number) => new Promise(r => setTimeout(r, ms));
-    // await sleep(1000);
-
-    const fetchPayload = () => fetch(url, {
-        method: "POST",
-        body: formData,
-        headers: {
-            "x-requested-with": "XMLHttpRequest",
-        },
-    })
-
-    const jsonResp = await parseJson(await fetchPayload());
-    
-    if (jsonResp?.payload && jsonResp.payload.length === 2 && jsonResp.payload[0] === "3") {
-        await fetch('https://vk.com');
-        return await parseJson(await fetchPayload());
-    }
-
-    return jsonResp;
-}
-
-
-async function parseJson(response: Response) {
+export async function parseJson(response: Response) {
     const iconv = require("iconv-lite");
     const Buffer = require("buffer/").Buffer;
 
@@ -41,4 +11,51 @@ async function parseJson(response: Response) {
     const str = iconv.decode(Buffer.from(arrayBuffer), "win1251");
 
     return JSON.parse(str);
+}
+
+export function toTracksItems(arr: any[]): ITrackItem[] {
+    return arr.map(trackInfo => {
+        return {
+            id: trackInfo[AUDIO_ITEM_INDEX_ID],
+            image: trackInfo[AUDIO_ITEM_AVATAR].split(",")[0],
+            artist: decode(trackInfo[AUDIO_ITEM_INDEX_TITLE]),
+            title: decode(trackInfo[AUDIO_ITEM_INDEX_PERFORMER]),
+            duration: trackInfo[AUDIO_ITEM_INDEX_DURATION],
+        }
+    });
+}
+
+export function toTypedPlaylist(playlist: any): ICoverPlaylist {
+    const gridCoverUrls: string[] = [];
+
+    if (!playlist.coverUrl && playlist.gridCovers) {
+        const hmtlElement = document.createElement("html");
+        hmtlElement.innerHTML = playlist.gridCovers;
+        hmtlElement.querySelectorAll('[style^="background-image:url"]').forEach(el => {
+            const url = (el as HTMLInputElement).style?.backgroundImage.slice(4, -1).replace(/"/g, "");
+            url && gridCoverUrls.push(url);
+        });
+    }
+
+    const coverUrl = playlist.coverUrl || (gridCoverUrls.length && gridCoverUrls[0]) || "";
+    !gridCoverUrls.length && coverUrl && gridCoverUrls.push(coverUrl);
+
+    return {
+        id: playlist.id,
+        ownerId: playlist.ownerId,
+        coverUrl: coverUrl,
+        gridCoverUrls: gridCoverUrls,
+        title: getText(playlist.title),
+        authorLine: getText(playlist.authorLine),
+        authorName: getText(playlist.authorName),
+    }
+}
+
+export function getText(str: string) {
+    if (str.startsWith("<")) {
+        const hmtlElement = document.createElement("html");
+        hmtlElement.innerHTML = str;
+        str = hmtlElement.innerText;
+    }
+    return decode(str);
 }

@@ -72,7 +72,7 @@ export const MyMusicPanel: FC = () => {
                                 mode="plain"
                                 header={<Header mode="secondary">Треки</Header>}
                             >
-                                <TrackList tracks={myTracks} cutText={false} />
+                                <TrackList tracks={myTracks} />
                             </Group>
                         ) : ""}
 

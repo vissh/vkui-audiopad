@@ -1,7 +1,10 @@
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 import { ContentTab, ExploreFetchData, GeneralFetchData, MyMusicFetchData, SearchFetchData } from "../types";
-import { fetchExploreSection, fetchGeneralSection, fetchMyMusicSection, fetchSearchTracksSection } from "../vkcom/client";
+import { fetchExploreSection } from "../vkcom/fetchers/explore";
+import { fetchGeneralSection } from "../vkcom/fetchers/general";
+import { fetchMyMusicSection } from "../vkcom/fetchers/myMusic";
+import { fetchSearchTracksSection } from "../vkcom/fetchers/search";
 import { initialExploreState, initialGeneralState, initialMyMusicState, initialSearchTracksState, initialTabState } from "./initialState";
 
 export const tabSlice = createSlice({

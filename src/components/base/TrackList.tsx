@@ -6,13 +6,13 @@ import { Track } from "./Track";
 
 type TrackListProps = {
     tracks: ITrackItem[];
-    cutText: boolean;
+    compact?: boolean;
 };
 
-export const TrackList: FC<TrackListProps> = ({ tracks, cutText }) => {
+export const TrackList: FC<TrackListProps> = ({ tracks, compact }) => {
     return (
         <List>
-            {tracks.map(track => <Track track={track} cutText={cutText} />)}
+            {tracks.map(track => <Track track={track} compact={compact} />)}
         </List>
     );
 };

@@ -5,18 +5,40 @@ import {
     Avatar, ButtonGroup, IconButton, RichCell
 } from "@vkontakte/vkui";
 import "@vkontakte/vkui/dist/vkui.css";
-import { FC } from "react";
+import { CSSProperties, FC } from "react";
 
 import { ITrackItem } from "../../types";
 
 type TrackProps = {
     track: ITrackItem;
-    cutText: boolean;
+    compact?: boolean;
 };
 
-export const Track: FC<TrackProps> = ({ track, cutText }) => {
+export const Track: FC<TrackProps> = ({ track, compact }) => {
+    const truncateTextStyle = (
+        compact
+            ? {
+                display: "inline-block",
+                whiteSpace: "nowrap",
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+                maxWidth: "28ch"
+            }
+            : {}
+    ) as CSSProperties;
+
+    const richCellStyle = (
+        compact
+            ? {
+                minWidth: "350px",
+                width: "350px"
+            }
+            : {}
+    ) as CSSProperties
+
     return (
         <RichCell
+            style={richCellStyle}
             before={
                 <Avatar
                     overlayIcon={<Icon32PlayCircle width={32} height={32} fill={"white"} />}
@@ -37,12 +59,12 @@ export const Track: FC<TrackProps> = ({ track, cutText }) => {
                 </ButtonGroup>
             }
             caption={
-                <span style={{ display: "inline-block", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", maxWidth: "32ch" }}>
+                <span style={truncateTextStyle}>
                     {track.title}
                 </span>
             }
         >
-            <span style={{ display: "inline-block", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", maxWidth: "32ch" }}>
+            <span style={truncateTextStyle}>
                 {track.artist}
             </span>
         </RichCell>

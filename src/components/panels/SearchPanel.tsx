@@ -37,7 +37,7 @@ export const SearchPanel: FC = () => {
                 ? <Loading />
                 : <React.Fragment>
                     {tracks.length
-                        ? (<TrackList tracks={tracks} cutText={false} />)
+                        ? (<TrackList tracks={tracks} />)
                         : <EmptyResult />
                     }
                 </React.Fragment>
