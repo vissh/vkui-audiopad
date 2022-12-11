@@ -15,7 +15,7 @@ type TrackProps = {
 };
 
 export const Track: FC<TrackProps> = ({ track, compact }) => {
-    const truncateTextStyle = (
+    const truncateTextStyle: CSSProperties = (
         compact
             ? {
                 display: "inline-block",
@@ -25,16 +25,16 @@ export const Track: FC<TrackProps> = ({ track, compact }) => {
                 maxWidth: "28ch"
             }
             : {}
-    ) as CSSProperties;
+    );
 
-    const richCellStyle = (
+    const richCellStyle: CSSProperties = (
         compact
             ? {
                 minWidth: "350px",
                 width: "350px"
             }
             : {}
-    ) as CSSProperties
+    );
 
     return (
         <RichCell

@@ -1,5 +1,5 @@
 import { Avatar, HorizontalCell, HorizontalScroll } from "@vkontakte/vkui";
-import { FC } from "react";
+import { CSSProperties, FC } from "react";
 
 import { ICoverPlaylist } from "../../types";
 
@@ -9,6 +9,14 @@ type HorizontalPlailistsProps = {
 
 export const HorizantalPlaylists: FC<HorizontalPlailistsProps> = ({ playlists }) => {
 
+    const truncateTextStyle: CSSProperties = {
+        display: "inline-block",
+        whiteSpace: "nowrap",
+        overflow: "hidden",
+        textOverflow: "ellipsis",
+        maxWidth: "14ch"
+    };
+
     return (
         <HorizontalScroll>
             <div style={{ display: "flex" }}>
@@ -16,12 +24,12 @@ export const HorizantalPlaylists: FC<HorizontalPlailistsProps> = ({ playlists })
                     <HorizontalCell
                         size="l"
                         header={
-                            <span style={{ display: "inline-block", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", maxWidth: "14ch" }}>
+                            <span style={truncateTextStyle}>
                                 {playlist.title}
                             </span>
                         }
                         subtitle={
-                            <span style={{ display: "inline-block", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", maxWidth: "14ch" }}>
+                            <span style={truncateTextStyle}>
                                 {playlist.authorName}
                             </span>
                         }
