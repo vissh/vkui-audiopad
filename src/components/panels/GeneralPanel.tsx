@@ -38,7 +38,7 @@ export const GeneralPanel: FC = () => {
                                 header={
                                     <Header
                                         mode="secondary"
-                                        aside={<Link>Показать все</Link>}
+                                        aside={data.myTracks.length > 6 && <Link>Показать все</Link>}
                                     >
                                         Мои треки
                                     </Header>

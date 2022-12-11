@@ -30,8 +30,8 @@ export const Track: FC<TrackProps> = ({ track, compact }) => {
     const richCellStyle: CSSProperties = (
         compact
             ? {
-                minWidth: "350px",
-                width: "350px"
+                minWidth: "362px",
+                width: "362px"
             }
             : {}
     );
