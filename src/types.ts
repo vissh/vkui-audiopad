@@ -25,15 +25,10 @@ interface IOffset {
     hasMore: boolean;
 }
 
-// Интерфейс, описывающий плейлист с треками.
-// Содержит так же инфу полная ли информация
-export interface IPlaylist extends IOffset {
-    tracks: ITrackItem[];
-}
-
 // Плейлисты, которые содержат свое собственное наименование.
-export interface ITitlePlaylist extends IPlaylist {
+export interface ITitlePlaylist extends IOffset {
     title: string;
+    tracks: ITrackItem[];
 }
 
 // Интерфейс, описывающий плейлист с картинкой.
@@ -49,15 +44,14 @@ export interface ICoverPlaylist extends IOffset {
 
 // Данные для отображения во вкладке "Моя музыка".
 export interface IMyMusicFetchData {
-    playlist: IPlaylist | null;
-    recentTracksPlaylist: IPlaylist | null;
+    playlist: ITitlePlaylist | null;
+    recentTracksPlaylist: ITitlePlaylist | null;
     coverPlaylists: ICoverPlaylist[];
 }
 
 // Данные для отображения во вкладке "Главная".
 export interface IGeneralFetchData {
-    myTracks: ITrackItem[];
-    recentTracks: ITrackItem[];
+    playlist: ITitlePlaylist | null;
     baseOnYourTastes: ICoverPlaylist[];
 }
 

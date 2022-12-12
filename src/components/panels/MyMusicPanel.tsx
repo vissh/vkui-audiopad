@@ -2,6 +2,7 @@ import { Group, Header, Link } from "@vkontakte/vkui";
 import "@vkontakte/vkui/dist/vkui.css";
 
 import React, { FC, useEffect } from "react";
+import { useBlockPlaylistActions, useTabActions } from "../../hooks/useActions";
 
 import { useTypedSelector } from "../../hooks/useTypedSelector";
 import { fetchMyAudios } from "../../store/slice";
@@ -14,6 +15,8 @@ import { TrackList } from "../base/TrackList";
 
 
 export const MyMusicPanel: FC = () => {
+    const { setTab } = useTabActions();
+    const { setBlockId } = useBlockPlaylistActions();
     const { selectedTab } = useTypedSelector(state => state.selectedTab);
     const { loading, loaded, data } = useTypedSelector(state => state.myMusic);
 
@@ -34,13 +37,23 @@ export const MyMusicPanel: FC = () => {
                 ? <Loading />
                 : (data)
                     ? <React.Fragment>
-                        {data.recentTracksPlaylist?.tracks && data.recentTracksPlaylist?.tracks.length > 0 && (
+                        {data.recentTracksPlaylist && data.recentTracksPlaylist.tracks.length > 0 && (
                             <Group
                                 mode="plain"
                                 header={
                                     <Header
                                         mode="secondary"
-                                        aside={data.recentTracksPlaylist.tracks.length > 6 && <Link>Показать все</Link>}
+                                        aside={data.recentTracksPlaylist.tracks.length > 6 && (
+                                            <Link
+                                                onClick={() => {
+                                                    if (data.recentTracksPlaylist) {
+                                                        setBlockId(data.recentTracksPlaylist.blockId);
+                                                        setTab(ContentTab.BLOCK_PLAYLIST);
+                                                    }
+                                                }}
+                                            >
+                                                Показать все
+                                            </Link>)}
                                     >
                                         Недавно прослушанные
                                     </Header>

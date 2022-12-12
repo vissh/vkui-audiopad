@@ -3,6 +3,7 @@ import "@vkontakte/vkui/dist/vkui.css";
 import { Group, Header, Link } from "@vkontakte/vkui";
 import React, { FC, useEffect } from "react";
 
+import { useBlockPlaylistActions, useTabActions } from "../../hooks/useActions";
 import { useTypedSelector } from "../../hooks/useTypedSelector";
 import { fetchGeneral } from "../../store/slice";
 import { useAppDispatch } from "../../store/store";
@@ -12,6 +13,8 @@ import { HorizantalTracks } from "../base/HorizantalTracksList";
 
 
 export const GeneralPanel: FC = () => {
+    const { setTab } = useTabActions();
+    const { setBlockId } = useBlockPlaylistActions();
     const { selectedTab } = useTypedSelector(state => state.selectedTab);
     const { loading, loaded, data } = useTypedSelector(state => state.general);
 
@@ -32,20 +35,30 @@ export const GeneralPanel: FC = () => {
                 ? <Loading />
                 : (data)
                     ? <React.Fragment>
-                        {data.myTracks.length > 0 && (
+                        {data.playlist && data.playlist.tracks.length > 0 && (
                             <Group
                                 mode="plain"
                                 header={
                                     <Header
                                         mode="secondary"
-                                        aside={data.myTracks.length > 6 && <Link>Показать все</Link>}
+                                        aside={data.playlist.tracks.length > 6 && (
+                                            <Link
+                                                onClick={() => {
+                                                    if (data.playlist) {
+                                                        setBlockId(data.playlist.blockId);
+                                                        setTab(ContentTab.BLOCK_PLAYLIST);
+                                                    }
+                                                }}
+                                            >
+                                                Показать все
+                                            </Link>)}
                                     >
                                         Мои треки
                                     </Header>
                                 }
-                                hidden={!data.myTracks.length}
+                                hidden={!data.playlist.tracks.length}
                             >
-                                <HorizantalTracks tracks={data.myTracks} groupElementCount={3} groupLimit={6} />
+                                <HorizantalTracks tracks={data.playlist.tracks} groupElementCount={3} groupLimit={6} />
                             </Group>
                         )}
 

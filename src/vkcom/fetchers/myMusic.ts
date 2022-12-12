@@ -1,7 +1,7 @@
-import { ICoverPlaylist, IMyMusicFetchData, IPlaylist } from "../../types";
+import { ICoverPlaylist, IMyMusicFetchData, ITitlePlaylist } from "../../types";
 import { PlaylistType, vkFetch } from "../client";
 import { AUDIO_ITEM_INDEX_CONTEXT } from "../constants";
-import { toCoverPlaylist, toPlaylist } from "../utils";
+import { toCoverPlaylist, toTitlePlaylist } from "../utils";
 
 export async function fetchMyMusicSection(ownerId?: string): Promise<IMyMusicFetchData> {
 
@@ -17,16 +17,16 @@ export async function fetchMyMusicSection(ownerId?: string): Promise<IMyMusicFet
 
     const playlists: any[] = parsedData.payload[1][1].playlists;
 
-    let myPlaylist: IPlaylist | null = null;
-    let recentTracksPlaylist: IPlaylist | null = null;
+    let myPlaylist: ITitlePlaylist | null = null;
+    let recentTracksPlaylist: ITitlePlaylist | null = null;
     const coverPlaylists: ICoverPlaylist[] = [];
 
     playlists.forEach(playlist => {
         if (playlist.type === "my" && playlist.list?.length) {
             if (playlist.list[0][AUDIO_ITEM_INDEX_CONTEXT] === PlaylistType.RECENT_AUDIOS) {
-                recentTracksPlaylist = toPlaylist(playlist);
+                recentTracksPlaylist = toTitlePlaylist(playlist);
             } else if (playlist.list[0][AUDIO_ITEM_INDEX_CONTEXT] === PlaylistType.MY_AUDIOS) {
-                myPlaylist = toPlaylist(playlist);
+                myPlaylist = toTitlePlaylist(playlist);
             }
         } else if (playlist.type === "playlist") {
             coverPlaylists.push(toCoverPlaylist(playlist));

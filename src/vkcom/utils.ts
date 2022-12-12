@@ -1,6 +1,6 @@
 import { decode } from "html-entities";
 
-import { ICoverPlaylist, IPlaylist, ITitlePlaylist, ITrackItem } from "../types";
+import { ICoverPlaylist, ITitlePlaylist, ITrackItem } from "../types";
 import { AUDIO_ITEM_AVATAR, AUDIO_ITEM_INDEX_DURATION, AUDIO_ITEM_INDEX_ID, AUDIO_ITEM_INDEX_PERFORMER, AUDIO_ITEM_INDEX_TITLE } from "./constants";
 
 export async function parseJson(response: Response) {
@@ -25,20 +25,14 @@ export function toTracksItems(arr: any[]): ITrackItem[] {
     });
 }
 
-export function toPlaylist(playlist: any): IPlaylist {
+export function toTitlePlaylist(playlist: any): ITitlePlaylist {
     return {
         id: playlist.id,
         blockId: playlist.blockId,
         nextOffset: playlist.nextOffset,
         hasMore: playlist.hasMore,
-        tracks: toTracksItems(playlist.list),
-    };
-}
-
-export function toTitlePlaylist(playlist: any): ITitlePlaylist {
-    return {
         title: getText(playlist.title),
-        ...toPlaylist(playlist),
+        tracks: toTracksItems(playlist.list),
     }
 }
 

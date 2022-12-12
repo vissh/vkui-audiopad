@@ -1,7 +1,7 @@
-import { ICoverPlaylist, IGeneralFetchData, ITrackItem } from "../../types";
+import { ICoverPlaylist, IGeneralFetchData, ITitlePlaylist } from "../../types";
 import { PlaylistType, vkFetch } from "../client";
 import { AUDIO_ITEM_INDEX_CONTEXT } from "../constants";
-import { toCoverPlaylist, toTracksItems } from "../utils";
+import { toCoverPlaylist, toTitlePlaylist } from "../utils";
 
 export async function fetchGeneralSection(ownerId?: string): Promise<IGeneralFetchData> {
     // Возвращает плейлисты для главной страницы.
@@ -17,22 +17,21 @@ export async function fetchGeneralSection(ownerId?: string): Promise<IGeneralFet
 
     const playlists: any[] = parsedData.payload[1][1].playlists;
 
-    const myTracks: ITrackItem[] = [];
-    const baseOnYourTastes: ICoverPlaylist[] = [];
+    let myPlaylist: ITitlePlaylist | null = null;
+    const coverPlaylists: ICoverPlaylist[] = [];
 
     playlists.forEach(playlist => {
         if (playlist.list?.length) {
             if (playlist.list[0][AUDIO_ITEM_INDEX_CONTEXT] === PlaylistType.GENERAL_MY_AUDIOS) {
-                myTracks.push(...toTracksItems(playlist.list));
+                myPlaylist = toTitlePlaylist(playlist);
             }
         } else if (playlist.is_generated_playlist) {
-            baseOnYourTastes.push(toCoverPlaylist(playlist));
+            coverPlaylists.push(toCoverPlaylist(playlist));
         }
     });
 
     return {
-        myTracks: myTracks,
-        recentTracks: [],
-        baseOnYourTastes: baseOnYourTastes,
+        playlist: myPlaylist,
+        baseOnYourTastes: coverPlaylists,
     }
 }
