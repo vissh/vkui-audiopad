@@ -1,6 +1,6 @@
 import "@vkontakte/vkui/dist/vkui.css";
 
-import { Group, Header, Link } from "@vkontakte/vkui";
+import { Card, CardScroll, Group, Header, Link, Text, Title } from "@vkontakte/vkui";
 import React, { FC, useEffect } from "react";
 
 import { useBlockPlaylistActions, useTabActions } from "../../hooks/useActions";
@@ -62,9 +62,48 @@ export const GeneralPanel: FC = () => {
                             </Group>
                         )}
 
+                        {data.baseOnYourTastes && data.baseOnYourTastes.length > 0 && (
+                            <Group mode="plain">
+                                <CardScroll size="s">
+                                    <div style={{ display: "flex" }}>
+                                        {data.baseOnYourTastes.map(el => (
+                                            <Card style={{
+                                                backgroundImage: "url(" + el.coverUrl + ")",
+                                                backgroundSize: "165px 200px",
+                                                // 198x240
+                                                width: "165px",
+                                                height: "200px"
+                                            }} >
+                                                <Title
+                                                    style={{
+                                                        marginBottom: 12,
+                                                        marginTop: 20,
+                                                        textAlign: "center",
+                                                        color: "white",
+                                                    }}
+                                                    level="1"
+                                                    weight="1"
+                                                >
+                                                    {el.title}
+                                                </Title>
+                                                <Text
+                                                    style={{
+                                                        marginBottom: 48,
+                                                        textAlign: "center",
+                                                        color: "white",
+                                                    }}
+                                                >
+                                                    {el.authorLine}
+                                                </Text>
+                                            </Card>
+                                        ))}
+                                    </div>
+                                </CardScroll>
+                            </Group>
+                        )}
+
                     </React.Fragment>
                     : <EmptyResult />}
-
-        </React.Fragment>
+        </React.Fragment >
     );
 };

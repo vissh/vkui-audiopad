@@ -22,7 +22,7 @@ export const Track: FC<TrackProps> = ({ track, compact }) => {
                 whiteSpace: "nowrap",
                 overflow: "hidden",
                 textOverflow: "ellipsis",
-                maxWidth: "28ch"
+                maxWidth: "28ch",
             }
             : {}
     );
@@ -31,7 +31,7 @@ export const Track: FC<TrackProps> = ({ track, compact }) => {
         compact
             ? {
                 minWidth: "362px",
-                width: "362px"
+                width: "362px",
             }
             : {}
     );

@@ -14,7 +14,7 @@ export const HorizantalPlaylists: FC<HorizontalPlailistsProps> = ({ playlists })
         whiteSpace: "nowrap",
         overflow: "hidden",
         textOverflow: "ellipsis",
-        maxWidth: "14ch"
+        maxWidth: "14ch",
     };
 
     return (
