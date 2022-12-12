@@ -63,7 +63,16 @@ export const GeneralPanel: FC = () => {
                         )}
 
                         {data.baseOnYourTastes && data.baseOnYourTastes.length > 0 && (
-                            <Group mode="plain">
+                            <Group
+                                mode="plain"
+                                header={
+                                    <Header
+                                        mode="secondary"
+                                    >
+                                        Собрано алгоритмами
+                                    </Header>
+                                }
+                            >
                                 <CardScroll size="s">
                                     <div style={{ display: "flex" }}>
                                         {data.baseOnYourTastes.map(el => (
