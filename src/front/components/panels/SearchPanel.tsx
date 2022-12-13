@@ -1,10 +1,10 @@
 import React, { FC, useEffect } from "react";
 
+import { ContentTab } from "../../../types";
 import { useSearchTracksActions } from "../../hooks/useActions";
 import { useTypedSelector } from "../../hooks/useTypedSelector";
 import { fetchSearchTracks } from "../../store/slice";
 import { useAppDispatch } from "../../store/store";
-import { ContentTab } from "../../types";
 import { EmptyResult, Loading } from "../base/blocks";
 import { TrackList } from "../base/TrackList";
 

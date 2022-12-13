@@ -1,4 +1,4 @@
-import { ContentTab, IBlockPlaylistFetchData, IGeneralFetchData, IMyMusicFetchData, ITitlePlaylist, ITrackItem } from "../types";
+import { ContentTab, IBlockPlaylistFetchData, IGeneralFetchData, IMyMusicFetchData, ITitlePlaylist, ITrackItem } from "../../types";
 
 export type TypeTabState = {
     selectedTab: ContentTab;

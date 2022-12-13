@@ -1,9 +1,9 @@
 import { Group, Tabs, TabsItem } from "@vkontakte/vkui";
 import { FC } from "react";
 
+import { ContentTab } from "../../types";
 import { useTabActions } from "../hooks/useActions";
 import { useTypedSelector } from "../hooks/useTypedSelector";
-import { ContentTab } from "../types";
 import { SearchTracks } from "./base/SearchTracks";
 import { BlockPlaylistPanel } from "./panels/BlockPlaylistPanel";
 import { ExplorePanel } from "./panels/ExplorePanel";

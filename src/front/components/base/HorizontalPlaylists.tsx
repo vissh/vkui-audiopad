@@ -1,7 +1,7 @@
 import { Avatar, HorizontalCell, HorizontalScroll } from "@vkontakte/vkui";
 import { CSSProperties, FC } from "react";
 
-import { ICoverPlaylist } from "../../types";
+import { ICoverPlaylist } from "../../../types";
 
 type HorizontalPlailistsProps = {
     playlists: ICoverPlaylist[];

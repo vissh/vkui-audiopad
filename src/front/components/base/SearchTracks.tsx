@@ -4,9 +4,9 @@ import { Search } from "@vkontakte/vkui";
 import React, { FC, useEffect, useState } from "react";
 import { debounceTime, distinctUntilChanged, Subject } from "rxjs";
 
+import { ContentTab } from "../../../types";
 import { useSearchTracksActions, useTabActions } from "../../hooks/useActions";
 import { useTypedSelector } from "../../hooks/useTypedSelector";
-import { ContentTab } from "../../types";
 
 export const SearchTracks: FC = () => {
     const { setTab } = useTabActions();

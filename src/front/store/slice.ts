@@ -1,11 +1,11 @@
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 
-import { ContentTab, IBlockPlaylistFetchData, IExploreFetchData, IGeneralFetchData, IMyMusicFetchData, ISearchFetchData } from "../types";
-import { fetchBlockPlaylistSection } from "../vkcom/fetchers/blockPlaylist";
-import { fetchExploreSection } from "../vkcom/fetchers/explore";
-import { fetchGeneralSection } from "../vkcom/fetchers/general";
-import { fetchMyMusicSection } from "../vkcom/fetchers/myMusic";
-import { fetchSearchTracksSection } from "../vkcom/fetchers/search";
+import { ContentTab, IBlockPlaylistFetchData, IExploreFetchData, IGeneralFetchData, IMyMusicFetchData, ISearchFetchData } from "../../types";
+import { fetchBlockPlaylistSection } from "../../vkcom/fetchers/blockPlaylist";
+import { fetchExploreSection } from "../../vkcom/fetchers/explore";
+import { fetchGeneralSection } from "../../vkcom/fetchers/general";
+import { fetchMyMusicSection } from "../../vkcom/fetchers/myMusic";
+import { fetchSearchTracksSection } from "../../vkcom/fetchers/search";
 import { initialBlockPlaylistState, initialExploreState, initialGeneralState, initialMyMusicState, initialSearchTracksState, initialTabState } from "./initialState";
 
 export const tabSlice = createSlice({

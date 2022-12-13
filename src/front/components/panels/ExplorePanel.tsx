@@ -3,11 +3,11 @@ import "@vkontakte/vkui/dist/vkui.css";
 import { Group, Header, Link } from "@vkontakte/vkui";
 import React, { FC, useEffect } from "react";
 
+import { ContentTab } from "../../../types";
 import { useBlockPlaylistActions, useTabActions } from "../../hooks/useActions";
 import { useTypedSelector } from "../../hooks/useTypedSelector";
 import { fetchExplore } from "../../store/slice";
 import { useAppDispatch } from "../../store/store";
-import { ContentTab } from "../../types";
 import { EmptyResult, Loading } from "../base/blocks";
 import { HorizantalTracks } from "../base/HorizantalTracksList";
 

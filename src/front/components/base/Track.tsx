@@ -7,7 +7,7 @@ import {
 import "@vkontakte/vkui/dist/vkui.css";
 import { CSSProperties, FC } from "react";
 
-import { ITrackItem } from "../../types";
+import { ITrackItem } from "../../../types";
 
 type TrackProps = {
     track: ITrackItem;

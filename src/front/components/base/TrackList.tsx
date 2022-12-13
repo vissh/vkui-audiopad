@@ -1,7 +1,7 @@
 import { List } from "@vkontakte/vkui";
 import { FC } from "react";
 
-import { ITrackItem } from "../../types";
+import { ITrackItem } from "../../../types";
 import { Track } from "./Track";
 
 type TrackListProps = {

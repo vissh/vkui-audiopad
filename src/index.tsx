@@ -7,9 +7,9 @@ import {
 import ReactDOM from "react-dom";
 import { Provider } from "react-redux";
 
-import { AudioControls } from "./components/AudioControls";
-import { ContentPanel } from "./components/ContentPanel";
-import { store } from "./store/store";
+import { AudioControls } from "./front/components/AudioControls";
+import { ContentPanel } from "./front/components/ContentPanel";
+import { store } from "./front/store/store";
 
 const App = () => {
     return (

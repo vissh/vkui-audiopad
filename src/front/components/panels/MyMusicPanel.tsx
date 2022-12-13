@@ -4,10 +4,10 @@ import "@vkontakte/vkui/dist/vkui.css";
 import React, { FC, useEffect } from "react";
 import { useBlockPlaylistActions, useTabActions } from "../../hooks/useActions";
 
+import { ContentTab } from "../../../types";
 import { useTypedSelector } from "../../hooks/useTypedSelector";
 import { fetchMyAudios } from "../../store/slice";
 import { useAppDispatch } from "../../store/store";
-import { ContentTab } from "../../types";
 import { EmptyResult, Loading } from "../base/blocks";
 import { HorizantalTracks } from "../base/HorizantalTracksList";
 import { HorizantalPlaylists } from "../base/HorizontalPlaylists";

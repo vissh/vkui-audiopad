@@ -1,10 +1,10 @@
 import { Group, Header } from "@vkontakte/vkui";
 import React, { FC, useEffect } from "react";
 
+import { ContentTab } from "../../../types";
 import { useTypedSelector } from "../../hooks/useTypedSelector";
 import { fetchBlockPlaylist } from "../../store/slice";
 import { useAppDispatch } from "../../store/store";
-import { ContentTab } from "../../types";
 import { EmptyResult, Loading } from "../base/blocks";
 import { TrackList } from "../base/TrackList";
 

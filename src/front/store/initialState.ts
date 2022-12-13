@@ -1,5 +1,5 @@
 
-import { ContentTab } from "../types";
+import { ContentTab } from "../../types";
 import { TypeBlockPlaylistState, TypeExploreState, TypeGeneralState, TypeMyMusicState, TypeSearchTracksState, TypeTabState } from "./types";
 
 
