@@ -27,7 +27,9 @@ export function toTracksItems(arr: any[]): ITrackItem[] {
 
 export function toTitlePlaylist(playlist: any): ITitlePlaylist {
     return {
-        id: playlist.id,
+        id: String(playlist.id),
+        ownerId: String(playlist.ownerId),
+        accessHash: playlist.access_hash,
         blockId: playlist.blockId,
         nextOffset: playlist.nextOffset,
         hasMore: playlist.hasMore,
@@ -52,14 +54,9 @@ export function toCoverPlaylist(playlist: any): ICoverPlaylist {
     !gridCoverUrls.length && coverUrl && gridCoverUrls.push(coverUrl);
 
     return {
-        id: playlist.id,
-        blockId: playlist.blockId,
-        nextOffset: playlist.nextOffset,
-        hasMore: playlist.hasMore,
-        ownerId: playlist.ownerId,
+        ...toTitlePlaylist(playlist),
         coverUrl: coverUrl,
         gridCoverUrls: gridCoverUrls,
-        title: getText(playlist.title),
         authorLine: getText(playlist.authorLine),
         authorName: getText(playlist.authorName),
     }

@@ -3,11 +3,11 @@ import { CSSProperties, FC } from "react";
 
 import { ICoverPlaylist } from "../../../types";
 
-type HorizontalPlailistsProps = {
+type Props = {
     playlists: ICoverPlaylist[];
 };
 
-export const HorizantalPlaylists: FC<HorizontalPlailistsProps> = ({ playlists }) => {
+export const HorizantalPlaylists: FC<Props> = ({ playlists }) => {
 
     const truncateTextStyle: CSSProperties = {
         display: "inline-block",

@@ -1,20 +1,18 @@
 import "@vkontakte/vkui/dist/vkui.css";
 
-import { Card, CardScroll, Group, Header, Link, Text, Title } from "@vkontakte/vkui";
+import { Card, CardScroll, Group, Header, Text, Title } from "@vkontakte/vkui";
 import React, { FC, useEffect } from "react";
 
 import { ContentTab } from "../../../types";
-import { useBlockPlaylistActions, useTabActions } from "../../hooks/useActions";
 import { useTypedSelector } from "../../hooks/useTypedSelector";
 import { fetchGeneral } from "../../store/slice";
 import { useAppDispatch } from "../../store/store";
 import { EmptyResult, Loading } from "../base/blocks";
 import { HorizantalTracks } from "../base/HorizantalTracksList";
+import { ShowAllTracksHeaderLink } from "../base/ShowAllTracksHeaderLink";
 
 
 export const GeneralPanel: FC = () => {
-    const { setTab } = useTabActions();
-    const { setBlockId } = useBlockPlaylistActions();
     const { selectedTab } = useTypedSelector(state => state.selectedTab);
     const { loading, loaded, data } = useTypedSelector(state => state.general);
 
@@ -38,24 +36,7 @@ export const GeneralPanel: FC = () => {
                         {data.playlist && data.playlist.tracks.length > 0 && (
                             <Group
                                 mode="plain"
-                                header={
-                                    <Header
-                                        mode="secondary"
-                                        aside={data.playlist.tracks.length > 6 && (
-                                            <Link
-                                                onClick={() => {
-                                                    if (data.playlist) {
-                                                        setBlockId(data.playlist.blockId);
-                                                        setTab(ContentTab.BLOCK_PLAYLIST);
-                                                    }
-                                                }}
-                                            >
-                                                Показать все
-                                            </Link>)}
-                                    >
-                                        Мои треки
-                                    </Header>
-                                }
+                                header={<ShowAllTracksHeaderLink playlist={data.playlist} />}
                                 hidden={!data.playlist.tracks.length}
                             >
                                 <HorizantalTracks tracks={data.playlist.tracks} groupElementCount={3} groupLimit={6} />
@@ -76,13 +57,14 @@ export const GeneralPanel: FC = () => {
                                 <CardScroll size="s">
                                     <div style={{ display: "flex" }}>
                                         {data.baseOnYourTastes.map(el => (
-                                            <Card style={{
-                                                backgroundImage: "url(" + el.coverUrl + ")",
-                                                backgroundSize: "165px 200px",
-                                                // 198x240
-                                                width: "165px",
-                                                height: "200px"
-                                            }} >
+                                            <Card
+                                                style={{
+                                                    backgroundImage: "url(" + el.coverUrl + ")",
+                                                    backgroundSize: "165px 200px",
+                                                    width: "165px",
+                                                    height: "200px"
+                                                }}
+                                            >
                                                 <Title
                                                     style={{
                                                         marginBottom: 12,

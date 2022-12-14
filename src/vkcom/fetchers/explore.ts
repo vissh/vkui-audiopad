@@ -1,6 +1,6 @@
 import { IExploreFetchData, ITitlePlaylist } from "../../types";
 import { vkFetch } from "../client";
-import { getText, toTracksItems } from "../utils";
+import { toTitlePlaylist } from "../utils";
 
 export async function fetchExploreSection(ownerId?: string): Promise<IExploreFetchData> {
     const result: IExploreFetchData = {
@@ -56,15 +56,7 @@ function getFetchPlaylistResult(parsedData: any): FetchPlaylistResult {
     let explorePlaylist: ITitlePlaylist | null = null;
 
     if (playlist) {
-        explorePlaylist = {
-            id: playlist.id,
-            blockId: playlist.blockId,
-            nextOffset: playlist.nextOffset,
-            hasMore: playlist.hasMore,
-
-            title: getText(playlist.title),
-            tracks: toTracksItems(playlist.list),
-        };
+        explorePlaylist = toTitlePlaylist(playlist);
     }
 
     return {

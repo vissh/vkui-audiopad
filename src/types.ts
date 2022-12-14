@@ -29,15 +29,15 @@ interface IOffset {
 export interface ITitlePlaylist extends IOffset {
     title: string;
     tracks: ITrackItem[];
+    accessHash: string;
+    ownerId: string;
 }
 
 // Интерфейс, описывающий плейлист с картинкой.
 // Плейлист не содержит треков, необходимо загружать по id и nextOffset.
-export interface ICoverPlaylist extends IOffset {
-    ownerId: number;
+export interface ICoverPlaylist extends ITitlePlaylist {
     coverUrl: string;
     gridCoverUrls: string[];
-    title: string;
     authorLine: string;
     authorName: string;
 }

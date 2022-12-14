@@ -9,12 +9,12 @@ import { CSSProperties, FC } from "react";
 
 import { ITrackItem } from "../../../types";
 
-type TrackProps = {
+type Props = {
     track: ITrackItem;
     compact?: boolean;
 };
 
-export const Track: FC<TrackProps> = ({ track, compact }) => {
+export const Track: FC<Props> = ({ track, compact }) => {
     const truncateTextStyle: CSSProperties = (
         compact
             ? {

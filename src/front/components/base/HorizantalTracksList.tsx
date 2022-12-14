@@ -5,13 +5,13 @@ import { ITrackItem } from "../../../types";
 import { chunked } from "../../../utils";
 import { TrackList } from "./TrackList";
 
-type HorizontalTracksProps = {
+type Props = {
     tracks: ITrackItem[];
     groupElementCount: number;
     groupLimit: number;
 };
 
-export const HorizantalTracks: FC<HorizontalTracksProps> = ({ tracks, groupElementCount, groupLimit }) => {
+export const HorizantalTracks: FC<Props> = ({ tracks, groupElementCount, groupLimit }) => {
 
     const columnsTracks = Array.from(chunked(tracks, groupElementCount, groupLimit));
 
