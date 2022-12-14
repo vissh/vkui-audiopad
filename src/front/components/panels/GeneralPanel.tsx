@@ -38,7 +38,6 @@ export const GeneralPanel: FC = () => {
                             <Group
                                 mode="plain"
                                 header={<ShowAllTracksHeaderLink playlist={fetchResult.playlist} />}
-                                hidden={!fetchResult.playlist.tracks.length}
                             >
                                 <HorizantalTracks tracks={fetchResult.playlist.tracks} groupElementCount={3} groupLimit={6} />
                             </Group>
