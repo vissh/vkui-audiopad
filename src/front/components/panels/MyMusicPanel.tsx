@@ -16,7 +16,7 @@ import { TrackList } from "../base/TrackList";
 
 export const MyMusicPanel: FC = () => {
     const { selectedTab } = useTypedSelector(state => state.selectedTab);
-    const { loading, loaded, data } = useTypedSelector(state => state.myMusic);
+    const { loading, loaded, fetchResult } = useTypedSelector(state => state.myMusic);
 
     const dispatch = useAppDispatch();
 
@@ -33,44 +33,44 @@ export const MyMusicPanel: FC = () => {
         <React.Fragment>
             {loading
                 ? <Loading />
-                : (data)
+                : (fetchResult)
                     ? <React.Fragment>
-                        {data.recentTracksPlaylist && data.recentTracksPlaylist.tracks.length > 0 && (
+                        {fetchResult.recentTracksPlaylist && fetchResult.recentTracksPlaylist.tracks.length > 0 && (
                             <Group
                                 mode="plain"
-                                header={<ShowAllTracksHeaderLink playlist={data.recentTracksPlaylist} />}
+                                header={<ShowAllTracksHeaderLink playlist={fetchResult.recentTracksPlaylist} />}
                             >
                                 <HorizantalTracks
-                                    tracks={data.recentTracksPlaylist.tracks}
+                                    tracks={fetchResult.recentTracksPlaylist.tracks}
                                     groupElementCount={3}
                                     groupLimit={6}
                                 />
                             </Group>
                         )}
 
-                        {data.coverPlaylists.length > 0 && (
+                        {fetchResult.coverPlaylists.length > 0 && (
                             <Group
                                 mode="plain"
                                 separator="hide"
                                 header={
                                     <Header
                                         mode="secondary"
-                                        aside={data.coverPlaylists.length > 6 && <Link>Показать все</Link>}
+                                        aside={fetchResult.coverPlaylists.length > 6 && <Link>Показать все</Link>}
                                     >
                                         Плейлисты
                                     </Header>
                                 }
                             >
-                                <HorizantalPlaylists playlists={data.coverPlaylists} />
+                                <HorizantalPlaylists playlists={fetchResult.coverPlaylists} />
                             </Group>
                         )}
 
-                        {data.playlist?.tracks && data.playlist.tracks.length > 0 && (
+                        {fetchResult.playlist?.tracks && fetchResult.playlist.tracks.length > 0 && (
                             <Group
                                 mode="plain"
                                 header={<Header mode="secondary">Треки</Header>}
                             >
-                                <TrackList tracks={data.playlist.tracks} />
+                                <TrackList tracks={fetchResult.playlist.tracks} />
                             </Group>
                         )}
                     </React.Fragment>

@@ -9,13 +9,13 @@ export type TypeTabState = {
 export type TypeMyMusicState = {
     loading: boolean;
     loaded: boolean;
-    data?: IMyMusicFetchData;
+    fetchResult: IMyMusicFetchData | null;
 }
 
 export type TypeGeneralState = {
     loading: boolean;
     loaded: boolean;
-    data?: IGeneralFetchData;
+    fetchResult: IGeneralFetchData | null;
 }
 
 export type TypeExploreState = {

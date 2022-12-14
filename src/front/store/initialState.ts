@@ -12,11 +12,13 @@ export const initialTabState: TypeTabState = {
 export const initialGeneralState: TypeGeneralState = {
     loading: false,
     loaded: false,
+    fetchResult: null,
 }
 
 export const initialMyMusicState: TypeMyMusicState = {
     loading: false,
     loaded: false,
+    fetchResult: null,
 }
 
 export const initialExploreState: TypeExploreState = {

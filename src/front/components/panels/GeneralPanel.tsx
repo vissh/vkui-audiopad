@@ -15,7 +15,7 @@ import { ShowAllTracksHeaderLink } from "../base/ShowAllTracksHeaderLink";
 
 export const GeneralPanel: FC = () => {
     const { selectedTab } = useTypedSelector(state => state.selectedTab);
-    const { loading, loaded, data } = useTypedSelector(state => state.general);
+    const { loading, loaded, fetchResult } = useTypedSelector(state => state.general);
     const { setTab } = useTabActions();
     const { setBlockId } = useBlockPlaylistActions();
 
@@ -34,19 +34,19 @@ export const GeneralPanel: FC = () => {
         <React.Fragment>
             {loading
                 ? <Loading />
-                : (data)
+                : (fetchResult)
                     ? <React.Fragment>
-                        {data.playlist && data.playlist.tracks.length > 0 && (
+                        {fetchResult.playlist && fetchResult.playlist.tracks.length > 0 && (
                             <Group
                                 mode="plain"
-                                header={<ShowAllTracksHeaderLink playlist={data.playlist} />}
-                                hidden={!data.playlist.tracks.length}
+                                header={<ShowAllTracksHeaderLink playlist={fetchResult.playlist} />}
+                                hidden={!fetchResult.playlist.tracks.length}
                             >
-                                <HorizantalTracks tracks={data.playlist.tracks} groupElementCount={3} groupLimit={6} />
+                                <HorizantalTracks tracks={fetchResult.playlist.tracks} groupElementCount={3} groupLimit={6} />
                             </Group>
                         )}
 
-                        {data.baseOnYourTastes && data.baseOnYourTastes.length > 0 && (
+                        {fetchResult.baseOnYourTastes && fetchResult.baseOnYourTastes.length > 0 && (
                             <Group
                                 mode="plain"
                                 header={
@@ -59,7 +59,7 @@ export const GeneralPanel: FC = () => {
                             >
                                 <CardScroll size="s">
                                     <div style={{ display: "flex" }}>
-                                        {data.baseOnYourTastes.map(coverPlaylist => (
+                                        {fetchResult.baseOnYourTastes.map(coverPlaylist => (
                                             <Card
                                                 style={{
                                                     backgroundImage: "url(" + coverPlaylist.coverUrl + ")",
