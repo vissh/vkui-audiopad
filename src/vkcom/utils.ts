@@ -29,7 +29,7 @@ export function toTitlePlaylist(playlist: any): ITitlePlaylist {
     return {
         id: String(playlist.id),
         ownerId: String(playlist.ownerId),
-        accessHash: playlist.access_hash,
+        accessHash: playlist.accessHash,
         blockId: playlist.blockId,
         nextOffset: playlist.nextOffset,
         hasMore: playlist.hasMore,

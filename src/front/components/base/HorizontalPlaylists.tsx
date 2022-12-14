@@ -1,13 +1,16 @@
 import { Avatar, HorizontalCell, HorizontalScroll } from "@vkontakte/vkui";
 import { CSSProperties, FC } from "react";
 
-import { ICoverPlaylist } from "../../../types";
+import { ContentTab, ICoverPlaylist } from "../../../types";
+import { useBlockPlaylistActions, useTabActions } from "../../hooks/useActions";
 
 type Props = {
     playlists: ICoverPlaylist[];
 };
 
 export const HorizantalPlaylists: FC<Props> = ({ playlists }) => {
+    const { setTab } = useTabActions();
+    const { setBlockId } = useBlockPlaylistActions();
 
     const truncateTextStyle: CSSProperties = {
         display: "inline-block",
@@ -33,6 +36,10 @@ export const HorizantalPlaylists: FC<Props> = ({ playlists }) => {
                                 {playlist.authorName}
                             </span>
                         }
+                        onClick={() => {
+                            setBlockId(playlist);
+                            setTab(ContentTab.BLOCK_PLAYLIST);
+                        }}
                     >
                         <Avatar // TODO: GridAvatar или что-то подобное. Для ручных поейлистов бывает несколько коверов.
                             size={96}
