@@ -1,13 +1,13 @@
 import "@vkontakte/vkui/dist/vkui.css";
 
-import { Card, CardScroll, Group, Header, Text, Title } from "@vkontakte/vkui";
+import { Group, Header } from "@vkontakte/vkui";
 import React, { FC, useEffect } from "react";
 
 import { ContentTab } from "../../../types";
-import { useBlockPlaylistActions, useTabActions } from "../../hooks/useActions";
 import { useTypedSelector } from "../../hooks/useTypedSelector";
 import { fetchGeneral } from "../../store/slice";
 import { useAppDispatch } from "../../store/store";
+import { BaseOnYourTastesCards } from "../base/BaseOnYourTastesCards";
 import { EmptyResult, Loading } from "../base/blocks";
 import { HorizantalTracks } from "../base/HorizantalTracksList";
 import { ShowAllTracksHeaderLink } from "../base/ShowAllTracksHeaderLink";
@@ -16,8 +16,6 @@ import { ShowAllTracksHeaderLink } from "../base/ShowAllTracksHeaderLink";
 export const GeneralPanel: FC = () => {
     const { selectedTab } = useTypedSelector(state => state.selectedTab);
     const { loading, loaded, fetchResult } = useTypedSelector(state => state.general);
-    const { setTab } = useTabActions();
-    const { setBlockId } = useBlockPlaylistActions();
 
     const dispatch = useAppDispatch();
 
@@ -50,54 +48,12 @@ export const GeneralPanel: FC = () => {
                             <Group
                                 mode="plain"
                                 header={
-                                    <Header
-                                        mode="secondary"
-                                    >
+                                    <Header mode="secondary">
                                         Собрано алгоритмами
                                     </Header>
                                 }
                             >
-                                <CardScroll size="s">
-                                    <div style={{ display: "flex" }}>
-                                        {fetchResult.baseOnYourTastes.map(coverPlaylist => (
-                                            <Card
-                                                style={{
-                                                    backgroundImage: "url(" + coverPlaylist.coverUrl + ")",
-                                                    backgroundSize: "165px 200px",
-                                                    width: "165px",
-                                                    height: "200px",
-                                                    cursor: "pointer",
-                                                }}
-                                                onClick={() => {
-                                                    setBlockId(coverPlaylist);
-                                                    setTab(ContentTab.BLOCK_PLAYLIST);
-                                                }}
-                                            >
-                                                <Title
-                                                    style={{
-                                                        marginBottom: 12,
-                                                        marginTop: 20,
-                                                        textAlign: "center",
-                                                        color: "white",
-                                                    }}
-                                                    level="1"
-                                                    weight="1"
-                                                >
-                                                    {coverPlaylist.title}
-                                                </Title>
-                                                <Text
-                                                    style={{
-                                                        marginBottom: 48,
-                                                        textAlign: "center",
-                                                        color: "white",
-                                                    }}
-                                                >
-                                                    {coverPlaylist.authorLine}
-                                                </Text>
-                                            </Card>
-                                        ))}
-                                    </div>
-                                </CardScroll>
+                                <BaseOnYourTastesCards coverPlaylists={fetchResult.baseOnYourTastes} />
                             </Group>
                         )}
 
