@@ -1,4 +1,4 @@
-import { ContentTab, IBlockPlaylistFetchData, IGeneralFetchData, IMyMusicFetchData, ITitlePlaylist, ITrackItem } from "../../types";
+import { ContentTab, IGeneralFetchData, IMyMusicFetchData, ITitlePlaylist, ITrackItem } from "../../types";
 
 export type TypeTabState = {
     selectedTab: ContentTab;
@@ -34,6 +34,6 @@ export type TypeSearchTracksState = {
 export type TypeBlockPlaylistState = {
     loading: boolean;
     loaded: boolean;
-    blockId: string;
-    data?: IBlockPlaylistFetchData;
+    playlist: ITitlePlaylist | null;
+    fetchResult: ITitlePlaylist | null;
 };

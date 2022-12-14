@@ -35,5 +35,6 @@ export const initialSearchTracksState: TypeSearchTracksState = {
 export const initialBlockPlaylistState: TypeBlockPlaylistState = {
     loading: false,
     loaded: false,
-    blockId: "",
+    playlist: null,
+    fetchResult: null,
 };

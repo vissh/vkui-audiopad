@@ -1,10 +1,10 @@
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 
-import { ContentTab, IBlockPlaylistFetchData, IExploreFetchData, IGeneralFetchData, IMyMusicFetchData, ISearchFetchData } from "../../types";
-import { fetchBlockPlaylistSection } from "../../vkcom/fetchers/blockPlaylist";
+import { ContentTab, IExploreFetchData, IGeneralFetchData, IMyMusicFetchData, ISearchFetchData, ITitlePlaylist } from "../../types";
 import { fetchExploreSection } from "../../vkcom/fetchers/explore";
 import { fetchGeneralSection } from "../../vkcom/fetchers/general";
 import { fetchMyMusicSection } from "../../vkcom/fetchers/myMusic";
+import { fetchPlaylistSection } from "../../vkcom/fetchers/playlist";
 import { fetchSearchTracksSection } from "../../vkcom/fetchers/search";
 import { initialBlockPlaylistState, initialExploreState, initialGeneralState, initialMyMusicState, initialSearchTracksState, initialTabState } from "./initialState";
 
@@ -76,7 +76,6 @@ export const searchTracks = createSlice({
         setSearchValue: (state, value: PayloadAction<string>) => {
             state.searchValue = value.payload;
         },
-
         resetState: (state) => {
             Object.assign(state, initialSearchTracksState);
         },
@@ -98,17 +97,20 @@ export const blockPlaylist = createSlice({
     name: "blockPlaylist",
     initialState: initialBlockPlaylistState,
     reducers: {
-        setBlockId: (state, value: PayloadAction<string>) => {
-            state.blockId = value.payload;
+        setBlockId: (state, value: PayloadAction<ITitlePlaylist>) => {
+            state.playlist = value.payload;
+        },
+        resetState: (state) => {
+            Object.assign(state, initialBlockPlaylistState);
         },
     },
     extraReducers: (builder) => {
         builder
-            .addCase(fetchBlockPlaylist.pending, (state) => {
+            .addCase(fetchPlaylist.pending, (state) => {
                 state.loading = true;
             })
-            .addCase(fetchBlockPlaylist.fulfilled, (state, action: PayloadAction<IBlockPlaylistFetchData>) => {
-                state.data = action.payload;
+            .addCase(fetchPlaylist.fulfilled, (state, action: PayloadAction<ITitlePlaylist>) => {
+                state.fetchResult = action.payload;
                 state.loading = false;
                 state.loaded = true;
             });
@@ -135,7 +137,7 @@ export const fetchSearchTracks = createAsyncThunk(
     async (value: string) => await fetchSearchTracksSection(value)
 );
 
-export const fetchBlockPlaylist = createAsyncThunk(
-    "vk/blockPlaylist",
-    async (blockId: string) => await fetchBlockPlaylistSection(blockId)
+export const fetchPlaylist = createAsyncThunk(
+    "vk/Playlist",
+    async (playlist: ITitlePlaylist) => await fetchPlaylistSection(playlist)
 );

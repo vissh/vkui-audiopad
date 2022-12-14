@@ -18,7 +18,7 @@ export const ShowAllTracksHeaderLink: FC<Props> = ({ playlist }) => {
             aside={playlist.tracks.length > 6 && (
                 <Link
                     onClick={() => {
-                        setBlockId(playlist.blockId);
+                        setBlockId(playlist);
                         setTab(ContentTab.BLOCK_PLAYLIST);
                     }}
                 >

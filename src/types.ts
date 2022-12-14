@@ -64,8 +64,3 @@ export interface IExploreFetchData {
 export interface ISearchFetchData {
     tracks: ITrackItem[];
 }
-
-// Данные для отображения полного плейлиста.
-export interface IBlockPlaylistFetchData extends ITitlePlaylist {
-
-}

@@ -4,6 +4,7 @@ import { Card, CardScroll, Group, Header, Text, Title } from "@vkontakte/vkui";
 import React, { FC, useEffect } from "react";
 
 import { ContentTab } from "../../../types";
+import { useBlockPlaylistActions, useTabActions } from "../../hooks/useActions";
 import { useTypedSelector } from "../../hooks/useTypedSelector";
 import { fetchGeneral } from "../../store/slice";
 import { useAppDispatch } from "../../store/store";
@@ -15,6 +16,8 @@ import { ShowAllTracksHeaderLink } from "../base/ShowAllTracksHeaderLink";
 export const GeneralPanel: FC = () => {
     const { selectedTab } = useTypedSelector(state => state.selectedTab);
     const { loading, loaded, data } = useTypedSelector(state => state.general);
+    const { setTab } = useTabActions();
+    const { setBlockId } = useBlockPlaylistActions();
 
     const dispatch = useAppDispatch();
 
@@ -56,13 +59,18 @@ export const GeneralPanel: FC = () => {
                             >
                                 <CardScroll size="s">
                                     <div style={{ display: "flex" }}>
-                                        {data.baseOnYourTastes.map(el => (
+                                        {data.baseOnYourTastes.map(coverPlaylist => (
                                             <Card
                                                 style={{
-                                                    backgroundImage: "url(" + el.coverUrl + ")",
+                                                    backgroundImage: "url(" + coverPlaylist.coverUrl + ")",
                                                     backgroundSize: "165px 200px",
                                                     width: "165px",
-                                                    height: "200px"
+                                                    height: "200px",
+                                                    cursor: "pointer",
+                                                }}
+                                                onClick={() => {
+                                                    setBlockId(coverPlaylist);
+                                                    setTab(ContentTab.BLOCK_PLAYLIST);
                                                 }}
                                             >
                                                 <Title
@@ -75,7 +83,7 @@ export const GeneralPanel: FC = () => {
                                                     level="1"
                                                     weight="1"
                                                 >
-                                                    {el.title}
+                                                    {coverPlaylist.title}
                                                 </Title>
                                                 <Text
                                                     style={{
@@ -84,7 +92,7 @@ export const GeneralPanel: FC = () => {
                                                         color: "white",
                                                     }}
                                                 >
-                                                    {el.authorLine}
+                                                    {coverPlaylist.authorLine}
                                                 </Text>
                                             </Card>
                                         ))}
