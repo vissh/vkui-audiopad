@@ -1,5 +1,5 @@
 import { Icon20SkipBack, Icon20SkipForward, Icon28PauseCircle, Icon28PlayCircle } from "@vkontakte/icons";
-import { Avatar, IconButton, PanelHeader, SimpleCell } from "@vkontakte/vkui";
+import { IconButton, Image, PanelHeader, SimpleCell } from "@vkontakte/vkui";
 import React, { FC } from "react";
 
 export const AudioControls: FC = () => {
@@ -28,8 +28,7 @@ export const AudioControls: FC = () => {
                 hasHover={false}
                 hasActive={false}
                 before={
-                    <Avatar
-                        mode="image"
+                    <Image
                         src="https://filin.mail.ru/pic?d=hff4Gs-XCsLvvB_MigW5tzPGr0ZocmMYYhQ-HhKY-8ye9zDDUUSIDmqxP2l6Ds4ZWW5zQQ~~&width=180&height=180" />
                 }
                 after={"4:20"}

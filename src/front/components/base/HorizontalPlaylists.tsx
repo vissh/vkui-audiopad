@@ -1,4 +1,4 @@
-import { Avatar, HorizontalCell, HorizontalScroll } from "@vkontakte/vkui";
+import { HorizontalCell, HorizontalScroll, Image } from "@vkontakte/vkui";
 import { CSSProperties, FC } from "react";
 
 import { ContentTab, ICoverPlaylist } from "../../../types";
@@ -41,11 +41,10 @@ export const HorizantalPlaylists: FC<Props> = ({ playlists }) => {
                             setTab(ContentTab.BLOCK_PLAYLIST);
                         }}
                     >
-                        <Avatar // TODO: GridAvatar или что-то подобное. Для ручных поейлистов бывает несколько коверов.
-                            size={96}
-                            mode="image"
+                        {/* TODO: GridAvatar или что-то подобное. Для ручных поейлистов бывает несколько коверов. */}
+                        <Image
                             src={playlist.coverUrl}
-                        />
+                            size={96} />
 
                     </HorizontalCell>
                 ))}

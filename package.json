@@ -5,12 +5,12 @@
   "dependencies": {
     "@reduxjs/toolkit": "^1.9.1",
     "@types/jest": "^27.5.2",
-    "@types/node": "^16.18.9",
+    "@types/node": "^16.18.10",
     "@types/react": "^18.0.26",
     "@types/react-dom": "^18.0.9",
-    "@vkontakte/icons": "^1.210.0",
+    "@vkontakte/icons": "^2.1.1",
     "@vkontakte/vk-bridge": "^2.7.2",
-    "@vkontakte/vkui": "^4.40.0",
+    "@vkontakte/vkui": "^5.0.2",
     "buffer": "^6.0.3",
     "html-entities": "^2.3.3",
     "iconv-lite": "^0.6.3",
@@ -18,7 +18,7 @@
     "react-dom": "^17.0.2",
     "react-redux": "^8.0.5",
     "react-scripts": "5.0.1",
-    "rxjs": "^7.6.0",
+    "rxjs": "^7.8.0",
     "typescript": "^4.9.4"
   },
   "scripts": {

@@ -1,9 +1,7 @@
 import {
     Icon24MoreHorizontal, Icon28SongOutline, Icon32PlayCircle
 } from "@vkontakte/icons";
-import {
-    Avatar, ButtonGroup, IconButton, RichCell
-} from "@vkontakte/vkui";
+import { ButtonGroup, IconButton, Image, RichCell } from "@vkontakte/vkui";
 import "@vkontakte/vkui/dist/vkui.css";
 import { CSSProperties, FC } from "react";
 
@@ -40,14 +38,15 @@ export const Track: FC<Props> = ({ track, compact }) => {
         <RichCell
             style={richCellStyle}
             before={
-                <Avatar
-                    overlayIcon={<Icon32PlayCircle width={32} height={32} fill={"white"} />}
-                    overlayMode="dark"
-                    mode="image"
+                <Image
                     src={track.image}
                 >
-                    {track.image ? "" : <Icon28SongOutline />}
-                </Avatar>
+                    <Image.Overlay theme="dark" visibility="on-hover">
+                        <Icon32PlayCircle width={32} height={32} fill={"white"} />
+                    </Image.Overlay>
+                    {!track.image && (
+                        <Icon28SongOutline />)}
+                </Image>
             }
             after={
                 <ButtonGroup gap="none">
