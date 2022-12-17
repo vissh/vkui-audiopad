@@ -24,7 +24,7 @@ const App = () => {
                             <SplitCol>
                                 <View activePanel="vkaudiopad">
                                     <Panel id="vkaudiopad">
-                                        {/* <Ads /> */}
+                                        {/* <VKComboBanner /> */}
                                         <AudioControls />
                                         <ContentPanel />
                                     </Panel>

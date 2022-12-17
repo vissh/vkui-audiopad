@@ -1,7 +1,7 @@
 import { FixedLayout, PromoBanner } from "@vkontakte/vkui";
 import { FC, useEffect } from "react";
 
-export const Ads: FC = () => {
+export const VKComboBanner: FC = () => {
 
     const promoBannerProps = {
         title: "VK Combo",
