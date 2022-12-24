@@ -1,0 +1,16 @@
+{
+    "compilerOptions": {
+        "module": "commonjs",
+        "noImplicitAny": false,
+        "noEmitOnError": true,
+        "removeComments": false,
+        "sourceMap": true,
+        "target": "ES2022",
+        "outDir": "./build",
+        "baseUrl": "./",
+        "incremental": true
+    },
+    "include": [
+        "src"
+    ]
+}

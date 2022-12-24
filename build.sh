@@ -1,19 +1,23 @@
 #!/bin/bash
+set -e
+
 echo 'Building common lib...'
 (cd packages/common && npm run build)
 echo 'Common lib builded.'
 
-echo 'Building front...'
+echo -e '\nBuilding front...'
 (cd packages/front && npm run build)
 echo 'Front builded.'
 
-echo 'Building back...'
-# (cd packages/back && npm run build)
+echo -e '\nBuilding back...'
+(cd packages/back && npm run build)
 echo 'Back builded.'
 
-echo 'Copying files...'
+echo -e '\nCopying files...'
 rm -rf extension/ \
     && mkdir extension \
     && cp -r packages/front/build/* extension/ \
+    && cp -r packages/back/build/ extension/background/ \
+    && rm extension/background/tsconfig.tsbuildinfo \
     && cp -r public/* extension/
 echo 'Done!'

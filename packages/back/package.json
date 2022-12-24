@@ -1,11 +1,19 @@
 {
-  "name": "back",
+  "name": "@vk-audiopad/back",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "files": [
+    "/build"
+  ],
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "npm install @vk-audiopad/common && tsc --build tsconfig.json"
   },
-  "author": "",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "@vk-audiopad/common": "file:../common",
+    "buffer": "^6.0.3",
+    "rxjs": "^7.8.0"
+  },
+  "devDependencies": {
+    "typescript": "^4.9.4"
+  }
 }
