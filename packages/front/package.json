@@ -1,0 +1,40 @@
+{
+  "name": "@vk-audiopad/front",
+  "version": "1.0.0",
+  "private": true,
+  "dependencies": {
+    "@reduxjs/toolkit": "^1.9.1",
+    "@types/node": "^18.11.17",
+    "@types/react": "^18.0.26",
+    "@types/react-dom": "^18.0.10",
+    "@vk-audiopad/common": "file:../common",
+    "@vkontakte/icons": "^2.3.0",
+    "@vkontakte/vk-bridge": "^2.7.2",
+    "@vkontakte/vkui": "^5.0.2",
+    "buffer": "^6.0.3",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-redux": "^8.0.5",
+    "react-scripts": "5.0.1",
+    "rxjs": "^7.8.0"
+  },
+  "scripts": {
+    "build": "npm install @vk-audiopad/common && react-scripts build"
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "devDependencies": {
+    "typescript": "^4.9.4",
+    "postcss": "^8.4.20"
+  }
+}
