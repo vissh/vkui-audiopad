@@ -26,3 +26,8 @@ fromEvent(playerElement, "durationchange")
     )
     .subscribe(x => { });
 
+chrome.storage.local.onChanged.addListener(changes => {
+    if (changes.activeTrack) {
+        
+    }
+});
