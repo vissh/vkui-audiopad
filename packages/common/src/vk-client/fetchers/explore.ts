@@ -20,9 +20,11 @@ export async function fetchExploreSection(ownerId?: string): Promise<IExploreFet
         )
     );
 
-    if (fetchPlaylistResult.playlist && fetchPlaylistResult.playlist.tracks.length) {
-        result.playlists.push(fetchPlaylistResult.playlist);
-    }
+    fetchPlaylistResult.playlists.forEach(playlist => {
+        if (playlist.tracks.length > 0) {
+            result.playlists.push(playlist);
+        }
+    });
 
     while (fetchPlaylistResult.nextFrom && fetchPlaylistResult.sectionId) {
         fetchPlaylistResult = getFetchPlaylistResult(
@@ -35,9 +37,11 @@ export async function fetchExploreSection(ownerId?: string): Promise<IExploreFet
             )
         );
 
-        if (fetchPlaylistResult.playlist && fetchPlaylistResult.playlist.tracks.length) {
-            result.playlists.push(fetchPlaylistResult.playlist);
-        }
+        fetchPlaylistResult.playlists.forEach(playlist => {
+            if (playlist.tracks.length > 0) {
+                result.playlists.push(playlist);
+            }
+        });
     }
 
     return result;
@@ -46,22 +50,28 @@ export async function fetchExploreSection(ownerId?: string): Promise<IExploreFet
 type FetchPlaylistResult = {
     nextFrom: string;
     sectionId: string;
-    playlist: ITitlePlaylist | null;
+    playlists: ITitlePlaylist[];
 };
 
 function getFetchPlaylistResult(parsedData: any): FetchPlaylistResult {
     const payload = parsedData.payload[1][1];
-    const playlist = payload?.playlist;
+    const playlists = payload?.playlists;
 
-    let explorePlaylist: ITitlePlaylist | null = null;
+    let explorePlaylists: ITitlePlaylist[] = [];
 
-    if (playlist) {
-        explorePlaylist = toTitlePlaylist(playlist);
+    if (playlists?.length > 0) {
+        playlists.forEach((playlist: any) => {
+            if (playlist.list?.length > 0) {
+                explorePlaylists.push(toTitlePlaylist(playlist));
+            }
+        });
     }
+    console.log(payload);
+    console.log(explorePlaylists);
 
     return {
         nextFrom: payload.nextFrom,
         sectionId: payload.sectionId,
-        playlist: explorePlaylist,
+        playlists: explorePlaylists,
     }
 };
