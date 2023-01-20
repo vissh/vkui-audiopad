@@ -11,7 +11,7 @@
     },
     "license": "ISC",
     "dependencies": {
-        "@types/node": "^18.11.17",
+        "@types/node": "^18.11.18",
         "buffer": "^6.0.3",
         "html-entities": "^2.3.3",
         "iconv-lite": "^0.6.3"

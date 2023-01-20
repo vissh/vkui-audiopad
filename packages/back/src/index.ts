@@ -2,11 +2,9 @@ import { debounceTime, distinctUntilChanged, fromEvent } from "rxjs";
 
 const playerElement = document.getElementById("audio-player");
 
-// Playback has begun.
 fromEvent(playerElement, "play")
     .subscribe(x => { });
 
-// Playback has been paused.
 fromEvent(playerElement, "pause")
     .subscribe(x => { });
 
