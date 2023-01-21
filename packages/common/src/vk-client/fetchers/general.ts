@@ -3,7 +3,7 @@ import { PlaylistType, vkFetch } from "../client";
 import { AUDIO_ITEM_INDEX_CONTEXT } from "../constants";
 import { toCoverPlaylist, toTitlePlaylist } from "../utils";
 
-export async function fetchGeneralSection(ownerId?: string): Promise<IGeneralFetchData> {
+export async function fetchGeneralSection(): Promise<IGeneralFetchData> {
     // Возвращает плейлисты для главной страницы.
     const parsedData = await vkFetch("https://vk.com/al_audio.php?act=section",
         {

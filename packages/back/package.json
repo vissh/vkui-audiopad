@@ -1,20 +1,16 @@
 {
   "name": "@vk-audiopad/back",
   "version": "1.0.0",
-  "files": [
-    "/build"
-  ],
+  "type": "module",
   "scripts": {
-    "build": "npm install @vk-audiopad/common && tsc --build tsconfig.json"
+    "build": "npm install @vk-audiopad/common && tsc && ./node_modules/.bin/vite build"
   },
-  "license": "ISC",
   "dependencies": {
+    "@types/chrome": "0.0.206",
     "@vk-audiopad/common": "file:../common",
     "buffer": "^6.0.3",
-    "rxjs": "^7.8.0"
-  },
-  "devDependencies": {
-    "@types/chrome": "0.0.206",
-    "typescript": "^4.9.4"
+    "rxjs": "^7.8.0",
+    "typescript": "^4.9.4",
+    "vite": "^4.0.4"
   }
 }

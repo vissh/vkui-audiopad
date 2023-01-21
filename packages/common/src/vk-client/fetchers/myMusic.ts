@@ -3,7 +3,7 @@ import { PlaylistType, vkFetch } from "../client";
 import { AUDIO_ITEM_INDEX_CONTEXT } from "../constants";
 import { toCoverPlaylist, toTitlePlaylist } from "../utils";
 
-export async function fetchMyMusicSection(ownerId?: string): Promise<IMyMusicFetchData> {
+export async function fetchMyMusicSection(): Promise<IMyMusicFetchData> {
 
     const parsedData = await vkFetch("https://vk.com/al_audio.php?act=section",
         {

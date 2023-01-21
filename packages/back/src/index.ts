@@ -1,7 +1,7 @@
 import { state, types } from "@vk-audiopad/common";
 import { debounceTime, distinctUntilChanged, fromEvent } from "rxjs";
 
-const playerElement = document.getElementById("audio-player");
+const playerElement = document.getElementById("audio-player") as HTMLVideoElement;
 
 // fromEvent(playerElement, "play")
 //     .subscribe(x => { });
@@ -9,15 +9,15 @@ const playerElement = document.getElementById("audio-player");
 // fromEvent(playerElement, "pause")
 //     .subscribe(x => { });
 
-fromEvent(playerElement, "ended")
-    .subscribe(x => { });
+// fromEvent(playerElement, "ended")
+//     .subscribe(x => { });
 
-fromEvent(playerElement, "error")
-    .subscribe(x => { });
+// fromEvent(playerElement, "error")
+//     .subscribe(x => { });
 
 fromEvent(playerElement, "durationchange")
     .pipe(
-        debounceTime(500),
+        debounceTime(200),
         distinctUntilChanged(),
     )
     .subscribe(x => {

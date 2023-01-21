@@ -17,7 +17,6 @@ echo -e '\nCopying files...'
 rm -rf extension/ \
     && mkdir extension \
     && cp -r packages/front/build/* extension/ \
-    && cp -r packages/back/build/ extension/background/ \
-    && rm extension/background/tsconfig.tsbuildinfo \
+    && cp -r packages/back/build/* extension/ \
     && cp -r public/* extension/
 echo 'Done!'

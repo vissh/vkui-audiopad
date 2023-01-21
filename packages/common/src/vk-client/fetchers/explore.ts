@@ -2,7 +2,7 @@ import { IExploreFetchData, ITitlePlaylist } from "../../types";
 import { vkFetch } from "../client";
 import { toTitlePlaylist } from "../utils";
 
-export async function fetchExploreSection(ownerId?: string): Promise<IExploreFetchData> {
+export async function fetchExploreSection(): Promise<IExploreFetchData> {
     const result: IExploreFetchData = {
         playlists: [],
     };
