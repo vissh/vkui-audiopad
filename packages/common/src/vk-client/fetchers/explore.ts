@@ -66,8 +66,6 @@ function getFetchPlaylistResult(parsedData: any): FetchPlaylistResult {
             }
         });
     }
-    console.log(payload);
-    console.log(explorePlaylists);
 
     return {
         nextFrom: payload.nextFrom,

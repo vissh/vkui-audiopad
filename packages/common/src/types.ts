@@ -17,20 +17,16 @@ export interface ITrackItem {
     duration: number;
 }
 
-// Интерфейс с полями, необходимые для дозагрузки данных.
-interface IOffset {
-    id: string;
-    blockId: string;
-    nextOffset: string;
-    hasMore: boolean;
-}
-
 // Плейлисты, которые содержат свое собственное наименование.
-export interface ITitlePlaylist extends IOffset {
+export interface ITitlePlaylist {
+    id: string;
     title: string;
     tracks: ITrackItem[];
     accessHash: string;
     ownerId: string;
+    blockId: string;
+    nextOffset: string;
+    hasMore: boolean;
 }
 
 // Интерфейс, описывающий плейлист с картинкой.

@@ -1,4 +1,4 @@
-import { types } from "@vk-audiopad/common";
+import { state, types } from "@vk-audiopad/common";
 import { Icon24MoreHorizontal, Icon28SongOutline, Icon32PlayCircle } from "@vkontakte/icons";
 import { ButtonGroup, IconButton, Image, RichCell } from "@vkontakte/vkui";
 import "@vkontakte/vkui/dist/vkui.css";
@@ -22,17 +22,11 @@ export const Track: FC<Props> = ({ track, compact }) => {
             : {}
     );
 
-    const richCellStyle: CSSProperties = (
-        compact
-            ? {
-                minWidth: "362px",
-                width: "362px",
-            }
-            : {}
-    );
+    const richCellStyle: CSSProperties = (compact ? { minWidth: "362px", width: "362px" } : {});
 
     return (
         <RichCell
+            onClick={() => state.activeTrack.set(track)}
             style={richCellStyle}
             before={
                 <Image
