@@ -3,15 +3,15 @@
     "version": "1.0.0",
     "type": "module",
     "files": [
-        "build"
+        "dist"
     ],
-    "main": "./build/vk-audiopad-common-lib.umd.js",
-    "module": "./build/vk-audiopad-common-lib.es.js",
-    "types": "./build/index.d.ts",
+    "main": "./dist/vk-audiopad-common-lib.umd.cjs",
+    "module": "./dist/vk-audiopad-common-lib.js",
+    "types": "./dist/index.d.ts",
     "exports": {
         ".": {
-            "import": "./build/vk-audiopad-common-lib.es.js",
-            "require": "./build/vk-audiopad-common-lib.umd.js"
+            "import": "./dist/vk-audiopad-common-lib.js",
+            "require": "./dist/vk-audiopad-common-lib.umd.cjs"
         }
     },
     "scripts": {
@@ -20,9 +20,8 @@
     "dependencies": {
         "@types/chrome": "0.0.206",
         "@types/node": "^18.11.18",
-        "buffer": "^6.0.3",
+        "axios": "^1.2.3",
         "html-entities": "^2.3.3",
-        "iconv-lite": "^0.6.3",
         "rxjs": "^7.8.0",
         "typescript": "^4.9.4",
         "vite": "^4.0.4",

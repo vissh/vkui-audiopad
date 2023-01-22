@@ -7,6 +7,5 @@ export default defineConfig({
                 app: './background.html',
             },
         },
-        outDir: './build',
     },
 });

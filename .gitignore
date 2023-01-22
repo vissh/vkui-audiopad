@@ -1,3 +1,4 @@
 /extension/
 /packages/*/node_modules
 /packages/*/build
+/packages/*/dist

@@ -3,16 +3,6 @@ import { decode } from "html-entities";
 import { ICoverPlaylist, ITitlePlaylist, ITrackItem } from "../types";
 import { AUDIO_ITEM_AVATAR, AUDIO_ITEM_INDEX_DURATION, AUDIO_ITEM_INDEX_ID, AUDIO_ITEM_INDEX_PERFORMER, AUDIO_ITEM_INDEX_TITLE } from "./constants";
 
-export async function parseJson(response: Response) {
-    const iconv = require("iconv-lite");
-    const Buffer = require("buffer/").Buffer;
-
-    const arrayBuffer = await response.arrayBuffer();
-    const str = iconv.decode(Buffer.from(arrayBuffer), "win1251");
-
-    return JSON.parse(str);
-}
-
 export function toTracksItems(arr: any[]): ITrackItem[] {
     return arr.map(trackInfo => {
         return {

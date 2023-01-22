@@ -26,6 +26,11 @@ export const generalSlice = createSlice({
                 state.fetchResult = action.payload;
                 state.loading = false;
                 state.loaded = true;
+            })
+            .addCase(fetchGeneral.rejected, (state, action) => {
+                console.error(action.error.stack);
+                state.loading = false;
+                state.loaded = false;
             });
     },
 });
@@ -43,6 +48,11 @@ export const myMusicSlice = createSlice({
                 state.fetchResult = action.payload;
                 state.loading = false;
                 state.loaded = true;
+            })
+            .addCase(fetchMyAudios.rejected, (state, action) => {
+                console.error(action.error.stack);
+                state.loading = false;
+                state.loaded = false;
             });
     },
 });
@@ -61,6 +71,11 @@ export const exploreSlice = createSlice({
                 state.loading = false;
                 state.loaded = true;
             })
+            .addCase(fetchExplore.rejected, (state, action) => {
+                console.error(action.error.stack);
+                state.loading = false;
+                state.loaded = false;
+            });
     },
 });
 
@@ -84,6 +99,11 @@ export const searchTracks = createSlice({
                 state.tracks = action.payload.tracks;
                 state.loading = false;
                 state.loaded = true;
+            })
+            .addCase(fetchSearchTracks.rejected, (state, action) => {
+                console.error(action.error.stack);
+                state.loading = false;
+                state.loaded = false;
             });
     },
 });
@@ -108,9 +128,14 @@ export const blockPlaylist = createSlice({
                 state.fetchResult = action.payload;
                 state.loading = false;
                 state.loaded = true;
+            })
+            .addCase(fetchPlaylist.rejected, (state, action) => {
+                console.error(action.error.stack);
+                state.loading = false;
+                state.loaded = false;
             });
     },
-})
+});
 
 export const fetchMyAudios = createAsyncThunk(
     "vk/fetchMyAudios",
@@ -125,7 +150,7 @@ export const fetchGeneral = createAsyncThunk(
 export const fetchExplore = createAsyncThunk(
     "vk/explore",
     async () => await fetchers.explore()
-)
+);
 
 export const fetchSearchTracks = createAsyncThunk(
     "vk/searchTracks",
