@@ -1,0 +1,27 @@
+{
+  "name": "vk audiopad – VK Музыка без рекламы",
+  "description": "Плеер для музыкальной коллекции ВКонтакте",
+  "author": "Denis Matveev <unsumulum@gmail.com>",
+  "version": "3.0.3",
+  "manifest_version": 2,
+  "icons": {
+    "16": "icons/icon16.png",
+    "32": "icons/icon32.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "browser_action": {
+    "default_popup": "index.html"
+  },
+  "background": {
+    "page": "background.html",
+    "persistent": true
+  },
+  "permissions": [
+    "*://*.vk.com/*",
+    "storage",
+    "webRequest",
+    "webRequestBlocking"
+  ],
+  "content_security_policy": "script-src 'self' blob: 'sha256-eNxq5Q/DLL35v9atnAvyi0ZTn2eGTHLz9gClGr9ADYo=' https://top-fwz1.mail.ru/js/code.js; object-src 'self'"
+}
