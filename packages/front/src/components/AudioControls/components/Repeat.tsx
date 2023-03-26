@@ -12,17 +12,17 @@ export const Repeat: FC = () => {
         [types.EnumRepeat.NONE]:
             <Icon24Repeat
                 style={{ color: 'var(--vkui--color_text_secondary)' }}
-                onClick={async () => { await storage.repeat.set(types.EnumRepeat.REPEAT) }}
+                onClick={async () => await storage.repeat.set(types.EnumRepeat.REPEAT)}
             />,
 
         [types.EnumRepeat.REPEAT]:
             <Icon24Repeat
-                onClick={async () => { await storage.repeat.set(types.EnumRepeat.REPEAT_ONE) }}
+                onClick={async () => await storage.repeat.set(types.EnumRepeat.REPEAT_ONE)}
             />,
 
         [types.EnumRepeat.REPEAT_ONE]:
             <Icon24RepeatOne
-                onClick={async () => { await storage.repeat.set(types.EnumRepeat.NONE) }}
+                onClick={async () => await storage.repeat.set(types.EnumRepeat.NONE)}
             />
     };
 

@@ -28,14 +28,23 @@ type HorizantalTracksProps = {
 const HorizantalTracks: FC<HorizantalTracksProps> = ({ playlist }) => {
     const rows = 3;
     const columns = 6;
-    const columnsTracks = Array.from(utils.chunked(playlist.tracks, rows, columns));
+    const columnsTracks = Array.from(
+        utils.chunked(
+            playlist.tracks.map((track, index) => [track, index]),
+            rows,
+            columns
+        ));
 
     return (
         <HorizontalScroll>
             <div style={{ display: "flex" }}>
-                {columnsTracks.map(tracks => (
+                {columnsTracks.map(tracksWithIndexes => (
                     <Group mode="plain" separator="hide">
-                        <TrackList playlist={playlist} tracks={tracks} style={{ width: 360 }} />
+                        <TrackList
+                            playlist={playlist}
+                            tracksWithIndexes={tracksWithIndexes}
+                            style={{ width: 360 }}
+                        />
                     </Group>
                 ))}
             </div>

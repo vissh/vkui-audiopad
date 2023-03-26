@@ -1,7 +1,7 @@
-import { TypeTitlePlaylist, TypeTrackItem } from "./types";
+import { TypeTitlePlaylist } from "./types";
 
-export const activeTrack = (track: TypeTrackItem, playlist: TypeTitlePlaylist) => {
-    chrome.runtime.sendMessage({ type: "activeTrack", data: { track: track, playlist: playlist } });
+export const activeTrack = (trackIndex: number, playlist: TypeTitlePlaylist) => {
+    chrome.runtime.sendMessage({ type: "activeTrack", data: { trackIndex: trackIndex, playlist: playlist } });
 };
 
 export const nextTrack = () => {

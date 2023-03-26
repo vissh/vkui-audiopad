@@ -6,15 +6,15 @@ import { Track } from "./Track";
 
 type Props = {
     playlist: types.TypeTitlePlaylist;
-    tracks?: types.TypeTrackItem[];
+    tracksWithIndexes?: Array<[types.TypeTrackItem, number]>;
     style?: CSSProperties;
 };
 
-export const TrackList: FC<Props> = ({ playlist, tracks, style }) => {
-    const playlistTracks = tracks || playlist.tracks;
+export const TrackList: FC<Props> = ({ playlist, tracksWithIndexes, style }) => {
+    const arr = tracksWithIndexes || playlist.tracks.map((track, index) => [track, index]);
     return (
         <Group style={style} mode="plain" separator="hide">
-            {playlistTracks.map(track => <Track playlist={playlist} track={track} />)}
+            {arr.map(([track, index]) => <Track playlist={playlist} track={track} trackIndex={index} />)}
         </Group>
     );
 };

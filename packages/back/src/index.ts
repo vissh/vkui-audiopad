@@ -3,29 +3,17 @@ import Hls from "hls.js";
 import { distinctUntilChanged, fromEvent, map } from "rxjs";
 
 declare global {
-    interface Window { applicationState: any; }
+    interface Window { applicationState: types.TypeApplicationState; }
 }
-
-type TypeMemoryStorage = {
-    trackIndex: Record<string, number>;
-};
 
 const playerElement = document.getElementById("audio-player") as HTMLVideoElement;
 const applicationState: types.TypeApplicationState = Object.assign({}, initialState.Application);
 window.applicationState = applicationState;
 
-const memoryStorage: TypeMemoryStorage = {
-    trackIndex: {},
-};
-
 fromEvent(document, "DOMContentLoaded")
     .subscribe(async () => {
         const partialAppState = await storage.load();
         Object.assign(applicationState, partialAppState);
-
-        if (applicationState.currentPlaylist && applicationState.currentPlaylist.isRadio) {
-            memoryStorage.trackIndex = createTrackIndex(applicationState.currentPlaylist);
-        }
 
         if (applicationState.played && playerElement.paused) {
             await storage.played.set(false);
@@ -66,7 +54,7 @@ fromEvent(playerElement, "ended")
         await storage.played.set(false);
         const repeat = await storage.repeat.get();
         if (repeat === types.EnumRepeat.REPEAT_ONE && applicationState.activeTrack && applicationState.currentPlaylist) {
-            return await playNewTrack(applicationState.activeTrack.id, applicationState.currentPlaylist);
+            return await playNewTrack(applicationState.activeTrackIndex);
         }
         await nextTrack();
     });
@@ -150,44 +138,9 @@ storage.played.listen(async (played: boolean | undefined) => {
 
 });
 
-const createTrackIndex = (playlist: types.TypeTitlePlaylist): Record<string, number> => {
-    const trackIndex: Record<string, number> = {};
-    playlist.tracks.forEach((track, index) => {
-        trackIndex[track.id] = index;
-    });
-    return trackIndex;
+const createAudiosIds = (tracks: types.TypeTrackItem[]): Array<types.TypeAudioTuple> => {
+    return tracks.map(track => [track.id, track.accessKey]);
 };
-
-storage.currentPlaylist.listen((playlist) => {
-    if (playlist === undefined) {
-        memoryStorage.trackIndex = {};
-        return;
-    }
-
-    if (playlist.isRadio) {
-        memoryStorage.trackIndex = createTrackIndex(playlist);
-    }
-});
-
-const createAudiosIds = (playlist: types.TypeTitlePlaylist): types.TypeAudioIds => {
-    const audiosIds: types.TypeAudioIds = {};
-    playlist.tracks.forEach((track, index, array) => {
-        audiosIds[track.id] = [
-            track.accessKey,
-            array[(index + 1) % array.length].id,
-            array[(index || array.length) - 1].id,
-            index === array.length - 1,
-        ];
-    });
-    return audiosIds;
-};
-
-chrome.storage.local.get("currentPlaylist", async ({ currentPlaylist }) => {
-    if (!currentPlaylist) {
-        return;
-    }
-    await storage.audiosIds.set(createAudiosIds(currentPlaylist));
-});
 
 chrome.runtime.onMessage.addListener(async (request, _, sendResponse) => {
     switch (request.type) {
@@ -196,7 +149,7 @@ chrome.runtime.onMessage.addListener(async (request, _, sendResponse) => {
                 return await playNewRadio(request.data.track, request.data.playlist);
             }
             sendListenedData(types.EndOfStreamReason.New);
-            return await playNewTrack(request.data.track.id, request.data.playlist);
+            return await playNewTrack(request.data.trackIndex, request.data.playlist);
         }
         case "nextTrack": {
             sendListenedData(types.EndOfStreamReason.Next);
@@ -218,43 +171,30 @@ chrome.runtime.onMessage.addListener(async (request, _, sendResponse) => {
     }
 });
 
-const getActualAudiosIds = (trackId: string, playlist: types.TypeTitlePlaylist): [boolean, types.TypeAudioIds] => {
-    const isNewPlaylist = (
-        playlist.id !== applicationState.currentPlaylist?.id
-        || playlist.ownerId !== applicationState.currentPlaylist?.ownerId
-        || playlist.blockId !== applicationState.currentPlaylist?.blockId
-    );
-
-    let audiosIds = applicationState.audiosIds;
-    if (isNewPlaylist || !audiosIds[trackId]) {
-        audiosIds = createAudiosIds(playlist);
-    }
-
-    return [isNewPlaylist, audiosIds];
-};
-
 const reloadTrack = async () => {
     if (!applicationState.currentPlaylist || !applicationState.activeTrack) {
         return;
     }
 
     if (applicationState.currentPlaylist.isRadio) {
-        return await playNewRadio(applicationState.activeTrack, applicationState.currentPlaylist);
+        return await playNewRadio(applicationState.activeTrack);
     }
 
-    await playNewTrack(applicationState.activeTrack.id, applicationState.currentPlaylist);
+    await playNewTrack(applicationState.activeTrackIndex);
 };
 
-const playNewTrack = async (trackId: string, playlist: types.TypeTitlePlaylist) => {
-    const [isNewPlaylist, audiosIds] = getActualAudiosIds(trackId, playlist);
+const playNewTrack = async (trackIndex: number, playlist?: types.TypeTitlePlaylist) => {
+    const audiosIds = playlist ? createAudiosIds(playlist.tracks) : applicationState.audiosIds;
 
-    await __playNewSource(async () => {
-        const [accessKey] = audiosIds[trackId];
+    const trackFetcher = async () => {
+        const [trackId, accessKey] = audiosIds[trackIndex] || audiosIds[0];
         const track = await fetchers.trackInfo(applicationState.userId, trackId, accessKey);
-        return [track, playlist, audiosIds];
-    });
+        return [track, trackIndex];
+    };
 
-    if (isNewPlaylist) {
+    await __playNewSource(trackFetcher, playlist, audiosIds);
+
+    if (playlist) {
         const audiosIds = await fetchers.audiosIdsBySource(playlist);
         if (playlist.id === applicationState.currentPlaylist?.id
             && playlist.ownerId === applicationState.currentPlaylist?.ownerId
@@ -265,9 +205,8 @@ const playNewTrack = async (trackId: string, playlist: types.TypeTitlePlaylist) 
     }
 };
 
-const playNewRadio = async (track: types.TypeTrackItem, playlist: types.TypeTitlePlaylist) => {
-    const [_, audiosIds] = getActualAudiosIds(track.id, playlist);
-    return await __playNewSource(async () => [track, playlist, audiosIds]);
+const playNewRadio = async (track: types.TypeTrackItem, playlist?: types.TypeTitlePlaylist) => {
+    return await __playNewSource(async () => [track, -1], playlist);
 };
 
 const hlsWorkers: Array<Hls> = [];
@@ -286,15 +225,16 @@ const destroyPlayer = () => {
     playerElement.removeAttribute("src");
 };
 
-const __playNewSource = async (callback: Function) => {
+const __playNewSource = async (callback: Function, playlist?: types.TypeTitlePlaylist, audiosIds?: Array<types.TypeAudioTuple>) => {
     destroyPlayer();
 
-    const [track, playlist, audiosIds] = await callback();
+    const [track, trackIndex] = await callback();
 
-    if (applicationState.currentPlaylist?.blockId === playlist.blockId && applicationState.currentPlaylist?.id === playlist.id) {
-        await storage.set({ activeTrack: track });
+    if (playlist !== undefined) {
+        const newAudiosIds = audiosIds || createAudiosIds(playlist.tracks);
+        await storage.set({ activeTrack: track, activeTrackIndex: trackIndex, currentPlaylist: playlist, audiosIds: newAudiosIds });
     } else {
-        await storage.set({ activeTrack: track, currentPlaylist: playlist, audiosIds: audiosIds });
+        await storage.set({ activeTrack: track, activeTrackIndex: trackIndex });
     }
 
     if (!track.url.includes("index.m3u8")) {
@@ -308,30 +248,28 @@ const __playNewSource = async (callback: Function) => {
     hls.loadSource(track.url);
     hls.attachMedia(playerElement);
     hls.on(Hls.Events.MEDIA_ATTACHED, async () => { playerElement.play() });
-
 };
 
-const nextTrack = async () => {
-    if (applicationState.activeTrack && applicationState.currentPlaylist) {
-        const nextTrackId = applicationState.audiosIds[applicationState.activeTrack.id][1];
-        await playNewTrackByIndex(nextTrackId, applicationState.currentPlaylist);
+const nextTrack = async () => await playNewTrackByIndex("next");
+const previousTrack = async () => await playNewTrackByIndex("prev");
+
+const getNewIndex = (action: "next" | "prev", index: number, length: number): number => {
+    const value = action === "next" ? (index + 1) % length : (index || length) - 1;
+    return value < 0 ? 0 : value;
+};
+
+const playNewTrackByIndex = async (action: "next" | "prev") => {
+    if (!applicationState.currentPlaylist) {
+        return;
     }
-};
 
-const previousTrack = async () => {
-    if (applicationState.activeTrack && applicationState.currentPlaylist) {
-        const previousTrackId = applicationState.audiosIds[applicationState.activeTrack.id][2];
-        await playNewTrackByIndex(previousTrackId, applicationState.currentPlaylist);
-    }
-};
-
-const playNewTrackByIndex = async (newTrackId: string, playlist: types.TypeTitlePlaylist) => {
-    if (playlist.isRadio) {
-        const newTrackIndex = memoryStorage.trackIndex[newTrackId];
-        const nextTrack = playlist.tracks[newTrackIndex];
-        await playNewRadio(nextTrack, playlist);
+    if (applicationState.currentPlaylist.isRadio) {
+        const tracks = applicationState.currentPlaylist.tracks;
+        const newIndex = getNewIndex(action, applicationState.activeTrackIndex, tracks.length);
+        await playNewRadio(tracks[newIndex], applicationState.currentPlaylist);
     } else {
-        await playNewTrack(newTrackId, playlist);
+        const newIndex = getNewIndex(action, applicationState.activeTrackIndex, applicationState.audiosIds.length);
+        await playNewTrack(newIndex);
     }
 };
 

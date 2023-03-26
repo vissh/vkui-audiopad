@@ -55,9 +55,10 @@ export enum EnumRepeat {
 }
 
 export type TypeApplicationState = {
-    [index: string]: string | TypeWebToken | TypeTitlePlaylist | TypeTrackItem | number | boolean | TypeAudioIds | SelectedTabs | null;
+    [index: string]: string | TypeWebToken | TypeTitlePlaylist | TypeTrackItem | number | boolean | Array<TypeAudioTuple> | SelectedTabs | null;
     userId: string;
     volume: number;
+    shuffle: boolean;
     repeat: EnumRepeat;
     webToken: TypeWebToken | null;
     deviceId: string;
@@ -68,7 +69,8 @@ export type TypeApplicationState = {
     duration: number;
     durationReverse: boolean;
     currentTime: number;
-    audiosIds: TypeAudioIds;
+    audiosIds: Array<TypeAudioTuple>;
+    shuffleAudiosIds: Array<TypeAudioTuple>;
     selectedTab: SelectedTabs;
 };
 
@@ -184,15 +186,9 @@ export type TypeAudioAccessKeyIndex = {
 };
 
 export type TypeAudioTuple = [
+    audioRawId: string,
     accessKey: string,
-    nextTrackId: string,
-    previousTrackId: string,
-    isLast: boolean,
 ];
-
-export type TypeAudioIds = {
-    [index: string]: TypeAudioTuple;
-};
 
 export enum EndOfStreamReason {
     Next = 'next_btn',

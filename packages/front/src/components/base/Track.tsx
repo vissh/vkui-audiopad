@@ -12,9 +12,10 @@ import { Duration } from "./Duration";
 type Props = {
     playlist: types.TypeTitlePlaylist;
     track: types.TypeTrackItem;
+    trackIndex: number;
 };
 
-export const Track: FC<Props> = ({ playlist, track }) => {
+export const Track: FC<Props> = ({ playlist, track, trackIndex }) => {
     const { activeTrack, played } = useTypedSelector(state => state.application);
 
     const isActive = Boolean(activeTrack && activeTrack.id === track.id);
@@ -24,7 +25,7 @@ export const Track: FC<Props> = ({ playlist, track }) => {
         if (activeTrack && activeTrack.id === track.id) {
             await storage.set({ played: !isPlayed });
         } else {
-            api.activeTrack(track, playlist);
+            api.activeTrack(trackIndex, playlist);
         }
     };
 
