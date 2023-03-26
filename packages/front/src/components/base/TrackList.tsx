@@ -1,5 +1,5 @@
 import { types } from "@vk-audiopad/common";
-import { List } from "@vkontakte/vkui";
+import { Group } from "@vkontakte/vkui";
 import { CSSProperties, FC } from "react";
 
 import { Track } from "./Track";
@@ -13,8 +13,8 @@ type Props = {
 export const TrackList: FC<Props> = ({ playlist, tracks, style }) => {
     const playlistTracks = tracks || playlist.tracks;
     return (
-        <List style={style}>
+        <Group style={style} mode="plain" separator="hide">
             {playlistTracks.map(track => <Track playlist={playlist} track={track} />)}
-        </List>
+        </Group>
     );
 };

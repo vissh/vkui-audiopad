@@ -1,5 +1,5 @@
 import { types, utils } from "@vk-audiopad/common";
-import { Group, HorizontalCell, HorizontalScroll } from "@vkontakte/vkui";
+import { Group, HorizontalScroll } from "@vkontakte/vkui";
 import { FC } from "react";
 
 import { ShowAllTracksHeaderLink } from "./ShowAllTracksHeaderLink";
@@ -34,9 +34,9 @@ const HorizantalTracks: FC<HorizantalTracksProps> = ({ playlist }) => {
         <HorizontalScroll>
             <div style={{ display: "flex" }}>
                 {columnsTracks.map(tracks => (
-                    <HorizontalCell size="l">
+                    <Group mode="plain" separator="hide">
                         <TrackList playlist={playlist} tracks={tracks} style={{ width: 360 }} />
-                    </HorizontalCell>
+                    </Group>
                 ))}
             </div>
         </HorizontalScroll>

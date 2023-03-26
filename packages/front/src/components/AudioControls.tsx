@@ -1,60 +1,47 @@
-import { api, storage, utils } from "@vk-audiopad/common";
-import { Icon20SkipBack, Icon20SkipForward, Icon28PauseCircle, Icon28PlayCircle, Icon28SongOutline } from "@vkontakte/icons";
-import { IconButton, Image, PanelHeader, Separator, SimpleCell } from "@vkontakte/vkui";
+import { Icon28SongOutline } from "@vkontakte/icons";
+import { IconButton, Image, PanelHeader } from "@vkontakte/vkui";
 import React, { FC } from "react";
-
 import { useTypedSelector } from "../hooks/useTypedSelector";
-import { Artist } from "./base/Artist";
-import { BetaInfoTooltip } from "./base/BetaInfoTooltip";
-import { Duration } from "./base/Duration";
-import { RepeatButton } from "./base/RepeatButton";
-import { VolumeSlider } from "./base/VolumeSlider";
+
+import { CurrentTime } from "./base/audioControlComponents/CurrentTime";
+import { CurrentTrack } from "./base/audioControlComponents/CurrentTrack";
+import { Info } from "./base/audioControlComponents/Info";
+import { Next } from "./base/audioControlComponents/Next";
+import { PlayPause } from "./base/audioControlComponents/PlayPause";
+import { Previous } from "./base/audioControlComponents/Previous";
+import { Repeat } from "./base/audioControlComponents/Repeat";
+import { Shuffle } from "./base/audioControlComponents/Shuffle";
+import { Volume } from "./base/audioControlComponents/Volume";
 
 export const AudioControls: FC = () => {
-    const { activeTrack, played, duration, currentTime } = useTypedSelector(state => state.application);
-
-    const playClick = async () => await storage.set({ played: !played });
+    const { activeTrack } = useTypedSelector(state => state.application);
 
     return (
         <PanelHeader
             before={
                 <React.Fragment>
-                    <IconButton hasHover={false}>
-                        {played
-                            ? <Icon28PauseCircle onClick={playClick} />
-                            : <Icon28PlayCircle onClick={playClick} />}
-                    </IconButton>
-                    <IconButton hasHover={false}>
-                        <Icon20SkipBack onClick={api.prevTrack} />
-                    </IconButton>
-                    <IconButton hasHover={false}>
-                        <Icon20SkipForward onClick={api.nextTrack} />
+                    <PlayPause />
+                    <Previous />
+                    <Next />
+                    <IconButton hasHover={false} hasActive={false} style={{ height: 48 }}>
+                        {activeTrack
+                            && (activeTrack.image
+                                ? <Image src={activeTrack.image} />
+                                : <Image><Icon28SongOutline /></Image>)}
                     </IconButton>
                 </React.Fragment>
             }
             after={
                 <React.Fragment>
-                    <VolumeSlider />
-                    <Separator />
-                    <RepeatButton />
-                    <Separator />
-                    <BetaInfoTooltip />
-                    <Separator />
+                    <CurrentTime />
+                    <Volume />
+                    <Shuffle />
+                    <Repeat />
+                    <Info />
                 </React.Fragment>
             }
         >
-            <SimpleCell
-                hasHover={false}
-                hasActive={false}
-                before={activeTrack
-                    && (activeTrack.image
-                        ? <Image src={activeTrack.image} />
-                        : <Image><Icon28SongOutline /></Image>)}
-                after={<Duration value={duration ? "-" + utils.toHHMMSS(duration - currentTime) : ""} />}
-                subtitle={<Artist value={activeTrack?.artist || ""} />}
-            >
-                {activeTrack?.title}
-            </SimpleCell>
+            <CurrentTrack />
         </PanelHeader>
     );
 };

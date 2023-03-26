@@ -168,7 +168,7 @@ chrome.storage.local.get("currentPlaylist", async ({ currentPlaylist }) => {
     await storage.audiosIds.set(createAudiosIds(currentPlaylist));
 });
 
-chrome.runtime.onMessage.addListener(async (request) => {
+chrome.runtime.onMessage.addListener(async (request, _, sendResponse) => {
     switch (request.type) {
         case "activeTrack": {
             if (request.data.playlist.isRadio) {
@@ -185,6 +185,11 @@ chrome.runtime.onMessage.addListener(async (request) => {
         case "previousTrack": {
             sendListenedData(types.EndOfStreamReason.Prev);
             await previousTrack();
+            break;
+        }
+        case "currentTime": {
+            playerElement.currentTime = request.data.value || 0;
+            sendResponse();
             break;
         }
         default:

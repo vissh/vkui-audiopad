@@ -2,7 +2,7 @@ import "@vkontakte/vkui/dist/vkui.css";
 
 import { api, storage, types, utils } from "@vk-audiopad/common";
 import { Icon28SongOutline, Icon32PauseCircle, Icon32PlayCircle } from "@vkontakte/icons";
-import { Image, SimpleCell } from "@vkontakte/vkui";
+import { Image, Separator, SimpleCell } from "@vkontakte/vkui";
 import React, { FC } from "react";
 
 import { useTypedSelector } from "../../hooks/useTypedSelector";
@@ -54,7 +54,11 @@ export const Track: FC<Props> = ({ playlist, track }) => {
                     {!track.image && <Icon28SongOutline />}
                 </Image>
             }
-            after={<Duration value={track.duration && !isClaimed ? utils.toHHMMSS(track.duration) : ""} />}
+            after={
+                <React.Fragment>
+                    <Separator />
+                    <Duration value={track.duration && !isClaimed ? utils.toHHMMSS(track.duration) : ""} />
+                </React.Fragment>}
             subtitle={<Artist value={track.artist} />}
         >
             {isClaimed
