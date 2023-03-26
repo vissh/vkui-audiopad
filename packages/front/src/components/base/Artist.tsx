@@ -1,6 +1,7 @@
 import { storage, types } from "@vk-audiopad/common";
 import { Subhead } from "@vkontakte/vkui";
-import { CSSProperties, FC } from "react";
+import { FC } from "react";
+import "./Artist.css";
 
 import { useSearchTracksActions } from "../../hooks/useActions";
 
@@ -10,11 +11,6 @@ type Props = {
 
 export const Artist: FC<Props> = ({ value }) => {
     const { setValue } = useSearchTracksActions();
-
-    const truncateTextStyle: CSSProperties = {
-        overflow: "hidden",
-        textOverflow: "ellipsis",
-    };
 
     return (
         <Subhead
@@ -28,7 +24,7 @@ export const Artist: FC<Props> = ({ value }) => {
                     }
                 });
             }}
-            style={{ color: "var(--vkui--color_text_secondary)", cursor: "pointer", ...truncateTextStyle }}
+            className="artist"
         >
             {value}
         </Subhead>

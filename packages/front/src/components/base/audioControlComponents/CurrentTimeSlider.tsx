@@ -11,11 +11,13 @@ export const CurrentTimeSlider: FC = () => {
     const [sliderCurrentTime, setSliderCurrentTime] = useState(0);
     const [mouseDown, setMouseDown] = useState(false);
 
-    const onMouseDown = () => {
+    const onMouseDown = (e: any) => {
+        (e.target as HTMLDivElement).setPointerCapture(e.pointerId);
         setMouseDown(true);
     };
 
-    const onMouseUp = async () => {
+    const onMouseUp = async (e: any) => {
+        (e.target as HTMLDivElement).releasePointerCapture(e.pointerId);
         await api.currentTime(sliderCurrentTime * duration / 100);
         setMouseDown(false);
     };
@@ -33,7 +35,8 @@ export const CurrentTimeSlider: FC = () => {
             max={100}
             value={sliderCurrentTime}
             onChange={setSliderCurrentTime}
-            onMouseDownCapture={onMouseDown}
-            onMouseUpCapture={onMouseUp} />
+            onPointerDown={onMouseDown}
+            onPointerUp={onMouseUp}
+        />
     );
 };
