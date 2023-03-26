@@ -66,6 +66,7 @@ export type TypeApplicationState = {
     activeTrackIndex: number;
     played: boolean;
     duration: number;
+    durationReverse: boolean;
     currentTime: number;
     audiosIds: TypeAudioIds;
     selectedTab: SelectedTabs;

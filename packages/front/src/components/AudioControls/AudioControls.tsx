@@ -1,8 +1,6 @@
-import { Icon28SongOutline } from "@vkontakte/icons";
-import { IconButton, Image, PanelHeader } from "@vkontakte/vkui";
+import { PanelHeader } from "@vkontakte/vkui";
 import React, { FC } from "react";
 
-import { useTypedSelector } from "../../hooks/useTypedSelector";
 import { CurrentTime } from "./components/CurrentTime";
 import { CurrentTrack } from "./components/CurrentTrack";
 import { Info } from "./components/Info";
@@ -11,11 +9,10 @@ import { PlayPause } from "./components/PlayPause";
 import { Previous } from "./components/Previous";
 import { Repeat } from "./components/Repeat";
 import { Shuffle } from "./components/Shuffle";
+import { TrackIcon } from "./components/TrackIcon";
 import { Volume } from "./components/Volume";
 
 export const AudioControls: FC = () => {
-    const { activeTrack } = useTypedSelector(state => state.application);
-
     return (
         <PanelHeader
             before={
@@ -23,12 +20,7 @@ export const AudioControls: FC = () => {
                     <PlayPause />
                     <Previous />
                     <Next />
-                    <IconButton hasHover={false} hasActive={false} style={{ height: 48 }}>
-                        {activeTrack
-                            && (activeTrack.image
-                                ? <Image src={activeTrack.image} />
-                                : <Image><Icon28SongOutline /></Image>)}
-                    </IconButton>
+                    <TrackIcon />
                 </React.Fragment>
             }
             after={

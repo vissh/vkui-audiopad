@@ -47,7 +47,10 @@ fromEvent(playerElement, "pause")
 fromEvent(playerElement, "playing")
     .subscribe(async () => {
         playerElement.volume = await storage.volume.get() || initialState.Application.volume;
-        await storage.played.set(true);
+
+        const [duration, currentTime] = [playerElement.duration || 0, Math.floor(playerElement.currentTime)];
+        await storage.set({ played: true, duration: duration, currentTime: currentTime });
+
         const track = applicationState.activeTrack;
         const deviceId = applicationState.deviceId;
         setTimeout(async () => {
@@ -93,13 +96,31 @@ fromEvent(playerElement, "timeupdate")
             return
         }
 
-        if (duration && duration !== Infinity) {
-            chrome.browserAction.setBadgeText({ text: "-" + utils.toHHMMSS(duration - currentTime) });
-        } else if (duration === Infinity) {
-            chrome.browserAction.setBadgeText({ text: utils.toHHMMSS(currentTime) });
+        if (applicationState) {
+            setBadgeText(applicationState.durationReverse);
         }
-
     });
+
+const setBadgeText = (durationReverse: boolean) => {
+    const [duration, currentTime] = [playerElement.duration || 0, Math.floor(playerElement.currentTime)];
+
+    if (duration && duration !== Infinity) {
+        const time = durationReverse ? duration - currentTime : currentTime;
+        const value = utils.toHHMMSS(time);
+        chrome.browserAction.setBadgeText({ text: durationReverse ? "-" + value : value });
+    } else if (duration === Infinity) {
+        if (applicationState) {
+            const value = applicationState.durationReverse ? currentTime : 0;
+            chrome.browserAction.setBadgeText({ text: utils.toHHMMSS(value) });
+        }
+    }
+};
+
+storage.durationReverse.listen((durationReverse: boolean | undefined) => {
+    if (durationReverse !== undefined) {
+        setBadgeText(durationReverse);
+    }
+});
 
 storage.volume.listen((volume: number | undefined) => {
     if (volume !== undefined) {

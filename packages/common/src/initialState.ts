@@ -11,6 +11,7 @@ export const Application: TypeApplicationState = {
     activeTrackIndex: -1,
     played: false,
     duration: 0,
+    durationReverse: false,
     currentTime: 0,
     audiosIds: {},
     selectedTab: { tab: ContentTab.UNKNOWN },

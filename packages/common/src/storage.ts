@@ -90,3 +90,4 @@ export const currentPlaylist = new State<TypeTitlePlaylist>("currentPlaylist");
 export const audiosIds = new State<TypeAudioIds>("audiosIds");
 export const volume = new State<number>("volume");
 export const repeat = new State<EnumRepeat>("repeat");
+export const durationReverse = new State<boolean>("durationReverse");
