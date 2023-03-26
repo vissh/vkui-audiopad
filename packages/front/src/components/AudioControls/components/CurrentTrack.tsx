@@ -2,7 +2,7 @@ import { Group, Headline } from "@vkontakte/vkui";
 import { CSSProperties, FC } from "react";
 
 import { useTypedSelector } from "../../../hooks/useTypedSelector";
-import { Artist } from "../Artist";
+import { Artist } from "../../base/Artist";
 import { CurrentTimeSlider } from "./CurrentTimeSlider";
 
 export const CurrentTrack: FC = () => {

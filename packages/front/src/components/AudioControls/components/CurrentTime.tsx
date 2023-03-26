@@ -3,7 +3,7 @@ import { Button } from "@vkontakte/vkui";
 import { FC } from "react";
 
 import { useTypedSelector } from "../../../hooks/useTypedSelector";
-import { Duration } from "../Duration";
+import { Duration } from "../../base/Duration";
 
 export const CurrentTime: FC = () => {
     const { duration, currentTime } = useTypedSelector(state => state.application);

@@ -1,17 +1,17 @@
 import { Icon28SongOutline } from "@vkontakte/icons";
 import { IconButton, Image, PanelHeader } from "@vkontakte/vkui";
 import React, { FC } from "react";
-import { useTypedSelector } from "../hooks/useTypedSelector";
 
-import { CurrentTime } from "./base/audioControlComponents/CurrentTime";
-import { CurrentTrack } from "./base/audioControlComponents/CurrentTrack";
-import { Info } from "./base/audioControlComponents/Info";
-import { Next } from "./base/audioControlComponents/Next";
-import { PlayPause } from "./base/audioControlComponents/PlayPause";
-import { Previous } from "./base/audioControlComponents/Previous";
-import { Repeat } from "./base/audioControlComponents/Repeat";
-import { Shuffle } from "./base/audioControlComponents/Shuffle";
-import { Volume } from "./base/audioControlComponents/Volume";
+import { useTypedSelector } from "../../hooks/useTypedSelector";
+import { CurrentTime } from "./components/CurrentTime";
+import { CurrentTrack } from "./components/CurrentTrack";
+import { Info } from "./components/Info";
+import { Next } from "./components/Next";
+import { PlayPause } from "./components/PlayPause";
+import { Previous } from "./components/Previous";
+import { Repeat } from "./components/Repeat";
+import { Shuffle } from "./components/Shuffle";
+import { Volume } from "./components/Volume";
 
 export const AudioControls: FC = () => {
     const { activeTrack } = useTypedSelector(state => state.application);
