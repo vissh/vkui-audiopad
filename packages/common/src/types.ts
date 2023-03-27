@@ -70,7 +70,7 @@ export type TypeApplicationState = {
     durationReverse: boolean;
     currentTime: number;
     audiosIds: Array<TypeAudioTuple>;
-    shuffleAudiosIds: Array<TypeAudioTuple>;
+    originalAudiosIds: Array<TypeAudioTuple>;
     selectedTab: SelectedTabs;
 };
 

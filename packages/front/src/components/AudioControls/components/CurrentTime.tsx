@@ -6,7 +6,7 @@ import { useTypedSelector } from "../../../hooks/useTypedSelector";
 import { Duration } from "../../base/Duration";
 
 export const CurrentTime: FC = () => {
-    const { duration, currentTime, durationReverse, played } = useTypedSelector(state => state.application);
+    const { currentPlaylist, duration, currentTime, durationReverse, played } = useTypedSelector(state => state.application);
 
     const time = durationReverse ? duration - currentTime : currentTime
     const value = utils.toHHMMSS(time);
@@ -18,9 +18,9 @@ export const CurrentTime: FC = () => {
             stretched
             style={{ width: "42px", color: "var(--vkui--color_text_secondary)" }}
             onClick={async () => await storage.durationReverse.set(!durationReverse)}
-            loading={!duration && played}
+            loading={currentPlaylist?.isRadio ? !currentTime : !duration && played}
         >
-            <Duration value={duration ? (durationReverse ? "-" + value : value) : ""} />
+            <Duration value={duration && !currentPlaylist?.isRadio ? (durationReverse ? "-" + value : value) : utils.toHHMMSS(currentTime)} />
         </Button>
     );
 };

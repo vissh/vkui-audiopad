@@ -6,7 +6,7 @@ import { Artist } from "../../base/Artist";
 import { CurrentTimeSlider } from "./CurrentTimeSlider";
 
 export const CurrentTrack: FC = () => {
-    const { activeTrack } = useTypedSelector(state => state.application);
+    const { activeTrack, currentPlaylist } = useTypedSelector(state => state.application);
 
     const maxTitleChars = 26;
 
@@ -14,7 +14,7 @@ export const CurrentTrack: FC = () => {
 
     const title = (activeTrack?.title || "").trim();
 
-    if (title.length >= maxTitleChars) {
+    if (!currentPlaylist?.isRadio && title.length >= maxTitleChars) {
         titleStyle = {
             overflow: "hidden",
             textOverflow: "ellipsis",
@@ -29,8 +29,12 @@ export const CurrentTrack: FC = () => {
                     ? (
                         <React.Fragment>
                             <Headline level="1" style={titleStyle}>{title}</Headline>
-                            <Headline>&ensp;–&ensp;</Headline>
-                            <Artist value={activeTrack?.artist} />
+                            {activeTrack?.artist && (
+                                <React.Fragment>
+                                    <Headline>&ensp;–&ensp;</Headline>
+                                    <Artist value={activeTrack?.artist} />
+                                </React.Fragment>
+                            )}
                         </React.Fragment>
                     )
                     : <Headline level="1" style={titleStyle}>&ensp;</Headline>

@@ -81,7 +81,7 @@ fromEvent(playerElement, "timeupdate")
 
         if (window["browser"]) {
             chrome.browserAction.setBadgeText({ text: "►" });
-            return
+            return;
         }
 
         if (applicationState) {
@@ -97,9 +97,9 @@ const setBadgeText = (durationReverse: boolean) => {
         const value = utils.toHHMMSS(time);
         chrome.browserAction.setBadgeText({ text: durationReverse ? "-" + value : value });
     } else if (duration === Infinity) {
+        // radio
         if (applicationState) {
-            const value = applicationState.durationReverse ? currentTime : 0;
-            chrome.browserAction.setBadgeText({ text: utils.toHHMMSS(value) });
+            chrome.browserAction.setBadgeText({ text: utils.toHHMMSS(currentTime) });
         }
     }
 };
@@ -146,7 +146,7 @@ chrome.runtime.onMessage.addListener(async (request, _, sendResponse) => {
     switch (request.type) {
         case "activeTrack": {
             if (request.data.playlist.isRadio) {
-                return await playNewRadio(request.data.track, request.data.playlist);
+                return await playNewRadio(request.data.trackIndex, request.data.playlist);
             }
             sendListenedData(types.EndOfStreamReason.New);
             return await playNewTrack(request.data.trackIndex, request.data.playlist);
@@ -177,7 +177,7 @@ const reloadTrack = async () => {
     }
 
     if (applicationState.currentPlaylist.isRadio) {
-        return await playNewRadio(applicationState.activeTrack);
+        return await playNewRadio(applicationState.activeTrackIndex);
     }
 
     await playNewTrack(applicationState.activeTrackIndex);
@@ -205,8 +205,13 @@ const playNewTrack = async (trackIndex: number, playlist?: types.TypeTitlePlayli
     }
 };
 
-const playNewRadio = async (track: types.TypeTrackItem, playlist?: types.TypeTitlePlaylist) => {
-    return await __playNewSource(async () => [track, -1], playlist);
+const playNewRadio = async (trackIndex: number, playlist?: types.TypeTitlePlaylist) => {
+    const fetchTrack = async () => {
+        const tracks = playlist ? playlist.tracks : applicationState.currentPlaylist?.tracks || [];
+        return [tracks[trackIndex], trackIndex]
+    };
+
+    return await __playNewSource(fetchTrack, playlist);
 };
 
 const hlsWorkers: Array<Hls> = [];
@@ -266,7 +271,7 @@ const playNewTrackByIndex = async (action: "next" | "prev") => {
     if (applicationState.currentPlaylist.isRadio) {
         const tracks = applicationState.currentPlaylist.tracks;
         const newIndex = getNewIndex(action, applicationState.activeTrackIndex, tracks.length);
-        await playNewRadio(tracks[newIndex], applicationState.currentPlaylist);
+        await playNewRadio(newIndex);
     } else {
         const newIndex = getNewIndex(action, applicationState.activeTrackIndex, applicationState.audiosIds.length);
         await playNewTrack(newIndex);

@@ -15,6 +15,6 @@ export const Application: TypeApplicationState = {
     durationReverse: false,
     currentTime: 0,
     audiosIds: [],
-    shuffleAudiosIds: [],
+    originalAudiosIds: [],
     selectedTab: { tab: ContentTab.UNKNOWN },
 };
