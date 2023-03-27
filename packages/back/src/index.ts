@@ -138,6 +138,32 @@ storage.played.listen(async (played: boolean | undefined) => {
 
 });
 
+storage.shuffle.listen(async (shuffleValue: boolean | undefined) => {
+    if (shuffleValue === undefined) {
+        return;
+    }
+
+    const audiosIds = applicationState.audiosIds || [];
+
+    if (shuffleValue) {
+        const shuffledAudiosIds = shuffle(audiosIds);
+        await storage.set({ audiosIds: shuffledAudiosIds, originalAudiosIds: audiosIds });
+    } else {
+        await storage.set({ audiosIds: applicationState.originalAudiosIds, originalAudiosIds: [] });
+    }
+});
+
+const shuffle = (array: Array<types.TypeAudioTuple>): Array<types.TypeAudioTuple> => {
+    const result = [...array];
+    for (var i = result.length - 1; i > 0; i--) {
+        var j = Math.floor(Math.random() * (i + 1));
+        var temp = result[i];
+        result[i] = result[j];
+        result[j] = temp;
+    }
+    return result;
+};
+
 const createAudiosIds = (tracks: types.TypeTrackItem[]): Array<types.TypeAudioTuple> => {
     return tracks.map(track => [track.id, track.accessKey]);
 };
@@ -200,7 +226,12 @@ const playNewTrack = async (trackIndex: number, playlist?: types.TypeTitlePlayli
             && playlist.ownerId === applicationState.currentPlaylist?.ownerId
             && playlist.blockId === applicationState.currentPlaylist?.blockId) {
 
-            await storage.audiosIds.set(audiosIds);
+            if (applicationState.shuffle) {
+                const shuffledAudiosIds = shuffle(audiosIds);
+                await storage.set({ audiosIds: shuffledAudiosIds, originalAudiosIds: audiosIds });
+            } else {
+                await storage.set({ audiosIds: audiosIds, originalAudiosIds: [] });
+            }
         }
     }
 };
