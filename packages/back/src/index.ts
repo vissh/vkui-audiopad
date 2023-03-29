@@ -151,7 +151,6 @@ storage.shuffle.listen(async (shuffleValue: boolean | undefined) => {
 
         const [trackId] = audiosIds[applicationState.activeTrackIndex];
         const newActiveIndex = shuffledAudiosIds.findIndex(([elementTrackId]) => elementTrackId === trackId);
-        console.log("shuffle ", trackId, newActiveIndex);
         if (newActiveIndex !== undefined) {
             updateValues["activeTrackIndex"] = newActiveIndex;
         }
@@ -163,7 +162,6 @@ storage.shuffle.listen(async (shuffleValue: boolean | undefined) => {
 
         const [trackId] = audiosIds[applicationState.activeTrackIndex];
         const newActiveIndex = updateValues.audiosIds.findIndex(([elementTrackId]) => elementTrackId === trackId);
-        console.log("shuffle off ", trackId, newActiveIndex);
         if (newActiveIndex !== undefined) {
             updateValues["activeTrackIndex"] = newActiveIndex;
         }
