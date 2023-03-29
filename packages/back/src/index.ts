@@ -139,7 +139,7 @@ storage.played.listen(async (played: boolean | undefined) => {
 });
 
 storage.shuffle.listen(async (shuffleValue: boolean | undefined) => {
-    if (shuffleValue === undefined) {
+    if (shuffleValue === undefined || applicationState.activeTrackIndex === -1) {
         return;
     }
 
@@ -147,9 +147,28 @@ storage.shuffle.listen(async (shuffleValue: boolean | undefined) => {
 
     if (shuffleValue) {
         const shuffledAudiosIds = shuffle(audiosIds);
-        await storage.set({ audiosIds: shuffledAudiosIds, originalAudiosIds: audiosIds });
+        const updateValues = { audiosIds: shuffledAudiosIds, originalAudiosIds: audiosIds };
+
+        const [trackId] = audiosIds[applicationState.activeTrackIndex];
+        const newActiveIndex = shuffledAudiosIds.findIndex(([elementTrackId]) => elementTrackId === trackId);
+        console.log("shuffle ", trackId, newActiveIndex);
+        if (newActiveIndex !== undefined) {
+            updateValues["activeTrackIndex"] = newActiveIndex;
+        }
+
+        await storage.set(updateValues);
+
     } else {
-        await storage.set({ audiosIds: applicationState.originalAudiosIds, originalAudiosIds: [] });
+        const updateValues = { audiosIds: applicationState.originalAudiosIds, originalAudiosIds: [] };
+
+        const [trackId] = audiosIds[applicationState.activeTrackIndex];
+        const newActiveIndex = updateValues.audiosIds.findIndex(([elementTrackId]) => elementTrackId === trackId);
+        console.log("shuffle off ", trackId, newActiveIndex);
+        if (newActiveIndex !== undefined) {
+            updateValues["activeTrackIndex"] = newActiveIndex;
+        }
+
+        await storage.set(updateValues);
     }
 });
 
