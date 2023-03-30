@@ -6,7 +6,7 @@ import { useApllicationActions } from "../hooks/useActions";
 import { useTypedSelector } from "../hooks/useTypedSelector";
 import { fetchAppWebToken, loadApplicationState, setSelectedTab } from "../store/slice";
 import { useAppDispatch } from "../store/store";
-import { AudioControls } from "./AudioControls";
+import { AudioControls } from "./AudioControls/AudioControls";
 import { ContentPanel } from "./ContentPanel";
 import { SignInPanel } from "./panels/SignInPanel";
 

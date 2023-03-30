@@ -1,5 +1,5 @@
 import { v4 as uuid4 } from "uuid";
-import { EnumRepeat, TypeApplicationState, TypeAudioIds, TypeTitlePlaylist, TypeTrackItem, TypeWebToken } from "./types";
+import { EnumRepeat, TypeApplicationState, TypeAudioTuple, TypeTitlePlaylist, TypeTrackItem, TypeWebToken } from "./types";
 
 class State<T> {
     stateName: string;
@@ -87,6 +87,8 @@ const login = (userId: string, deviceId: string, webToken: TypeWebToken, success
 export const activeTrack = new State<TypeTrackItem>("activeTrack");
 export const played = new State<boolean>("played");
 export const currentPlaylist = new State<TypeTitlePlaylist>("currentPlaylist");
-export const audiosIds = new State<TypeAudioIds>("audiosIds");
+export const audiosIds = new State<Array<TypeAudioTuple>>("audiosIds");
 export const volume = new State<number>("volume");
+export const shuffle = new State<boolean>("shuffle");
 export const repeat = new State<EnumRepeat>("repeat");
+export const durationReverse = new State<boolean>("durationReverse");

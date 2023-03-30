@@ -3,29 +3,17 @@ import Hls from "hls.js";
 import { distinctUntilChanged, fromEvent, map } from "rxjs";
 
 declare global {
-    interface Window { applicationState: any; }
+    interface Window { applicationState: types.TypeApplicationState; }
 }
-
-type TypeMemoryStorage = {
-    trackIndex: Record<string, number>;
-};
 
 const playerElement = document.getElementById("audio-player") as HTMLVideoElement;
 const applicationState: types.TypeApplicationState = Object.assign({}, initialState.Application);
 window.applicationState = applicationState;
 
-const memoryStorage: TypeMemoryStorage = {
-    trackIndex: {},
-};
-
 fromEvent(document, "DOMContentLoaded")
     .subscribe(async () => {
         const partialAppState = await storage.load();
         Object.assign(applicationState, partialAppState);
-
-        if (applicationState.currentPlaylist && applicationState.currentPlaylist.isRadio) {
-            memoryStorage.trackIndex = createTrackIndex(applicationState.currentPlaylist);
-        }
 
         if (applicationState.played && playerElement.paused) {
             await storage.played.set(false);
@@ -47,7 +35,10 @@ fromEvent(playerElement, "pause")
 fromEvent(playerElement, "playing")
     .subscribe(async () => {
         playerElement.volume = await storage.volume.get() || initialState.Application.volume;
-        await storage.played.set(true);
+
+        const [duration, currentTime] = [playerElement.duration || 0, Math.floor(playerElement.currentTime)];
+        await storage.set({ played: true, duration: duration, currentTime: currentTime });
+
         const track = applicationState.activeTrack;
         const deviceId = applicationState.deviceId;
         setTimeout(async () => {
@@ -63,7 +54,7 @@ fromEvent(playerElement, "ended")
         await storage.played.set(false);
         const repeat = await storage.repeat.get();
         if (repeat === types.EnumRepeat.REPEAT_ONE && applicationState.activeTrack && applicationState.currentPlaylist) {
-            return await playNewTrack(applicationState.activeTrack.id, applicationState.currentPlaylist);
+            return await playNewTrack(applicationState.activeTrackIndex);
         }
         await nextTrack();
     });
@@ -90,16 +81,34 @@ fromEvent(playerElement, "timeupdate")
 
         if (window["browser"]) {
             chrome.browserAction.setBadgeText({ text: "►" });
-            return
+            return;
         }
 
-        if (duration && duration !== Infinity) {
-            chrome.browserAction.setBadgeText({ text: "-" + utils.toHHMMSS(duration - currentTime) });
-        } else if (duration === Infinity) {
+        if (applicationState) {
+            setBadgeText(applicationState.durationReverse);
+        }
+    });
+
+const setBadgeText = (durationReverse: boolean) => {
+    const [duration, currentTime] = [playerElement.duration || 0, Math.floor(playerElement.currentTime)];
+
+    if (duration && duration !== Infinity) {
+        const time = durationReverse ? duration - currentTime : currentTime;
+        const value = utils.toHHMMSS(time);
+        chrome.browserAction.setBadgeText({ text: durationReverse ? "-" + value : value });
+    } else if (duration === Infinity) {
+        // radio
+        if (applicationState) {
             chrome.browserAction.setBadgeText({ text: utils.toHHMMSS(currentTime) });
         }
+    }
+};
 
-    });
+storage.durationReverse.listen((durationReverse: boolean | undefined) => {
+    if (durationReverse !== undefined) {
+        setBadgeText(durationReverse);
+    }
+});
 
 storage.volume.listen((volume: number | undefined) => {
     if (volume !== undefined) {
@@ -129,53 +138,61 @@ storage.played.listen(async (played: boolean | undefined) => {
 
 });
 
-const createTrackIndex = (playlist: types.TypeTitlePlaylist): Record<string, number> => {
-    const trackIndex: Record<string, number> = {};
-    playlist.tracks.forEach((track, index) => {
-        trackIndex[track.id] = index;
-    });
-    return trackIndex;
-};
-
-storage.currentPlaylist.listen((playlist) => {
-    if (playlist === undefined) {
-        memoryStorage.trackIndex = {};
+storage.shuffle.listen(async (shuffleValue: boolean | undefined) => {
+    if (shuffleValue === undefined || applicationState.activeTrackIndex === -1) {
         return;
     }
 
-    if (playlist.isRadio) {
-        memoryStorage.trackIndex = createTrackIndex(playlist);
+    const audiosIds = applicationState.audiosIds || [];
+
+    if (shuffleValue) {
+        const shuffledAudiosIds = shuffle(audiosIds);
+        const updateValues = { audiosIds: shuffledAudiosIds, originalAudiosIds: audiosIds };
+
+        const [trackId] = audiosIds[applicationState.activeTrackIndex];
+        const newActiveIndex = shuffledAudiosIds.findIndex(([elementTrackId]) => elementTrackId === trackId);
+        if (newActiveIndex !== undefined) {
+            updateValues["activeTrackIndex"] = newActiveIndex;
+        }
+
+        await storage.set(updateValues);
+
+    } else {
+        const updateValues = { audiosIds: applicationState.originalAudiosIds, originalAudiosIds: [] };
+
+        const [trackId] = audiosIds[applicationState.activeTrackIndex];
+        const newActiveIndex = updateValues.audiosIds.findIndex(([elementTrackId]) => elementTrackId === trackId);
+        if (newActiveIndex !== undefined) {
+            updateValues["activeTrackIndex"] = newActiveIndex;
+        }
+
+        await storage.set(updateValues);
     }
 });
 
-const createAudiosIds = (playlist: types.TypeTitlePlaylist): types.TypeAudioIds => {
-    const audiosIds: types.TypeAudioIds = {};
-    playlist.tracks.forEach((track, index, array) => {
-        audiosIds[track.id] = [
-            track.accessKey,
-            array[(index + 1) % array.length].id,
-            array[(index || array.length) - 1].id,
-            index === array.length - 1,
-        ];
-    });
-    return audiosIds;
+const shuffle = (array: Array<types.TypeAudioTuple>): Array<types.TypeAudioTuple> => {
+    const result = [...array];
+    for (var i = result.length - 1; i > 0; i--) {
+        var j = Math.floor(Math.random() * (i + 1));
+        var temp = result[i];
+        result[i] = result[j];
+        result[j] = temp;
+    }
+    return result;
 };
 
-chrome.storage.local.get("currentPlaylist", async ({ currentPlaylist }) => {
-    if (!currentPlaylist) {
-        return;
-    }
-    await storage.audiosIds.set(createAudiosIds(currentPlaylist));
-});
+const createAudiosIds = (tracks: types.TypeTrackItem[]): Array<types.TypeAudioTuple> => {
+    return tracks.map(track => [track.id, track.accessKey]);
+};
 
-chrome.runtime.onMessage.addListener(async (request) => {
+chrome.runtime.onMessage.addListener(async (request, _, sendResponse) => {
     switch (request.type) {
         case "activeTrack": {
             if (request.data.playlist.isRadio) {
-                return await playNewRadio(request.data.track, request.data.playlist);
+                return await playNewRadio(request.data.trackIndex, request.data.playlist);
             }
             sendListenedData(types.EndOfStreamReason.New);
-            return await playNewTrack(request.data.track.id, request.data.playlist);
+            return await playNewTrack(request.data.trackIndex, request.data.playlist);
         }
         case "nextTrack": {
             sendListenedData(types.EndOfStreamReason.Next);
@@ -187,25 +204,15 @@ chrome.runtime.onMessage.addListener(async (request) => {
             await previousTrack();
             break;
         }
+        case "currentTime": {
+            playerElement.currentTime = request.data.value || 0;
+            sendResponse();
+            break;
+        }
         default:
             break;
     }
 });
-
-const getActualAudiosIds = (trackId: string, playlist: types.TypeTitlePlaylist): [boolean, types.TypeAudioIds] => {
-    const isNewPlaylist = (
-        playlist.id !== applicationState.currentPlaylist?.id
-        || playlist.ownerId !== applicationState.currentPlaylist?.ownerId
-        || playlist.blockId !== applicationState.currentPlaylist?.blockId
-    );
-
-    let audiosIds = applicationState.audiosIds;
-    if (isNewPlaylist || !audiosIds[trackId]) {
-        audiosIds = createAudiosIds(playlist);
-    }
-
-    return [isNewPlaylist, audiosIds];
-};
 
 const reloadTrack = async () => {
     if (!applicationState.currentPlaylist || !applicationState.activeTrack) {
@@ -213,35 +220,46 @@ const reloadTrack = async () => {
     }
 
     if (applicationState.currentPlaylist.isRadio) {
-        return await playNewRadio(applicationState.activeTrack, applicationState.currentPlaylist);
+        return await playNewRadio(applicationState.activeTrackIndex);
     }
 
-    await playNewTrack(applicationState.activeTrack.id, applicationState.currentPlaylist);
+    await playNewTrack(applicationState.activeTrackIndex);
 };
 
-const playNewTrack = async (trackId: string, playlist: types.TypeTitlePlaylist) => {
-    const [isNewPlaylist, audiosIds] = getActualAudiosIds(trackId, playlist);
+const playNewTrack = async (trackIndex: number, playlist?: types.TypeTitlePlaylist) => {
+    const audiosIds = playlist ? createAudiosIds(playlist.tracks) : applicationState.audiosIds;
 
-    await __playNewSource(async () => {
-        const [accessKey] = audiosIds[trackId];
+    const trackFetcher = async () => {
+        const [trackId, accessKey] = audiosIds[trackIndex] || audiosIds[0];
         const track = await fetchers.trackInfo(applicationState.userId, trackId, accessKey);
-        return [track, playlist, audiosIds];
-    });
+        return [track, trackIndex];
+    };
 
-    if (isNewPlaylist) {
+    await __playNewSource(trackFetcher, playlist, audiosIds);
+
+    if (playlist) {
         const audiosIds = await fetchers.audiosIdsBySource(playlist);
         if (playlist.id === applicationState.currentPlaylist?.id
             && playlist.ownerId === applicationState.currentPlaylist?.ownerId
             && playlist.blockId === applicationState.currentPlaylist?.blockId) {
 
-            await storage.audiosIds.set(audiosIds);
+            if (applicationState.shuffle) {
+                const shuffledAudiosIds = shuffle(audiosIds);
+                await storage.set({ audiosIds: shuffledAudiosIds, originalAudiosIds: audiosIds });
+            } else {
+                await storage.set({ audiosIds: audiosIds, originalAudiosIds: [] });
+            }
         }
     }
 };
 
-const playNewRadio = async (track: types.TypeTrackItem, playlist: types.TypeTitlePlaylist) => {
-    const [_, audiosIds] = getActualAudiosIds(track.id, playlist);
-    return await __playNewSource(async () => [track, playlist, audiosIds]);
+const playNewRadio = async (trackIndex: number, playlist?: types.TypeTitlePlaylist) => {
+    const fetchTrack = async () => {
+        const tracks = playlist ? playlist.tracks : applicationState.currentPlaylist?.tracks || [];
+        return [tracks[trackIndex], trackIndex]
+    };
+
+    return await __playNewSource(fetchTrack, playlist);
 };
 
 const hlsWorkers: Array<Hls> = [];
@@ -260,15 +278,16 @@ const destroyPlayer = () => {
     playerElement.removeAttribute("src");
 };
 
-const __playNewSource = async (callback: Function) => {
+const __playNewSource = async (callback: Function, playlist?: types.TypeTitlePlaylist, audiosIds?: Array<types.TypeAudioTuple>) => {
     destroyPlayer();
 
-    const [track, playlist, audiosIds] = await callback();
+    const [track, trackIndex] = await callback();
 
-    if (applicationState.currentPlaylist?.blockId === playlist.blockId && applicationState.currentPlaylist?.id === playlist.id) {
-        await storage.set({ activeTrack: track });
+    if (playlist !== undefined) {
+        const newAudiosIds = audiosIds || createAudiosIds(playlist.tracks);
+        await storage.set({ activeTrack: track, activeTrackIndex: trackIndex, currentPlaylist: playlist, audiosIds: newAudiosIds });
     } else {
-        await storage.set({ activeTrack: track, currentPlaylist: playlist, audiosIds: audiosIds });
+        await storage.set({ activeTrack: track, activeTrackIndex: trackIndex });
     }
 
     if (!track.url.includes("index.m3u8")) {
@@ -282,30 +301,28 @@ const __playNewSource = async (callback: Function) => {
     hls.loadSource(track.url);
     hls.attachMedia(playerElement);
     hls.on(Hls.Events.MEDIA_ATTACHED, async () => { playerElement.play() });
-
 };
 
-const nextTrack = async () => {
-    if (applicationState.activeTrack && applicationState.currentPlaylist) {
-        const nextTrackId = applicationState.audiosIds[applicationState.activeTrack.id][1];
-        await playNewTrackByIndex(nextTrackId, applicationState.currentPlaylist);
+const nextTrack = async () => await playNewTrackByIndex("next");
+const previousTrack = async () => await playNewTrackByIndex("prev");
+
+const getNewIndex = (action: "next" | "prev", index: number, length: number): number => {
+    const value = action === "next" ? (index + 1) % length : (index || length) - 1;
+    return value < 0 ? 0 : value;
+};
+
+const playNewTrackByIndex = async (action: "next" | "prev") => {
+    if (!applicationState.currentPlaylist) {
+        return;
     }
-};
 
-const previousTrack = async () => {
-    if (applicationState.activeTrack && applicationState.currentPlaylist) {
-        const previousTrackId = applicationState.audiosIds[applicationState.activeTrack.id][2];
-        await playNewTrackByIndex(previousTrackId, applicationState.currentPlaylist);
-    }
-};
-
-const playNewTrackByIndex = async (newTrackId: string, playlist: types.TypeTitlePlaylist) => {
-    if (playlist.isRadio) {
-        const newTrackIndex = memoryStorage.trackIndex[newTrackId];
-        const nextTrack = playlist.tracks[newTrackIndex];
-        await playNewRadio(nextTrack, playlist);
+    if (applicationState.currentPlaylist.isRadio) {
+        const tracks = applicationState.currentPlaylist.tracks;
+        const newIndex = getNewIndex(action, applicationState.activeTrackIndex, tracks.length);
+        await playNewRadio(newIndex);
     } else {
-        await playNewTrack(newTrackId, playlist);
+        const newIndex = getNewIndex(action, applicationState.activeTrackIndex, applicationState.audiosIds.length);
+        await playNewTrack(newIndex);
     }
 };
 

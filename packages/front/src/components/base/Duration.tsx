@@ -7,7 +7,7 @@ type Props = {
 
 export const Duration: FC<Props> = ({ value }) => {
     return (
-        <Headline level="1" style={{ color: "var(--vkui--color_text_secondary)", marginLeft: 24 }}>
+        <Headline level="1" style={{ color: "var(--vkui--color_text_secondary)" }}>
             {value}
         </Headline>
     );

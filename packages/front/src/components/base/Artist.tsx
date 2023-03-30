@@ -1,6 +1,7 @@
 import { storage, types } from "@vk-audiopad/common";
-import { Link } from "@vkontakte/vkui";
+import { Subhead } from "@vkontakte/vkui";
 import { FC } from "react";
+import "./Artist.css";
 
 import { useSearchTracksActions } from "../../hooks/useActions";
 
@@ -12,7 +13,7 @@ export const Artist: FC<Props> = ({ value }) => {
     const { setValue } = useSearchTracksActions();
 
     return (
-        <Link
+        <Subhead
             onClick={async e => {
                 e.stopPropagation();
                 setValue(value);
@@ -23,9 +24,9 @@ export const Artist: FC<Props> = ({ value }) => {
                     }
                 });
             }}
-            style={{ color: "var(--vkui--color_text_secondary)" }}
+            className="artist"
         >
             {value}
-        </Link>
+        </Subhead>
     );
 };
