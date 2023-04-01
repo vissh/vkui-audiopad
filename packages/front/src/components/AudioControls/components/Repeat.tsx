@@ -2,7 +2,6 @@ import { storage, types } from "@vk-audiopad/common";
 import { Icon24Repeat, Icon24RepeatOne } from '@vkontakte/icons';
 import { IconButton } from "@vkontakte/vkui";
 import { FC } from "react";
-
 import { useTypedSelector } from "../../../hooks/useTypedSelector";
 
 export const Repeat: FC = () => {

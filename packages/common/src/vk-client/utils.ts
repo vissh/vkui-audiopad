@@ -1,5 +1,4 @@
 import { decode } from "html-entities";
-
 import { TypeCoverPlaylist, TypeTitlePlaylist, TypeTrackItem } from "../types";
 import { EAudioTupleIndex } from "./enums";
 

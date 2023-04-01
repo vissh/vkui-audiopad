@@ -1,7 +1,6 @@
 import { Icon24ExternalLinkOutline, Icon56ErrorOutline, Icon56MusicOutline } from "@vkontakte/icons";
 import { FormItem, Link, Panel, PanelSpinner, Placeholder, Textarea } from "@vkontakte/vkui";
 import { FC } from "react";
-
 import { TypeFetchError } from "../../store/types";
 
 export const Loading: FC = () => {

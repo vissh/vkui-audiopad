@@ -1,10 +1,8 @@
-import "@vkontakte/vkui/dist/vkui.css";
-
 import { api, storage, types, utils } from "@vk-audiopad/common";
 import { Icon28SongOutline, Icon32PauseCircle, Icon32PlayCircle } from "@vkontakte/icons";
 import { Image, Separator, SimpleCell } from "@vkontakte/vkui";
+import "@vkontakte/vkui/dist/vkui.css";
 import React, { FC } from "react";
-
 import { useTypedSelector } from "../../hooks/useTypedSelector";
 import { Artist } from "./Artist";
 import { Duration } from "./Duration";

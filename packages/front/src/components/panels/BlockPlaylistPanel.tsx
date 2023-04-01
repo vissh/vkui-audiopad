@@ -1,9 +1,8 @@
 import { types } from "@vk-audiopad/common";
 import { FC, useEffect } from "react";
-
 import { useBlockPlaylistActions } from "../../hooks/useActions";
 import { useTypedSelector } from "../../hooks/useTypedSelector";
-import { fetchPlaylist, fetchPlaylistMore } from "../../store/slice";
+import { fetchPlaylist, fetchPlaylistMore } from "../../store/slices/blockPlaylist";
 import { useAppDispatch } from "../../store/store";
 import { PaginationPlaylist } from "../base/PaginationPlaylist";
 

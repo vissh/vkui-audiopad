@@ -1,10 +1,8 @@
-import "@vkontakte/vkui/dist/vkui.css";
-
 import { storage, types } from "@vk-audiopad/common";
 import { Search } from "@vkontakte/vkui";
+import "@vkontakte/vkui/dist/vkui.css";
 import { FC, useEffect, useState } from "react";
-import { debounceTime, distinctUntilChanged, Subject } from "rxjs";
-
+import { Subject, debounceTime, distinctUntilChanged } from "rxjs";
 import { useSearchTracksActions } from "../../hooks/useActions";
 import { useTypedSelector } from "../../hooks/useTypedSelector";
 

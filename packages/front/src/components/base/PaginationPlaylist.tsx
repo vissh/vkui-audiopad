@@ -1,6 +1,5 @@
 import { types } from "@vk-audiopad/common";
 import { FC } from "react";
-
 import { TypeFetchError } from "../../store/types";
 import { PaginationContent } from "./PaginationContent";
 import { TitleTracks } from "./TitleTracks";

@@ -1,11 +1,9 @@
-import "@vkontakte/vkui/dist/vkui.css";
-
 import { types } from "@vk-audiopad/common";
 import { Group, Header } from "@vkontakte/vkui";
+import "@vkontakte/vkui/dist/vkui.css";
 import React, { FC, useEffect } from "react";
-
 import { useTypedSelector } from "../../hooks/useTypedSelector";
-import { fetchGeneral } from "../../store/slice";
+import { fetchGeneral } from "../../store/slices/general";
 import { useAppDispatch } from "../../store/store";
 import { BaseOnYourTastesCards } from "../base/BaseOnYourTastesCards";
 import { Content } from "../base/Content";

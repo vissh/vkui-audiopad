@@ -1,10 +1,8 @@
 import { storage } from "@vk-audiopad/common";
 import { FormItem, Slider } from "@vkontakte/vkui";
 import { FC, useEffect, useState } from "react";
-import { debounceTime, distinctUntilChanged, Subject } from "rxjs";
-
+import { Subject, debounceTime, distinctUntilChanged } from "rxjs";
 import { useTypedSelector } from "../../../hooks/useTypedSelector";
-
 
 export const Volume: FC = () => {
     const { volume } = useTypedSelector(state => state.application);

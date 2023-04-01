@@ -1,7 +1,9 @@
 import { bindActionCreators } from "@reduxjs/toolkit";
 import { useDispatch } from "react-redux";
-
-import { applicationSlice, blockPlaylist, coverPlaylists, searchTracks } from "../store/slice";
+import { applicationSlice } from "../store/slices/application";
+import { blockPlaylist } from "../store/slices/blockPlaylist";
+import { coverPlaylists } from "../store/slices/coverPlaylist";
+import { searchTracks } from "../store/slices/search";
 
 export const useApllicationActions = () => {
     const dispatch = useDispatch();

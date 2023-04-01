@@ -2,7 +2,6 @@ import { storage } from '@vk-audiopad/common';
 import { Icon24Shuffle } from '@vkontakte/icons';
 import { IconButton } from "@vkontakte/vkui";
 import { FC } from "react";
-
 import { useTypedSelector } from '../../../hooks/useTypedSelector';
 
 export const Shuffle: FC = () => {

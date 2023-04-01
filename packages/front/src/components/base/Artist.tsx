@@ -1,9 +1,8 @@
 import { storage, types } from "@vk-audiopad/common";
 import { Subhead } from "@vkontakte/vkui";
 import { FC } from "react";
-import "./Artist.css";
-
 import { useSearchTracksActions } from "../../hooks/useActions";
+import "./Artist.css";
 
 type Props = {
     value: string;

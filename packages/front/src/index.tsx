@@ -1,11 +1,7 @@
+import { AdaptivityProvider, ConfigProvider, Platform, WebviewType } from "@vkontakte/vkui";
 import "@vkontakte/vkui/dist/vkui.css";
-
-import {
-    AdaptivityProvider, ConfigProvider, Platform, WebviewType
-} from "@vkontakte/vkui";
 import ReactDOM from "react-dom";
 import { Provider } from "react-redux";
-
 import { Application } from "./components/Application";
 import { store } from "./store/store";
 

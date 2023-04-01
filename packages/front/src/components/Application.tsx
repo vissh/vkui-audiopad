@@ -1,10 +1,10 @@
 import { storage, types } from "@vk-audiopad/common";
 import { AppRoot, Panel, SplitCol, SplitLayout, View } from "@vkontakte/vkui";
 import React, { FC, useEffect } from "react";
-
 import { useApllicationActions } from "../hooks/useActions";
 import { useTypedSelector } from "../hooks/useTypedSelector";
-import { fetchAppWebToken, loadApplicationState, setSelectedTab } from "../store/slice";
+import { setSelectedTab } from "../store/asyncThunks";
+import { fetchAppWebToken, loadApplicationState } from "../store/slices/application";
 import { useAppDispatch } from "../store/store";
 import { AudioControls } from "./AudioControls/AudioControls";
 import { ContentPanel } from "./ContentPanel";

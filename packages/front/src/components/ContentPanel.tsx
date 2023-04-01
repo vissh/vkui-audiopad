@@ -1,7 +1,6 @@
 import { storage, types } from "@vk-audiopad/common";
 import { Group, Tabs, TabsItem } from "@vkontakte/vkui";
 import { FC } from "react";
-
 import { CONTENT_ELEMENT_ID } from "../constants";
 import { useTypedSelector } from "../hooks/useTypedSelector";
 import { SearchTracks } from "./base/SearchTracks";

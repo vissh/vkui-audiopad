@@ -1,7 +1,6 @@
 import { Icon28SongOutline } from "@vkontakte/icons";
 import { IconButton, Image } from "@vkontakte/vkui";
 import { FC } from "react";
-
 import { useTypedSelector } from "../../../hooks/useTypedSelector";
 
 export const TrackIcon: FC = () => {

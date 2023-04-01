@@ -1,7 +1,6 @@
 import { storage, types } from "@vk-audiopad/common";
 import { Group, Header, Link } from "@vkontakte/vkui";
 import { FC } from "react";
-
 import { useTypedSelector } from "../../hooks/useTypedSelector";
 import { HorizantalCoverPlaylists } from "./HorizontalCoverPlaylists";
 

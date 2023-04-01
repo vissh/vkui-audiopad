@@ -1,5 +1,4 @@
 import axios from "axios";
-
 import { TypeCoverPlaylist, TypeCoverPlaylistsFetchResult, TypeNextSectionFetchArgs } from "../../types";
 import { vkFetch } from "../client";
 import { toCoverPlaylist } from "../utils";
