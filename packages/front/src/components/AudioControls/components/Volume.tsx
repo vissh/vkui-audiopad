@@ -30,7 +30,7 @@ export const Volume: FC = () => {
     }, []);
 
     return (
-        <FormItem style={{ padding: "12px 10px" }}>
+        <FormItem style={{ padding: "14px 8px" }}>
             <Slider style={{ width: 60 }} min={0} max={100} value={sliderVolume} onChange={onChangeVolume} />
         </FormItem>
     );
