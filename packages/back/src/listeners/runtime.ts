@@ -1,7 +1,5 @@
-import { types } from "@vk-audiopad/common";
-import { nextTrack, playNewRadio, playNewTrack, previousTrack } from "../actions";
+import { nextTrack, playNewRadio, playTrackFromNewPlaylist, previousTrack, repeat } from "../actions";
 import { playerElement } from "../state";
-import { sendListenedData } from "../utils";
 
 export const startListiningChromeEvents = () => {
     // Действия, которые приходит из popup'а.
@@ -17,32 +15,30 @@ export const startListiningChromeEvents = () => {
 };
 
 const onMessage = async (request: any, _: chrome.runtime.MessageSender, sendResponse: (response?: any) => void) => {
-    switch (request.type) {
-        case "activeTrack": {
+    const requestTypes = {
+        activeTrack: async () => {
             if (request.data.playlist.isRadio) {
                 return await playNewRadio(request.data.trackIndex, request.data.playlist);
             }
-            sendListenedData(types.EndOfStreamReason.New);
-            return await playNewTrack(request.data.trackIndex, request.data.playlist);
-        }
-        case "nextTrack": {
-            sendListenedData(types.EndOfStreamReason.Next);
+            return await playTrackFromNewPlaylist(request.data.trackIndex, request.data.playlist);
+        },
+        nextTrack: async () => {
             await nextTrack();
-            break;
-        }
-        case "previousTrack": {
-            sendListenedData(types.EndOfStreamReason.Prev);
+        },
+        previousTrack: async () => {
             await previousTrack();
-            break;
-        }
-        case "currentTime": {
+        },
+        currentTime: async () => {
             playerElement.currentTime = request.data.value || 0;
             sendResponse();
-            break;
-        }
-        default:
-            break;
-    }
+        },
+        repeat: async () => {
+            await repeat();
+        },
+    };
+
+    const handler = requestTypes[request.type];
+    handler && await handler();
 };
 
 const onBeforeSendHeaders = (details: chrome.webRequest.WebRequestHeadersDetails) => {

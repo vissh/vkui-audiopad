@@ -17,6 +17,35 @@
     "page": "background.html",
     "persistent": true
   },
+  "commands": {
+    "010-play-pause": {
+      "description": "Воспроизведение/Пауза",
+      "suggested_key": {
+        "default": "Ctrl+Shift+5"
+      },
+      "global": true
+    },
+    "020-previous": {
+      "description": "Предыдущий трек",
+      "suggested_key": {
+        "default": "Ctrl+Shift+6"
+      },
+      "global": true
+    },
+    "030-next": {
+      "description": "Следующий трек",
+      "suggested_key": {
+        "default": "Ctrl+Shift+7"
+      },
+      "global": true
+    },
+    "050-shuffle": {
+      "description": "Слушать в перемешку"
+    },
+    "060-loop": {
+      "description": "Повтор"
+    }
+  },
   "permissions": [
     "*://*.vk.com/*",
     "storage",

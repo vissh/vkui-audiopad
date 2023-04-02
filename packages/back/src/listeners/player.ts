@@ -1,8 +1,8 @@
 import { fetchers, initialState, storage, types } from "@vk-audiopad/common";
 import { distinctUntilChanged, fromEvent, map } from "rxjs";
-import { nextTrack, playNewTrack } from "../actions";
+import { nextTrack, playCurrentTrack } from "../actions";
 import { applicationState, playerElement } from "../state";
-import { sendListenedData, setBadgeText } from "../utils";
+import { setBadgeText } from "../utils";
 
 export const startListeningPlayerEvents = () => {
     fromEvent(playerElement, "playing").subscribe(onPlaying);
@@ -27,11 +27,10 @@ const onPlaying = async () => {
 };
 
 const onEnded = async () => {
-    sendListenedData(types.EndOfStreamReason.New);
     await storage.played.set(false);
     const repeat = await storage.repeat.get();
-    if (repeat === types.EnumRepeat.REPEAT_ONE && applicationState.activeTrack && applicationState.currentPlaylist) {
-        return await playNewTrack(applicationState.activeTrackIndex);
+    if (repeat === types.EnumRepeat.REPEAT_ONE) {
+        return await playCurrentTrack();
     }
     await nextTrack();
 };
