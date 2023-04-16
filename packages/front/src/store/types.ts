@@ -1,6 +1,14 @@
 import { SerializedError } from "@reduxjs/toolkit";
 import { types } from "@vk-audiopad/common";
 
+export enum EModalPage {
+    INFO = "info",
+}
+
+export type TModalPage = {
+    activeModal: EModalPage | null;
+};
+
 type TypeFetchState = {
     loading: boolean;
     loaded: boolean;

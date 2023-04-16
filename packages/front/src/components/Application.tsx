@@ -8,6 +8,7 @@ import { fetchAppWebToken, loadApplicationState } from "../store/slices/applicat
 import { useAppDispatch } from "../store/store";
 import { AudioControls } from "./AudioControls/AudioControls";
 import { ContentPanel } from "./ContentPanel";
+import { Modal } from "./modals/Modal";
 import { SignInPanel } from "./panels/SignInPanel";
 
 export const Application: FC = () => {
@@ -37,7 +38,7 @@ export const Application: FC = () => {
 
     return (
         <AppRoot>
-            <SplitLayout>
+            <SplitLayout modal={<Modal />}>
                 <SplitCol>
                     <View activePanel="vkaudiopad">
                         <Panel id="vkaudiopad">
@@ -45,7 +46,6 @@ export const Application: FC = () => {
                                 <React.Fragment>
                                     <AudioControls />
                                     <ContentPanel />
-                                    {/* <VKComboBanner /> */}
                                 </React.Fragment>
                             )}
 

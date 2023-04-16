@@ -5,6 +5,7 @@ import { blockPlaylist } from "./slices/blockPlaylist";
 import { coverPlaylists } from "./slices/coverPlaylist";
 import { exploreSlice } from "./slices/explore";
 import { generalSlice } from "./slices/general";
+import { modalPageSlice } from "./slices/modalPage";
 import { myMusicSlice } from "./slices/myMusic";
 import { searchTracks } from "./slices/search";
 
@@ -14,6 +15,7 @@ const rootReducer = combineReducers({
     coverPlaylists: coverPlaylists.reducer,
     explore: exploreSlice.reducer,
     general: generalSlice.reducer,
+    modalPage: modalPageSlice.reducer,
     myMusic: myMusicSlice.reducer,
     search: searchTracks.reducer,
 });
