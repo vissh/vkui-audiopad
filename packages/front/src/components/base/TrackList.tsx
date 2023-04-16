@@ -1,7 +1,6 @@
 import { types } from "@vk-audiopad/common";
 import { Group } from "@vkontakte/vkui";
 import { CSSProperties, FC } from "react";
-
 import { Track } from "./Track";
 
 type Props = {

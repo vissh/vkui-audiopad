@@ -1,10 +1,8 @@
-import "@vkontakte/vkui/dist/vkui.css";
-
 import { types } from "@vk-audiopad/common";
+import "@vkontakte/vkui/dist/vkui.css";
 import React, { FC, useEffect } from "react";
-
 import { useTypedSelector } from "../../hooks/useTypedSelector";
-import { fetchMyAudios, fetchMyTracksMore } from "../../store/slice";
+import { fetchMyAudios, fetchMyTracksMore } from "../../store/slices/myMusic";
 import { useAppDispatch } from "../../store/store";
 import { Content } from "../base/Content";
 import { HorizontalTitleCoverPlaylists } from "../base/HorizontalTitleCoverPlaylists";

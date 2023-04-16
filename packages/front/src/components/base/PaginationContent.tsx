@@ -1,6 +1,5 @@
 import React, { FC, useEffect, useState } from "react";
 import { filter, fromEvent } from "rxjs";
-
 import { CONTENT_ELEMENT_ID } from "../../constants";
 import { useAppDispatch } from "../../store/store";
 import { TypeFetchError } from "../../store/types";

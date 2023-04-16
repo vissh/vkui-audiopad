@@ -1,5 +1,6 @@
 import { initialState } from "@vk-audiopad/common";
 import {
+    TModalPage,
     TypeApplicationState,
     TypeCoverPlaylistsState,
     TypeExploreState,
@@ -60,4 +61,8 @@ export const initialCoverPlaylistsState: TypeCoverPlaylistsState = {
     loaded: false,
     error: null,
     fetchResult: null,
+};
+
+export const initialModalPageState: TModalPage = {
+    activeModal: null,
 };

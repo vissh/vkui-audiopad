@@ -1,13 +1,14 @@
 import { storage, types } from "@vk-audiopad/common";
 import { AppRoot, Panel, SplitCol, SplitLayout, View } from "@vkontakte/vkui";
 import React, { FC, useEffect } from "react";
-
 import { useApllicationActions } from "../hooks/useActions";
 import { useTypedSelector } from "../hooks/useTypedSelector";
-import { fetchAppWebToken, loadApplicationState, setSelectedTab } from "../store/slice";
+import { setSelectedTab } from "../store/asyncThunks";
+import { fetchAppWebToken, loadApplicationState } from "../store/slices/application";
 import { useAppDispatch } from "../store/store";
 import { AudioControls } from "./AudioControls/AudioControls";
 import { ContentPanel } from "./ContentPanel";
+import { Modal } from "./modals/Modal";
 import { SignInPanel } from "./panels/SignInPanel";
 
 export const Application: FC = () => {
@@ -37,7 +38,7 @@ export const Application: FC = () => {
 
     return (
         <AppRoot>
-            <SplitLayout>
+            <SplitLayout modal={<Modal />}>
                 <SplitCol>
                     <View activePanel="vkaudiopad">
                         <Panel id="vkaudiopad">
@@ -45,7 +46,6 @@ export const Application: FC = () => {
                                 <React.Fragment>
                                     <AudioControls />
                                     <ContentPanel />
-                                    {/* <VKComboBanner /> */}
                                 </React.Fragment>
                             )}
 

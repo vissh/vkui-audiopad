@@ -1,7 +1,6 @@
 import { types, utils } from "@vk-audiopad/common";
 import { Group, HorizontalScroll } from "@vkontakte/vkui";
 import { FC } from "react";
-
 import { ShowAllTracksHeaderLink } from "./ShowAllTracksHeaderLink";
 import { TrackList } from "./TrackList";
 

@@ -2,7 +2,6 @@ import { storage, types } from "@vk-audiopad/common";
 import { Icon36PlaylistOutline } from "@vkontakte/icons";
 import { HorizontalCell, HorizontalScroll, Image } from "@vkontakte/vkui";
 import { CSSProperties, FC } from "react";
-
 import { useTypedSelector } from "../../hooks/useTypedSelector";
 
 type Props = {

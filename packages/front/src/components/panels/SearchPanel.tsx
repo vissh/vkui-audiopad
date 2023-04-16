@@ -1,9 +1,8 @@
 import { types } from "@vk-audiopad/common";
 import React, { FC, useEffect } from "react";
-
 import { useSearchTracksActions } from "../../hooks/useActions";
 import { useTypedSelector } from "../../hooks/useTypedSelector";
-import { fetchSearchTracks } from "../../store/slice";
+import { fetchSearchTracks } from "../../store/slices/search";
 import { useAppDispatch } from "../../store/store";
 import { Content } from "../base/Content";
 import { HorizontalTitleCoverPlaylists } from "../base/HorizontalTitleCoverPlaylists";

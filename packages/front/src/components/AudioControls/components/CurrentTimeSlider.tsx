@@ -1,9 +1,7 @@
 import { api } from "@vk-audiopad/common";
 import { Slider } from "@vkontakte/vkui";
 import { FC, useEffect, useState } from "react";
-
 import { useTypedSelector } from "../../../hooks/useTypedSelector";
-
 
 export const CurrentTimeSlider: FC = () => {
     const { currentTime, duration } = useTypedSelector(state => state.application);

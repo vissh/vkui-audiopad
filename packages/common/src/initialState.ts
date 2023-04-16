@@ -1,10 +1,15 @@
-import { ContentTab, EnumRepeat, TypeApplicationState } from "./types";
+import { ContentTab, EnumRepeat, TApplicationSettingsState, TypeApplicationState } from "./types";
 
-export const Application: TypeApplicationState = {
-    userId: "",
+const ApplicationSettings: TApplicationSettingsState = {
     volume: 0.5,
     shuffle: false,
     repeat: EnumRepeat.NONE,
+    appVersion: "",
+    showIndicator: false,
+};
+
+export const Application: TypeApplicationState = {
+    userId: "",
     webToken: null,
     deviceId: "",
     currentPlaylist: null,
@@ -17,4 +22,5 @@ export const Application: TypeApplicationState = {
     audiosIds: [],
     originalAudiosIds: [],
     selectedTab: { tab: ContentTab.UNKNOWN },
+    ...ApplicationSettings
 };

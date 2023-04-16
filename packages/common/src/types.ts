@@ -54,12 +54,16 @@ export enum EnumRepeat {
     REPEAT_ONE = 2,
 }
 
-export type TypeApplicationState = {
-    [index: string]: string | TypeWebToken | TypeTitlePlaylist | TypeTrackItem | number | boolean | Array<TypeAudioTuple> | SelectedTabs | null;
-    userId: string;
+export type TApplicationSettingsState = {
     volume: number;
     shuffle: boolean;
     repeat: EnumRepeat;
+    appVersion: string;
+    showIndicator: boolean;
+}
+
+export type TApplicationUserDataState = {
+    userId: string;
     webToken: TypeWebToken | null;
     deviceId: string;
     currentPlaylist: TypeTitlePlaylist | null;
@@ -72,6 +76,10 @@ export type TypeApplicationState = {
     audiosIds: Array<TypeAudioTuple>;
     originalAudiosIds: Array<TypeAudioTuple>;
     selectedTab: SelectedTabs;
+}
+
+export type TypeApplicationState = TApplicationSettingsState & TApplicationUserDataState & {
+    [index: string]: string | TypeWebToken | TypeTitlePlaylist | TypeTrackItem | number | boolean | Array<TypeAudioTuple> | SelectedTabs | null;
 };
 
 export enum EAudioFlagBit {

@@ -14,6 +14,12 @@ export const prevTrack = () => {
 
 export const currentTime = async (value: number) => {
     return new Promise(resolve => {
-        chrome.runtime.sendMessage({ type: "currentTime", data: { value: value } }, () => resolve(null));
+        const message = { type: "currentTime", data: { value: value } };
+        const callback = () => resolve(null);
+        chrome.runtime.sendMessage(message, callback);
     });
+};
+
+export const repeat = () => {
+    chrome.runtime.sendMessage({ type: "repeat" });
 };

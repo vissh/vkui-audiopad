@@ -1,6 +1,5 @@
-import { PanelHeader } from "@vkontakte/vkui";
+import { Group, PanelHeader } from "@vkontakte/vkui";
 import React, { FC } from "react";
-
 import { CurrentTime } from "./components/CurrentTime";
 import { CurrentTrack } from "./components/CurrentTrack";
 import { Info } from "./components/Info";

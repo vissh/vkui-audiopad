@@ -1,10 +1,8 @@
 import { storage } from "@vk-audiopad/common";
 import { FormItem, Slider } from "@vkontakte/vkui";
 import { FC, useEffect, useState } from "react";
-import { debounceTime, distinctUntilChanged, Subject } from "rxjs";
-
+import { Subject, debounceTime, distinctUntilChanged } from "rxjs";
 import { useTypedSelector } from "../../../hooks/useTypedSelector";
-
 
 export const Volume: FC = () => {
     const { volume } = useTypedSelector(state => state.application);
@@ -32,7 +30,7 @@ export const Volume: FC = () => {
     }, []);
 
     return (
-        <FormItem style={{ padding: "12px 10px" }}>
+        <FormItem style={{ padding: "14px 8px" }}>
             <Slider style={{ width: 60 }} min={0} max={100} value={sliderVolume} onChange={onChangeVolume} />
         </FormItem>
     );

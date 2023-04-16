@@ -1,12 +1,10 @@
-import "@vkontakte/vkui/dist/vkui.css";
-
 import { types, utils } from "@vk-audiopad/common";
 import { List } from "@vkontakte/vkui";
+import "@vkontakte/vkui/dist/vkui.css";
 import { FC, useEffect } from "react";
-
 import { userCoverPlaylistsActions } from "../../hooks/useActions";
 import { useTypedSelector } from "../../hooks/useTypedSelector";
-import { fetchCoverPlaylists, fetchCoverPlaylistsMore } from "../../store/slice";
+import { fetchCoverPlaylists, fetchCoverPlaylistsMore } from "../../store/slices/coverPlaylist";
 import { useAppDispatch } from "../../store/store";
 import { HorizantalCoverPlaylists } from "../base/HorizontalCoverPlaylists";
 import { PaginationContent } from "../base/PaginationContent";

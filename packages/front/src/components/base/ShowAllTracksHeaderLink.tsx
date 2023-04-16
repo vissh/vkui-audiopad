@@ -1,7 +1,6 @@
 import { storage, types } from "@vk-audiopad/common";
 import { Header, Link } from "@vkontakte/vkui";
 import { FC } from "react";
-
 import { useTypedSelector } from "../../hooks/useTypedSelector";
 
 type Props = {

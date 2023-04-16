@@ -1,9 +1,7 @@
-import "@vkontakte/vkui/dist/vkui.css";
-
 import { storage, types } from "@vk-audiopad/common";
 import { Card, CardScroll, Text, Title } from "@vkontakte/vkui";
+import "@vkontakte/vkui/dist/vkui.css";
 import { FC } from "react";
-
 import { useTypedSelector } from "../../hooks/useTypedSelector";
 
 type Props = {

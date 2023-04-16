@@ -1,16 +1,14 @@
 import { bindActionCreators } from "@reduxjs/toolkit";
 import { useDispatch } from "react-redux";
-
-import { applicationSlice, blockPlaylist, coverPlaylists, searchTracks } from "../store/slice";
+import { applicationSlice } from "../store/slices/application";
+import { blockPlaylist } from "../store/slices/blockPlaylist";
+import { coverPlaylists } from "../store/slices/coverPlaylist";
+import { modalPageSlice } from "../store/slices/modalPage";
+import { searchTracks } from "../store/slices/search";
 
 export const useApllicationActions = () => {
     const dispatch = useDispatch();
     return bindActionCreators(applicationSlice.actions, dispatch);
-};
-
-export const useSearchTracksActions = () => {
-    const dispatch = useDispatch();
-    return bindActionCreators(searchTracks.actions, dispatch);
 };
 
 export const useBlockPlaylistActions = () => {
@@ -21,4 +19,14 @@ export const useBlockPlaylistActions = () => {
 export const userCoverPlaylistsActions = () => {
     const dispatch = useDispatch();
     return bindActionCreators(coverPlaylists.actions, dispatch);
+};
+
+export const useModalPageActions = () => {
+    const dispatch = useDispatch();
+    return bindActionCreators(modalPageSlice.actions, dispatch);
+};
+
+export const useSearchTracksActions = () => {
+    const dispatch = useDispatch();
+    return bindActionCreators(searchTracks.actions, dispatch);
 };
