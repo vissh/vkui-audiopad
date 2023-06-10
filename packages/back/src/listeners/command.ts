@@ -1,6 +1,7 @@
-import { storage } from "@vk-audiopad/common";
-import { nextTrack, previousTrack, repeat } from "../actions";
+import { nextTrack, previousTrack } from "../actions/next";
+import { repeat } from "../actions/repeat";
 import { applicationState } from "../state";
+import { storage } from "../storage";
 
 export const startListeningCommandEvents = () => {
     chrome.commands.onCommand.addListener(onCommand);

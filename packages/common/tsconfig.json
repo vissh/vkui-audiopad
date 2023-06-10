@@ -28,6 +28,6 @@
         "incremental": true
     },
     "include": [
-        "src"
+        "src",
     ]
 }

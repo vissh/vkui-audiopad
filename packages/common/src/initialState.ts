@@ -1,26 +1,60 @@
-import { ContentTab, EnumRepeat, TApplicationSettingsState, TypeApplicationState } from "./types";
+import { EContentTab, EDurationMode, ERepeat, ETheme } from "./types/enums";
+import {
+    TApplicationActiveTrackState,
+    TApplicationControlsState,
+    TApplicationCurrentTimeState,
+    TApplicationPlaylistSystemState,
+    TApplicationSelectedTabState,
+    TApplicationSettingsState,
+    TApplicationState,
+    TApplicationUserState,
+} from "./types/state";
 
-const ApplicationSettings: TApplicationSettingsState = {
+
+export const ApplicationControls: TApplicationControlsState = {
     volume: 0.5,
     shuffle: false,
-    repeat: EnumRepeat.NONE,
-    appVersion: "",
-    showIndicator: false,
+    repeat: ERepeat.NONE,
+    durationMode: EDurationMode.TIME_PASSED,
 };
 
-export const Application: TypeApplicationState = {
+export const ApplicationSettings: TApplicationSettingsState = {
+    theme: ETheme.SYSTEM,
+};
+
+export const ApplicationActiveTrack: TApplicationActiveTrackState = {
+    played: false,
+    activeTrack: null,
+    duration: 0,
+    currentPlaylist: null,
+};
+
+export const CurrentTime: TApplicationCurrentTimeState = {
+    currentTime: 0,
+};
+
+export const PlaylistSystem: TApplicationPlaylistSystemState = {
+    activeTrackIndex: -1,
+    audiosIds: [],
+    originalAudiosIds: [],
+};
+
+export const User: TApplicationUserState = {
     userId: "",
     webToken: null,
     deviceId: "",
-    currentPlaylist: null,
-    activeTrack: null,
-    activeTrackIndex: -1,
-    played: false,
-    duration: 0,
-    durationReverse: false,
-    currentTime: 0,
-    audiosIds: [],
-    originalAudiosIds: [],
-    selectedTab: { tab: ContentTab.UNKNOWN },
-    ...ApplicationSettings
+};
+
+export const SelectedTab: TApplicationSelectedTabState = {
+    selectedTab: { tab: EContentTab.MY_MUSIC },
+};
+
+export const Application: TApplicationState = {
+    ...ApplicationControls,
+    ...ApplicationSettings,
+    ...ApplicationActiveTrack,
+    ...CurrentTime,
+    ...PlaylistSystem,
+    ...User,
+    ...SelectedTab,
 };

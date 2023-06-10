@@ -1,26 +1,26 @@
-import { initialState, storage, types } from "@vk-audiopad/common";
-import { fromEvent } from "rxjs";
+import { initialState, stateTypes } from "@vk-audiopad/common";
+import { storage } from "./storage";
 
 declare global {
-    interface Window { applicationState: types.TypeApplicationState; }
+    interface Window { applicationState: stateTypes.TApplicationState; }
 }
 
 export const playerElement = document.getElementById("audio-player") as HTMLVideoElement;
-export const applicationState: types.TypeApplicationState = Object.assign({}, initialState.Application);
+export const applicationState: stateTypes.TApplicationState = Object.assign({}, initialState.Application);
+
 window.applicationState = applicationState;
 
-fromEvent(document, "DOMContentLoaded")
-    .subscribe(async () => {
-        const partialAppState = await storage.load();
-        Object.assign(applicationState, partialAppState);
+document.addEventListener("DOMContentLoaded", async () => {
+    const partialAppState = await storage.load();
+    Object.assign(applicationState, partialAppState);
 
-        if (applicationState.played && playerElement.paused) {
-            await storage.played.set(false);
-        }
+    if (applicationState.played && playerElement.paused) {
+        await storage.played.set(false);
+    }
 
-        storage.listen((changes) => {
-            Object.assign(applicationState, changes);
-        });
-
-        chrome.browserAction.setBadgeBackgroundColor({ color: "#0077FF" });
+    storage.listen((changes) => {
+        Object.assign(applicationState, changes);
     });
+
+    chrome.browserAction.setBadgeBackgroundColor({ color: "#0077FF" });
+});

@@ -1,7 +1,9 @@
-import { fetchers, types, utils } from "@vk-audiopad/common";
+import { baseEnums, baseTypes, utils } from "@vk-audiopad/common";
+import { fetchListenedData } from "./fetchers/listenedData";
 import { applicationState, playerElement } from "./state";
+import { TListenedData } from "./types";
 
-export const shuffle = (array: Array<types.TypeAudioTuple>): Array<types.TypeAudioTuple> => {
+export const shuffle = (array: Array<baseTypes.TAudioTuple>): Array<baseTypes.TAudioTuple> => {
     const result = [...array];
     for (var i = result.length - 1; i > 0; i--) {
         var j = Math.floor(Math.random() * (i + 1));
@@ -12,38 +14,34 @@ export const shuffle = (array: Array<types.TypeAudioTuple>): Array<types.TypeAud
     return result;
 };
 
-export const getNewIndex = (action: "next" | "prev", index: number, length: number): number => {
-    const value = action === "next" ? (index + 1) % length : (index || length) - 1;
-    return value < 0 ? 0 : value;
-};
-
-export const createAudiosIds = (tracks: types.TypeTrackItem[]): Array<types.TypeAudioTuple> => {
-    return tracks.map(track => [track.id, track.accessKey]);
-};
-
-export const sendListenedData = (endStreamReason: types.EndOfStreamReason) => {
+export const sendListenedData = (endStreamReason: baseEnums.EEndOfStreamReason) => {
     if (applicationState.activeTrack && !applicationState.currentPlaylist?.isRadio) {
-        const listenedData: types.TypeListenedDataFetchArgs = {
+        const listenedData: TListenedData = {
             userId: applicationState.userId,
             track: applicationState.activeTrack,
             listened: Math.floor(playerElement.currentTime),
             endStreamReason: endStreamReason,
         };
-        setTimeout(async () => await fetchers.listenedData(listenedData), 10);
+        setTimeout(async () => await fetchListenedData(listenedData), 10);
     }
 };
 
-export const setBadgeText = (durationReverse: boolean) => {
+export const setBadgeText = (durationMode: baseEnums.EDurationMode) => {
+    const timeLeft = durationMode === baseEnums.EDurationMode.TIME_LEFT;
     const [duration, currentTime] = [playerElement.duration || 0, Math.floor(playerElement.currentTime)];
 
     if (duration && duration !== Infinity) {
-        const time = durationReverse ? duration - currentTime : currentTime;
+        const time = timeLeft ? duration - currentTime : currentTime;
         const value = utils.toHHMMSS(time);
-        chrome.browserAction.setBadgeText({ text: durationReverse ? "-" + value : value });
+        chrome.browserAction.setBadgeText({ text: timeLeft ? "-" + value : value });
     } else if (duration === Infinity) {
         // radio
         if (applicationState) {
             chrome.browserAction.setBadgeText({ text: utils.toHHMMSS(currentTime) });
         }
     }
+};
+
+export const createAudiosIds = (tracks: baseTypes.TTrackItem[]): Array<baseTypes.TAudioTuple> => {
+    return tracks.map(track => [track.id, track.accessKey]);
 };

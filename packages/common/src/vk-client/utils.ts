@@ -1,8 +1,17 @@
-import { decode } from "html-entities";
-import { TypeCoverPlaylist, TypeTitlePlaylist, TypeTrackItem } from "../types";
-import { EAudioTupleIndex } from "./enums";
+import { TCoverPlaylist, TTitlePlaylist, TTrackItem } from "../types/base";
+import { EAudioTupleIndex } from "../types/enums";
 
-export const toTitlePlaylist = (playlist: any): TypeTitlePlaylist => {
+export const win1251ResponseToUTF8String = async (response: Response): Promise<string> => {
+    const contentType = response.headers.get("Content-Type");
+
+    if (contentType && contentType.toLowerCase().includes("charset=windows-1251")) {
+        return new TextDecoder("windows-1251").decode(await response.arrayBuffer());
+    }
+
+    return await response.text();
+};
+
+export const toTitlePlaylist = (playlist: any): TTitlePlaylist => {
     const isRadio = playlist.type === "radio";
     return {
         id: String(playlist.id),
@@ -17,7 +26,7 @@ export const toTitlePlaylist = (playlist: any): TypeTitlePlaylist => {
     };
 };
 
-export const toCoverPlaylist = (playlist: any): TypeCoverPlaylist => {
+export const toCoverPlaylist = (playlist: any): TCoverPlaylist => {
     const gridCoverUrls: string[] = [];
 
     if (!playlist.coverUrl && playlist.gridCovers) {
@@ -41,7 +50,7 @@ export const toCoverPlaylist = (playlist: any): TypeCoverPlaylist => {
     };
 };
 
-export const toTracksItems = (playlist: any): TypeTrackItem[] => {
+export const toTracksItems = (playlist: any): TTrackItem[] => {
     const isRadio = playlist.type === "radio";
 
     return playlist.list.map((trackInfo: Array<any>) => {
@@ -49,7 +58,7 @@ export const toTracksItems = (playlist: any): TypeTrackItem[] => {
     });
 };
 
-export const toTrackItem = (trackInfo: Array<any>, isRadio?: boolean): TypeTrackItem => {
+export const toTrackItem = (trackInfo: Array<any>, isRadio?: boolean): TTrackItem => {
     const hashes = trackInfo[EAudioTupleIndex.HASHES];
     const [addHash, editHash, actionHash, deleteHash, replaceHash, urlHash, restoreHash] = hashes.split('/');
     return {
@@ -62,6 +71,7 @@ export const toTrackItem = (trackInfo: Array<any>, isRadio?: boolean): TypeTrack
         duration: trackInfo[EAudioTupleIndex.DURATION],
         context: trackInfo[EAudioTupleIndex.CONTEXT],
         flags: trackInfo[EAudioTupleIndex.FLAGS],
+        trackCode: trackInfo[EAudioTupleIndex.TRACK_CODE],
         addHash: addHash,
         editHash: editHash,
         actionHash: actionHash,
@@ -79,4 +89,10 @@ const getText = (str: string) => {
         str = hmtlElement.innerText;
     }
     return decode(str);
+};
+
+
+const decode = (value: string): string => {
+    let txt = new DOMParser().parseFromString(value, "text/html");
+    return txt.documentElement.textContent || "";
 };
