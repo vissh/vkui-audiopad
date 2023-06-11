@@ -1,0 +1,10 @@
+.artist {
+    color: var(--vkui--color_text_secondary);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    cursor: pointer;
+}
+
+.artist:hover {
+    text-decoration: underline;
+}

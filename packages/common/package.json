@@ -1,0 +1,27 @@
+{
+    "name": "@vk-audiopad/common",
+    "version": "1.0.0",
+    "type": "module",
+    "files": [
+        "dist"
+    ],
+    "main": "./dist/vk-audiopad-common-lib.umd.cjs",
+    "module": "./dist/vk-audiopad-common-lib.js",
+    "types": "./dist/index.d.ts",
+    "exports": {
+        ".": {
+            "import": "./dist/vk-audiopad-common-lib.js",
+            "require": "./dist/vk-audiopad-common-lib.umd.cjs"
+        }
+    },
+    "scripts": {
+        "build": "npm install && tsc && ./node_modules/.bin/vite build"
+    },
+    "dependencies": {
+        "@types/chrome": "0.0.237",
+        "serialize-error": "11.0.0",
+        "typescript": "5.1.3",
+        "vite": "4.3.9",
+        "vite-plugin-dts": "2.3.0"
+    }
+}

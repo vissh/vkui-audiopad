@@ -1,0 +1,5 @@
+/extension/
+/packages/*/node_modules
+/packages/*/build
+/packages/*/dist
+/packages/*/package-lock.json
