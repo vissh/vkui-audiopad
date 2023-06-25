@@ -17,6 +17,7 @@ export const useUpdateWebToken = () => {
             setTimeout(() => updateWebToken(webToken), 1);
         },
         refetchOnWindowFocus: false,
+        retry: 2,
     });
 };
 

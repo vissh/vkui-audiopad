@@ -1,4 +1,4 @@
-import { baseTypes } from "@vk-audiopad/common";
+import { TPlaylistBlock } from "../../../core/types/playlists";
 
 export type TFetchMoreExploreArgs = {
     nextFrom: string;
@@ -8,5 +8,5 @@ export type TFetchMoreExploreArgs = {
 export type TFetchExploreResult = {
     nextFrom: string;
     sectionId: string;
-    playlists: baseTypes.TTitlePlaylist[];
+    playlistBlocks: TPlaylistBlock[];
 };

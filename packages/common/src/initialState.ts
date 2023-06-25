@@ -45,7 +45,11 @@ export const User: TApplicationUserState = {
     deviceId: "",
 };
 
-export const SelectedTab: TApplicationSelectedTabState = {
+export const InitialSelectedTab: TApplicationSelectedTabState = {
+    selectedTab: { tab: EContentTab.UNKNOWN },
+};
+
+export const DefaultSelectedTab: TApplicationSelectedTabState = {
     selectedTab: { tab: EContentTab.MY_MUSIC },
 };
 
@@ -56,5 +60,5 @@ export const Application: TApplicationState = {
     ...CurrentTime,
     ...PlaylistSystem,
     ...User,
-    ...SelectedTab,
+    ...DefaultSelectedTab,
 };

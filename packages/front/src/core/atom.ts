@@ -35,7 +35,7 @@ export const atom = <T>(initialValue: T): Atom<T> => {
     };
 };
 
-export const storageAtom = <T>(keyName: string, initialValue: T): Atom<T> => {
+export const storageAtom = <T>(keyName: string, initialValue: T, defaultValue?: T): Atom<T> => {
     let value = initialValue;
     const subscribes = new Set<(newValue: T) => void>();
 
@@ -44,7 +44,7 @@ export const storageAtom = <T>(keyName: string, initialValue: T): Atom<T> => {
             return;
         }
 
-        value = newValue === undefined ? initialValue : newValue;
+        value = newValue === undefined ? (defaultValue === undefined ? initialValue : defaultValue) : newValue;
         subscribes.forEach(callback => callback(value));
     };
 

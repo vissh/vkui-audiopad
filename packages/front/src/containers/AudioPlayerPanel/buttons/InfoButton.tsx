@@ -3,7 +3,7 @@ import { WriteBarIcon } from "@vkontakte/vkui";
 import { FC } from "react";
 import { useSetAtom } from "../../../core/atom";
 import { activeModalPageAtom } from "../../../core/atoms";
-import { EModalPage } from "../../../core/types";
+import { EModalPage } from "../../../core/types/enums";
 
 export const InfoButton: FC = () => {
     const setActiveModal = useSetAtom(activeModalPageAtom);

@@ -1,15 +1,18 @@
 import { tabTypes } from "@vk-audiopad/common";
+import { Group } from "@vkontakte/vkui";
 import { FC } from "react";
 import { InfinityContent } from "../../../components/InfiniteContent";
 import { TitleTracks } from "../../../components/TitleTracks";
+import { Navigation } from "../Navigation";
 import { useBlockPlaylistData, useLoadMoreBlockPlaylistTracksMutation } from "./hooks";
 
 type Props = {
-    selectedTab: tabTypes.TSelectedPlaylist;
+    userId: string,
+    selectedTab: tabTypes.TSelectedTabPlaylist;
 };
 
-export const BlockPlaylist: FC<Props> = ({ selectedTab }) => {
-    const { data: fetchResult, isLoading } = useBlockPlaylistData(selectedTab);
+export const BlockPlaylist: FC<Props> = ({ userId, selectedTab }) => {
+    const { data: fetchResult, isLoading, error } = useBlockPlaylistData(userId, selectedTab);
     const loadMoreMutation = useLoadMoreBlockPlaylistTracksMutation();
 
     return (
@@ -18,12 +21,14 @@ export const BlockPlaylist: FC<Props> = ({ selectedTab }) => {
             hasMore={!!fetchResult?.playlist.hasMore}
             loadMoreMutation={loadMoreMutation}
             loadMoreArgs={fetchResult?.playlist}
+            error={error}
         >
-            {fetchResult && fetchResult.playlist && fetchResult.playlist.tracks.length > 0 && (
-                <>
-                    {<TitleTracks playlist={fetchResult.playlist} />}
-                </>
-            )}
+            <Group>
+                <Navigation />
+                {fetchResult && fetchResult.playlist && fetchResult.playlist.tracks.length > 0 && (
+                    <TitleTracks playlist={fetchResult.playlist} />
+                )}
+            </Group>
         </InfinityContent>
     );
 };

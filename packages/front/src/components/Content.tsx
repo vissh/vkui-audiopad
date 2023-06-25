@@ -1,6 +1,7 @@
 import { Icon24ExternalLinkOutline, Icon56ErrorOutline, Icon56MusicOutline } from "@vkontakte/icons";
-import { FormItem, Link, Panel, PanelSpinner, Placeholder, Textarea } from "@vkontakte/vkui";
+import { FormItem, Group, Link, Panel, PanelSpinner, Placeholder, Textarea } from "@vkontakte/vkui";
 import React, { FC } from "react";
+import { serializeError } from "serialize-error";
 
 type Props = {
     loading: boolean;
@@ -41,17 +42,21 @@ type ErrorProps = {
 };
 
 const ErrorResult: FC<ErrorProps> = ({ error }) => {
+    console.error(error);
+    const link = <Link href="https://vk.me/vkaudiopad" target="_blank">группу <Icon24ExternalLinkOutline width={16} height={16} /></Link>
+
     return (
-        <Placeholder icon={<Icon56ErrorOutline />}>
-            К сожалению, получение данных завершилось с ошибкой, повторите попытку позже.<br />
-            Если ошибка не пропадает, отправьте сообщение в <Link href="https://vk.me/vkaudiopad" target="_blank">группу <Icon24ExternalLinkOutline width={16} height={16} /></Link>. Спасибо!<br />
-            {error
-                ? (
-                    <FormItem top="Скопируйте информацию об ошибке">
-                        <Textarea value={JSON.stringify(error)} />
+        <Group>
+            <Placeholder icon={<Icon56ErrorOutline />}>
+                К сожалению, получение данных завершилось с ошибкой, повторите попытку позже.<br />
+                Если ошибка не пропадает, скопируйте данные и отправьте сообщение в {link}. Спасибо!<br />
+                {error
+                    ? <FormItem top="Скопируйте информацию об ошибке">
+                        <Textarea value={JSON.stringify(serializeError(error))} />
                     </FormItem>
-                )
-                : null}
-        </Placeholder>
+                    : null
+                }
+            </Placeholder>
+        </Group>
     );
 };

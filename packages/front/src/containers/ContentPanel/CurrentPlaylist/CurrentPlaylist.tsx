@@ -1,8 +1,10 @@
 import { baseTypes } from "@vk-audiopad/common";
+import { Group } from "@vkontakte/vkui";
 import { FC, useEffect, useState } from "react";
 import { InfinityContent } from "../../../components/InfiniteContent";
 import { useAtomValue } from "../../../core/atom";
 import { currentPlaylistAtom } from "../../../core/atoms";
+import { Navigation } from "../Navigation";
 import { EditableTitleTracks } from "./EditableTitleTracks";
 import { applyEditedCurrentPlaylist, useLoadMorePlaylistTracksMutation } from "./hooks";
 
@@ -67,19 +69,24 @@ export const CurrentPlaylist: FC = () => {
             loadMoreMutation={loadMoreMutation}
             loadMoreArgs={playlist}
         >
-            {playlist && playlist.tracks.length > 0 && (
-                <>
-                    {<EditableTitleTracks
-                        playlist={playlist}
-                        editMode={editMode}
-                        onEdit={onEdit}
-                        onAccept={onAccept}
-                        onCancel={onCancel}
-                        onDragFinish={onDragFinish}
-                        onRemove={onRemove}
-                    />}
-                </>
-            )}
+            <Group>
+                <Navigation />
+
+                {playlist && playlist.tracks.length > 0 && (
+                    <>
+                        {<EditableTitleTracks
+                            playlist={playlist}
+                            editMode={editMode}
+                            onEdit={onEdit}
+                            onAccept={onAccept}
+                            onCancel={onCancel}
+                            onDragFinish={onDragFinish}
+                            onRemove={onRemove}
+                        />}
+                    </>
+                )}
+            </Group>
+
         </InfinityContent>
     );
 };

@@ -1,4 +1,4 @@
-import { TCoverPlaylist, TTitlePlaylist, TTrackItem } from "../types/base";
+import { TTrackItem } from "../types/base";
 import { EAudioTupleIndex } from "../types/enums";
 
 export const win1251ResponseToUTF8String = async (response: Response): Promise<string> => {
@@ -9,45 +9,6 @@ export const win1251ResponseToUTF8String = async (response: Response): Promise<s
     }
 
     return await response.text();
-};
-
-export const toTitlePlaylist = (playlist: any): TTitlePlaylist => {
-    const isRadio = playlist.type === "radio";
-    return {
-        id: String(playlist.id),
-        ownerId: String(playlist.ownerId),
-        accessHash: playlist.accessHash,
-        blockId: playlist.blockId,
-        nextOffset: playlist.nextOffset,
-        hasMore: !!(playlist.hasMore && playlist.nextOffset),
-        title: isRadio ? "Радиостанции" : getText(playlist.title),
-        tracks: toTracksItems(playlist),
-        isRadio: isRadio,
-    };
-};
-
-export const toCoverPlaylist = (playlist: any): TCoverPlaylist => {
-    const gridCoverUrls: string[] = [];
-
-    if (!playlist.coverUrl && playlist.gridCovers) {
-        const hmtlElement = document.createElement("html");
-        hmtlElement.innerHTML = playlist.gridCovers;
-        hmtlElement.querySelectorAll('[style^="background-image:url"]').forEach(el => {
-            const url = (el as HTMLInputElement).style.backgroundImage.slice(4, -1).replace(/"/g, "");
-            url && gridCoverUrls.push(url);
-        });
-    }
-
-    const coverUrl = playlist.coverUrl || (gridCoverUrls.length && gridCoverUrls[0]) || "";
-    !gridCoverUrls.length && coverUrl && gridCoverUrls.push(coverUrl);
-
-    return {
-        ...toTitlePlaylist(playlist),
-        coverUrl: coverUrl,
-        gridCoverUrls: gridCoverUrls,
-        authorLine: getText(playlist.authorLine),
-        authorName: getText(playlist.authorName),
-    };
 };
 
 export const toTracksItems = (playlist: any): TTrackItem[] => {
@@ -82,17 +43,7 @@ export const toTrackItem = (trackInfo: Array<any>, isRadio?: boolean): TTrackIte
     };
 };
 
-const getText = (str: string) => {
-    if (str.startsWith("<")) {
-        const hmtlElement = document.createElement("html");
-        hmtlElement.innerHTML = str;
-        str = hmtlElement.innerText;
-    }
-    return decode(str);
-};
-
-
-const decode = (value: string): string => {
+export const decode = (value: string): string => {
     let txt = new DOMParser().parseFromString(value, "text/html");
     return txt.documentElement.textContent || "";
 };

@@ -1,19 +1,22 @@
-import { baseTypes, utils } from "@vk-audiopad/common";
-import { List } from "@vkontakte/vkui";
+import { tabTypes, utils } from "@vk-audiopad/common";
+import { Group, List } from "@vkontakte/vkui";
 import { FC } from "react";
 import { HorizantalCoverPlaylists } from "../../../components/HorizontalCoverPlaylists";
 import { InfinityContent } from "../../../components/InfiniteContent";
+import { TCoverPlaylist } from "../../../core/types/playlists";
+import { Navigation } from "../Navigation";
 import { useCoverPlaylistsData, useLoadMoreCoverPlaylistsDataMutation } from "./hooks";
 
 type Props = {
     userId: string;
+    selectedTab: tabTypes.TSelectedTabCoverPlaylists;
 };
 
-export const CoverPlaylists: FC<Props> = ({ userId }) => {
-    const { data: fetchResult, isLoading } = useCoverPlaylistsData(userId);
-    const loadMoreMutation = useLoadMoreCoverPlaylistsDataMutation();
+export const CoverPlaylists: FC<Props> = ({ userId, selectedTab }) => {
+    const { data: fetchResult, isLoading, error } = useCoverPlaylistsData(selectedTab.showAllLink);
+    const loadMoreMutation = useLoadMoreCoverPlaylistsDataMutation(selectedTab.showAllLink);
 
-    const columnsPlaylists: baseTypes.TCoverPlaylist[][] =
+    const columnsPlaylists: TCoverPlaylist[][] =
         fetchResult
             ? Array.from(utils.chunked(fetchResult.coverPlaylists, 5))
             : [];
@@ -24,15 +27,19 @@ export const CoverPlaylists: FC<Props> = ({ userId }) => {
             hasMore={!!(fetchResult && fetchResult.nextFrom || "")}
             loadMoreMutation={loadMoreMutation}
             loadMoreArgs={{ nextFrom: fetchResult?.nextFrom, sectionId: fetchResult?.sectionId }}
+            error={error}
         >
-            <List>
-                {columnsPlaylists.map(playlists => (
-                    <HorizantalCoverPlaylists
-                        userId={userId}
-                        playlists={playlists}
-                    />
-                ))}
-            </List>
+            <Group>
+                <Navigation />
+                <List>
+                    {columnsPlaylists.map(playlists => (
+                        <HorizantalCoverPlaylists
+                            userId={userId}
+                            playlists={playlists}
+                        />
+                    ))}
+                </List>
+            </Group>
         </InfinityContent>
     );
 };

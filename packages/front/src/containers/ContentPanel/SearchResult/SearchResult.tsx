@@ -1,8 +1,9 @@
 import { tabTypes } from "@vk-audiopad/common";
+import { Group } from "@vkontakte/vkui";
 import { FC } from "react";
 import { Content } from "../../../components/Content";
-import { HorizontalTitleCoverPlaylists } from "../../../components/HorizontalTitleCoverPlaylists";
-import { HorizantalTitleTracks } from "../../../components/HorizontalTitleTracks";
+import { HorizontalPlaylist } from "../../../components/HorizontalPlaylist";
+import { Navigation } from "../Navigation";
 import { useSearchData } from "./hooks";
 
 type Props = {
@@ -11,32 +12,31 @@ type Props = {
 };
 
 export const SearchResult: FC<Props> = ({ userId, selectedTab }) => {
-    const { data: fetchResult, isLoading } = useSearchData(userId, selectedTab.value);
+    const { data: playlistBlocks, isLoading, error } = useSearchData(userId, selectedTab.value);
+
+    const firstPlaylistBlock = !!playlistBlocks && playlistBlocks.length > 0 && playlistBlocks[0];
+    const otherPlaylistsBlocks = !!playlistBlocks && playlistBlocks.slice(1);
 
     return (
-        <Content loading={isLoading} error={null}>
-            {fetchResult &&
-                <>
-                    {fetchResult.trackPlaylists.length > 0 && (
-                        fetchResult.trackPlaylists.map((playlist) => <HorizantalTitleTracks userId={userId} playlist={playlist} />)
-                    )}
+        <Content loading={isLoading} error={error}>
+            <Group>
+                <Navigation />
+                {firstPlaylistBlock && (
+                    <HorizontalPlaylist
+                        userId={userId}
+                        playlistBlock={firstPlaylistBlock}
+                        wrapGroup={false} />
+                )}
+            </Group>
 
-                    {fetchResult.officialAlbums.length > 0 && (
-                        <HorizontalTitleCoverPlaylists
-                            userId={userId}
-                            title={"Альбомы"}
-                            playlists={fetchResult.officialAlbums}
-                        />
-                    )}
+            {otherPlaylistsBlocks && otherPlaylistsBlocks.length > 0 &&
+                otherPlaylistsBlocks.map(playlistBlock =>
+                    <HorizontalPlaylist
+                        userId={userId}
+                        playlistBlock={playlistBlock}
+                        wrapGroup={true} />
+                )}
 
-                    {fetchResult.otherPlaylists.length > 0 && (
-                        <HorizontalTitleCoverPlaylists
-                            userId={userId}
-                            title={"Плейлисты"}
-                            playlists={fetchResult.otherPlaylists} />
-                    )}
-                </>
-            }
         </Content>
     );
 };

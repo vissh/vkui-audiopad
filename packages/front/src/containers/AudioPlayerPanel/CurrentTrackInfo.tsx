@@ -24,7 +24,7 @@ export const CurrentTrackInfo: FC = () => {
     }
 
     return (
-        <Group mode="plain" separator="hide">
+        <Group mode="plain">
             <div style={{ display: "flex", flexDirection: "row", justifyContent: "flex-start", alignItems: "center" }}>
                 {activeTrack
                     ? <>

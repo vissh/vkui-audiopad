@@ -2,7 +2,7 @@ import { ModalRoot } from "@vkontakte/vkui";
 import { FC } from "react";
 import { useAtom } from "../../core/atom";
 import { activeModalPageAtom } from "../../core/atoms";
-import { EModalPage } from "../../core/types";
+import { EModalPage } from "../../core/types/enums";
 import { InfoModalPage } from "./InfoModalPage";
 
 export const Modal: FC = () => {

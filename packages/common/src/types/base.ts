@@ -33,12 +33,6 @@ export type TTrackItem = {
     restoreHash: string;
 };
 
-export type TControl = {
-    played: boolean;
-    volume: number;
-    progress: number;
-};
-
 export type TTitlePlaylist = {
     id: string;
     title: string;
@@ -49,20 +43,8 @@ export type TTitlePlaylist = {
     blockId: string;
     nextOffset: string;
     hasMore: boolean;
-};
-
-export type TCoverPlaylist = TTitlePlaylist & {
-    coverUrl: string;
-    gridCoverUrls: string[];
-    authorLine: string;
-    authorName: string;
-};
-
-export type TAudioAccessKeyIndex = {
-    accessKey: string;
-    previousTrackId: string;
-    nextTrackId: string;
-    isLast: boolean;
+    followHash: string;
+    isFollowed: boolean;
 };
 
 export type TAudioTuple = [

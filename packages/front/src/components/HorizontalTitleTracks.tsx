@@ -44,10 +44,11 @@ const HorizantalTracks: FC<HorizantalTracksProps> = ({ playlist }) => {
         <HorizontalScroll>
             <div style={{ display: "flex" }}>
                 {columnsTracks.map(tracksWithIndexes => (
-                    <Group mode="plain" separator="hide">
+                    <Group mode="plain">
                         <List style={{ width: 360 }}>
                             {tracksWithIndexes.map(([track, index]) =>
                                 <Track
+                                    key={track.id}
                                     playlist={playlist}
                                     track={track}
                                     trackIndex={index}

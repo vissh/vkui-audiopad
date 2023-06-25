@@ -1,9 +1,10 @@
+import { Group } from "@vkontakte/vkui";
 import { FC } from "react";
-import { Content } from "../../../components/Content";
 import { HorizontalTitleCoverPlaylists } from "../../../components/HorizontalTitleCoverPlaylists";
 import { HorizantalTitleTracks } from "../../../components/HorizontalTitleTracks";
 import { InfinityContent } from "../../../components/InfiniteContent";
 import { TitleTracks } from "../../../components/TitleTracks";
+import { Navigation } from "../Navigation";
 import { useLoadMoreMyMusicTracksMutation, useMyMusicData } from "./hooks";
 
 type Props = {
@@ -11,40 +12,54 @@ type Props = {
 };
 
 export const MyMusic: FC<Props> = ({ userId }) => {
-    const { data: fetchResult, isLoading } = useMyMusicData(userId);
+    const { data: fetchResult, isLoading, error } = useMyMusicData(userId);
     const loadMoreMutation = useLoadMoreMyMusicTracksMutation();
 
     return (
-        <Content loading={isLoading} error={null}>
-            {fetchResult &&
-                <>
-                    {fetchResult.recentTracksPlaylist && fetchResult.recentTracksPlaylist.tracks.length > 0 && (
-                        <HorizantalTitleTracks
-                            userId={userId}
-                            playlist={fetchResult.recentTracksPlaylist}
-                        />
-                    )}
+        <InfinityContent
+            isLoading={isLoading}
+            hasMore={!!fetchResult?.playlist?.hasMore}
+            loadMoreMutation={loadMoreMutation}
+            loadMoreArgs={fetchResult?.playlist}
+            error={error}
+        >
+            <Group>
+                <Navigation />
+                {fetchResult && fetchResult.recentTracksPlaylist && fetchResult.recentTracksPlaylist.tracks.length > 0 && (
+                    <HorizantalTitleTracks
+                        userId={userId}
+                        playlist={fetchResult.recentTracksPlaylist}
+                    />
+                )}
+            </Group>
 
-                    {fetchResult.coverPlaylists.length > 0 && (
-                        <HorizontalTitleCoverPlaylists
-                            userId={userId}
-                            title={"Плейлисты"}
-                            playlists={fetchResult.coverPlaylists}
-                            showMore={true}
-                        />
-                    )}
+            {fetchResult && fetchResult.coverPlaylists.length > 0 && (
+                <Group>
+                    <HorizontalTitleCoverPlaylists
+                        title="Плейлисты"
+                        userId={userId}
+                        playlists={fetchResult.coverPlaylists}
+                        showAllLink={`/audios${userId}?block=my_playlists&section=all`}
+                        showMore={true}
+                    />
+                </Group>
+            )}
 
-                    {fetchResult.playlist && fetchResult.playlist.tracks.length > 0 && (
-                        <InfinityContent
-                            hasMore={!!fetchResult.playlist.hasMore}
-                            loadMoreMutation={loadMoreMutation}
-                            loadMoreArgs={fetchResult.playlist}
-                        >
-                            {<TitleTracks playlist={fetchResult.playlist} />}
-                        </InfinityContent>
-                    )}
-                </>
-            }
-        </Content>
+            {fetchResult && fetchResult.radiostationsPlaylist && fetchResult.radiostationsPlaylist.tracks.length > 0 && (
+                <Group>
+                    <HorizantalTitleTracks
+                        userId={userId}
+                        playlist={fetchResult.radiostationsPlaylist}
+                    />
+                </Group>
+            )}
+
+            {fetchResult && fetchResult.playlist && fetchResult.playlist.tracks.length > 0 && (
+                <Group>
+                    <TitleTracks playlist={fetchResult.playlist} />
+                </Group>
+            )}
+
+        </InfinityContent>
     );
 };

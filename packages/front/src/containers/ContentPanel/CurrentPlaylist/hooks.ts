@@ -4,7 +4,7 @@ import { actions } from "../../../core/actions";
 import { useSetAtom } from "../../../core/atom";
 import { currentPlaylistAtom } from "../../../core/atoms";
 import { fetchMorePlaylistTracks } from "../../../core/fetchers/playlist";
-import { TFetchPlaylistResult } from "../../../core/types";
+import { TFetchPlaylistResult } from "../../../core/types/types";
 
 export const useLoadMorePlaylistTracksMutation = (currentPlaylist: baseTypes.TTitlePlaylist | null) => {
     const setCurrentPlaylist = useSetAtom(currentPlaylistAtom);

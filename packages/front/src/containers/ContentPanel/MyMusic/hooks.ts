@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { baseTypes } from "@vk-audiopad/common";
 import { fetchMorePlaylistTracks } from "../../../core/fetchers/playlist";
-import { TFetchPlaylistResult } from "../../../core/types";
+import { TFetchPlaylistResult } from "../../../core/types/types";
 import { fetchMyMusic } from "./fetchers";
 import { TFetchMyMusicResult } from "./types";
 
@@ -12,8 +12,8 @@ export const useMyMusicData = (userId: string) => {
         queryKey: queryKey,
         queryFn: () => fetchMyMusic(userId),
         refetchOnWindowFocus: false,
-        refetchOnMount: false,
         enabled: !!userId,
+        retry: 2,
     });
 };
 
@@ -30,5 +30,6 @@ export const useLoadMoreMyMusicTracksMutation = () => {
                 queryClient.setQueryData(queryKey, previousData);
             }
         },
+        retry: 2,
     });
 };

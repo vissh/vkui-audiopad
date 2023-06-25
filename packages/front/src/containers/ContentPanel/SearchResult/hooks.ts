@@ -10,5 +10,6 @@ export const useSearchData = (userId: string, value: string) => {
         refetchOnWindowFocus: false,
         refetchOnMount: false,
         enabled: !!userId && !!value,
+        retry: 2,
     });
 };

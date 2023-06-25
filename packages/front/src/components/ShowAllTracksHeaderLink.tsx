@@ -22,7 +22,6 @@ export const ShowAllTracksHeaderLink: FC<Props> = ({ userId, playlist }) => {
 
     return (
         <Header
-            mode="secondary"
             aside={playlist.tracks.length > 6 && (
                 <Link onClick={onClick}>
                     Показать все

@@ -20,7 +20,6 @@ export const EditableTitleTracks: FC<Props> = ({ playlist, editMode, onEdit, onA
             mode="plain"
             header={
                 <Header
-                    mode="secondary"
                     aside={
                         editMode
                             ? <>

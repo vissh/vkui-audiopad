@@ -1,12 +1,12 @@
-import { baseTypes } from "@vk-audiopad/common";
+import { TCoverPlaylist } from "../../../core/types/playlists";
 
 export type TFetchSearchArgs = {
     ownerId: string;
     value: string;
 };
 
-export type TFetchSearchResult = {
-    trackPlaylists: baseTypes.TTitlePlaylist[],
-    officialAlbums: baseTypes.TCoverPlaylist[],
-    otherPlaylists: baseTypes.TCoverPlaylist[],
+export type BlockCoverPlaylist = {
+    blockId: string;
+    title: string;
+    playlists: TCoverPlaylist[];
 };

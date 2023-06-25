@@ -1,31 +1,41 @@
 import { TTitlePlaylist } from "./base";
 import { EContentTab } from "./enums";
 
+export type TSelectedTabUnknown = {
+    tab: EContentTab.UNKNOWN;
+};
+
 export type TSelectedTabSearch = {
     tab: EContentTab.SEARCH;
     value: string;
 };
 
-export type TSelectedPlaylist = {
+export type TSelectedTabPlaylist = {
     tab: EContentTab.BLOCK_PLAYLIST;
     fromId: string;
     playlist: TTitlePlaylist;
 };
 
-export type TSelectedCoverPlaylists = {
+export type TSelectedTabCoverPlaylists = {
     tab: EContentTab.COVER_PLAYLISTS;
-    fromId: string;
+    showAllLink: string;
 };
 
-export type TSelectedTabClickable = Exclude<EContentTab, EContentTab.SEARCH | EContentTab.BLOCK_PLAYLIST | EContentTab.COVER_PLAYLISTS>;
+export type TClickableContentTabs = (
+    EContentTab.CURRENT_PLAYLIST
+    | EContentTab.GENERAL
+    | EContentTab.MY_MUSIC
+    | EContentTab.EXPLORE
+);
 
 export type TSelectedTabCommon = {
-    tab: TSelectedTabClickable;
+    tab: TClickableContentTabs;
 };
 
 export type TSelectedTabs = (
-    TSelectedTabCommon
+    TSelectedTabUnknown
+    | TSelectedTabCommon
     | TSelectedTabSearch
-    | TSelectedPlaylist
-    | TSelectedCoverPlaylists
+    | TSelectedTabPlaylist
+    | TSelectedTabCoverPlaylists
 );

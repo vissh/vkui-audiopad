@@ -1,4 +1,4 @@
-import { baseTypes } from "@vk-audiopad/common";
+import { TCoverPlaylist } from "../../../core/types/playlists";
 
 export type TFetchNextSectionArgs = {
     nextFrom: string;
@@ -8,5 +8,5 @@ export type TFetchNextSectionArgs = {
 export type TFetchCoverPlaylistsResult = {
     nextFrom: string;
     sectionId: string;
-    coverPlaylists: baseTypes.TCoverPlaylist[];
+    coverPlaylists: TCoverPlaylist[];
 };

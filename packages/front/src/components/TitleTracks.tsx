@@ -11,10 +11,11 @@ export const TitleTracks: FC<Props> = ({ playlist }) => {
     return (
         <Group
             mode="plain"
-            header={<Header mode="secondary">{playlist.title}</Header>}
+            header={<Header>{playlist.title}</Header>}
         >
             {playlist.tracks.map((track, index) =>
                 <Track
+                    key={track.id}
                     playlist={playlist}
                     track={track}
                     trackIndex={index}

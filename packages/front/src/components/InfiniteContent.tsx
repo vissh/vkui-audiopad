@@ -9,9 +9,10 @@ type Props = {
     loadMoreMutation: UseMutationResult<any, any, any>;
     loadMoreArgs?: any;
     isLoading?: boolean;
+    error?: any;
 };
 
-export const InfinityContent: FC<Props> = ({ children, hasMore, loadMoreMutation, loadMoreArgs, isLoading }) => {
+export const InfinityContent: FC<Props> = ({ children, hasMore, loadMoreMutation, loadMoreArgs, isLoading, error }) => {
     const { ref, inView } = useInView({ skip: !hasMore });
 
     useEffect(() => {
@@ -21,7 +22,10 @@ export const InfinityContent: FC<Props> = ({ children, hasMore, loadMoreMutation
     }, [inView, hasMore, loadMoreMutation.isLoading]);
 
     return (
-        <Content loading={!!isLoading || loadMoreMutation.isLoading} error={null}>
+        <Content
+            loading={!!isLoading || loadMoreMutation.isLoading}
+            error={error}
+        >
             {children}
             {hasMore && <div ref={ref}></div>}
         </Content>

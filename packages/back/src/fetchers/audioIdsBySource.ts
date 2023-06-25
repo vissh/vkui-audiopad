@@ -15,9 +15,9 @@ export const fetchAudiosIdsBySource = async (playlist: baseTypes.TTitlePlaylist)
             source: "playlist",
         };
 
-    const parsedData = await vkFetch("https://vk.com/al_audio.php?act=get_audio_ids_by_source", params);
+    const jsonData = await vkFetch("https://vk.com/al_audio.php?act=get_audio_ids_by_source", params);
 
-    return parsedData.payload[1][0].map((trackInfo: Record<string, string>) => {
+    return jsonData.payload[1][0].map((trackInfo: Record<string, string>) => {
         return [trackInfo.audio_raw_id, trackInfo.access_key] as baseTypes.TAudioTuple;
     });
 };

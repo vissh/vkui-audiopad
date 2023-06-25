@@ -1,5 +1,10 @@
 import { baseEnums } from "@vk-audiopad/common";
-import { Icon28KeyboardOutline, Icon28MessageOutline, Icon28SettingsOutline } from '@vkontakte/icons';
+import {
+    Icon28KeyboardOutline,
+    Icon28MessageOutline,
+    Icon28SettingsOutline,
+    Icon28ThumbsUpOutline,
+} from '@vkontakte/icons';
 import {
     Group,
     InfoRow,
@@ -41,19 +46,20 @@ export const InfoModalPage = ({ ...props }) => {
                 <ShortсutInfo />
                 <ThemeSetting />
                 <FeedbackInfo />
+                <Rate />
             </Group>
         </ModalPage>
     );
 };
 
 const ShortсutInfo = () => {
-    const isChrome = navigator.userAgent.match(/chrome|chromium|crios/i);
+    const isFirefoxExtension = location.href.startsWith("moz-extension://");
     const firefoxLink = "https://support.mozilla.org/ru/kb/menedzher-sochetaniya-klavish-dopolnenij-v-firefox";
 
     const description = (
-        isChrome
-            ? <span>Настройка горячих клавиш доступна по адресу <b>chrome://extensions/shortcuts</b></span>
-            : <span>Инструкция по настройке горячих клавиш <Link href={firefoxLink} target="_blank">{firefoxLink}</Link>.</span>
+        isFirefoxExtension
+            ? <span>Инструкция по настройке горячих клавиш <Link href={firefoxLink} target="_blank">{firefoxLink}</Link>.</span>
+            : <span>Настройка горячих клавиш доступна по адресу <b>chrome://extensions/shortcuts</b></span>
     );
 
     return (
@@ -102,7 +108,24 @@ const FeedbackInfo = () => {
             hasActive={false}
             multiline
         >
-            С фидбеком, вопросами, пожеланиями — сюда <Link href="https://vk.me/vkaudiopad" target="_blank">https://vk.me/vkaudiopad</Link>.
+            С фидбеком, вопросами, пожеланиями — сюда <Link href="https://vk.me/vkaudiopad" target="_blank">https://vk.me/vkaudiopad</Link>
         </SimpleCell>
-    )
+    );
+};
+
+const Rate = () => {
+    const isFirefoxExtension = location.href.startsWith("moz-extension://");
+    const chromeLink = <Link href="https://chrome.google.com/webstore/detail/plclpmphdjmdgmdpfkcmdkmohgpfecip" target="_blank">https://chrome.google.com/</Link>;
+    const firefoxLink = <Link href="https://addons.mozilla.org/ru/firefox/addon/vkaudiopad/" target="_blank">https://addons.mozilla.org/</Link>
+
+    return (
+        <SimpleCell
+            before={<Icon28ThumbsUpOutline />}
+            hasHover={false}
+            hasActive={false}
+            multiline
+        >
+            Буду благодарен за вашу оценку на странице расширения {isFirefoxExtension ? firefoxLink : chromeLink}
+        </SimpleCell>
+    );
 };

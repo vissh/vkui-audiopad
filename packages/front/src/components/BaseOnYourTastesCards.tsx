@@ -1,12 +1,13 @@
-import { baseEnums, baseTypes } from "@vk-audiopad/common";
+import { baseEnums } from "@vk-audiopad/common";
 import { Card, CardScroll, Text, Title } from "@vkontakte/vkui";
 import { FC } from "react";
 import { useSetAtom } from "../core/atom";
 import { selectedTabAtom } from "../core/atoms";
+import { TCoverPlaylist } from "../core/types/playlists";
 
 type Props = {
     userId: string;
-    coverPlaylists: baseTypes.TCoverPlaylist[];
+    coverPlaylists: TCoverPlaylist[];
 };
 
 export const BaseOnYourTastesCards: FC<Props> = ({ userId, coverPlaylists }) => {

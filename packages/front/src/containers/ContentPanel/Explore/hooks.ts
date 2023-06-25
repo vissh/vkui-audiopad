@@ -11,6 +11,7 @@ export const useExploreData = (userId: string) => {
         refetchOnWindowFocus: false,
         refetchOnMount: false,
         enabled: !!userId,
+        retry: 2,
     });
 };
 
@@ -22,9 +23,10 @@ export const useLoadMoreExploreDataMutation = () => {
         onSuccess: (fetchResult: TFetchExploreResult): void => {
             const previousFetchResult = queryClient.getQueryData<TFetchExploreResult>(queryKey);
             if (previousFetchResult) {
-                fetchResult.playlists.unshift(...previousFetchResult.playlists);
+                fetchResult.playlistBlocks.unshift(...previousFetchResult.playlistBlocks);
                 queryClient.setQueryData(queryKey, fetchResult);
             }
         },
+        retry: 2,
     });
 };

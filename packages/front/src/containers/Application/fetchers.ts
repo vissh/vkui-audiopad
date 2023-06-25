@@ -19,13 +19,13 @@ export const fetchWebToken = async (): Promise<baseTypes.TWebToken> => {
 };
 
 const _fetchAppWebToken = async (): Promise<baseTypes.TWebToken> => {
-    const parsedData = await vkFetch("https://login.vk.com/?act=web_token", {
+    const jsonData = await vkFetch("https://login.vk.com/?act=web_token", {
         version: "1",
         app_id: "6287487",
         access_token: "",
     });
 
-    if (parsedData.type === "error" && parsedData.error_info === "unauthorized") {
+    if (jsonData.type === "error" && jsonData.error_info === "unauthorized") {
         return {
             userId: "",
             accessToken: "",
@@ -36,15 +36,15 @@ const _fetchAppWebToken = async (): Promise<baseTypes.TWebToken> => {
                 serializedError: null,
             }
         }
-    } else if (parsedData.type !== "okay") {
-        throw Error("web_token was not received. response: " + JSON.stringify(parsedData));
+    } else if (jsonData.type !== "okay") {
+        throw Error("web_token was not received. response: " + JSON.stringify(jsonData));
     }
 
     return {
-        userId: parsedData.data.user_id.toString(),
-        accessToken: parsedData.data.access_token,
-        expires: parsedData.data.expires,
-        logoutHash: parsedData.data.logout_hash,
+        userId: jsonData.data.user_id.toString(),
+        accessToken: jsonData.data.access_token,
+        expires: jsonData.data.expires,
+        logoutHash: jsonData.data.logout_hash,
         error: null,
     };
 };

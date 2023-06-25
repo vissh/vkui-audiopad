@@ -2,24 +2,25 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { fetchCoverPlaylists, fetchMoreCoverPlaylists } from "./fetchers";
 import { TFetchCoverPlaylistsResult, TFetchNextSectionArgs } from "./types";
 
-const queryKey: ReadonlyArray<string> = ["coverPlaylists"];
+const queryKeyName = "coverPlaylists";
 
-export const useCoverPlaylistsData = (userId: string) => {
+export const useCoverPlaylistsData = (showAllLink: string) => {
     return useQuery({
-        queryKey: queryKey,
-        queryFn: () => fetchCoverPlaylists(userId),
+        queryKey: makeQueryKey(showAllLink),
+        queryFn: () => fetchCoverPlaylists(showAllLink),
         refetchOnWindowFocus: false,
         refetchOnMount: false,
-        enabled: !!userId,
+        retry: 2,
     });
 };
 
-export const useLoadMoreCoverPlaylistsDataMutation = () => {
+export const useLoadMoreCoverPlaylistsDataMutation = (showAllLink: string) => {
     const queryClient = useQueryClient();
 
     return useMutation({
         mutationFn: (args: TFetchNextSectionArgs) => fetchMoreCoverPlaylists(args),
         onSuccess: (fetchResult: TFetchCoverPlaylistsResult): void => {
+            const queryKey = makeQueryKey(showAllLink);
             const previousData = queryClient.getQueryData<TFetchCoverPlaylistsResult>(queryKey);
 
             if (previousData) {
@@ -27,5 +28,10 @@ export const useLoadMoreCoverPlaylistsDataMutation = () => {
                 queryClient.setQueryData(queryKey, fetchResult);
             }
         },
+        retry: 2,
     });
+};
+
+const makeQueryKey = (showAllLink: string): string[] => {
+    return [queryKeyName, showAllLink];
 };

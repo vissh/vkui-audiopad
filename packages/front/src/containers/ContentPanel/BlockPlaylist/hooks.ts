@@ -1,11 +1,11 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { baseTypes, tabTypes } from "@vk-audiopad/common";
 import { fetchMorePlaylistTracks, fetchPlaylist } from "../../../core/fetchers/playlist";
-import { TFetchPlaylistResult } from "../../../core/types";
+import { TFetchPlaylistResult } from "../../../core/types/types";
 
 const queryName = "blockPlaylist";
 
-export const useBlockPlaylistData = (selectedTab: tabTypes.TSelectedPlaylist) => {
+export const useBlockPlaylistData = (userId: string, selectedTab: tabTypes.TSelectedTabPlaylist) => {
     return useQuery({
         queryKey: [queryName, selectedTab.playlist.id],
         queryFn: () => fetchPlaylist({
@@ -13,6 +13,8 @@ export const useBlockPlaylistData = (selectedTab: tabTypes.TSelectedPlaylist) =>
             playlist: selectedTab.playlist,
         }),
         refetchOnWindowFocus: false,
+        enabled: !!userId,
+        retry: 2,
     });
 };
 
@@ -29,5 +31,6 @@ export const useLoadMoreBlockPlaylistTracksMutation = () => {
                 queryClient.setQueryData(queryKey, fetchResult);
             }
         },
+        retry: 2,
     });
 };

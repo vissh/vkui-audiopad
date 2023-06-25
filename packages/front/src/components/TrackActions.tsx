@@ -5,7 +5,7 @@ import { ToggleRef } from "@vkontakte/vkui/dist/components/ActionSheet/types";
 import { FC } from "react";
 import { actions } from "../core/actions";
 import { useAtomValue, useSetAtom } from "../core/atom";
-import { activeTrackAtom, mutationAtom, popoutAtom, userIdAtom } from "../core/atoms";
+import { activeTrackAtom, popoutAtom, userIdAtom } from "../core/atoms";
 import { fetchAddTrack } from "../core/fetchers/addTrack";
 import { fetchRemoveTrack } from "../core/fetchers/removeTrack";
 import "./Artist.css";
@@ -21,7 +21,6 @@ export const TrackActions: FC<Props> = ({ track, updateTrack, deleteTrack, toggl
     const userId = useAtomValue(userIdAtom);
     const activeTrack = useAtomValue(activeTrackAtom);
     const setPopout = useSetAtom(popoutAtom);
-    const setMutation = useSetAtom(mutationAtom);
 
     const trackUserId = track.id.split("_")[0];
     const canAdd = !!(track && track.flags & baseEnums.EAudioFlagBit.CAN_ADD);
@@ -61,7 +60,6 @@ export const TrackActions: FC<Props> = ({ track, updateTrack, deleteTrack, toggl
                         const newTrack = await fetchAddTrack(track);
                         actions.addTrack(newTrack);
                         updateTrack(newTrack);
-                        setMutation(Date.now());
                     }}
                     autoClose
                 >
@@ -99,7 +97,6 @@ export const TrackActions: FC<Props> = ({ track, updateTrack, deleteTrack, toggl
 
 const openDeletion = (track: baseTypes.TTrackItem, deleteTrack: ((newTrack: baseTypes.TTrackItem) => void)) => {
     const setPopout = useSetAtom(popoutAtom);
-    const setMutation = useSetAtom(mutationAtom);
 
     setPopout(
         <Alert
@@ -117,7 +114,6 @@ const openDeletion = (track: baseTypes.TTrackItem, deleteTrack: ((newTrack: base
                         await fetchRemoveTrack(track);
                         actions.removeTrack(track);
                         deleteTrack({ ...track, flags: track.flags | baseEnums.EAudioFlagBit.CLAIMED });
-                        setMutation(Date.now());
                     },
                 },
             ]}

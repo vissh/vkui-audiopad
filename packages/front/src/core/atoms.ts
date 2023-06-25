@@ -1,9 +1,8 @@
 import { initialState } from "@vk-audiopad/common";
 import { atom, storageAtom } from "./atom";
-import { EModalPage } from "./types";
+import { EModalPage } from "./types/enums";
 
 export const activeModalPageAtom = atom<EModalPage | null>(null);
-export const mutationAtom = atom<number>(0);
 export const popoutAtom = atom<React.ReactNode>(null);
 
 export const playedAtom = storageAtom("played", initialState.ApplicationActiveTrack.played);
@@ -18,5 +17,5 @@ export const currentTimeAtom = storageAtom("currentTime", initialState.CurrentTi
 export const userIdAtom = storageAtom("userId", initialState.User.userId);
 export const webTokenAtom = storageAtom("webToken", initialState.User.webToken);
 export const deviceIdAtom = storageAtom("deviceId", initialState.User.deviceId);
-export const selectedTabAtom = storageAtom("selectedTab", initialState.SelectedTab.selectedTab);
+export const selectedTabAtom = storageAtom("selectedTab", initialState.InitialSelectedTab.selectedTab, initialState.DefaultSelectedTab.selectedTab);
 export const themeAtom = storageAtom("theme", initialState.ApplicationSettings.theme);
