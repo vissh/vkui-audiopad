@@ -6,14 +6,11 @@ import { TFetchCoverPlaylistsResult, TFetchNextSectionArgs } from "./types";
 export const fetchCoverPlaylists = async (showAllLink: string): Promise<TFetchCoverPlaylistsResult> => {
 
     const resp = await fetch(`https://vk.com${showAllLink}`);
+    const html = await resp.text();
 
-    const htmlElement = document.createElement("html");
-    htmlElement.innerHTML = await resp.text();
+    const sectionId = html.match(/"sectionId":\s?"(?<sectionId>\w+)"/)?.groups?.sectionId;
 
-    const nodeElement = htmlElement.querySelector('[data-type=music_playlists]');
-    const sectionId = nodeElement && nodeElement.getAttribute("data-id") || "";
-
-    return fetchMoreCoverPlaylists({ nextFrom: "", sectionId: sectionId });
+    return fetchMoreCoverPlaylists({ nextFrom: "", sectionId: sectionId || "" });
 };
 
 export const fetchMoreCoverPlaylists = async (args: TFetchNextSectionArgs): Promise<TFetchCoverPlaylistsResult> => {
