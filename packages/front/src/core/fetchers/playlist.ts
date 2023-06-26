@@ -4,7 +4,7 @@ import { toTitlePlaylist } from "../utils";
 
 export const fetchPlaylist = async (fetchArgs: TFetchPlaylistArgs): Promise<TFetchPlaylistResult> => {
 
-    if (fetchArgs.playlist.blockId === fetchArgs.playlist.id) {
+    if (fetchArgs.playlist.blockId === fetchArgs.playlist.id || fetchArgs.playlist.isRadio) {
         return fetchPlaylistByBlockId(fetchArgs);
     }
 
