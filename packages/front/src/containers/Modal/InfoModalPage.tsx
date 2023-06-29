@@ -108,7 +108,7 @@ const FeedbackInfo = () => {
             hasActive={false}
             multiline
         >
-            С фидбеком, вопросами, пожеланиями — сюда <Link href="https://vk.me/vkaudiopad" target="_blank">https://vk.me/vkaudiopad</Link>
+            С фидбеком, проблемами, вопросами, пожеланиями — сюда <Link href="https://vk.me/vkaudiopad" target="_blank">https://vk.me/vkaudiopad</Link>
         </SimpleCell>
     );
 };
