@@ -11,7 +11,12 @@ export const playTrack = (track: baseTypes.TTrackItem) => {
         return;
     }
 
-    const hls = new Hls();
+    const hls = new Hls({
+        maxBufferHole: 3,
+        nudgeOffset: .5,
+        nudgeMaxRetry: 5,
+        maxFragLookUpTolerance: .2
+    });
     hlsWorkers.push(hls);
     hls.loadSource(track.url);
     hls.attachMedia(playerElement);
