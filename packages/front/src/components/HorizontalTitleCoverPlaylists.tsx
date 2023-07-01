@@ -1,8 +1,9 @@
 import { baseEnums } from "@vk-audiopad/common";
 import { Group, Header, Link } from "@vkontakte/vkui";
 import { FC } from "react";
-import { useSetAtom } from "../core/atom";
+import { useAtom } from "../core/atom";
 import { selectedTabAtom } from "../core/atoms";
+import { sendEventShowAllPlaylists } from "../core/top";
 import { TCoverPlaylist } from "../core/types/playlists";
 import { HorizantalCoverPlaylists } from "./HorizontalCoverPlaylists";
 
@@ -15,13 +16,14 @@ type HorizontalTitleCoverPlaylistsProps = {
 };
 
 export const HorizontalTitleCoverPlaylists: FC<HorizontalTitleCoverPlaylistsProps> = ({ userId, title, playlists, showAllLink, showMore }) => {
-    const setSelectedTab = useSetAtom(selectedTabAtom);
+    const [selectedTab, setSelectedTab] = useAtom(selectedTabAtom);
 
     const onClick = () => {
         setSelectedTab({
             tab: baseEnums.EContentTab.COVER_PLAYLISTS,
             showAllLink: showAllLink,
         });
+        sendEventShowAllPlaylists(selectedTab.tab);
     };
 
     return (

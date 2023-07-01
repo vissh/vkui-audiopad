@@ -3,6 +3,7 @@ import { FC, useEffect, useState } from "react";
 import { useAtom } from "../../../core/atom";
 import { volumeAtom } from "../../../core/atoms";
 import { useDebounce } from "../../../core/hooks/debounce";
+import { sendEventControlSlider } from "../../../core/top";
 
 const delayMs = 50;
 
@@ -28,7 +29,9 @@ export const VolumeSlider: FC = () => {
                 min={0}
                 max={100}
                 value={sliderVolume}
-                onChange={onChange} />
+                onChange={onChange}
+                onPointerUp={() => sendEventControlSlider("volume")}
+            />
         </FormItem>
     );
 };

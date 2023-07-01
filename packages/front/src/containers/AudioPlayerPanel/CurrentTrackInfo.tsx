@@ -32,7 +32,7 @@ export const CurrentTrackInfo: FC = () => {
                         {activeTrack?.artist && (
                             <>
                                 <Headline>&ensp;–&ensp;</Headline>
-                                <Artist value={activeTrack?.artist} />
+                                <Artist value={activeTrack?.artist} context={"controls"} />
                             </>
                         )}
                     </>

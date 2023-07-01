@@ -5,6 +5,7 @@ import { FC } from "react";
 import { actions } from "../../../core/actions";
 import { useAtomValue } from "../../../core/atom";
 import { repeatAtom } from "../../../core/atoms";
+import { sendEventControlButton } from "../../../core/top";
 
 export const RepeatButton: FC = () => {
     const repeat = useAtomValue(repeatAtom);
@@ -20,8 +21,13 @@ export const RepeatButton: FC = () => {
             <Icon24Repeat1Outline style={{ color: 'var(--vkui--color_icon_accent_themed)' }} />
     };
 
+    const onClick = () => {
+        actions.repeat();
+        sendEventControlButton("repeat");
+    };
+
     return (
-        <WriteBarIcon onClick={actions.repeat}>
+        <WriteBarIcon onClick={onClick}>
             {icon[repeat]}
         </WriteBarIcon>
     );

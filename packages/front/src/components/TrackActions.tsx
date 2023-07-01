@@ -5,9 +5,10 @@ import { ToggleRef } from "@vkontakte/vkui/dist/components/ActionSheet/types";
 import { FC } from "react";
 import { actions } from "../core/actions";
 import { useAtomValue, useSetAtom } from "../core/atom";
-import { activeTrackAtom, popoutAtom, userIdAtom } from "../core/atoms";
+import { activeTrackAtom, popoutAtom, selectedTabAtom, userIdAtom } from "../core/atoms";
 import { fetchAddTrack } from "../core/fetchers/addTrack";
 import { fetchRemoveTrack } from "../core/fetchers/removeTrack";
+import { sendEventAddToQueue, sendEventAddTrack, sendEventRemoveCancelTrack, sendEventRemoveTrack } from "../core/top";
 import "./Artist.css";
 
 type Props = {
@@ -20,6 +21,7 @@ type Props = {
 export const TrackActions: FC<Props> = ({ track, updateTrack, deleteTrack, toggleRef }) => {
     const userId = useAtomValue(userIdAtom);
     const activeTrack = useAtomValue(activeTrackAtom);
+    const selectedTab = useAtomValue(selectedTabAtom);
     const setPopout = useSetAtom(popoutAtom);
 
     const trackUserId = track.id.split("_")[0];
@@ -41,7 +43,10 @@ export const TrackActions: FC<Props> = ({ track, updateTrack, deleteTrack, toggl
                             IconRegular={Icon28ListPlayOutline}
                         />
                     }
-                    onClick={() => actions.addToQueue(track)}
+                    onClick={() => {
+                        actions.addToQueue(track);
+                        sendEventAddToQueue(selectedTab.tab);
+                    }}
                     autoClose
                 >
                     Воспроизвести следующей
@@ -60,6 +65,7 @@ export const TrackActions: FC<Props> = ({ track, updateTrack, deleteTrack, toggl
                         const newTrack = await fetchAddTrack(track);
                         actions.addTrack(newTrack);
                         updateTrack(newTrack);
+                        sendEventAddTrack(selectedTab.tab);
                     }}
                     autoClose
                 >
@@ -97,6 +103,7 @@ export const TrackActions: FC<Props> = ({ track, updateTrack, deleteTrack, toggl
 
 const openDeletion = (track: baseTypes.TTrackItem, deleteTrack: ((newTrack: baseTypes.TTrackItem) => void)) => {
     const setPopout = useSetAtom(popoutAtom);
+    const selectedTab = useAtomValue(selectedTabAtom);
 
     setPopout(
         <Alert
@@ -105,6 +112,7 @@ const openDeletion = (track: baseTypes.TTrackItem, deleteTrack: ((newTrack: base
                     title: 'Отмена',
                     autoClose: true,
                     mode: 'cancel',
+                    action: () => { sendEventRemoveCancelTrack(selectedTab.tab) }
                 },
                 {
                     title: 'Удалить',
@@ -114,6 +122,7 @@ const openDeletion = (track: baseTypes.TTrackItem, deleteTrack: ((newTrack: base
                         await fetchRemoveTrack(track);
                         actions.removeTrack(track);
                         deleteTrack({ ...track, flags: track.flags | baseEnums.EAudioFlagBit.CLAIMED });
+                        sendEventRemoveTrack(selectedTab.tab);
                     },
                 },
             ]}

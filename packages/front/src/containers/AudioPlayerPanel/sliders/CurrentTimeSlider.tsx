@@ -3,6 +3,7 @@ import { FC, useEffect, useState } from "react";
 import { actions } from "../../../core/actions";
 import { useAtomValue } from "../../../core/atom";
 import { currentTimeAtom, durationAtom } from "../../../core/atoms";
+import { sendEventControlSlider } from "../../../core/top";
 
 const arrowKeyCodes = new Set(["ArrowLeft", "ArrowRight"]);
 
@@ -22,6 +23,7 @@ export const CurrentTimeSlider: FC = () => {
         (e.target as HTMLDivElement).releasePointerCapture(e.pointerId);
         actions.changeCurrentTime(sliderCurrentTime * duration / 100);
         setMouseDown(false);
+        sendEventControlSlider("currentTime");
     };
 
     useEffect(() => {

@@ -6,19 +6,19 @@ import { applicationState, playerElement } from "../state";
 import { storage } from "../storage";
 import { setBadgeText } from "../utils";
 
-let errorCounter = 0;
-const errorCountLimit = 10;
+// let errorCounter = 0;
+// const errorCountLimit = 10;
 
 export const startListeningPlayerEvents = () => {
     playerElement.addEventListener("playing", onPlaying);
     playerElement.addEventListener("pause", onPause);
     playerElement.addEventListener("ended", onEnded);
-    playerElement.addEventListener("error", onError);
+    // playerElement.addEventListener("error", onError);
     playerElement.addEventListener("timeupdate", createOnTimeUpdateFn());
 };
 
 const onPlaying = async () => {
-    errorCounter = 0;
+    // errorCounter = 0;
     const storageVolume = await storage.volume.get();
     playerElement.volume = storageVolume === undefined ? initialState.Application.volume : storageVolume;
 
@@ -47,14 +47,14 @@ const onPause = async () => {
     await storage.played.set(false);
 };
 
-const onError = async () => {
-    if (errorCounter >= errorCountLimit) {
-        return;
-    }
-    errorCounter += 1;
-    await new Promise(r => setTimeout(r, 300));
-    await nextTrack();
-};
+// const onError = async () => {
+//     if (errorCounter >= errorCountLimit) {
+//         return;
+//     }
+//     errorCounter += 1;
+//     await new Promise(r => setTimeout(r, 300));
+//     await nextTrack();
+// };
 
 const createOnTimeUpdateFn = () => {
     let previousDuration = 0;

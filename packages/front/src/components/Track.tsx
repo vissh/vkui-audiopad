@@ -4,7 +4,8 @@ import { Cell, IconButton, Image, Separator } from "@vkontakte/vkui";
 import React, { FC, useState } from "react";
 import { actions } from "../core/actions";
 import { useAtom, useAtomValue, useSetAtom } from "../core/atom";
-import { activeTrackAtom, playedAtom, popoutAtom, userIdAtom } from "../core/atoms";
+import { activeTrackAtom, playedAtom, popoutAtom, selectedTabAtom, userIdAtom } from "../core/atoms";
+import { sendEventPauseTrack, sendEventPlayTrack, sendEventResumeTrack } from "../core/top";
 import { Artist } from "./Artist";
 import { Duration } from "./Duration";
 import { TrackActions } from "./TrackActions";
@@ -21,6 +22,7 @@ type Props = {
 export const Track: FC<Props> = ({ playlist, track, trackIndex, editMode, onDragFinish, onRemove }) => {
     const userId = useAtomValue(userIdAtom);
     const activeTrack = useAtomValue(activeTrackAtom);
+    const selectedTab = useAtomValue(selectedTabAtom);
     const [played, setPlayed] = useAtom(playedAtom);
     const setPopout = useSetAtom(popoutAtom);
 
@@ -38,8 +40,12 @@ export const Track: FC<Props> = ({ playlist, track, trackIndex, editMode, onDrag
     const trackOnClick = async () => {
         if (activeTrack && activeTrack.id === track.id) {
             setPlayed(!isPlayed);
+            isPlayed
+                ? sendEventPauseTrack(selectedTab.tab)
+                : sendEventResumeTrack(selectedTab.tab);
         } else {
             actions.activeTrack(trackIndex, playlist);
+            sendEventPlayTrack(selectedTab.tab);
         }
     };
 

@@ -7,6 +7,10 @@ import { Application } from "./containers/Application/Application";
 import { useAtomValue } from "./core/atom";
 import { themeAtom } from "./core/atoms";
 
+declare global {
+    interface Window { _tmr: undefined | Array<any>; }
+}
+
 export const queryClient = new QueryClient();
 
 const App = () => {

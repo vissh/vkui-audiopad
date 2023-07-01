@@ -3,6 +3,7 @@ import { Tabs, TabsItem } from "@vkontakte/vkui";
 import { FC } from "react";
 import { useAtom, useAtomValue } from "../../core/atom";
 import { currentPlaylistAtom, selectedTabAtom } from "../../core/atoms";
+import { sendEventOpenTab } from "../../core/top";
 
 export const ContentTabs: FC = () => {
     const currentPlaylist = useAtomValue(currentPlaylistAtom);
@@ -41,12 +42,17 @@ type ContentTabItemProps = {
 const ContentTabItem: FC<ContentTabItemProps> = ({ tab, title }) => {
     const [selectedTab, setSelectedTab] = useAtom(selectedTabAtom);
 
+    const openTab = () => {
+        setSelectedTab({ tab: tab });
+        sendEventOpenTab(tab);
+    };
+
     return (
         <TabsItem
             selected={selectedTab.tab === tab}
             id={"tab-" + tab}
             aria-controls={"tab-content-" + tab}
-            onClick={() => setSelectedTab({ tab: tab })}
+            onClick={openTab}
         >
             {title}
         </TabsItem>

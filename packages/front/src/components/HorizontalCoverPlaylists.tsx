@@ -3,10 +3,11 @@ import { Icon36Add, Icon36Done, Icon36Pause, Icon36Play, Icon36PlaylistOutline }
 import { HorizontalCell, HorizontalScroll, Image, Separator } from "@vkontakte/vkui";
 import { FC, useState } from "react";
 import { actions } from "../core/actions";
-import { useAtom, useAtomValue, useSetAtom } from "../core/atom";
+import { useAtom, useAtomValue } from "../core/atom";
 import { currentPlaylistAtom, playedAtom, selectedTabAtom } from "../core/atoms";
 import { fetchFollowPlaylist } from "../core/fetchers/followPlaylist";
 import { fetchPlaylist } from "../core/fetchers/playlist";
+import { sendEventFollowCoverPlaylist, sendEventOpenCoverPlaylist, sendEventPauseCoverPlaylist, sendEventPlayCoverPlaylist, sendEventResumeCoverPlaylist, sendEventUnfollowCoverPlaylist } from "../core/top";
 import { TCoverPlaylist } from "../core/types/playlists";
 import "./HorizontalCoverPlaylists.css";
 
@@ -31,7 +32,7 @@ type PlaylistCellProps = {
 };
 
 const PlaylistCell: FC<PlaylistCellProps> = ({ userId, playlist }) => {
-    const setSelectedTab = useSetAtom(selectedTabAtom);
+    const [selectedTab, setSelectedTab] = useAtom(selectedTabAtom);
 
     const openPlaylist = (playlist: baseTypes.TTitlePlaylist) => () => {
         setSelectedTab({
@@ -39,6 +40,7 @@ const PlaylistCell: FC<PlaylistCellProps> = ({ userId, playlist }) => {
             fromId: userId,
             playlist: playlist,
         });
+        sendEventOpenCoverPlaylist(selectedTab.tab);
     };
 
     return (
@@ -70,6 +72,7 @@ type OverlayActionsProps = {
 };
 
 const OverlayActions: FC<OverlayActionsProps> = ({ userId, playlist }) => {
+    const selectedTab = useAtomValue(selectedTabAtom);
     const currentPlaylist = useAtomValue(currentPlaylistAtom);
     const [played, setPlayed] = useAtom(playedAtom);
 
@@ -77,18 +80,27 @@ const OverlayActions: FC<OverlayActionsProps> = ({ userId, playlist }) => {
 
     const followPlaylist = (playlist: baseTypes.TTitlePlaylist) => async (e: any) => {
         e.stopPropagation();
-        setFollowed(!!await fetchFollowPlaylist(playlist));
+        const followed = !!await fetchFollowPlaylist(playlist)
+        setFollowed(followed);
+
+        followed
+            ? sendEventFollowCoverPlaylist(selectedTab.tab)
+            : sendEventUnfollowCoverPlaylist(selectedTab.tab);
     };
 
     const playPlaylist = (playlist: baseTypes.TTitlePlaylist) => async (e: any) => {
         e.stopPropagation();
         const playlistFetchResult = await fetchPlaylist({ fromId: userId, playlist: playlist });
         actions.activeTrack(0, playlistFetchResult.playlist);
+        sendEventPlayCoverPlaylist(selectedTab.tab);
     };
 
     const playPausePlaylist = (e: any) => {
         e.stopPropagation();
         setPlayed(!played);
+        played
+            ? sendEventPauseCoverPlaylist(selectedTab.tab)
+            : sendEventResumeCoverPlaylist(selectedTab.tab);
     };
 
     return (

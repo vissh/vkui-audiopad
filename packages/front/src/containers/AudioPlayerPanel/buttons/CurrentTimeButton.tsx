@@ -10,6 +10,7 @@ import {
     durationModeAtom,
     playedAtom,
 } from "../../../core/atoms";
+import { sendEventControlButton } from "../../../core/top";
 
 export const CurrentTimeButton: FC = () => {
     const currentPlaylist = useAtomValue(currentPlaylistAtom);
@@ -23,13 +24,18 @@ export const CurrentTimeButton: FC = () => {
     const time = timeLeft ? duration - currentTime : currentTime;
     const value = utils.toHHMMSS(time);
 
+    const onClick = () => {
+        setDurationMode(timeLeft ? baseEnums.EDurationMode.TIME_PASSED : baseEnums.EDurationMode.TIME_LEFT);
+        sendEventControlButton("currentTime");
+    };
+
     return (
         <Button
             hasHover={false}
             mode="link"
             stretched
             style={{ width: "42px", color: "var(--vkui--color_text_secondary)" }}
-            onClick={() => setDurationMode(timeLeft ? baseEnums.EDurationMode.TIME_PASSED : baseEnums.EDurationMode.TIME_LEFT)}
+            onClick={onClick}
             loading={currentPlaylist?.isRadio ? !currentTime : !duration && played}
         >
             <Duration value={duration && !currentPlaylist?.isRadio ? (timeLeft ? "-" + value : value) : utils.toHHMMSS(currentTime)} />
