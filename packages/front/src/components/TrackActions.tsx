@@ -82,7 +82,7 @@ export const TrackActions: FC<Props> = ({ track, updateTrack, deleteTrack, toggl
                             IconRegular={Icon28CancelOutline}
                         />
                     }
-                    onClick={() => openDeletion(track, deleteTrack)}
+                    onClick={() => openDeletion(selectedTab.tab, track, deleteTrack)}
                     autoClose
                 >
                     Удалить из «Моей музыки»
@@ -101,9 +101,13 @@ export const TrackActions: FC<Props> = ({ track, updateTrack, deleteTrack, toggl
     );
 };
 
-const openDeletion = (track: baseTypes.TTrackItem, deleteTrack: ((newTrack: baseTypes.TTrackItem) => void)) => {
+const openDeletion = (
+    tabName: baseEnums.EContentTab,
+    track: baseTypes.TTrackItem,
+    deleteTrack: ((newTrack: baseTypes.TTrackItem) => void)
+) => {
+
     const setPopout = useSetAtom(popoutAtom);
-    const selectedTab = useAtomValue(selectedTabAtom);
 
     setPopout(
         <Alert
@@ -112,7 +116,7 @@ const openDeletion = (track: baseTypes.TTrackItem, deleteTrack: ((newTrack: base
                     title: 'Отмена',
                     autoClose: true,
                     mode: 'cancel',
-                    action: () => { sendEventRemoveCancelTrack(selectedTab.tab) }
+                    action: () => { sendEventRemoveCancelTrack(tabName) }
                 },
                 {
                     title: 'Удалить',
@@ -122,7 +126,7 @@ const openDeletion = (track: baseTypes.TTrackItem, deleteTrack: ((newTrack: base
                         await fetchRemoveTrack(track);
                         actions.removeTrack(track);
                         deleteTrack({ ...track, flags: track.flags | baseEnums.EAudioFlagBit.CLAIMED });
-                        sendEventRemoveTrack(selectedTab.tab);
+                        sendEventRemoveTrack(tabName);
                     },
                 },
             ]}
