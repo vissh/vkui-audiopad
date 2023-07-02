@@ -1,17 +1,22 @@
 import { baseTypes } from "@vk-audiopad/common";
 import Hls from "hls.js";
-import { playerElement } from "./state";
+import { applicationState } from "./state";
 
 const hlsWorkers: Array<Hls> = [];
 
+export const audioElement = new Audio;
+audioElement.crossOrigin = "anonymous";
+audioElement.preload = "auto";
+
 export const playTrack = (track: baseTypes.TTrackItem) => {
     if (!track.url.includes("index.m3u8")) {
-        playerElement.src = track.url;
-        playerElement.play();
+        audioElement.src = track.url;
+        audioElement.play();
         return;
     }
 
     const hls = new Hls({
+        debug: applicationState.hlsDebug || false,
         maxBufferHole: 3,
         nudgeOffset: .5,
         nudgeMaxRetry: 5,
@@ -19,8 +24,8 @@ export const playTrack = (track: baseTypes.TTrackItem) => {
     });
     hlsWorkers.push(hls);
     hls.loadSource(track.url);
-    hls.attachMedia(playerElement);
-    hls.on(Hls.Events.MEDIA_ATTACHED, async () => { playerElement.play() });
+    hls.attachMedia(audioElement);
+    hls.on(Hls.Events.MEDIA_ATTACHED, async () => { audioElement.play() });
 };
 
 export const destroyPlayer = () => {
@@ -34,5 +39,5 @@ export const destroyPlayer = () => {
         oldHlsWorker.destroy();
     }
 
-    playerElement.removeAttribute("src");
+    audioElement.removeAttribute("src");
 };

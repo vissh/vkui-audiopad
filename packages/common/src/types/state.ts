@@ -28,6 +28,7 @@ export type TApplicationPlaylistSystemState = {
     activeTrackIndex: number;
     audiosIds: Array<TAudioTuple>;
     originalAudiosIds: Array<TAudioTuple>;
+    hlsDebug: boolean;
 };
 
 export type TApplicationUserState = {

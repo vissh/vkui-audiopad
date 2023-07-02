@@ -63,4 +63,5 @@ export const storage = {
     shuffle: new State<boolean>("shuffle"),
     repeat: new State<baseEnums.ERepeat>("repeat"),
     durationMode: new State<baseEnums.EDurationMode>("durationMode"),
+    hlsDebug: new State<boolean>("hlsDebug"),
 };

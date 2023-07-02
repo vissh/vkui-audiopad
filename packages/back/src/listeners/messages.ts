@@ -4,7 +4,7 @@ import { nextTrack, previousTrack } from "../actions/next";
 import { playNewTrack } from "../actions/playNewTrack";
 import { removeTrack } from "../actions/removeTrack";
 import { repeat } from "../actions/repeat";
-import { playerElement } from "../state";
+import { audioElement } from "../player";
 
 export const startListiningPopupMessages = () => {
     // Действия, которые приходит из popup'а.
@@ -20,7 +20,7 @@ export const startListiningPopupMessages = () => {
                 await previousTrack();
             },
             currentTime: () => {
-                playerElement.currentTime = request.data.value || 0;
+                audioElement.currentTime = request.data.value || 0;
             },
             repeat: async () => {
                 await repeat();

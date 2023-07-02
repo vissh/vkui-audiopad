@@ -19,3 +19,4 @@ export const webTokenAtom = storageAtom("webToken", initialState.User.webToken);
 export const deviceIdAtom = storageAtom("deviceId", initialState.User.deviceId);
 export const selectedTabAtom = storageAtom("selectedTab", initialState.InitialSelectedTab.selectedTab, initialState.DefaultSelectedTab.selectedTab);
 export const themeAtom = storageAtom("theme", initialState.ApplicationSettings.theme);
+export const hlsDebugAtom = storageAtom("hlsDebug", initialState.PlaylistSystem.hlsDebug);

@@ -1,6 +1,7 @@
 import { baseEnums, baseTypes, utils } from "@vk-audiopad/common";
 import { fetchListenedData } from "./fetchers/listenedData";
-import { applicationState, playerElement } from "./state";
+import { audioElement } from "./player";
+import { applicationState } from "./state";
 import { ActionType, TListenedData } from "./types";
 
 export const shuffle = (array: Array<baseTypes.TAudioTuple>): Array<baseTypes.TAudioTuple> => {
@@ -19,7 +20,7 @@ export const sendListenedData = (endStreamReason: baseEnums.EEndOfStreamReason) 
         const listenedData: TListenedData = {
             userId: applicationState.userId,
             track: applicationState.activeTrack,
-            listened: Math.floor(playerElement.currentTime),
+            listened: Math.floor(audioElement.currentTime),
             endStreamReason: endStreamReason,
         };
         setTimeout(async () => await fetchListenedData(listenedData), 10);
@@ -28,7 +29,7 @@ export const sendListenedData = (endStreamReason: baseEnums.EEndOfStreamReason) 
 
 export const setBadgeText = (durationMode: baseEnums.EDurationMode) => {
     const timeLeft = durationMode === baseEnums.EDurationMode.TIME_LEFT;
-    const [duration, currentTime] = [playerElement.duration || 0, Math.floor(playerElement.currentTime)];
+    const [duration, currentTime] = [audioElement.duration || 0, Math.floor(audioElement.currentTime)];
 
     if (duration && duration !== Infinity) {
         const time = timeLeft ? duration - currentTime : currentTime;

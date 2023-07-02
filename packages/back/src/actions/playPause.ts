@@ -1,5 +1,5 @@
-import { destroyPlayer } from "../player";
-import { applicationState, playerElement } from "../state";
+import { audioElement, destroyPlayer } from "../player";
+import { applicationState } from "../state";
 import { playNewTrack } from "./playNewTrack";
 
 export const onPlayed = async (played: boolean | undefined) => {
@@ -10,13 +10,13 @@ export const onPlayed = async (played: boolean | undefined) => {
     }
 
     if (!played) {
-        playerElement.src && playerElement.pause();
+        audioElement.src && audioElement.pause();
         chrome.browserAction.setBadgeText({ text: "" });
         return;
     }
 
-    if (playerElement.src) {
-        playerElement.play();
+    if (audioElement.src) {
+        audioElement.play();
         return;
     }
 

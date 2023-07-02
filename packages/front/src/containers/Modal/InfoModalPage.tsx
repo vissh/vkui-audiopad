@@ -4,8 +4,11 @@ import {
     Icon28MessageOutline,
     Icon28SettingsOutline,
     Icon28ThumbsUpOutline,
+    Icon28WrenchOutline,
 } from '@vkontakte/icons';
 import {
+    Checkbox,
+    FormItem,
     Group,
     InfoRow,
     Link,
@@ -14,12 +17,13 @@ import {
     PanelHeaderClose,
     Platform,
     Select,
+    Separator,
     SimpleCell,
     useAdaptivityConditionalRender,
     usePlatform
 } from "@vkontakte/vkui";
 import { useAtom } from "../../core/atom";
-import { themeAtom } from "../../core/atoms";
+import { hlsDebugAtom, themeAtom } from "../../core/atoms";
 
 export const InfoModalPage = ({ ...props }) => {
     const platform = usePlatform();
@@ -47,6 +51,8 @@ export const InfoModalPage = ({ ...props }) => {
                 <ThemeSetting />
                 <FeedbackInfo />
                 <Rate />
+                <Separator />
+                <Debug />
             </Group>
         </ModalPage>
     );
@@ -126,6 +132,25 @@ const Rate = () => {
             multiline
         >
             Буду благодарен за вашу оценку на странице расширения {isFirefoxExtension ? firefoxLink : chromeLink}
+        </SimpleCell>
+    );
+};
+
+const Debug = () => {
+    const [hlsDebug, setHlsDebug] = useAtom(hlsDebugAtom);
+
+    return (
+        <SimpleCell
+            before={<Icon28WrenchOutline />}
+            hasHover={false}
+            hasActive={false}
+            multiline
+        >
+            <InfoRow header="Developer">
+                <FormItem>
+                    <Checkbox checked={hlsDebug} onChange={() => setHlsDebug(!hlsDebug)}>Debug mode</Checkbox>
+                </FormItem>
+            </InfoRow>
         </SimpleCell>
     );
 };

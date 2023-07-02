@@ -1,8 +1,12 @@
 import { baseEnums } from "@vk-audiopad/common";
 
+let version = "";
+
 export const sendEventOpenTab = (tab: baseEnums.EContentTab) => {
-    const manifest = chrome.runtime.getManifest();
-    sendTopEvent("tab", tab, manifest.version);
+    if (!version) {
+        version = chrome.runtime.getManifest().version;
+    }
+    sendTopEvent("tab", tab, version);
 };
 
 export const sendEventControlButton = (label: string) => {

@@ -37,6 +37,7 @@ export const PlaylistSystem: TApplicationPlaylistSystemState = {
     activeTrackIndex: -1,
     audiosIds: [],
     originalAudiosIds: [],
+    hlsDebug: false,
 };
 
 export const User: TApplicationUserState = {

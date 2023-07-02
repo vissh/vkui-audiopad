@@ -5,7 +5,6 @@ declare global {
     interface Window { applicationState: stateTypes.TApplicationState; }
 }
 
-export const playerElement = document.getElementById("audio-player") as HTMLVideoElement;
 export const applicationState: stateTypes.TApplicationState = Object.assign({}, initialState.Application);
 
 window.applicationState = applicationState;
@@ -14,7 +13,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     const partialAppState = await storage.load();
     Object.assign(applicationState, partialAppState);
 
-    if (applicationState.played && playerElement.paused) {
+    if (applicationState.played) {
         await storage.played.set(false);
     }
 
