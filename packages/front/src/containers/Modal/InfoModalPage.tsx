@@ -4,11 +4,11 @@ import {
     Icon28MessageOutline,
     Icon28SettingsOutline,
     Icon28ThumbsUpOutline,
-    Icon28WrenchOutline,
+    Icon28WrenchOutline
 } from '@vkontakte/icons';
 import {
+    Accordion,
     Checkbox,
-    FormItem,
     Group,
     InfoRow,
     Link,
@@ -22,6 +22,7 @@ import {
     useAdaptivityConditionalRender,
     usePlatform
 } from "@vkontakte/vkui";
+import { useState } from "react";
 import { useAtom } from "../../core/atom";
 import { hlsDebugAtom, themeAtom } from "../../core/atoms";
 
@@ -114,7 +115,7 @@ const FeedbackInfo = () => {
             hasActive={false}
             multiline
         >
-            С фидбеком, проблемами, вопросами, пожеланиями — сюда <Link href="https://vk.me/vkaudiopad" target="_blank">https://vk.me/vkaudiopad</Link>
+            О проблемах и пожеланиях пишите в группу <Link href="https://vk.me/vkaudiopad" target="_blank">https://vk.me/vkaudiopad</Link>
         </SimpleCell>
     );
 };
@@ -139,6 +140,9 @@ const Rate = () => {
 const Debug = () => {
     const [hlsDebug, setHlsDebug] = useAtom(hlsDebugAtom);
 
+    const [openId, setOpenId] = useState<null | string>(null);
+    const key = "developer"
+
     return (
         <SimpleCell
             before={<Icon28WrenchOutline />}
@@ -146,11 +150,17 @@ const Debug = () => {
             hasActive={false}
             multiline
         >
-            <InfoRow header="Developer">
-                <FormItem>
-                    <Checkbox checked={hlsDebug} onChange={() => setHlsDebug(!hlsDebug)}>Debug mode</Checkbox>
-                </FormItem>
-            </InfoRow>
+            <Accordion key={key} open={openId === key} onToggle={(e: any) => e.target.open && setOpenId(key)}>
+                <Accordion.Summary>Режим разработчика</Accordion.Summary>
+                <Checkbox
+                    hasHover={false}
+                    hasActive={false}
+                    checked={hlsDebug}
+                    onChange={() => setHlsDebug(!hlsDebug)}
+                >
+                    ⚠️ Debug mode
+                </Checkbox>
+            </Accordion>
         </SimpleCell>
     );
 };

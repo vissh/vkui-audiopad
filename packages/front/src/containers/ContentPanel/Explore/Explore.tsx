@@ -2,6 +2,8 @@ import { Group } from "@vkontakte/vkui";
 import { FC } from "react";
 import { HorizontalPlaylist } from "../../../components/HorizontalPlaylist";
 import { InfinityContent } from "../../../components/InfiniteContent";
+import { SkeletonHorizontalCoverPlaylists } from "../../../skeletons/SkeletonHorizontalCoverPlaylists";
+import { SkeletonHorizontalTitleTracks } from "../../../skeletons/SkeletonHorizontalTitleTracks";
 import { Navigation } from "../Navigation";
 import { useExploreData, useLoadMoreExploreDataMutation } from "./hooks";
 
@@ -18,7 +20,6 @@ export const Explore: FC<Props> = ({ userId }) => {
 
     return (
         <InfinityContent
-            isLoading={isLoading}
             hasMore={!!fetchResult?.nextFrom}
             loadMoreMutation={loadMoreMutation}
             loadMoreArgs={{ nextFrom: fetchResult?.nextFrom, sectionId: fetchResult?.sectionId }}
@@ -26,6 +27,9 @@ export const Explore: FC<Props> = ({ userId }) => {
         >
             <Group>
                 <Navigation />
+
+                {isLoading && <SkeletonHorizontalTitleTracks />}
+
                 {firstPlaylistBlock && (
                     <HorizontalPlaylist
                         userId={userId}
@@ -33,6 +37,13 @@ export const Explore: FC<Props> = ({ userId }) => {
                         wrapGroup={false} />
                 )}
             </Group>
+
+            {isLoading && (
+                <>
+                    <Group><SkeletonHorizontalTitleTracks /></Group>
+                    <Group><SkeletonHorizontalCoverPlaylists /></Group>
+                </>)
+            }
 
             {otherPlaylistsBlocks && otherPlaylistsBlocks.length > 0 &&
                 otherPlaylistsBlocks.map((playlistBlock) =>

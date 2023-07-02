@@ -4,6 +4,7 @@ import { FC } from "react";
 import { HorizantalCoverPlaylists } from "../../../components/HorizontalCoverPlaylists";
 import { InfinityContent } from "../../../components/InfiniteContent";
 import { TCoverPlaylist } from "../../../core/types/playlists";
+import { SkeletonCoverPlaylists } from "../../../skeletons/SkeletonCoverPlaylists";
 import { Navigation } from "../Navigation";
 import { useCoverPlaylistsData, useLoadMoreCoverPlaylistsDataMutation } from "./hooks";
 
@@ -23,7 +24,6 @@ export const CoverPlaylists: FC<Props> = ({ userId, selectedTab }) => {
 
     return (
         <InfinityContent
-            isLoading={isLoading}
             hasMore={!!(fetchResult && fetchResult.nextFrom || "")}
             loadMoreMutation={loadMoreMutation}
             loadMoreArgs={{ nextFrom: fetchResult?.nextFrom, sectionId: fetchResult?.sectionId }}
@@ -31,6 +31,9 @@ export const CoverPlaylists: FC<Props> = ({ userId, selectedTab }) => {
         >
             <Group>
                 <Navigation />
+
+                {isLoading && <SkeletonCoverPlaylists />}
+
                 <List>
                     {columnsPlaylists.map(playlists => (
                         <HorizantalCoverPlaylists

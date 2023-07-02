@@ -3,6 +3,8 @@ import { Group } from "@vkontakte/vkui";
 import { FC } from "react";
 import { Content } from "../../../components/Content";
 import { HorizontalPlaylist } from "../../../components/HorizontalPlaylist";
+import { SkeletonHorizontalCoverPlaylists } from "../../../skeletons/SkeletonHorizontalCoverPlaylists";
+import { SkeletonHorizontalTitleTracks } from "../../../skeletons/SkeletonHorizontalTitleTracks";
 import { Navigation } from "../Navigation";
 import { useSearchData } from "./hooks";
 
@@ -18,9 +20,12 @@ export const SearchResult: FC<Props> = ({ userId, selectedTab }) => {
     const otherPlaylistsBlocks = !!playlistBlocks && playlistBlocks.slice(1);
 
     return (
-        <Content loading={isLoading} error={error}>
+        <Content error={error}>
             <Group>
                 <Navigation />
+
+                {isLoading && <SkeletonHorizontalTitleTracks />}
+
                 {firstPlaylistBlock && (
                     <HorizontalPlaylist
                         userId={userId}
@@ -28,6 +33,13 @@ export const SearchResult: FC<Props> = ({ userId, selectedTab }) => {
                         wrapGroup={false} />
                 )}
             </Group>
+
+            {isLoading && (
+                <>
+                    <Group><SkeletonHorizontalCoverPlaylists /></Group>
+                    <Group><SkeletonHorizontalCoverPlaylists /></Group>
+                </>
+            )}
 
             {otherPlaylistsBlocks && otherPlaylistsBlocks.length > 0 &&
                 otherPlaylistsBlocks.map(playlistBlock =>

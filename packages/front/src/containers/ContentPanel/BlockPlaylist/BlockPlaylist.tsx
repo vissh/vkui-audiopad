@@ -3,6 +3,7 @@ import { Group } from "@vkontakte/vkui";
 import { FC } from "react";
 import { InfinityContent } from "../../../components/InfiniteContent";
 import { TitleTracks } from "../../../components/TitleTracks";
+import { SkeletonTitleTracks } from "../../../skeletons/SkeletonTitleTracks";
 import { Navigation } from "../Navigation";
 import { useBlockPlaylistData, useLoadMoreBlockPlaylistTracksMutation } from "./hooks";
 
@@ -17,7 +18,6 @@ export const BlockPlaylist: FC<Props> = ({ userId, selectedTab }) => {
 
     return (
         <InfinityContent
-            isLoading={isLoading}
             hasMore={!!fetchResult?.playlist.hasMore}
             loadMoreMutation={loadMoreMutation}
             loadMoreArgs={fetchResult?.playlist}
@@ -25,6 +25,9 @@ export const BlockPlaylist: FC<Props> = ({ userId, selectedTab }) => {
         >
             <Group>
                 <Navigation />
+
+                {isLoading && <SkeletonTitleTracks />}
+
                 {fetchResult && fetchResult.playlist && fetchResult.playlist.tracks.length > 0 && (
                     <TitleTracks playlist={fetchResult.playlist} />
                 )}

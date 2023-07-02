@@ -13,14 +13,13 @@ export const Application: FC = () => {
     const selectedTab = useAtomValue(selectedTabAtom);
     const popout = useAtomValue(popoutAtom);
 
-    const { isLoading } = useUpdateWebToken();
+    useUpdateWebToken();
 
     useEffect(() => {
         window.scrollTo(0, 0);
     }, [selectedTab]);
 
-    const wait: boolean = !webToken || (webToken.error?.type === "unauthorized" && isLoading);
-    const signedIn: boolean = !!webToken && !webToken.error;
+    const signedIn: boolean = !webToken || !webToken.error;
 
     return (
         <AppRoot>
@@ -28,14 +27,13 @@ export const Application: FC = () => {
                 <SplitCol>
                     <View activePanel="vkaudiopad">
                         <Panel id="vkaudiopad">
-                            {!wait &&
-                                (signedIn
-                                    ? <>
-                                        <AudioPlayerPanel />
-                                        <ContentPanel />
-                                    </>
-                                    : <SignInPanel />
-                                )}
+                            {signedIn
+                                ? <>
+                                    <AudioPlayerPanel />
+                                    <ContentPanel />
+                                </>
+                                : <SignInPanel />
+                            }
                         </Panel>
                     </View>
                 </SplitCol>

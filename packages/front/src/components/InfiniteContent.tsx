@@ -8,11 +8,10 @@ type Props = {
     hasMore: boolean;
     loadMoreMutation: UseMutationResult<any, any, any>;
     loadMoreArgs?: any;
-    isLoading?: boolean;
     error?: any;
 };
 
-export const InfinityContent: FC<Props> = ({ children, hasMore, loadMoreMutation, loadMoreArgs, isLoading, error }) => {
+export const InfinityContent: FC<Props> = ({ children, hasMore, loadMoreMutation, loadMoreArgs, error }) => {
     const { ref, inView } = useInView({ skip: !hasMore });
 
     useEffect(() => {
@@ -23,7 +22,7 @@ export const InfinityContent: FC<Props> = ({ children, hasMore, loadMoreMutation
 
     return (
         <Content
-            loading={!!isLoading || loadMoreMutation.isLoading}
+            loading={loadMoreMutation.isLoading}
             error={error}
         >
             {children}

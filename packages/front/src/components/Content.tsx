@@ -4,7 +4,7 @@ import React, { FC } from "react";
 import { serializeError } from "serialize-error";
 
 type Props = {
-    loading: boolean;
+    loading?: boolean;
     hideLoader?: boolean;
     error: any | null;
     children: React.ReactNode;

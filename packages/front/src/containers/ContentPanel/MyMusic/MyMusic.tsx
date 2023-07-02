@@ -4,6 +4,8 @@ import { HorizontalTitleCoverPlaylists } from "../../../components/HorizontalTit
 import { HorizantalTitleTracks } from "../../../components/HorizontalTitleTracks";
 import { InfinityContent } from "../../../components/InfiniteContent";
 import { TitleTracks } from "../../../components/TitleTracks";
+import { SkeletonHorizontalCoverPlaylists } from "../../../skeletons/SkeletonHorizontalCoverPlaylists";
+import { SkeletonHorizontalTitleTracks } from "../../../skeletons/SkeletonHorizontalTitleTracks";
 import { Navigation } from "../Navigation";
 import { useLoadMoreMyMusicTracksMutation, useMyMusicData } from "./hooks";
 
@@ -17,7 +19,6 @@ export const MyMusic: FC<Props> = ({ userId }) => {
 
     return (
         <InfinityContent
-            isLoading={isLoading}
             hasMore={!!fetchResult?.playlist?.hasMore}
             loadMoreMutation={loadMoreMutation}
             loadMoreArgs={fetchResult?.playlist}
@@ -25,6 +26,9 @@ export const MyMusic: FC<Props> = ({ userId }) => {
         >
             <Group>
                 <Navigation />
+
+                {isLoading && <SkeletonHorizontalTitleTracks />}
+
                 {fetchResult && fetchResult.recentTracksPlaylist && fetchResult.recentTracksPlaylist.tracks.length > 0 && (
                     <HorizantalTitleTracks
                         userId={userId}
@@ -32,6 +36,8 @@ export const MyMusic: FC<Props> = ({ userId }) => {
                     />
                 )}
             </Group>
+
+            {isLoading && <Group><SkeletonHorizontalCoverPlaylists /></Group>}
 
             {fetchResult && fetchResult.coverPlaylists.length > 0 && (
                 <Group>
