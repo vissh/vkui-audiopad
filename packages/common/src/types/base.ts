@@ -13,12 +13,19 @@ export type TWebToken = {
     error: TWebTokenError | null;
 };
 
+export type TArtist = {
+    id: string;
+    name: string;
+};
+
 export type TTrackItem = {
     id: string;
     accessKey: string;
     url: string;
     image: string;
     artist: string;
+    mainArtists: Array<TArtist>;
+    featArtists: Array<TArtist>;
     title: string;
     duration: number;
     context: string;

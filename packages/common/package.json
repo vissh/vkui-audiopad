@@ -18,10 +18,10 @@
         "build": "npm install && tsc && ./node_modules/.bin/vite build"
     },
     "dependencies": {
-        "@types/chrome": "0.0.239",
+        "@types/chrome": "0.0.241",
         "serialize-error": "11.0.0",
         "typescript": "5.1.6",
-        "vite": "4.3.9",
+        "vite": "4.4.4",
         "vite-plugin-dts": "2.3.0"
     }
 }

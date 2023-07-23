@@ -22,12 +22,16 @@ export const toTracksItems = (playlist: any): TTrackItem[] => {
 export const toTrackItem = (trackInfo: Array<any>, isRadio?: boolean): TTrackItem => {
     const hashes = trackInfo[EAudioTupleIndex.HASHES];
     const [addHash, editHash, actionHash, deleteHash, replaceHash, urlHash, restoreHash] = hashes.split('/');
+    const mainArtists = trackInfo[EAudioTupleIndex.MAIN_ARTISTS];
+    const featArtists = trackInfo[EAudioTupleIndex.FEAT_ARTISTS];
     return {
         id: trackInfo[EAudioTupleIndex.OWNER_ID] + "_" + trackInfo[EAudioTupleIndex.ID],
         accessKey: trackInfo[EAudioTupleIndex.ACCESS_KEY],
         url: isRadio ? trackInfo[EAudioTupleIndex.URL] : "",
         image: trackInfo[EAudioTupleIndex.COVER_URL].split(",")[0],
         artist: decode(trackInfo[EAudioTupleIndex.PERFORMER]),
+        mainArtists: mainArtists ? mainArtists : [],
+        featArtists: featArtists ? featArtists : [],
         title: decode(trackInfo[EAudioTupleIndex.TITLE]),
         duration: trackInfo[EAudioTupleIndex.DURATION],
         context: trackInfo[EAudioTupleIndex.CONTEXT],

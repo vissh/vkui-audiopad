@@ -7,6 +7,7 @@ export enum EContentTab {
     SEARCH = "search",
     BLOCK_PLAYLIST = "block-playlist",
     COVER_PLAYLISTS = "cover-playlists",
+    ARTIST = "artist",
 }
 
 export enum ERepeat {

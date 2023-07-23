@@ -6,7 +6,7 @@
     "build": "npm install && tsc && ./node_modules/.bin/vite build"
   },
   "dependencies": {
-    "@types/chrome": "0.0.239",
+    "@types/chrome": "0.0.241",
     "@vk-audiopad/common": "file:../common",
     "hls.js": "1.4.0",
     "typescript": "5.1.6",

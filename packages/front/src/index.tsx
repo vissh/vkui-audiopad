@@ -3,12 +3,14 @@ import { baseEnums } from "@vk-audiopad/common";
 import { AdaptivityProvider, ConfigProvider, Platform, WebviewType } from "@vkontakte/vkui";
 import "@vkontakte/vkui/dist/vkui.css";
 import ReactDOM from "react-dom";
-import { Application } from "./containers/Application/Application";
-import { useAtomValue } from "./core/atom";
-import { themeAtom } from "./core/atoms";
+import { themeAtom } from "shared/appAtoms";
+import { useAtomValue } from "shared/lib/atom";
+import { Application } from "./app/Application";
 
 declare global {
-    interface Window { _tmr: undefined | Array<any>; }
+    interface Window {
+        _tmr: undefined | Array<any>;
+    }
 }
 
 export const queryClient = new QueryClient();
@@ -31,7 +33,4 @@ const App = () => {
     );
 };
 
-ReactDOM.render(
-    <App />,
-    document.getElementById("root")
-);
+ReactDOM.render(<App />, document.getElementById("root"));

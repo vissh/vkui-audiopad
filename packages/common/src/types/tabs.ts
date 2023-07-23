@@ -10,6 +10,12 @@ export type TSelectedTabSearch = {
     value: string;
 };
 
+export type TSelectedTabArtist = {
+    tab: EContentTab.ARTIST;
+    id: string;
+    name: string;
+};
+
 export type TSelectedTabPlaylist = {
     tab: EContentTab.BLOCK_PLAYLIST;
     fromId: string;
@@ -38,4 +44,5 @@ export type TSelectedTabs = (
     | TSelectedTabSearch
     | TSelectedTabPlaylist
     | TSelectedTabCoverPlaylists
+    | TSelectedTabArtist
 );
