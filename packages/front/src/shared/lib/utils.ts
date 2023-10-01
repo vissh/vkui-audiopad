@@ -1,4 +1,4 @@
-import { baseTypes, vkFetchUtils } from "@vk-audiopad/common";
+import { baseEnums, baseTypes, tabTypes, vkFetchUtils } from "@vk-audiopad/common";
 import { TCoverPlaylist } from "shared/types";
 
 export const toTitlePlaylist = (playlist: any): baseTypes.TTitlePlaylist => {
@@ -68,4 +68,37 @@ export const getTextFromHtmlElements = (elements: HTMLCollectionOf<Element>): st
         .filter(x => !!x)
         .join(" ")
         .trim();
+};
+
+export const assertUnreachable = (value: never): never => {
+    throw new Error("Statement should be unreachable");
+};
+
+export const getTabName = (tab: tabTypes.TSelectedTabs) => {
+    switch (tab.tab) {
+        case baseEnums.EContentTab.UNKNOWN:
+            return "UNKNOWN";
+        case baseEnums.EContentTab.CURRENT_PLAYLIST:
+            return "Текущий плейлист";
+        case baseEnums.EContentTab.GENERAL:
+            return "Главная";
+        case baseEnums.EContentTab.MY_MUSIC:
+            return "Моя музыка";
+        case baseEnums.EContentTab.EXPLORE:
+            return "Обзор";
+        case baseEnums.EContentTab.SEARCH:
+            return "Результаты поиска";
+        case baseEnums.EContentTab.BLOCK_PLAYLIST:
+            return tab.playlist.title;
+        case baseEnums.EContentTab.COVER_PLAYLISTS:
+            return tab.title;
+        case baseEnums.EContentTab.ARTIST:
+            return tab.name;
+        default:
+            return assertUnreachable(tab);
+    }
+};
+
+export const newHistory = (tab: tabTypes.TSelectedTabs): tabTypes.TSelectedTabs[] => {
+    return tabTypes.isTabWithHistory(tab) ? [...tab.history, tab] : [tab];
 };

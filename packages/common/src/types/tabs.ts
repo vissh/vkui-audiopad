@@ -14,17 +14,7 @@ export type TSelectedTabArtist = {
     tab: EContentTab.ARTIST;
     id: string;
     name: string;
-};
-
-export type TSelectedTabPlaylist = {
-    tab: EContentTab.BLOCK_PLAYLIST;
-    fromId: string;
-    playlist: TTitlePlaylist;
-};
-
-export type TSelectedTabCoverPlaylists = {
-    tab: EContentTab.COVER_PLAYLISTS;
-    showAllLink: string;
+    history: TSelectedTabs[];
 };
 
 export type TClickableContentTabs = (
@@ -38,6 +28,31 @@ export type TSelectedTabCommon = {
     tab: TClickableContentTabs;
 };
 
+export type TTabHistorable = (
+    TSelectedTabCommon
+    | TSelectedTabSearch
+    | TSelectedTabArtist
+);
+
+export type TSelectedTabPlaylist = {
+    tab: EContentTab.BLOCK_PLAYLIST;
+    fromId: string;
+    playlist: TTitlePlaylist;
+    history: TSelectedTabs[];
+};
+
+export type TSelectedTabCoverPlaylists = {
+    tab: EContentTab.COVER_PLAYLISTS;
+    title: string;
+    showAllLink: string;
+    history: TSelectedTabs[];
+};
+
+export type TTabWithHistory = (
+    TSelectedTabPlaylist
+    | TSelectedTabCoverPlaylists
+);
+
 export type TSelectedTabs = (
     TSelectedTabUnknown
     | TSelectedTabCommon
@@ -46,3 +61,7 @@ export type TSelectedTabs = (
     | TSelectedTabCoverPlaylists
     | TSelectedTabArtist
 );
+
+export const isTabWithHistory = (tab: TSelectedTabs): tab is TTabWithHistory => {
+    return "history" in tab;
+};

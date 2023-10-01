@@ -4,7 +4,6 @@ import { activeModalPageAtom } from "shared/appAtoms";
 import { useAtom } from "shared/lib/atom";
 import { EModalPage } from "shared/types";
 import { InfoModalPage } from "./pages/InfoModalPage";
-import { TrackArtistsPage } from "./pages/TrackArtistsPage";
 
 export const AppModalRoot: FC = () => {
     const [activeModal, setActiveModal] = useAtom(activeModalPageAtom);
@@ -17,10 +16,6 @@ export const AppModalRoot: FC = () => {
         >
             <InfoModalPage
                 id={EModalPage.INFO}
-                dynamicContentHeight
-            />
-            <TrackArtistsPage
-                id={EModalPage.ARTISTS}
                 dynamicContentHeight
             />
         </ModalRoot>

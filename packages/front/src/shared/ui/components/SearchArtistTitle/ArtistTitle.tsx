@@ -5,14 +5,22 @@ import "./ArtistTitle.css";
 
 type ArtistTitleProps = {
     track: baseTypes.TTrackItem;
-    onClick: (artist: string) => void;
+    onSearch: (artist: string) => void;
+    onArtist: (artist: baseTypes.TArtist) => void;
 };
 
-export const ArtistTitle: FC<ArtistTitleProps> = ({ track, onClick }) => {
-    const stopPropagationClick = (artist: string) => {
+export const ArtistTitle: FC<ArtistTitleProps> = ({ track, onSearch, onArtist }) => {
+    const searchClick = (artist: string) => {
         return (e: any) => {
             e.stopPropagation();
-            onClick(artist);
+            onSearch(artist);
+        };
+    };
+
+    const openArtistPage = (artist: baseTypes.TArtist) => {
+        return (e: any) => {
+            e.stopPropagation();
+            onArtist(artist);
         };
     };
 
@@ -20,17 +28,17 @@ export const ArtistTitle: FC<ArtistTitleProps> = ({ track, onClick }) => {
         <Subhead className="artists">
             {track.mainArtists.length > 0 ? (
                 <>
-                    {groupArtists(track.mainArtists, stopPropagationClick)}
+                    {groupArtists(track.mainArtists, openArtistPage)}
                     {track.featArtists.length > 0 && (
                         <>
                             &nbsp;feat.&nbsp;
-                            {groupArtists(track.featArtists, stopPropagationClick)}
+                            {groupArtists(track.featArtists, openArtistPage)}
                         </>
                     )}
                 </>
             ) : (
                 <span
-                    onClick={stopPropagationClick(track.artist)}
+                    onClick={searchClick(track.artist)}
                     className="artist"
                 >
                     {track.artist}
@@ -40,14 +48,14 @@ export const ArtistTitle: FC<ArtistTitleProps> = ({ track, onClick }) => {
     );
 };
 
-const groupArtists = (artists: Array<baseTypes.TArtist>, onClick: (value: string) => (e: any) => void) => {
-    return artists.map((x, index, arr) => (
+const groupArtists = (artists: Array<baseTypes.TArtist>, onClick: (artist: baseTypes.TArtist) => (e: any) => void) => {
+    return artists.map((artist, index, arr) => (
         <>
             <span
-                onClick={onClick(x.name)}
+                onClick={onClick(artist)}
                 className="artist"
             >
-                {x.name}
+                {artist.name}
             </span>
             {index !== arr.length - 1 ? ", " : ""}
         </>

@@ -4,6 +4,7 @@ import { FC } from "react";
 import { selectedTabAtom } from "shared/appAtoms";
 import { sendEventShowAllTracks } from "shared/lib/analytics";
 import { useAtom } from "shared/lib/atom";
+import { newHistory } from "shared/lib/utils";
 
 type ShowAllTracksHeaderLinkProps = {
     userId: string;
@@ -18,7 +19,9 @@ export const ShowAllTracksHeaderLink: FC<ShowAllTracksHeaderLinkProps> = ({ user
             tab: baseEnums.EContentTab.BLOCK_PLAYLIST,
             fromId: userId,
             playlist: playlist,
+            history: newHistory(selectedTab),
         });
+
         sendEventShowAllTracks(selectedTab.tab);
     };
 

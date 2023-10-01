@@ -1,0 +1,14 @@
+.vkads_link {
+    color: var(--vkui--color_text_secondary);
+    cursor: pointer;
+}
+
+.vkads_link:hover {
+    text-decoration: underline;
+}
+
+.vkads_hidden_overflow {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis; 
+}

@@ -3,11 +3,9 @@ import {
     Icon20Add,
     Icon20Cancel,
     Icon20ListPlayOutline,
-    Icon20MusicMicOutline,
     Icon28AddOutline,
     Icon28CancelOutline,
     Icon28ListPlayOutline,
-    Icon28MusicMicOutline,
 } from "@vkontakte/icons";
 import {
     ActionSheet,
@@ -19,24 +17,15 @@ import {
 import { ToggleRef } from "@vkontakte/vkui/dist/components/ActionSheet/types";
 import { FC } from "react";
 import { fetchAddTrack, fetchRemoveTrack } from "shared/api";
-import {
-    activeModalPageAtom,
-    activeTrackAtom,
-    popoutAtom,
-    selectedTabAtom,
-    trackArtistsAtom,
-    userIdAtom,
-} from "shared/appAtoms";
+import { activeTrackAtom, popoutAtom, selectedTabAtom, userIdAtom } from "shared/appAtoms";
 import { actions } from "shared/lib/actions";
 import {
     sendEventAddToQueue,
     sendEventAddTrack,
-    sendEventClickArtist,
     sendEventRemoveCancelTrack,
     sendEventRemoveTrack,
 } from "shared/lib/analytics";
-import { useAtom, useAtomValue, useSetAtom } from "shared/lib/atom";
-import { EModalPage } from "shared/types";
+import { useAtomValue, useSetAtom } from "shared/lib/atom";
 
 type TrackActionsProps = {
     track: baseTypes.TTrackItem;
@@ -48,16 +37,13 @@ type TrackActionsProps = {
 export const TrackActions: FC<TrackActionsProps> = ({ track, updateTrack, deleteTrack, toggleRef }) => {
     const userId = useAtomValue(userIdAtom);
     const activeTrack = useAtomValue(activeTrackAtom);
-    const [selectedTab, setSelectedTab] = useAtom(selectedTabAtom);
+    const selectedTab = useAtomValue(selectedTabAtom);
     const setPopout = useSetAtom(popoutAtom);
-    const setTrackArtists = useSetAtom(trackArtistsAtom);
-    const setActiveModal = useSetAtom(activeModalPageAtom);
 
     const trackUserId = track.id.split("_")[0];
     const canAdd = !!(track && track.flags & baseEnums.EAudioFlagBit.CAN_ADD);
     const showAddButton: boolean = canAdd && userId !== trackUserId;
     const showRemoveButton: boolean = userId === trackUserId;
-    const artists = [...track.mainArtists, ...track.featArtists];
 
     return (
         <ActionSheet
@@ -116,34 +102,6 @@ export const TrackActions: FC<TrackActionsProps> = ({ track, updateTrack, delete
                     autoClose
                 >
                     Удалить из «Моей музыки»
-                </ActionSheetItem>
-            )}
-
-            {artists.length > 0 && (
-                <ActionSheetItem
-                    before={
-                        <AdaptiveIconRenderer
-                            IconCompact={Icon20MusicMicOutline}
-                            IconRegular={Icon28MusicMicOutline}
-                        />
-                    }
-                    onClick={() => {
-                        if (artists.length === 1) {
-                            const artist = artists[0];
-                            setSelectedTab({
-                                tab: baseEnums.EContentTab.ARTIST,
-                                id: artist.id,
-                                name: artist.name,
-                            });
-                        } else {
-                            setTrackArtists(artists);
-                            setActiveModal(EModalPage.ARTISTS);
-                        }
-                        sendEventClickArtist(selectedTab.tab);
-                    }}
-                    autoClose
-                >
-                    Перейти к артисту
                 </ActionSheetItem>
             )}
 

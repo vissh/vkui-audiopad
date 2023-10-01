@@ -18,10 +18,14 @@ export const Application: FC = () => {
     return (
         <AppRoot>
             <SplitLayout
+                style={{ justifyContent: "center" }}
                 modal={<AppModalRoot />}
                 popout={popout}
             >
-                <SplitCol>
+                <SplitCol
+                    maxWidth={1280}
+                    minWidth={780}
+                >
                     <View activePanel="vkaudiopad">
                         <Panel id="vkaudiopad">
                             {signedIn ? (

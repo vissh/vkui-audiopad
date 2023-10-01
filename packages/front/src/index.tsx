@@ -1,9 +1,10 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { baseEnums } from "@vk-audiopad/common";
-import { AdaptivityProvider, ConfigProvider, Platform, WebviewType } from "@vkontakte/vkui";
+import { AdaptivityProvider, ConfigProvider, Platform } from "@vkontakte/vkui";
 import "@vkontakte/vkui/dist/vkui.css";
 import ReactDOM from "react-dom";
 import { themeAtom } from "shared/appAtoms";
+import "shared/base.css";
 import { useAtomValue } from "shared/lib/atom";
 import { Application } from "./app/Application";
 
@@ -21,7 +22,7 @@ const App = () => {
     return (
         <ConfigProvider
             platform={Platform.ANDROID}
-            webviewType={WebviewType.INTERNAL}
+            hasCustomPanelHeaderAfter={false}
             appearance={theme === baseEnums.ETheme.SYSTEM ? undefined : theme}
         >
             <AdaptivityProvider>

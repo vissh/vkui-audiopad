@@ -1,8 +1,8 @@
 import { baseEnums, baseTypes } from "@vk-audiopad/common";
-import { useAtom } from "shared/lib/atom";
 import { FC } from "react";
 import { selectedTabAtom } from "shared/appAtoms";
 import { sendEventControlSearchArtist, sendEventSearchArtist } from "shared/lib/analytics";
+import { useAtom } from "shared/lib/atom";
 import { ArtistTitle } from "./ArtistTitle";
 
 type SearchArtistTitleProps = {
@@ -13,7 +13,7 @@ type SearchArtistTitleProps = {
 export const SearchArtistTitle: FC<SearchArtistTitleProps> = ({ track, context }) => {
     const [selectedTab, setSelectedTab] = useAtom(selectedTabAtom);
 
-    const onClick = (value: string) => {
+    const onSearch = (value: string) => {
         setSelectedTab({
             tab: baseEnums.EContentTab.SEARCH,
             value: value,
@@ -22,10 +22,22 @@ export const SearchArtistTitle: FC<SearchArtistTitleProps> = ({ track, context }
         context === undefined ? sendEventSearchArtist(selectedTab.tab) : sendEventControlSearchArtist();
     };
 
+    const onArtist = (artist: baseTypes.TArtist) => {
+        setSelectedTab({
+            tab: baseEnums.EContentTab.ARTIST,
+            id: artist.id,
+            name: artist.name,
+            history: [{ tab: baseEnums.EContentTab.GENERAL }],
+        });
+
+        context === undefined ? sendEventSearchArtist(selectedTab.tab) : sendEventControlSearchArtist();
+    };
+
     return (
         <ArtistTitle
             track={track}
-            onClick={onClick}
+            onSearch={onSearch}
+            onArtist={onArtist}
         />
     );
 };

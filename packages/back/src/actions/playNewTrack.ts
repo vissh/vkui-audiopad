@@ -3,7 +3,7 @@ import { fetchAudiosIdsBySource } from "../fetchers/audioIdsBySource";
 import { fetchTrackInfo } from "../fetchers/trackInfo";
 import { destroyPlayer, playTrack } from "../player";
 import { applicationState } from "../state";
-import { createAudiosIds, sendListenedData, shuffle } from "../utils";
+import { createAudiosIds, getNewIndex, sendListenedData, shuffle } from "../utils";
 
 export const playNewTrack = async (trackIndex: number, playlist: baseTypes.TTitlePlaylist, fromOriginalSort?: boolean) => {
     destroyPlayer();
@@ -35,7 +35,13 @@ export const playNewTrack = async (trackIndex: number, playlist: baseTypes.TTitl
         const tracks = playlist ? playlist.tracks : (applicationState.currentPlaylist?.tracks || []);
         track = tracks[trackIndex];
     } else {
-        track = await fetchTrackInfo(applicationState.userId, trackId, accessKey);
+        const possibleTrack = await fetchTrackInfo(applicationState.userId, trackId, accessKey);
+        if (!possibleTrack) {
+            const newIndex = getNewIndex("next", applicationState.activeTrackIndex, applicationState.audiosIds.length);
+            await playNewTrack(newIndex, playlist, fromOriginalSort);
+            return;
+        }
+        track = possibleTrack;
     }
 
     const changes: Partial<stateTypes.TApplicationState> = {

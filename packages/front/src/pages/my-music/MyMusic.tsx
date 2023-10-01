@@ -3,7 +3,7 @@ import { FC } from "react";
 import { InfinityContent } from "shared/ui/components";
 import { SkeletonHorizontalCoverPlaylists, SkeletonHorizontalTitleTracks } from "shared/ui/skeletons";
 import { Navigation } from "widgets/navigation";
-import { HorizontalTitleCoverPlaylists, HorizontalTitleTracks, TitleTracks } from "widgets/playlists";
+import { HorizontalTitleCoverPlaylists, HorizontalTitleTracks, TrackList } from "widgets/playlists";
 import { useLoadMoreMyMusicTracksMutation, useMyMusicData } from "./hooks";
 
 type MyMusicProps = {
@@ -67,7 +67,10 @@ export const MyMusic: FC<MyMusicProps> = ({ userId }) => {
 
             {fetchResult && fetchResult.playlist && fetchResult.playlist.tracks.length > 0 && (
                 <Group>
-                    <TitleTracks playlist={fetchResult.playlist} />
+                    <TrackList
+                        playlist={fetchResult.playlist}
+                        header={fetchResult.playlist.title}
+                    />
                 </Group>
             )}
         </InfinityContent>

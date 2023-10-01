@@ -1,10 +1,10 @@
 import { tabTypes } from "@vk-audiopad/common";
-import { Group } from "@vkontakte/vkui";
+import { Group, Spacing } from "@vkontakte/vkui";
 import { FC } from "react";
 import { InfinityContent } from "shared/ui/components";
 import { SkeletonTitleTracks } from "shared/ui/skeletons";
 import { Navigation } from "widgets/navigation";
-import { TitleTracks } from "widgets/playlists";
+import { TrackList } from "widgets/playlists";
 import { useBlockPlaylistData, useLoadMoreBlockPlaylistTracksMutation } from "./hooks";
 
 type PlaylistTracksProps = {
@@ -25,11 +25,12 @@ export const PlaylistTracks: FC<PlaylistTracksProps> = ({ userId, selectedTab })
         >
             <Group>
                 <Navigation />
+                <Spacing />
 
                 {isLoading && <SkeletonTitleTracks />}
 
                 {fetchResult && fetchResult.playlist && fetchResult.playlist.tracks.length > 0 && (
-                    <TitleTracks playlist={fetchResult.playlist} />
+                    <TrackList playlist={fetchResult.playlist} />
                 )}
             </Group>
         </InfinityContent>

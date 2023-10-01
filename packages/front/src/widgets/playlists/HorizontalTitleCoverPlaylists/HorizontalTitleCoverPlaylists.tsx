@@ -4,6 +4,7 @@ import { FC } from "react";
 import { selectedTabAtom } from "shared/appAtoms";
 import { sendEventShowAllPlaylists } from "shared/lib/analytics";
 import { useAtom } from "shared/lib/atom";
+import { newHistory } from "shared/lib/utils";
 import { TCoverPlaylist } from "shared/types";
 import { HorizontalCoverPlaylists } from "../HorizontalCoverPlaylists";
 
@@ -27,8 +28,11 @@ export const HorizontalTitleCoverPlaylists: FC<HorizontalTitleCoverPlaylistsProp
     const onClick = () => {
         setSelectedTab({
             tab: baseEnums.EContentTab.COVER_PLAYLISTS,
+            title: title,
             showAllLink: showAllLink,
+            history: newHistory(selectedTab),
         });
+
         sendEventShowAllPlaylists(selectedTab.tab);
     };
 

@@ -1,11 +1,10 @@
-import { tabTypes, utils } from "@vk-audiopad/common";
-import { Group, List } from "@vkontakte/vkui";
+import { tabTypes } from "@vk-audiopad/common";
+import { Group, Spacing } from "@vkontakte/vkui";
 import { FC } from "react";
-import { TCoverPlaylist } from "shared/types";
 import { InfinityContent } from "shared/ui/components";
 import { SkeletonCoverPlaylists } from "shared/ui/skeletons";
 import { Navigation } from "widgets/navigation";
-import { HorizontalCoverPlaylists } from "widgets/playlists";
+import { CoverPlaylistsList } from "widgets/playlists/CoverPlaylistsList";
 import { useCoverPlaylistsData, useLoadMoreCoverPlaylistsDataMutation } from "./hooks";
 
 type CoverPlaylistsProps = {
@@ -17,10 +16,6 @@ export const CoverPlaylists: FC<CoverPlaylistsProps> = ({ userId, selectedTab })
     const { data: fetchResult, isLoading, error } = useCoverPlaylistsData(selectedTab.showAllLink);
     const loadMoreMutation = useLoadMoreCoverPlaylistsDataMutation(selectedTab.showAllLink);
 
-    const columnsPlaylists: TCoverPlaylist[][] = fetchResult
-        ? Array.from(utils.chunked(fetchResult.coverPlaylists, 5))
-        : [];
-
     return (
         <InfinityContent
             hasMore={!!((fetchResult && fetchResult.nextFrom) || "")}
@@ -30,17 +25,16 @@ export const CoverPlaylists: FC<CoverPlaylistsProps> = ({ userId, selectedTab })
         >
             <Group>
                 <Navigation />
+                <Spacing />
 
                 {isLoading && <SkeletonCoverPlaylists />}
 
-                <List>
-                    {columnsPlaylists.map((playlists) => (
-                        <HorizontalCoverPlaylists
-                            userId={userId}
-                            playlists={playlists}
-                        />
-                    ))}
-                </List>
+                {fetchResult && (
+                    <CoverPlaylistsList
+                        userId={userId}
+                        coverPlaylists={fetchResult.coverPlaylists}
+                    />
+                )}
             </Group>
         </InfinityContent>
     );

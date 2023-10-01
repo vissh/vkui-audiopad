@@ -1,8 +1,9 @@
 import { baseEnums } from "@vk-audiopad/common";
 import { Card, CardScroll, Text, Title } from "@vkontakte/vkui";
-import { useSetAtom } from "shared/lib/atom";
 import { FC } from "react";
 import { selectedTabAtom } from "shared/appAtoms";
+import { useAtom } from "shared/lib/atom";
+import { newHistory } from "shared/lib/utils";
 import { TCoverPlaylist } from "shared/types";
 
 type HorizontalCardPlaylistsProps = {
@@ -11,7 +12,7 @@ type HorizontalCardPlaylistsProps = {
 };
 
 export const HorizontalCardPlaylists: FC<HorizontalCardPlaylistsProps> = ({ userId, coverPlaylists }) => {
-    const setSelectedTab = useSetAtom(selectedTabAtom);
+    const [selectedTab, setSelectedTab] = useAtom(selectedTabAtom);
 
     return (
         <CardScroll size="s">
@@ -30,6 +31,7 @@ export const HorizontalCardPlaylists: FC<HorizontalCardPlaylistsProps> = ({ user
                                 tab: baseEnums.EContentTab.BLOCK_PLAYLIST,
                                 fromId: userId,
                                 playlist: coverPlaylist,
+                                history: newHistory(selectedTab),
                             });
                         }}
                     >

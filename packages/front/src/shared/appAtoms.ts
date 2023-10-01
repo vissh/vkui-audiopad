@@ -4,7 +4,6 @@ import { EModalPage } from "shared/types";
 
 export const activeModalPageAtom = atom<EModalPage | null>(null);
 export const popoutAtom = atom<React.ReactNode>(null);
-export const trackArtistsAtom = atom<Array<baseTypes.TArtist>>([]);
 
 export const userIdAtom = storageAtom("userId", initialState.User.userId);
 export const selectedTabAtom = storageAtom("selectedTab", initialState.InitialSelectedTab.selectedTab, initialState.DefaultSelectedTab.selectedTab);

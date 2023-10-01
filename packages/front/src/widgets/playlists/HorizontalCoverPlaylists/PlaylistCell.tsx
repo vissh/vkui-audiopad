@@ -5,6 +5,7 @@ import { FC } from "react";
 import { selectedTabAtom } from "shared/appAtoms";
 import { sendEventOpenCoverPlaylist } from "shared/lib/analytics";
 import { useAtom } from "shared/lib/atom";
+import { newHistory } from "shared/lib/utils";
 import { TCoverPlaylist } from "shared/types";
 import { OverlayActions } from "./OverlayActions";
 import "./PlaylistCell.css";
@@ -22,7 +23,9 @@ export const PlaylistCell: FC<PlaylistCellProps> = ({ userId, playlist }) => {
             tab: baseEnums.EContentTab.BLOCK_PLAYLIST,
             fromId: userId,
             playlist: playlist,
+            history: newHistory(selectedTab),
         });
+
         sendEventOpenCoverPlaylist(selectedTab.tab);
     };
 

@@ -3,15 +3,16 @@ import { Group, Header } from "@vkontakte/vkui";
 import { Track } from "entities/track";
 import { FC } from "react";
 
-type TitleTracksProps = {
+type TrackListProps = {
     playlist: baseTypes.TTitlePlaylist;
+    header?: string;
 };
 
-export const TitleTracks: FC<TitleTracksProps> = ({ playlist }) => {
+export const TrackList: FC<TrackListProps> = ({ playlist, header }) => {
     return (
         <Group
             mode="plain"
-            header={<Header>{playlist.title}</Header>}
+            header={header && <Header>{header}</Header>}
         >
             {playlist.tracks.map((track, index) => (
                 <Track
