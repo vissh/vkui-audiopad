@@ -3,7 +3,7 @@ import { Group } from "@vkontakte/vkui";
 import { FC } from "react";
 import { Content, EmptyResult } from "shared/ui/components";
 import { SkeletonHorizontalCoverPlaylists, SkeletonHorizontalTitleTracks } from "shared/ui/skeletons";
-import { Navigation } from "widgets/navigation";
+import { NavigationWithSearch } from "widgets/navigation";
 import { HorizontalPlaylist } from "widgets/playlists";
 import { useSearchData } from "./hooks";
 
@@ -21,7 +21,7 @@ export const SearchResult: FC<SearchResultProps> = ({ userId, selectedTab }) => 
     return (
         <Content error={error}>
             <Group>
-                <Navigation />
+                <NavigationWithSearch />
 
                 {isLoading && <SkeletonHorizontalTitleTracks />}
 

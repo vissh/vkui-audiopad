@@ -1,7 +1,7 @@
 import { tabTypes } from "@vk-audiopad/common";
 import { Group } from "@vkontakte/vkui";
 import { FC } from "react";
-import { Content, EmptyResult } from "shared/ui/components";
+import { ArtistCover, Content, EmptyResult } from "shared/ui/components";
 import { SkeletonHorizontalCoverPlaylists, SkeletonHorizontalTitleTracks } from "shared/ui/skeletons";
 import { Navigation } from "widgets/navigation";
 import { HorizontalPlaylist } from "widgets/playlists";
@@ -13,15 +13,25 @@ type ArtistResultProps = {
 };
 
 export const ArtistResult: FC<ArtistResultProps> = ({ userId, selectedTab }) => {
-    const { data: playlistBlocks, isLoading, error } = useArtistData(userId, selectedTab.id);
+    const { data: fetchResult, isLoading, error } = useArtistData(userId, selectedTab.id);
 
-    const firstPlaylistBlock = !!playlistBlocks && playlistBlocks.length > 0 && playlistBlocks[0];
-    const otherPlaylistsBlocks = !!playlistBlocks && playlistBlocks.slice(1);
+    const firstPlaylistBlock =
+        fetchResult &&
+        !!fetchResult.playlistBlocks &&
+        fetchResult.playlistBlocks.length > 0 &&
+        fetchResult.playlistBlocks[0];
+
+    const otherPlaylistsBlocks = fetchResult && !!fetchResult.playlistBlocks && fetchResult.playlistBlocks.slice(1);
 
     return (
         <Content error={error}>
             <Group>
-                <Navigation />
+                <Navigation>
+                    <ArtistCover
+                        title={isLoading ? "" : selectedTab.name}
+                        backgroundImage={fetchResult?.backgroundImage || ""}
+                    />
+                </Navigation>
 
                 {isLoading && <SkeletonHorizontalTitleTracks />}
 

@@ -1,10 +1,10 @@
 import { baseTypes } from "@vk-audiopad/common";
 import { Group } from "@vkontakte/vkui";
-import { useAtomValue } from "shared/lib/atom";
 import { FC, useEffect, useState } from "react";
 import { currentPlaylistAtom } from "shared/appAtoms";
+import { useAtomValue } from "shared/lib/atom";
 import { InfinityContent } from "shared/ui/components";
-import { Navigation } from "widgets/navigation";
+import { NavigationWithSearch } from "widgets/navigation";
 import { EditableTitleTracks } from "./EditableTitleTracks";
 import { applyEditedCurrentPlaylist, useLoadMorePlaylistTracksMutation } from "./hooks";
 
@@ -70,7 +70,7 @@ export const CurrentPlaylist: FC = () => {
             loadMoreArgs={playlist}
         >
             <Group>
-                <Navigation />
+                <NavigationWithSearch />
 
                 {playlist && playlist.tracks.length > 0 && (
                     <>

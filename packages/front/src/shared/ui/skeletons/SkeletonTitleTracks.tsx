@@ -17,17 +17,8 @@ export const SkeletonTitleTracks: FC = () => {
             foregroundColor={appearance === "light" ? "#E7E8EC" : "#333333"}
             title=""
         >
-            <rect
-                x={xOffset}
-                y={16}
-                rx="4"
-                ry="4"
-                width="80"
-                height="16"
-            />
-
             {[...Array(10).keys()].map((lineNumber) => {
-                const startY = 44;
+                const startY = 0;
                 const offsetY = startY + lineNumber * 58;
 
                 return (

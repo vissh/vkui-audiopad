@@ -16,49 +16,47 @@ export const HorizontalCardPlaylists: FC<HorizontalCardPlaylistsProps> = ({ user
 
     return (
         <CardScroll size="s">
-            <div style={{ display: "flex" }}>
-                {coverPlaylists.map((coverPlaylist) => (
-                    <Card
+            {coverPlaylists.map((coverPlaylist) => (
+                <Card
+                    style={{
+                        backgroundImage: "url(" + coverPlaylist.coverUrl + ")",
+                        backgroundSize: "165px 200px",
+                        width: "165px",
+                        height: "200px",
+                        cursor: "pointer",
+                    }}
+                    onClick={() => {
+                        setSelectedTab({
+                            tab: baseEnums.EContentTab.BLOCK_PLAYLIST,
+                            fromId: userId,
+                            playlist: coverPlaylist,
+                            history: newHistory(selectedTab),
+                        });
+                    }}
+                >
+                    <Title
                         style={{
-                            backgroundImage: "url(" + coverPlaylist.coverUrl + ")",
-                            backgroundSize: "165px 200px",
-                            width: "165px",
-                            height: "200px",
-                            cursor: "pointer",
+                            marginBottom: 12,
+                            marginTop: 20,
+                            textAlign: "center",
+                            color: "white",
                         }}
-                        onClick={() => {
-                            setSelectedTab({
-                                tab: baseEnums.EContentTab.BLOCK_PLAYLIST,
-                                fromId: userId,
-                                playlist: coverPlaylist,
-                                history: newHistory(selectedTab),
-                            });
+                        level="1"
+                        weight="1"
+                    >
+                        {coverPlaylist.title}
+                    </Title>
+                    <Text
+                        style={{
+                            marginBottom: 48,
+                            textAlign: "center",
+                            color: "white",
                         }}
                     >
-                        <Title
-                            style={{
-                                marginBottom: 12,
-                                marginTop: 20,
-                                textAlign: "center",
-                                color: "white",
-                            }}
-                            level="1"
-                            weight="1"
-                        >
-                            {coverPlaylist.title}
-                        </Title>
-                        <Text
-                            style={{
-                                marginBottom: 48,
-                                textAlign: "center",
-                                color: "white",
-                            }}
-                        >
-                            {coverPlaylist.authorLine}
-                        </Text>
-                    </Card>
-                ))}
-            </div>
+                        {coverPlaylist.authorLine}
+                    </Text>
+                </Card>
+            ))}
         </CardScroll>
     );
 };

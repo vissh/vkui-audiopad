@@ -2,7 +2,7 @@ import { Group } from "@vkontakte/vkui";
 import { FC } from "react";
 import { InfinityContent } from "shared/ui/components";
 import { SkeletonHorizontalCoverPlaylists, SkeletonHorizontalTitleTracks } from "shared/ui/skeletons";
-import { Navigation } from "widgets/navigation";
+import { NavigationWithSearch } from "widgets/navigation";
 import { HorizontalTitleCoverPlaylists, HorizontalTitleTracks, TrackList } from "widgets/playlists";
 import { useLoadMoreMyMusicTracksMutation, useMyMusicData } from "./hooks";
 
@@ -22,7 +22,7 @@ export const MyMusic: FC<MyMusicProps> = ({ userId }) => {
             error={error}
         >
             <Group>
-                <Navigation />
+                <NavigationWithSearch />
 
                 {isLoading && <SkeletonHorizontalTitleTracks />}
 

@@ -4,15 +4,18 @@ import { selectedTabAtom } from "shared/appAtoms";
 import { useAtomValue } from "shared/lib/atom";
 import { ContentTabs } from "./ContentTabs";
 import { History } from "./History";
-import { SearchInput } from "./SearchInput";
 
-export const Navigation: FC = () => {
+type NavigationProps = {
+    children: React.ReactNode;
+};
+
+export const Navigation: FC<NavigationProps> = ({ children }) => {
     const selectedTab = useAtomValue(selectedTabAtom);
 
     return (
         <>
             {(tabTypes.isTabWithHistory(selectedTab) && <History selectedTab={selectedTab} />) || <ContentTabs />}
-            <SearchInput />
+            {children}
         </>
     );
 };

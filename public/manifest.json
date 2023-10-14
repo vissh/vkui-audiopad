@@ -1,8 +1,8 @@
 {
-  "name": "vk audiopad – VK Музыка без рекламы",
-  "description": "С плеером для VK Музыки вы можете слушать музыку из ВКонтакте бесплатно и без рекламы",
+  "name": "vk audiopad – VK Музыка бесплатно без рекламы",
+  "description": "С плеером для ВК Музыки, вы можете слушать музыку из ВКонтакте бесплатно и без рекламы",
   "author": "Denis Matveev <unsumulum@gmail.com>",
-  "version": "3.1.9",
+  "version": "3.2.0",
   "manifest_version": 2,
   "icons": {
     "16": "icons/icon16.png",

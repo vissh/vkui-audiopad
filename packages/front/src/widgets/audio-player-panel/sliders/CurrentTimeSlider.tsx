@@ -1,9 +1,9 @@
 import { Slider } from "@vkontakte/vkui";
-import { useAtomValue } from "shared/lib/atom";
 import { FC, useEffect, useState } from "react";
 import { currentTimeAtom, durationAtom } from "shared/appAtoms";
 import { actions } from "shared/lib/actions";
 import { sendEventControlSlider } from "shared/lib/analytics";
+import { useAtomValue } from "shared/lib/atom";
 
 const arrowKeyCodes = new Set(["ArrowLeft", "ArrowRight"]);
 

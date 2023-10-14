@@ -21,7 +21,7 @@
     "@types/chrome": "0.0.246",
     "serialize-error": "11.0.2",
     "typescript": "5.2.2",
-    "vite": "4.4.4",
+    "vite": "4.4.11",
     "vite-plugin-dts": "2.3.0"
   }
 }

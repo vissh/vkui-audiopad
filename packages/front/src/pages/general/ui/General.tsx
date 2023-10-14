@@ -6,7 +6,7 @@ import {
     SkeletonHorizontalCoverPlaylists,
     SkeletonHorizontalTitleTracks,
 } from "shared/ui/skeletons";
-import { Navigation } from "widgets/navigation";
+import { NavigationWithSearch } from "widgets/navigation";
 import { HorizontalTitleCoverPlaylists, HorizontalTitleTracks } from "widgets/playlists";
 import { useGeneralData } from "../model/hooks";
 import { HorizontalCardPlaylists } from "./HorizontalCardPlaylists";
@@ -21,7 +21,7 @@ export const General: FC<GeneralProps> = ({ userId }) => {
     return (
         <Content error={error}>
             <Group>
-                <Navigation />
+                <NavigationWithSearch />
 
                 {isLoading && <SkeletonHorizontalTitleTracks />}
 

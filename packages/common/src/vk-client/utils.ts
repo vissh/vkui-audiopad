@@ -1,4 +1,4 @@
-import { TTrackItem } from "../types/base";
+import { TArtist, TTrackItem } from "../types/base";
 import { EAudioTupleIndex } from "../types/enums";
 
 export const win1251ResponseToUTF8String = async (response: Response): Promise<string> => {
@@ -30,8 +30,8 @@ export const toTrackItem = (trackInfo: Array<any>, isRadio?: boolean): TTrackIte
         url: isRadio ? trackInfo[EAudioTupleIndex.URL] : "",
         image: trackInfo[EAudioTupleIndex.COVER_URL].split(",")[0],
         artist: decode(trackInfo[EAudioTupleIndex.PERFORMER]),
-        mainArtists: mainArtists ? mainArtists : [],
-        featArtists: featArtists ? featArtists : [],
+        mainArtists: (mainArtists ? mainArtists : []).map(decodeArtist),
+        featArtists: (featArtists ? featArtists : []).map(decodeArtist),
         title: decode(trackInfo[EAudioTupleIndex.TITLE]),
         duration: trackInfo[EAudioTupleIndex.DURATION],
         context: trackInfo[EAudioTupleIndex.CONTEXT],
@@ -50,4 +50,11 @@ export const toTrackItem = (trackInfo: Array<any>, isRadio?: boolean): TTrackIte
 export const decode = (value: string): string => {
     let txt = new DOMParser().parseFromString(value, "text/html");
     return txt.documentElement.textContent || "";
+};
+
+const decodeArtist = (artist: any): TArtist => {
+    return {
+        id: artist.id,
+        name: decode(artist.name),
+    }
 };

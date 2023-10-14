@@ -3,7 +3,7 @@ import { Group, Spacing } from "@vkontakte/vkui";
 import { FC } from "react";
 import { InfinityContent } from "shared/ui/components";
 import { SkeletonTitleTracks } from "shared/ui/skeletons";
-import { Navigation } from "widgets/navigation";
+import { NavigationWithSearch } from "widgets/navigation";
 import { TrackList } from "widgets/playlists";
 import { useBlockPlaylistData, useLoadMoreBlockPlaylistTracksMutation } from "./hooks";
 
@@ -24,7 +24,7 @@ export const PlaylistTracks: FC<PlaylistTracksProps> = ({ userId, selectedTab })
             error={error}
         >
             <Group>
-                <Navigation />
+                <NavigationWithSearch />
                 <Spacing />
 
                 {isLoading && <SkeletonTitleTracks />}

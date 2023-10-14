@@ -1,3 +1,4 @@
+export { ArtistCover } from "./ArtistCover/ArtistCover";
 export { Content } from "./Content/Content";
 export { Duration } from "./Duration/Duration";
 export { EmptyResult } from "./EmptyResult/EmptyResult";

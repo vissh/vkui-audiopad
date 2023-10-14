@@ -1,8 +1,8 @@
 import { FormItem, Slider } from "@vkontakte/vkui";
-import { useAtom } from "shared/lib/atom";
 import { FC, useEffect, useState } from "react";
 import { volumeAtom } from "shared/appAtoms";
 import { sendEventControlSlider } from "shared/lib/analytics";
+import { useAtom } from "shared/lib/atom";
 import { useDebounce } from "shared/lib/hooks";
 
 const delayMs = 50;
@@ -12,7 +12,7 @@ export const VolumeSlider: FC = () => {
     const [sliderVolume, setSliderVolume] = useState(100);
 
     useEffect(() => {
-        setSliderVolume(volume * 100);
+        setSliderVolume(Math.round(volume * 100));
     }, [volume]);
 
     const setVolumeToStorage = useDebounce((value: number) => setVolume(value), delayMs);
@@ -25,9 +25,11 @@ export const VolumeSlider: FC = () => {
     return (
         <FormItem style={{ padding: "14px 8px" }}>
             <Slider
+                withTooltip
                 style={{ width: 100 }}
                 min={0}
                 max={100}
+                step={1}
                 value={sliderVolume}
                 onChange={onChange}
                 onPointerUp={() => sendEventControlSlider("volume")}

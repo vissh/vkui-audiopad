@@ -3,7 +3,7 @@ import { Group, Spacing } from "@vkontakte/vkui";
 import { FC } from "react";
 import { InfinityContent } from "shared/ui/components";
 import { SkeletonCoverPlaylists } from "shared/ui/skeletons";
-import { Navigation } from "widgets/navigation";
+import { NavigationWithSearch } from "widgets/navigation";
 import { CoverPlaylistsList } from "widgets/playlists/CoverPlaylistsList";
 import { useCoverPlaylistsData, useLoadMoreCoverPlaylistsDataMutation } from "./hooks";
 
@@ -24,7 +24,7 @@ export const CoverPlaylists: FC<CoverPlaylistsProps> = ({ userId, selectedTab })
             error={error}
         >
             <Group>
-                <Navigation />
+                <NavigationWithSearch />
                 <Spacing />
 
                 {isLoading && <SkeletonCoverPlaylists />}

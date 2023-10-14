@@ -17,14 +17,13 @@ import {
     PanelHeaderClose,
     Platform,
     Select,
-    Separator,
     SimpleCell,
     useAdaptivityConditionalRender,
     usePlatform,
 } from "@vkontakte/vkui";
-import { useAtom } from "shared/lib/atom";
 import { useState } from "react";
 import { hlsDebugAtom, themeAtom } from "shared/appAtoms";
+import { useAtom } from "shared/lib/atom";
 
 export const InfoModalPage = ({ ...props }) => {
     const platform = usePlatform();
@@ -45,12 +44,12 @@ export const InfoModalPage = ({ ...props }) => {
             }
         >
             <Group>
-                <ShortсutInfo />
                 <ThemeSetting />
-                <FeedbackInfo />
+                <ShortсutInfo />
                 <Rate />
-                <Separator />
-                <Debug />
+                <FeedbackInfo />
+                {/* <Separator /> */}
+                {/* <Debug /> */}
             </Group>
         </ModalPage>
     );
