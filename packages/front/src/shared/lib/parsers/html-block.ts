@@ -26,6 +26,14 @@ export const findPlaylistBlocks = (blockIds: string[], html: string): THtmlPlayl
         });
 };
 
+export const findSectionId = (html: string): string | null => {
+    let sectionId = html.match(/"sectionId":\s?"(?<sectionId>[\w\-]+)"/)?.groups?.sectionId;
+    if (!sectionId) {
+        sectionId = html.match(/\\"sectionId\\":\s?\\"(?<sectionId>[\w\-]+)\\"/)?.groups?.sectionId;
+    }
+    return sectionId || null;
+}
+
 const toBlockDataTypeElement = (htmlElement: HTMLHtmlElement) => {
     return (result: BlockDataTypeElement[], blockId: string): BlockDataTypeElement[] => {
         const blockElement = htmlElement.querySelector(`[data-id=${blockId}]`);

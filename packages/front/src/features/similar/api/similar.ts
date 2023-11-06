@@ -1,4 +1,5 @@
 import { baseTypes, vkFetch } from "@vk-audiopad/common";
+import { findSectionId } from "shared/lib/parsers/html-block";
 import { toTitlePlaylist } from "shared/lib/utils";
 
 export const fetchSimilarData = async (userId: string, track: baseTypes.TTrackItem): Promise<baseTypes.TTitlePlaylist | null> => {
@@ -15,10 +16,7 @@ export const fetchSimilarData = async (userId: string, track: baseTypes.TTrackIt
 
     const html = await resp.text();
 
-    let sectionId = html.match(/"sectionId":\s?"(?<sectionId>\w+)"/)?.groups?.sectionId;
-    if (!sectionId) {
-        sectionId = html.match(/\\"sectionId\\":\s?\\"(?<sectionId>\w+)\\"/)?.groups?.sectionId;
-    }
+    const sectionId = findSectionId(html);
 
     if (!sectionId) {
         return null;

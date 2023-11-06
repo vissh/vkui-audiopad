@@ -37,7 +37,7 @@ const _fetchAppWebToken = async (): Promise<baseTypes.TWebToken> => {
             }
         }
     } else if (jsonData.type !== "okay") {
-        throw Error("web_token was not received. response: " + JSON.stringify(jsonData));
+        throw new Error("web_token was not received. response: " + JSON.stringify(jsonData));
     }
 
     return {

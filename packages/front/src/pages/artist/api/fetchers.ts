@@ -1,4 +1,5 @@
 import { vkFetch } from "@vk-audiopad/common";
+import { findSectionId } from "shared/lib/parsers/html-block";
 import { getPlaylistBlocks } from "shared/lib/parsers/playlist-block";
 import { FetchArtistResult } from "../model/types";
 
@@ -7,13 +8,10 @@ export const fetchArtistData = async (artistId: string): Promise<FetchArtistResu
     const resp = await fetch(`https://vk.com/artist/${artistId}`);
     const html = await resp.text();
 
-    const sectionId = html.match(/"sectionId":\s?"(?<sectionId>\w+)"/)?.groups?.sectionId;
+    const sectionId = findSectionId(html);
 
     if (!sectionId) {
-        return {
-            backgroundImage: "",
-            playlistBlocks: [],
-        };
+        throw new Error("Artist sectionId not found");
     }
 
     const jsonData = await vkFetch("https://vk.com/al_audio.php?act=load_catalog_section", {
