@@ -1,4 +1,4 @@
-export * as initialState from "./initialState";
+export * as initialState from "./initial-state";
 export * as baseTypes from "./types/base";
 export * as baseEnums from "./types/enums";
 export * as stateTypes from "./types/state";

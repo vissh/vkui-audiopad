@@ -1,0 +1,13 @@
+.vkap_tooltip_icon_button {
+    color: var(--vkui--color_icon_secondary);
+    cursor: pointer;
+}
+
+.vkap_tooltip_icon_button_padding {
+    margin-left: 8px;
+    cursor: pointer;
+}
+
+.vkap_tooltip_icon_button:hover {
+    color: var(--vkui--color_icon_tertiary);
+}

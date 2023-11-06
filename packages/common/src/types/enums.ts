@@ -6,7 +6,7 @@ export enum EContentTab {
     EXPLORE = "explore",
     SEARCH = "search",
     BLOCK_PLAYLIST = "block-playlist",
-    COVER_PLAYLISTS = "cover-playlists",
+    ALBUMS = "albums",
     ARTIST = "artist",
 }
 

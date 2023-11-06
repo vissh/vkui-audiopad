@@ -2,7 +2,7 @@ import { baseEnums } from "@vk-audiopad/common";
 import { applicationState } from "../state";
 import { storage } from "../storage";
 import { sendListenedData } from "../utils";
-import { playNewTrack } from "./playNewTrack";
+import { playNewTrack } from "./play-new-track";
 
 export const repeat = async () => {
     const nextMode = {

@@ -1,1 +1,0 @@
-export { CoverPlaylistsList } from "./CoverPlaylistsList";

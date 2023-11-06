@@ -1,1 +1,1 @@
-export { AudioPlayerPanel } from "./AudioPlayerPanel";
+export { AudioPlayerPanel } from "./ui/AudioPlayerPanel";

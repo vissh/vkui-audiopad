@@ -1,13 +1,13 @@
 import { startListeningCommandEvents } from "./listeners/command";
-import { startListiningOnInstalled } from "./listeners/install";
-import { startListiningPopupMessages } from "./listeners/messages";
+import { startListeningOnInstalled } from "./listeners/install";
+import { startListeningPopupMessages } from "./listeners/messages";
 import { startListeningPlayerEvents } from "./listeners/player";
-import { startListiningStorageEvents } from "./listeners/storage";
-import { startListiningWebRequests } from "./listeners/webRequest";
+import { startListeningStorageEvents } from "./listeners/storage";
+import { startListeningWebRequests } from "./listeners/web-request";
 
 startListeningCommandEvents();
-startListiningPopupMessages();
-startListiningOnInstalled();
+startListeningPopupMessages();
+startListeningOnInstalled();
 startListeningPlayerEvents();
-startListiningStorageEvents();
-startListiningWebRequests();
+startListeningStorageEvents();
+startListeningWebRequests();

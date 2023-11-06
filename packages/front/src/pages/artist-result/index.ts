@@ -1,1 +1,0 @@
-export { ArtistResult } from "./ArtistResult";

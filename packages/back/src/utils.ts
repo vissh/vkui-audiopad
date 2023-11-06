@@ -1,5 +1,5 @@
 import { baseEnums, baseTypes, utils } from "@vk-audiopad/common";
-import { fetchListenedData } from "./fetchers/listenedData";
+import { fetchListenedData } from "./fetchers/listened-data";
 import { audioElement } from "./player";
 import { applicationState } from "./state";
 import { ActionType, TListenedData } from "./types";

@@ -2,7 +2,7 @@
   "name": "vk audiopad – VK Музыка бесплатно без рекламы",
   "description": "С плеером для ВК Музыки, вы можете слушать музыку из ВКонтакте бесплатно и без рекламы",
   "author": "Denis Matveev <unsumulum@gmail.com>",
-  "version": "3.2.0",
+  "version": "3.2.1",
   "manifest_version": 2,
   "icons": {
     "16": "icons/icon16.png",
@@ -52,5 +52,5 @@
     "webRequest",
     "webRequestBlocking"
   ],
-  "content_security_policy": "script-src 'self' blob: 'sha256-eNxq5Q/DLL35v9atnAvyi0ZTn2eGTHLz9gClGr9ADYo=' https://top-fwz1.mail.ru/js/code.js; object-src 'self'"
+  "content_security_policy": "script-src 'self' blob: 'sha256-eNxq5Q/DLL35v9atnAvyi0ZTn2eGTHLz9gClGr9ADYo=' https://top-fwz1.mail.ru/js/code.js https://top-fwz1.mail.ru/js/dyn-goal-config.js; object-src 'self'"
 }

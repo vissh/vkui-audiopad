@@ -1,0 +1,1 @@
+export { ArtistCover } from "./ArtistCover";

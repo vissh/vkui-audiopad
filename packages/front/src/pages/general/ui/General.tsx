@@ -1,15 +1,11 @@
-import { Group, Header } from "@vkontakte/vkui";
+import { Group } from "@vkontakte/vkui";
 import { FC } from "react";
-import { Content } from "shared/ui/components";
-import {
-    SkeletonHorizontalCards,
-    SkeletonHorizontalCoverPlaylists,
-    SkeletonHorizontalTitleTracks,
-} from "shared/ui/skeletons";
+import { Content } from "shared/ui/content";
+import { AlbumGallery } from "widgets/album-gallery";
+import { CardGallery } from "widgets/card-gallery";
 import { NavigationWithSearch } from "widgets/navigation";
-import { HorizontalTitleCoverPlaylists, HorizontalTitleTracks } from "widgets/playlists";
+import { TrackGallery } from "widgets/track-gallery";
 import { useGeneralData } from "../model/hooks";
-import { HorizontalCardPlaylists } from "./HorizontalCardPlaylists";
 
 type GeneralProps = {
     userId: string;
@@ -23,47 +19,29 @@ export const General: FC<GeneralProps> = ({ userId }) => {
             <Group>
                 <NavigationWithSearch />
 
-                {isLoading && <SkeletonHorizontalTitleTracks />}
-
-                {fetchResult && fetchResult.playlist && fetchResult.playlist.tracks.length > 0 && (
-                    <HorizontalTitleTracks
-                        userId={userId}
-                        playlist={fetchResult.playlist}
-                    />
-                )}
+                <TrackGallery
+                    mode="plain"
+                    isLoading={isLoading}
+                    userId={userId}
+                    playlist={fetchResult?.playlist}
+                />
             </Group>
 
-            {isLoading && (
-                <>
-                    <Group>
-                        <SkeletonHorizontalCards />
-                    </Group>
-                    <Group>
-                        <SkeletonHorizontalCoverPlaylists />
-                    </Group>
-                </>
-            )}
+            <CardGallery
+                isLoading={isLoading}
+                title="Собрано алгоритмами"
+                userId={userId}
+                albums={fetchResult?.baseOnYourTastes}
+            />
 
-            {fetchResult && fetchResult.baseOnYourTastes.length > 0 && (
-                <Group header={<Header>Собрано алгоритмами</Header>}>
-                    <HorizontalCardPlaylists
-                        userId={userId}
-                        coverPlaylists={fetchResult.baseOnYourTastes}
-                    />
-                </Group>
-            )}
-
-            {fetchResult && fetchResult.vkMusic.length > 0 && (
-                <Group>
-                    <HorizontalTitleCoverPlaylists
-                        title="Собрано редакцией"
-                        userId={userId}
-                        playlists={fetchResult.vkMusic}
-                        showAllLink={`/audios${userId}?block=playlists&section=general`}
-                        showMore={true}
-                    />
-                </Group>
-            )}
+            <AlbumGallery
+                mode="card"
+                isLoading={isLoading}
+                title="Собрано редакцией"
+                userId={userId}
+                albums={fetchResult?.vkMusic}
+                showAllLink={`/audios${userId}?block=playlists&section=general`}
+            />
         </Content>
     );
 };

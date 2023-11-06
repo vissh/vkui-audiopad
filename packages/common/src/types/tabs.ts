@@ -41,8 +41,8 @@ export type TSelectedTabPlaylist = {
     history: TSelectedTabs[];
 };
 
-export type TSelectedTabCoverPlaylists = {
-    tab: EContentTab.COVER_PLAYLISTS;
+export type TSelectedTabAlbums = {
+    tab: EContentTab.ALBUMS;
     title: string;
     showAllLink: string;
     history: TSelectedTabs[];
@@ -50,7 +50,7 @@ export type TSelectedTabCoverPlaylists = {
 
 export type TTabWithHistory = (
     TSelectedTabPlaylist
-    | TSelectedTabCoverPlaylists
+    | TSelectedTabAlbums
 );
 
 export type TSelectedTabs = (
@@ -58,7 +58,7 @@ export type TSelectedTabs = (
     | TSelectedTabCommon
     | TSelectedTabSearch
     | TSelectedTabPlaylist
-    | TSelectedTabCoverPlaylists
+    | TSelectedTabAlbums
     | TSelectedTabArtist
 );
 

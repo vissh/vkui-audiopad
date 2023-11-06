@@ -1,1 +1,1 @@
-export { CurrentPlaylist } from "./CurrentPlaylist";
+export { CurrentPlaylist } from "./ui/CurrentPlaylist";

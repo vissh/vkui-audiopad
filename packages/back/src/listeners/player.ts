@@ -1,7 +1,7 @@
 import { baseEnums, initialState } from "@vk-audiopad/common";
 import { nextTrack } from "../actions/next";
 import { playCurrentTrack } from "../actions/repeat";
-import { fetchStartPlayback } from "../fetchers/startPlayback";
+import { fetchStartPlayback } from "../fetchers/start-playback";
 import { audioElement } from "../player";
 import { applicationState } from "../state";
 import { storage } from "../storage";

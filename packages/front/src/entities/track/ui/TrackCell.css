@@ -1,0 +1,14 @@
+.vkap_track_cell {
+}
+
+.vkap_track_cell .vkap_tooltip_icon_button {
+    display: none;
+}
+
+.vkap_track_cell:hover .vkap_tooltip_icon_button {
+    display: block;
+}
+
+.vkap_track_cell:hover .vkap_track_cell_duration {
+    display: none;
+}

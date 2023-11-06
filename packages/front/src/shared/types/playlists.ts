@@ -1,7 +1,7 @@
 import { baseTypes } from "@vk-audiopad/common";
 import { EPlaylistDataType } from "./enums";
 
-export type TCoverPlaylist = baseTypes.TTitlePlaylist & {
+export type TAlbum = baseTypes.TTitlePlaylist & {
     coverUrl: string;
     gridCoverUrls: string[];
     authorLine: string;
@@ -14,12 +14,12 @@ export type TTrackPlaylistBlock = {
     playlist: baseTypes.TTitlePlaylist;
 };
 
-export type TCoverPlaylistBlock = {
-    dataType: EPlaylistDataType.PLAYLISTS;
+export type TAlbumsBlock = {
+    dataType: EPlaylistDataType.ALBUMS;
     title: string;
     blockId: string;
-    playlists: TCoverPlaylist[];
+    albums: TAlbum[];
     showAllLink: string;
 };
 
-export type TPlaylistBlock = TTrackPlaylistBlock | TCoverPlaylistBlock;
+export type TPlaylistBlock = TTrackPlaylistBlock | TAlbumsBlock;

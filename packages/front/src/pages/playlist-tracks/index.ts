@@ -1,1 +1,1 @@
-export { PlaylistTracks } from "./PlaylistTracks";
+export { PlaylistTracks } from "./ui/PlaylistTracks";

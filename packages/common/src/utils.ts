@@ -1,4 +1,4 @@
-import { ApplicationControls, ApplicationSettings } from "./initialState";
+import { ApplicationControls, ApplicationSettings } from "./initial-state";
 
 export function* chunked(arr: any[], size: number, limit?: number) {
     let [start, end, counter] = [0, size, 0];

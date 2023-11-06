@@ -1,6 +1,6 @@
 import { utils } from "@vk-audiopad/common";
 
-export const startListiningOnInstalled = () => {
+export const startListeningOnInstalled = () => {
     // Действия при установке/обновлении расширения.
     chrome.runtime.onInstalled.addListener((details: chrome.runtime.InstalledDetails) => {
         if (details.reason === chrome.runtime.OnInstalledReason.UPDATE) {

@@ -1,0 +1,22 @@
+:root {
+    --vkap-artist-cover-height: 174px;
+}
+
+.vkap_secondary_color {
+    color: var(--vkui--color_text_secondary);
+}
+
+.vkap_link {
+    color: var(--vkui--color_text_secondary);
+    cursor: pointer;
+}
+
+.vkap_link:hover {
+    text-decoration: underline;
+}
+
+.vkap_hidden_overflow {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}

@@ -1,12 +1,12 @@
-import { addToQueue } from "../actions/addToQueue";
-import { editCurrentPlaylist } from "../actions/editCurrentPlaylist";
+import { addToQueue } from "../actions/add-to-queue";
+import { editCurrentPlaylist } from "../actions/edit-current-playlist";
 import { nextTrack, previousTrack } from "../actions/next";
-import { playNewTrack } from "../actions/playNewTrack";
-import { removeTrack } from "../actions/removeTrack";
+import { playNewTrack } from "../actions/play-new-track";
+import { removeTrack } from "../actions/remove-track";
 import { repeat } from "../actions/repeat";
 import { audioElement } from "../player";
 
-export const startListiningPopupMessages = () => {
+export const startListeningPopupMessages = () => {
     // Действия, которые приходит из popup'а.
     chrome.runtime.onMessage.addListener(async (request) => {
         const requestTypes = {

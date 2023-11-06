@@ -1,7 +1,7 @@
 import { baseEnums, baseTypes, vkFetch } from "@vk-audiopad/common";
-import { toCoverPlaylist, toTitlePlaylist } from "shared/lib/utils";
-import { TCoverPlaylist } from "shared/types";
-import { TFetchGeneralResult } from "./types";
+import { toAlbum, toTitlePlaylist } from "shared/lib/utils";
+import { TAlbum } from "shared/types";
+import { TFetchGeneralResult } from "../model/types";
 
 const vkMusicId = -147845620;
 
@@ -19,8 +19,8 @@ export const fetchGeneral = async (ownerId: string): Promise<TFetchGeneralResult
     const playlists: any[] = jsonData.payload[1][1].playlists;
 
     let myPlaylist: baseTypes.TTitlePlaylist | null = null;
-    const coverPlaylists: TCoverPlaylist[] = [];
-    const vkMusicPlaylists: TCoverPlaylist[] = [];
+    const generalAlbums: TAlbum[] = [];
+    const vkMusicAlbums: TAlbum[] = [];
 
     playlists.forEach(playlist => {
         if (playlist.list?.length) {
@@ -28,15 +28,15 @@ export const fetchGeneral = async (ownerId: string): Promise<TFetchGeneralResult
                 myPlaylist = toTitlePlaylist(playlist);
             }
         } else if (playlist.is_generated_playlist) {
-            coverPlaylists.push(toCoverPlaylist(playlist));
+            generalAlbums.push(toAlbum(playlist));
         } else if (playlist.ownerId === vkMusicId) {
-            vkMusicPlaylists.push(toCoverPlaylist(playlist));
+            vkMusicAlbums.push(toAlbum(playlist));
         }
     });
 
     return {
         playlist: myPlaylist,
-        baseOnYourTastes: coverPlaylists,
-        vkMusic: vkMusicPlaylists,
+        baseOnYourTastes: generalAlbums,
+        vkMusic: vkMusicAlbums,
     }
 };
