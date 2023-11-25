@@ -1,32 +1,32 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { fetchExplore, fetchMoreExplore } from "../api/fetchers";
-import { TFetchExploreResult, TFetchMoreExploreArgs } from "./types";
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { fetchExplore, fetchMoreExplore } from '../api/fetchers'
+import { type FetchExploreResult, type FetchMoreExploreArgs } from './types'
 
-const queryKey: ReadonlyArray<string> = ["explore"];
+const queryKey: readonly string[] = ['explore']
 
-export const useExploreData = (userId: string) => {
-    return useQuery({
-        queryKey: queryKey,
-        queryFn: () => fetchExplore(userId),
-        refetchOnWindowFocus: false,
-        refetchOnMount: false,
-        enabled: !!userId,
-        retry: 2,
-    });
-};
+export const useExploreData = (userId: string, enabled: boolean) => {
+  return useQuery({
+    queryKey,
+    queryFn: async () => await fetchExplore(userId),
+    refetchOnMount: false,
+    refetchOnWindowFocus: false,
+    enabled: userId.length > 0 && enabled,
+    retry: 2
+  })
+}
 
 export const useLoadMoreExploreDataMutation = () => {
-    const queryClient = useQueryClient();
+  const queryClient = useQueryClient()
 
-    return useMutation({
-        mutationFn: (args: TFetchMoreExploreArgs) => fetchMoreExplore(args),
-        onSuccess: (fetchResult: TFetchExploreResult): void => {
-            const previousFetchResult = queryClient.getQueryData<TFetchExploreResult>(queryKey);
-            if (previousFetchResult) {
-                fetchResult.playlistBlocks.unshift(...previousFetchResult.playlistBlocks);
-                queryClient.setQueryData(queryKey, fetchResult);
-            }
-        },
-        retry: 2,
-    });
-};
+  return useMutation({
+    mutationFn: async (args: FetchMoreExploreArgs) => await fetchMoreExplore(args),
+    onSuccess: (fetchResult: FetchExploreResult): void => {
+      const previousFetchResult = queryClient.getQueryData<FetchExploreResult>(queryKey)
+      if (previousFetchResult != null) {
+        fetchResult.blocks.unshift(...previousFetchResult.blocks)
+        queryClient.setQueryData(queryKey, fetchResult)
+      }
+    },
+    retry: 2
+  })
+}

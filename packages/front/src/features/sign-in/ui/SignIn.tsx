@@ -1,15 +1,15 @@
-import { FC } from "react";
-import { useUpdateWebToken } from "../model/hooks";
-import { Welcome } from "./Welcome";
+import { type FC } from 'react'
+import { useUpdateWebToken } from '../model/hooks'
+import { Welcome } from './Welcome'
 
-type SignInProps = {
-    children: React.ReactNode;
-};
+interface SignInProps {
+  children: React.ReactNode
+}
 
 export const SignIn: FC<SignInProps> = ({ children }) => {
-    const { data: webToken } = useUpdateWebToken();
+  const { data: webToken } = useUpdateWebToken()
 
-    const signedIn: boolean = !webToken || !webToken.error;
+  const signedIn: boolean = webToken?.error == null
 
-    return <>{signedIn ? children : <Welcome />}</>;
-};
+  return <>{signedIn ? children : <Welcome />}</>
+}

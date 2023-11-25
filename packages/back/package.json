@@ -3,13 +3,22 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "build": "npm install && tsc && ./node_modules/.bin/vite build"
+    "build": "npm install && tsc && ./node_modules/.bin/vite build",
+    "eslint:fix": "eslint --fix src"
   },
   "dependencies": {
-    "@types/chrome": "0.0.246",
     "@vk-audiopad/common": "file:../common",
-    "hls.js": "1.4.0",
+    "hls.js": "1.4.0"
+  },
+  "devDependencies": {
+    "@types/chrome": "0.0.246",
+    "@types/firefox-webext-browser": "^111.0.4",
+    "@typescript-eslint/eslint-plugin": "^6.10.0",
+    "@typescript-eslint/parser": "^6.0.0",
+    "@vitejs/plugin-react": "^4.0.3",
+    "eslint": "^8.53.0",
+    "eslint-config-standard-with-typescript": "^39.1.1",
     "typescript": "5.2.2",
-    "vite": "4.4.11"
+    "vite": "^4.4.5"
   }
 }

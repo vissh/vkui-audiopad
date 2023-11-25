@@ -1,75 +1,123 @@
-import { useSyncExternalStore } from "react";
+import { useSyncExternalStore } from 'react'
 
 interface Atom<AtomType> {
-    get: () => AtomType;
-    set: (newValue: AtomType) => void;
-    subscribe: (callback: (newValue: AtomType) => void) => () => void;
+  get: () => AtomType
+  set: (newValue: AtomType) => void
+  subscribe: (callback: (newValue: AtomType) => void) => () => void
+  mutate: (mutator: (newValue: AtomType, previousValue: AtomType) => void) => void
+  watch: (watcher: (newValue: AtomType) => void) => void
 }
 
 export const useAtom = <T>(atom: Atom<T>): [T, (newValue: T) => void] => {
-    return [useSyncExternalStore(atom.subscribe, atom.get), atom.set];
-};
+  return [useSyncExternalStore(atom.subscribe, atom.get), atom.set]
+}
 
 export const useAtomValue = <T>(atom: Atom<T>): T => {
-    return useSyncExternalStore(atom.subscribe, atom.get);
-};
-
-export const useSetAtom = <T>(atom: Atom<T>): (newValue: T) => void => {
-    return atom.set;
-};
+  return useSyncExternalStore(atom.subscribe, atom.get)
+}
 
 export const atom = <T>(initialValue: T): Atom<T> => {
-    let value = initialValue;
-    const subscribes = new Set<(newValue: T) => void>();
+  let value = initialValue
 
-    return {
-        get: () => value,
-        set: (newValue) => {
-            value = newValue;
-            subscribes.forEach(callback => callback(value));
-        },
-        subscribe: (callback) => {
-            subscribes.add(callback);
-            return () => subscribes.delete(callback);
-        },
-    };
-};
+  const subscribes = new Set<(newValue: T) => void>()
+  const mutators = new Set<(newValue: T, previousValue: T) => void>()
+  const watchers = new Set<(newValue: T) => void>()
 
-export const storageAtom = <T>(keyName: string, initialValue: T, defaultValue?: T): Atom<T> => {
-    let value = initialValue;
-    const subscribes = new Set<(newValue: T) => void>();
+  return {
+    get: () => value,
+    set: (newValue) => {
+      if (value === newValue) {
+        return
+      }
 
-    const localSet = (newValue: T | undefined) => {
-        newValue = newValue === undefined ? (defaultValue === undefined ? initialValue : defaultValue) : newValue;
+      mutators.forEach((mutator) => { mutator(newValue, value) })
 
-        if (value === newValue) {
-            return;
-        }
+      value = newValue
 
-        if (typeof newValue === "object" && JSON.stringify(value) === JSON.stringify(newValue)) {
-            return;
-        }
+      subscribes.forEach((callback) => { callback(value) })
+      watchers.forEach((watcher) => { watcher(value) })
+    },
+    subscribe: (callback) => {
+      subscribes.add(callback)
+      return () => subscribes.delete(callback)
+    },
+    mutate: (mutator) => {
+      mutators.add(mutator)
+    },
+    watch: (watcher) => {
+      watchers.add(watcher)
+    }
+  }
+}
 
-        value = newValue;
-        subscribes.forEach(callback => callback(value));
-    };
+export const storageAtom = <T>({
+  key: keyName,
+  initial: initialValue,
+  default: defaultValue,
+  compareObjects
+}: {
+  key: string
+  initial: T
+  default?: T
+  compareObjects: ((previousValue: T | undefined, newValue: T | undefined) => boolean) | false
+}
+): Atom<T> => {
+  let value = initialValue
 
-    chrome.storage.local.get(keyName, (items) => localSet(items[keyName]));
+  const subscribes = new Set<(newValue: T) => void>()
+  const mutators = new Set<(newValue: T, previousValue: T) => void>()
+  const watchers = new Set<(newValue: T) => void>()
 
-    chrome.storage.local.onChanged.addListener((changes: { [key: string]: chrome.storage.StorageChange }) => {
-        const change = changes[keyName];
-        change !== undefined && localSet(change.newValue);
-    });
+  chrome.storage.local.get(keyName, (items) => {
+    memorySet(items[keyName], true)
+  })
 
-    return {
-        get: () => value,
-        set: (newValue) => {
-            localSet(newValue);
-            chrome.storage.local.set({ [keyName]: newValue });
-        },
-        subscribe: (callback) => {
-            subscribes.add(callback);
-            return () => subscribes.delete(callback);
-        },
-    };
-};
+  chrome.storage.local.onChanged.addListener((changes: Record<string, chrome.storage.StorageChange>) => {
+    const change = changes[keyName]
+    if (change != null) {
+      memorySet(change.newValue, true)
+    }
+  })
+
+  const memorySet = (newValue: T | undefined, fromStorage: boolean): boolean => {
+    const safeNewValue = newValue ?? defaultValue ?? initialValue
+
+    if (value === safeNewValue) {
+      return false
+    }
+
+    if (fromStorage && compareObjects !== false && compareObjects(value, safeNewValue)) {
+      return false
+    }
+
+    if (safeNewValue !== defaultValue && safeNewValue !== initialValue) {
+      mutators.forEach((mutator) => { mutator(safeNewValue, value) })
+    }
+
+    value = safeNewValue
+
+    subscribes.forEach(callback => { callback(value) })
+    watchers.forEach(watcher => { watcher(value) })
+
+    return true
+  }
+
+  return {
+    get: () => value,
+    set: (newValue) => {
+      if (memorySet(newValue, false)) {
+        void chrome.storage.local.set({ [keyName]: newValue })
+      }
+    },
+    subscribe: (callback) => {
+      subscribes.add(callback)
+      return () => subscribes.delete(callback)
+    },
+    mutate: (mutator) => {
+      mutators.add(mutator)
+    },
+    watch: (watcher) => {
+      watchers.add(watcher)
+    }
+  }
+}

@@ -1,7 +1,7 @@
-import { audioElement } from "../player";
+import { audioElement } from '../player'
 
-export const onVolumeChange = (volume: number | undefined) => {
-    if (volume !== undefined) {
-        audioElement.volume = volume;
-    }
-};
+export const onVolumeChange = (volume: number | undefined): void => {
+  if (volume != null) {
+    audioElement.volume = volume
+  }
+}

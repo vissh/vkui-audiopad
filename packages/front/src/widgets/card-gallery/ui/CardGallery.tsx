@@ -1,25 +1,38 @@
-import { CardScroll } from "@vkontakte/vkui";
-import { CardCell } from "entities/card";
-import { useSetPlaylist } from "entities/navigation";
-import { FC } from "react";
-import { TAlbum } from "shared/types";
+import { CardScroll, Group, Header } from '@vkontakte/vkui'
+import { type FC } from 'react'
+import { CardCell } from '@/entities/card'
+import { openPlaylistPage } from '@/entities/content-tab'
+import { type Album } from '@/shared/types'
+import { SkeletonWrapper } from '@/shared/ui/skeleton-wrapper'
+import { CardGallerySkeleton } from './CardGallerySkeleton'
 
-type CardGalleryProps = {
-    userId: string;
-    albums: TAlbum[];
-};
+interface CardGalleryProps {
+  isLoading: boolean
+  title: string
+  userId: string
+  albums: Album[] | undefined
+}
 
-export const CardGallery: FC<CardGalleryProps> = ({ userId, albums }) => {
-    const setPlaylist = useSetPlaylist();
-
-    return (
-        <CardScroll size="s">
-            {albums.map((album) => (
-                <CardCell
-                    album={album}
-                    onClick={() => setPlaylist(userId, album)}
-                />
+export const CardGallery: FC<CardGalleryProps> = ({ isLoading, title, userId, albums = [] }) => {
+  return (
+    <SkeletonWrapper
+      mode='card'
+      isLoading={isLoading}
+      skeleton={<CardGallerySkeleton />}
+    >
+      {albums.length > 0 && (
+        <Group header={<Header>{title}</Header>}>
+          <CardScroll size='s'>
+            {albums.map((album, cardIndex) => (
+              <CardCell
+                key={cardIndex}
+                album={album}
+                onClick={() => { openPlaylistPage(userId, album) }}
+              />
             ))}
-        </CardScroll>
-    );
-};
+          </CardScroll>
+        </Group>
+      )}
+    </SkeletonWrapper>
+  )
+}

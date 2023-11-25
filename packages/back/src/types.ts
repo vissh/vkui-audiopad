@@ -1,10 +1,10 @@
-import { baseEnums, baseTypes } from "@vk-audiopad/common";
+import { type commonTypes } from '@vk-audiopad/common'
 
-export type ActionType = "next" | "prev";
+export type ActionType = 'next' | 'prev'
 
-export type TListenedData = {
-    userId: string;
-    track: baseTypes.TTrackItem;
-    listened: number;
-    endStreamReason: baseEnums.EEndOfStreamReason;
-};
+export interface TListenedData {
+  userId: string
+  track: commonTypes.TrackItem
+  listened: number
+  endStreamReason: commonTypes.EndOfStreamReason
+}

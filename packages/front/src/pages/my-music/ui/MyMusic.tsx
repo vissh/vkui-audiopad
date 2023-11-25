@@ -1,67 +1,64 @@
-import { Group } from "@vkontakte/vkui";
-import { FC } from "react";
-import { InfinityContent } from "shared/ui/infinity-content";
-import { AlbumGallery } from "widgets/album-gallery";
-import { NavigationWithSearch } from "widgets/navigation";
-import { TrackGallery } from "widgets/track-gallery";
-import { TrackList } from "widgets/track-list";
-import { useLoadMoreMyMusicTracksMutation, useMyMusicData } from "../model/hooks";
+import { Group } from '@vkontakte/vkui'
+import { type FC } from 'react'
+import { CatalogGallery } from '@/widgets/catalog-gallery'
+import { Navigation } from '@/widgets/navigation'
+import { TrackList } from '@/widgets/track-list'
+import { InfinityContent } from '@/shared/ui/infinity-content'
+import { useLoadMoreMyMusicTracksMutation, useMyMusicData } from '../model/hooks'
 
-type MyMusicProps = {
-    userId: string;
-};
+interface MyMusicProps {
+  userId: string
+  active: boolean
+}
 
-export const MyMusic: FC<MyMusicProps> = ({ userId }) => {
-    const { data: fetchResult, isLoading, error } = useMyMusicData(userId);
-    const loadMoreMutation = useLoadMoreMyMusicTracksMutation();
+export const MyMusic: FC<MyMusicProps> = ({ userId, active }) => {
+  const { data: fetchResult, isLoading, error } = useMyMusicData(userId, active)
+  const loadMoreMutation = useLoadMoreMyMusicTracksMutation()
 
-    return (
-        <InfinityContent
-            hasMore={!!fetchResult?.playlist?.hasMore}
-            loadMoreMutation={loadMoreMutation}
-            loadMoreArgs={fetchResult?.playlist}
-            error={error}
-        >
-            <Group>
-                <NavigationWithSearch />
+  const otherBlocks = isLoading ? [null, null] : (fetchResult?.otherBlocks ?? [])
 
-                <TrackGallery
-                    mode="plain"
-                    isLoading={isLoading}
-                    userId={userId}
-                    playlist={fetchResult?.recentTracksPlaylist}
-                />
-            </Group>
+  return (
+    <InfinityContent
+      display={active}
+      hasMore={(fetchResult?.lastTracksCatalogBlock?.playlist.hasMore) ?? false}
+      loadMoreMutation={loadMoreMutation}
+      loadMoreArgs={fetchResult?.lastTracksCatalogBlock?.playlist}
+      error={error}
+    >
+      <Group>
+        <Navigation />
 
-            <AlbumGallery
-                mode="card"
-                isLoading={isLoading}
-                title="Плейлисты"
-                userId={userId}
-                albums={fetchResult?.albums}
-                showAllLink={
-                    fetchResult && fetchResult.albums.length > 5
-                        ? `/audios${userId}?block=my_playlists&section=all`
-                        : undefined
-                }
-            />
+        <CatalogGallery
+          mode='plain'
+          isLoading={isLoading}
+          loadingBlock='tracks'
+          userId={userId}
+          catalogBlock={fetchResult?.firstBlock}
+        />
+      </Group>
 
-            <TrackGallery
-                mode="card"
-                isLoading={isLoading}
-                userId={userId}
-                playlist={fetchResult?.radiostationsPlaylist}
-            />
+      {otherBlocks
+        .map((catalogBlock, blockIndex) => (
+          <CatalogGallery
+            key={catalogBlock?.blockId}
+            mode='card'
+            isLoading={isLoading}
+            loadingBlock={blockIndex % 2 === 0 ? 'albums' : 'tracks'}
+            userId={userId}
+            catalogBlock={catalogBlock}
+          />
+        ))}
 
-            {fetchResult && fetchResult.playlist && fetchResult.playlist.tracks.length > 0 && (
-                <Group>
-                    <TrackList
-                        isLoading={isLoading}
-                        playlist={fetchResult.playlist}
-                        header={fetchResult.playlist.title}
-                    />
-                </Group>
-            )}
-        </InfinityContent>
-    );
-};
+      {(fetchResult?.lastTracksCatalogBlock) != null &&
+        fetchResult.lastTracksCatalogBlock.playlist.tracks.length > 0 &&
+        <Group>
+          <TrackList
+            isLoading={isLoading}
+            playlist={fetchResult.lastTracksCatalogBlock.playlist}
+            header={fetchResult.lastTracksCatalogBlock.playlist.title}
+          />
+        </Group>
+      }
+    </InfinityContent>
+  )
+}

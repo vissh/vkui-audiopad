@@ -1,1 +1,1 @@
-export { EmptyResult } from "./EmptyResult";
+export { EmptyResult } from './EmptyResult'

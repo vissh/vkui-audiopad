@@ -1,18 +1,17 @@
-import { baseEnums, baseTypes, vkFetch, vkFetchUtils } from "@vk-audiopad/common";
-import { unmaskUrl } from "./unmask";
+import { cast, commonTypes, converter, vkClient } from '@vk-audiopad/common'
+import { unmaskUrl } from './unmask'
 
-export const fetchTrackInfo = async (ownerId: string, trackId: string, accessKey: string): Promise<baseTypes.TTrackItem | null> => {
+export const fetchTrackInfo = async (ownerId: string, trackId: string, accessKey: string): Promise<commonTypes.TrackItem | null> => {
+  const resp = await vkClient.request('https://vk.com/al_audio.php?act=reload_audios', {
+    al: '1',
+    audio_ids: trackId + '_' + accessKey
+  })
 
-    const jsonData = await vkFetch("https://vk.com/al_audio.php?act=reload_audios", {
-        al: "1",
-        audio_ids: trackId + "_" + accessKey,
-    });
+  const trackInfo = cast.castToArray(vkClient.parseResponsePayload(resp, [1, 0, 0]))
+  const url = cast.castToString(trackInfo[commonTypes.AudioTupleIndex.URL])
 
-    const trackInfo: Array<any> = jsonData.payload[1][0][0];
-    if (!trackInfo) {
-        return null;
-    }
-    const track = vkFetchUtils.toTrackItem(trackInfo);
-    track.url = unmaskUrl(trackInfo[baseEnums.EAudioTupleIndex.URL], ownerId);
-    return track;
-};
+  const track = converter.toTrackItem(trackInfo)
+  track.url = unmaskUrl(url, ownerId)
+
+  return track
+}

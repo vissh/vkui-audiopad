@@ -1,19 +1,18 @@
-import { Icon28PauseCircle, Icon28PlayCircle } from "@vkontakte/icons";
-import { IconButton } from "@vkontakte/vkui";
-import { FC } from "react";
-import { useAtom } from "shared/lib/atom";
-import { playedAtom } from "shared/model/storage-atoms";
+import { Icon28PauseCircle, Icon28PlayCircle } from '@vkontakte/icons'
+import { IconButton } from '@vkontakte/vkui'
+import { type FC } from 'react'
+import { setPlayed, usePlayed } from '@/entities/active-track'
 
 export const PlayPauseButton: FC = () => {
-    const [played, setPlayed] = useAtom(playedAtom);
+  const played = usePlayed()
 
-    return (
-        <IconButton
-            hasHover={false}
-            onClick={() => setPlayed(!played)}
-            style={{ height: 48 }}
-        >
-            {played ? <Icon28PauseCircle /> : <Icon28PlayCircle />}
-        </IconButton>
-    );
-};
+  return (
+    <IconButton
+      hasHover={false}
+      onClick={() => { setPlayed(!played) }}
+      style={{ height: 48 }}
+    >
+      {played ? <Icon28PauseCircle /> : <Icon28PlayCircle />}
+    </IconButton>
+  )
+}

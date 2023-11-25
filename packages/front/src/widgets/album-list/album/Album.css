@@ -1,0 +1,7 @@
+.vkap_cover_pl_act_btn {
+  color: var(--white);
+}
+
+.vkap_cover_pl_act_btn:hover {
+  color: var(--vkui--color_text_secondary);
+}

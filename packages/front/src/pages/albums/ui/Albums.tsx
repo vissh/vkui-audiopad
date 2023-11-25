@@ -1,66 +1,64 @@
-import { Group, Spacing } from "@vkontakte/vkui";
-import { FC } from "react";
-import { EPlaylistDataType, TAlbumsBlock } from "shared/types";
-import { InfinityContent } from "shared/ui/infinity-content";
-import { AlbumList } from "widgets/album-list";
-import { CompositePlaylist } from "widgets/composite-playlist";
-import { NavigationWithSearch } from "widgets/navigation";
-import { useAlbumsData, useLoadMoreAlbumsDataMutation } from "../model/hooks";
+import { Group, Spacing } from '@vkontakte/vkui'
+import { type FC } from 'react'
+import { AlbumList } from '@/widgets/album-list'
+import { CatalogGallery } from '@/widgets/catalog-gallery'
+import { Navigation } from '@/widgets/navigation'
+import { isAlbumsCatalogBlock } from '@/shared/lib/catalog-block'
+import { InfinityContent } from '@/shared/ui/infinity-content'
+import { useAlbumsData, useLoadMoreAlbumsDataMutation } from '../model/hooks'
 
-type AlbumsProps = {
-    userId: string;
-    showAllLink: string;
-};
+interface AlbumsProps {
+  userId: string
+  showAllLink: string
+}
 
 export const Albums: FC<AlbumsProps> = ({ userId, showAllLink }) => {
-    const { data: fetchResult, isLoading, error } = useAlbumsData(showAllLink);
-    const loadMoreMutation = useLoadMoreAlbumsDataMutation(showAllLink);
+  const { data: fetchResult, isLoading, error } = useAlbumsData(showAllLink)
+  const loadMoreMutation = useLoadMoreAlbumsDataMutation(showAllLink)
 
-    const albumBlocks = (fetchResult?.playlistBlocks || []).filter(
-        (pb): pb is TAlbumsBlock => pb.dataType === EPlaylistDataType.ALBUMS,
-    );
-    const firstAlbumBlock = albumBlocks.length > 0 ? albumBlocks[0] : null;
-    const otherAlbumBlocks = albumBlocks.length > 1 ? albumBlocks.slice(1) : [];
+  const [firstBlock, ...otherBlocks] = fetchResult?.blocks ?? [null, null, null]
+  const albumsBlock = isAlbumsCatalogBlock(firstBlock) && otherBlocks.length === 0 ? firstBlock : null
 
-    return (
-        <InfinityContent
-            hasMore={!!((fetchResult && fetchResult.nextFrom) || "")}
-            loadMoreMutation={loadMoreMutation}
-            loadMoreArgs={{ nextFrom: fetchResult?.nextFrom, sectionId: fetchResult?.sectionId }}
-            error={error}
-        >
-            <Group>
-                <NavigationWithSearch />
+  return (
+    <InfinityContent
+      display={true}
+      hasMore={(fetchResult?.nextFrom ?? '').length > 0}
+      loadMoreMutation={loadMoreMutation}
+      loadMoreArgs={{ nextFrom: fetchResult?.nextFrom, sectionId: fetchResult?.sectionId }}
+      error={error}
+    >
+      <Group>
+        <Navigation />
 
-                {isLoading || albumBlocks.length === 1 ? (
-                    <>
-                        <Spacing />
-                        <AlbumList
-                            isLoading={isLoading}
-                            userId={userId}
-                            albums={firstAlbumBlock?.albums}
-                        />
-                    </>
-                ) : (
-                    <CompositePlaylist
-                        mode="plain"
-                        isLoading={isLoading}
-                        loadingBlock="albums"
-                        userId={userId}
-                        playlistBlock={firstAlbumBlock || undefined}
-                    />
-                )}
-            </Group>
+        {isLoading || albumsBlock != null
+          ? <>
+            <Spacing />
+            <AlbumList
+              isLoading={isLoading}
+              userId={userId}
+              albums={albumsBlock?.albums}
+            />
+          </>
+          : <CatalogGallery
+            mode='plain'
+            isLoading={isLoading}
+            loadingBlock='albums'
+            userId={userId}
+            catalogBlock={firstBlock}
+          />
+        }
+      </Group>
 
-            {otherAlbumBlocks.map((albumBlock) => (
-                <CompositePlaylist
-                    mode="card"
-                    isLoading={isLoading}
-                    loadingBlock="albums"
-                    userId={userId}
-                    playlistBlock={albumBlock}
-                />
-            ))}
-        </InfinityContent>
-    );
-};
+      {otherBlocks.map((catalogBlock) => (
+        <CatalogGallery
+          key={catalogBlock?.blockId}
+          mode='card'
+          isLoading={isLoading}
+          loadingBlock='albums'
+          userId={userId}
+          catalogBlock={catalogBlock}
+        />
+      ))}
+    </InfinityContent>
+  )
+}

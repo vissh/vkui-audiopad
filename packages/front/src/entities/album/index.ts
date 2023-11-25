@@ -1,1 +1,1 @@
-export { AlbumCell } from "./ui/AlbumCell";
+export { AlbumCell } from './ui/AlbumCell'

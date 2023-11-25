@@ -1,65 +1,67 @@
-import { EContentTab, EDurationMode, ERepeat, ETheme } from "./types/enums";
 import {
-    TApplicationActiveTrackState,
-    TApplicationControlsState,
-    TApplicationCurrentTimeState,
-    TApplicationPlaylistSystemState,
-    TApplicationSelectedTabState,
-    TApplicationSettingsState,
-    TApplicationState,
-    TApplicationUserState,
-} from "./types/state";
+  ContentTab,
+  DurationMode,
+  RepeatMode,
+  Theme,
+  type ApplicationActiveTrackState,
+  type ApplicationControlsState,
+  type ApplicationCurrentTimeState,
+  type ApplicationPlaylistSystemState,
+  type ApplicationSelectedTabState,
+  type ApplicationSettingsState,
+  type ApplicationState,
+  type ApplicationUserState
+} from './types'
 
+export const ApplicationControls: ApplicationControlsState = {
+  volume: 0.5,
+  shuffle: false,
+  repeat: RepeatMode.NONE,
+  durationMode: DurationMode.TIME_PASSED
+}
 
-export const ApplicationControls: TApplicationControlsState = {
-    volume: 0.5,
-    shuffle: false,
-    repeat: ERepeat.NONE,
-    durationMode: EDurationMode.TIME_PASSED,
-};
+export const ApplicationSettings: ApplicationSettingsState = {
+  theme: Theme.SYSTEM
+}
 
-export const ApplicationSettings: TApplicationSettingsState = {
-    theme: ETheme.SYSTEM,
-};
+export const ApplicationActiveTrack: ApplicationActiveTrackState = {
+  played: false,
+  activeTrack: null,
+  duration: 0,
+  currentPlaylist: null
+}
 
-export const ApplicationActiveTrack: TApplicationActiveTrackState = {
-    played: false,
-    activeTrack: null,
-    duration: 0,
-    currentPlaylist: null,
-};
+export const CurrentTime: ApplicationCurrentTimeState = {
+  currentTime: 0
+}
 
-export const CurrentTime: TApplicationCurrentTimeState = {
-    currentTime: 0,
-};
+export const PlaylistSystem: ApplicationPlaylistSystemState = {
+  activeTrackIndex: -1,
+  audiosIds: [],
+  originalAudiosIds: [],
+  hlsDebug: false
+}
 
-export const PlaylistSystem: TApplicationPlaylistSystemState = {
-    activeTrackIndex: -1,
-    audiosIds: [],
-    originalAudiosIds: [],
-    hlsDebug: false,
-};
+export const User: ApplicationUserState = {
+  userId: '',
+  webToken: null,
+  deviceId: ''
+}
 
-export const User: TApplicationUserState = {
-    userId: "",
-    webToken: null,
-    deviceId: "",
-};
+export const InitialSelectedTab: ApplicationSelectedTabState = {
+  selectedTab: { tab: ContentTab.UNKNOWN }
+}
 
-export const InitialSelectedTab: TApplicationSelectedTabState = {
-    selectedTab: { tab: EContentTab.UNKNOWN },
-};
+export const DefaultSelectedTab: ApplicationSelectedTabState = {
+  selectedTab: { tab: ContentTab.MY_MUSIC }
+}
 
-export const DefaultSelectedTab: TApplicationSelectedTabState = {
-    selectedTab: { tab: EContentTab.MY_MUSIC },
-};
-
-export const Application: TApplicationState = {
-    ...ApplicationControls,
-    ...ApplicationSettings,
-    ...ApplicationActiveTrack,
-    ...CurrentTime,
-    ...PlaylistSystem,
-    ...User,
-    ...DefaultSelectedTab,
-};
+export const Application: ApplicationState = {
+  ...ApplicationControls,
+  ...ApplicationSettings,
+  ...ApplicationActiveTrack,
+  ...CurrentTime,
+  ...PlaylistSystem,
+  ...User,
+  ...DefaultSelectedTab
+}

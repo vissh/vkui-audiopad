@@ -1,21 +1,18 @@
-import { baseTypes } from "@vk-audiopad/common";
-import { useSetArtist, useSetSearch } from "entities/navigation";
-import { FC } from "react";
-import { ArtistTitle } from "shared/ui/artist-title";
+import { type commonTypes } from '@vk-audiopad/common'
+import { type FC } from 'react'
+import { openArtistPage, openSearchPage } from '@/entities/content-tab'
+import { ArtistTitle } from '@/shared/ui/artist-title'
 
-type SearchArtistProps = {
-    track: baseTypes.TTrackItem;
-};
+interface SearchArtistProps {
+  track: commonTypes.TrackItem
+}
 
 export const SearchArtist: FC<SearchArtistProps> = ({ track }) => {
-    const setArtist = useSetArtist();
-    const setSearch = useSetSearch();
-
-    return (
-        <ArtistTitle
-            track={track}
-            onSearch={(value) => setSearch(value)}
-            onArtist={(artist) => setArtist(artist)}
-        />
-    );
-};
+  return (
+    <ArtistTitle
+      track={track}
+      onSearch={openSearchPage}
+      onArtist={openArtistPage}
+    />
+  )
+}

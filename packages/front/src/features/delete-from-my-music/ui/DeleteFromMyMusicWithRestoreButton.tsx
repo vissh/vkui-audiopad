@@ -1,27 +1,28 @@
-import { baseTypes } from "@vk-audiopad/common";
-import { Icon20Cancel } from "@vkontakte/icons";
-import { FC } from "react";
-import { addDeletedTrack } from "shared/lib/tracks";
-import { TooltipIconButton } from "shared/ui/tooltip-icon-button";
-import { vkApiDeleteWithRestore } from "../api/delete";
+import { type commonTypes } from '@vk-audiopad/common'
+import { Icon20Cancel } from '@vkontakte/icons'
+import { type FC } from 'react'
+import { TooltipIconButton } from '@/shared/ui/tooltip-icon-button'
+import { vkApiDeleteWithRestore } from '../api/delete'
 
-type DeleteFromMyMusicWithRestoreButtonProps = {
-    track: baseTypes.TTrackItem;
-    onAfterDelete: () => void;
-};
+interface DeleteFromMyMusicWithRestoreButtonProps {
+  track: commonTypes.TrackItem
+  onAfterDelete: () => void
+}
 
 export const DeleteFromMyMusicWithRestoreButton: FC<DeleteFromMyMusicWithRestoreButtonProps> = ({
-    track,
-    onAfterDelete,
+  track,
+  onAfterDelete
 }) => {
-    return (
-        <TooltipIconButton
-            text="Удалить аудиозапись"
-            icon={Icon20Cancel}
-            onClick={async () => {
-                await vkApiDeleteWithRestore(track);
-                onAfterDelete();
-            }}
-        />
-    );
-};
+  const deleteFromMyMusic = async () => {
+    await vkApiDeleteWithRestore(track)
+    onAfterDelete()
+  }
+
+  return (
+    <TooltipIconButton
+      text='Удалить аудиозапись'
+      icon={Icon20Cancel}
+      onClick={() => { void deleteFromMyMusic() }}
+    />
+  )
+}

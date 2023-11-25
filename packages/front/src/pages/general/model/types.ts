@@ -1,8 +1,8 @@
-import { baseTypes } from "@vk-audiopad/common";
-import { TAlbum } from "shared/types";
+import { type commonTypes } from '@vk-audiopad/common'
+import { type Album } from '@/shared/types'
 
-export type TFetchGeneralResult = {
-    playlist: baseTypes.TTitlePlaylist | null;
-    baseOnYourTastes: TAlbum[];
-    vkMusic: TAlbum[];
-};
+export interface FetchGeneralResult {
+  playlist: commonTypes.Playlist | null
+  baseOnYourTastes: Album[]
+  vkMusic: Album[]
+}

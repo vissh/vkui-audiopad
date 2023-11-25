@@ -1,1 +1,1 @@
-export { Duration } from "./Duration";
+export { Duration } from './Duration'

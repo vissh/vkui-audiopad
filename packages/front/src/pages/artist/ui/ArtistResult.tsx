@@ -1,59 +1,56 @@
-import { Group } from "@vkontakte/vkui";
-import { Navigation } from "entities/navigation";
-import { FC } from "react";
-import { ArtistCover } from "shared/ui/artist-cover";
-import { Content } from "shared/ui/content";
-import { EmptyResult } from "shared/ui/empty-result";
-import { CompositePlaylist } from "widgets/composite-playlist";
-import { useArtistData } from "../model/hooks";
+import { Group } from '@vkontakte/vkui'
+import { type FC } from 'react'
+import { CatalogGallery } from '@/widgets/catalog-gallery'
+import { Navigation } from '@/widgets/navigation'
+import { ArtistCover } from '@/shared/ui/artist-cover'
+import { Content } from '@/shared/ui/content'
+import { EmptyResult } from '@/shared/ui/empty-result'
+import { useArtistData } from '../model/hooks'
 
-type ArtistResultProps = {
-    userId: string;
-    artistId: string;
-    artistName: string;
-};
+interface ArtistResultProps {
+  userId: string
+  artistId: string
+  artistName: string
+}
 
 export const ArtistResult: FC<ArtistResultProps> = ({ userId, artistId, artistName }) => {
-    const { data: fetchResult, isLoading, error } = useArtistData(userId, artistId);
+  const { data: fetchResult, isLoading, error } = useArtistData(userId, artistId)
 
-    const firstPlaylistBlock =
-        fetchResult &&
-        !!fetchResult.playlistBlocks &&
-        fetchResult.playlistBlocks.length > 0 &&
-        fetchResult.playlistBlocks[0];
+  const [firstBlock, ...otherBlocks] = fetchResult?.blocks ?? [null, null, null]
 
-    const otherPlaylistsBlocks = fetchResult ? fetchResult.playlistBlocks.slice(1) : [undefined, undefined];
+  return (
+    <Content
+      display={true}
+      error={error}>
+      <Group>
+        <Navigation>
+          <ArtistCover
+            title={isLoading ? '' : artistName}
+            backgroundImage={fetchResult?.backgroundImage ?? ''}
+          />
+        </Navigation>
 
-    return (
-        <Content error={error}>
-            <Group>
-                <Navigation>
-                    <ArtistCover
-                        title={isLoading ? "" : artistName}
-                        backgroundImage={fetchResult?.backgroundImage || ""}
-                    />
-                </Navigation>
+        <CatalogGallery
+          mode='plain'
+          isLoading={isLoading}
+          loadingBlock='tracks'
+          userId={userId}
+          catalogBlock={firstBlock}
+        />
 
-                <CompositePlaylist
-                    mode="plain"
-                    isLoading={isLoading}
-                    loadingBlock="tracks"
-                    userId={userId}
-                    playlistBlock={firstPlaylistBlock || undefined}
-                />
+        {!isLoading && firstBlock == null && <EmptyResult />}
+      </Group>
 
-                {!isLoading && !firstPlaylistBlock && <EmptyResult />}
-            </Group>
-
-            {otherPlaylistsBlocks.map((playlistBlock) => (
-                <CompositePlaylist
-                    mode="card"
-                    isLoading={isLoading}
-                    loadingBlock="albums"
-                    userId={userId}
-                    playlistBlock={playlistBlock}
-                />
-            ))}
-        </Content>
-    );
-};
+      {otherBlocks.map((catalogBlock) => (
+        <CatalogGallery
+          key={catalogBlock?.blockId}
+          mode='card'
+          isLoading={isLoading}
+          loadingBlock='albums'
+          userId={userId}
+          catalogBlock={catalogBlock}
+        />
+      ))}
+    </Content>
+  )
+}

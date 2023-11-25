@@ -1,9 +1,7 @@
-import { baseTypes } from "@vk-audiopad/common";
-import { TAlbum } from "shared/types";
+import { type CatalogBlock, type TracksCatalogBlock } from '@/shared/types'
 
-export type TFetchMyMusicResult = {
-    playlist: baseTypes.TTitlePlaylist | null;
-    recentTracksPlaylist: baseTypes.TTitlePlaylist | null;
-    radiostationsPlaylist: baseTypes.TTitlePlaylist | null;
-    albums: TAlbum[];
-};
+export interface FetchMyMusicResult {
+  firstBlock: CatalogBlock | null
+  otherBlocks: CatalogBlock[]
+  lastTracksCatalogBlock: TracksCatalogBlock | null
+}

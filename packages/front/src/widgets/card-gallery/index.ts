@@ -1,1 +1,1 @@
-export { WrappedCardGallery as CardGallery } from "./ui/WrappedCardGallery";
+export { CardGallery } from './ui/CardGallery'

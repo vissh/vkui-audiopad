@@ -1,1 +1,1 @@
-export { InfinityContent } from "./InfiniteContent";
+export { InfinityContent } from './InfiniteContent'

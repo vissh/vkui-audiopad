@@ -1,53 +1,51 @@
-import { baseEnums, baseTypes, utils } from "@vk-audiopad/common";
-import { fetchListenedData } from "./fetchers/listened-data";
-import { audioElement } from "./player";
-import { applicationState } from "./state";
-import { ActionType, TListenedData } from "./types";
+import { commonTypes, commonUtils } from '@vk-audiopad/common'
+import { fetchListenedData } from './fetchers/listened-data'
+import { audioElement } from './player'
+import { applicationState } from './state'
+import { type ActionType, type TListenedData } from './types'
 
-export const shuffle = (array: Array<baseTypes.TAudioTuple>): Array<baseTypes.TAudioTuple> => {
-    const result = [...array];
-    for (var i = result.length - 1; i > 0; i--) {
-        var j = Math.floor(Math.random() * (i + 1));
-        var temp = result[i];
-        result[i] = result[j];
-        result[j] = temp;
+export const shuffle = (array: commonTypes.AudioTuple[]): commonTypes.AudioTuple[] => {
+  const result = [...array]
+  for (let i = result.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1))
+    const temp = result[i]
+    result[i] = result[j]
+    result[j] = temp
+  }
+  return result
+}
+
+export const sendListenedData = (endStreamReason: commonTypes.EndOfStreamReason): void => {
+  if ((applicationState.activeTrack != null) && !((applicationState.currentPlaylist?.isRadio) ?? false)) {
+    const listenedData: TListenedData = {
+      userId: applicationState.userId,
+      track: applicationState.activeTrack,
+      listened: Math.floor(audioElement.currentTime),
+      endStreamReason
     }
-    return result;
-};
+    setTimeout(async () => { await fetchListenedData(listenedData) }, 10)
+  }
+}
 
-export const sendListenedData = (endStreamReason: baseEnums.EEndOfStreamReason) => {
-    if (applicationState.activeTrack && !applicationState.currentPlaylist?.isRadio) {
-        const listenedData: TListenedData = {
-            userId: applicationState.userId,
-            track: applicationState.activeTrack,
-            listened: Math.floor(audioElement.currentTime),
-            endStreamReason: endStreamReason,
-        };
-        setTimeout(async () => await fetchListenedData(listenedData), 10);
-    }
-};
+export const setBadgeText = (durationMode: commonTypes.DurationMode): void => {
+  const timeLeft = durationMode === commonTypes.DurationMode.TIME_LEFT
+  const [duration, currentTime] = [audioElement.duration ?? 0, Math.floor(audioElement.currentTime)]
 
-export const setBadgeText = (durationMode: baseEnums.EDurationMode) => {
-    const timeLeft = durationMode === baseEnums.EDurationMode.TIME_LEFT;
-    const [duration, currentTime] = [audioElement.duration || 0, Math.floor(audioElement.currentTime)];
+  if ((duration !== 0) && duration !== Infinity) {
+    const time = timeLeft ? duration - currentTime : currentTime
+    const value = commonUtils.toHHMMSS(time)
+    void chrome.browserAction.setBadgeText({ text: timeLeft ? '-' + value : value })
+  } else if (duration === Infinity) {
+    // radio
+    void chrome.browserAction.setBadgeText({ text: commonUtils.toHHMMSS(currentTime) })
+  }
+}
 
-    if (duration && duration !== Infinity) {
-        const time = timeLeft ? duration - currentTime : currentTime;
-        const value = utils.toHHMMSS(time);
-        chrome.browserAction.setBadgeText({ text: timeLeft ? "-" + value : value });
-    } else if (duration === Infinity) {
-        // radio
-        if (applicationState) {
-            chrome.browserAction.setBadgeText({ text: utils.toHHMMSS(currentTime) });
-        }
-    }
-};
-
-export const createAudiosIds = (tracks: baseTypes.TTrackItem[]): Array<baseTypes.TAudioTuple> => {
-    return tracks.map(track => [track.id, track.accessKey]);
-};
+export const createAudiosIds = (tracks: commonTypes.TrackItem[]): commonTypes.AudioTuple[] => {
+  return tracks.map(track => [track.id, track.accessKey])
+}
 
 export const getNewIndex = (action: ActionType, index: number, length: number): number => {
-    const value = action === "next" ? (index + 1) % length : (index || length) - 1;
-    return value < 0 ? 0 : value;
-};
+  const value = action === 'next' ? (index + 1) % length : (index === 0 ? length : index) - 1
+  return value < 0 ? 0 : value
+}

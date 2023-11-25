@@ -1,1 +1,1 @@
-export { Albums } from "./ui/Albums";
+export { Albums } from './ui/Albums'

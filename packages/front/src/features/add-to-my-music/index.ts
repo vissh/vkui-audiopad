@@ -1,2 +1,1 @@
-export { AddToMyMusicButton } from "./ui/AddToMyMusicButton";
-
+export { AddToMyMusicButton } from './ui/AddToMyMusicButton'

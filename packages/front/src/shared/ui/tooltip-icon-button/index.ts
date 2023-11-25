@@ -1,1 +1,1 @@
-export { TooltipIconButton } from "./TooltipIconButton";
+export { TooltipIconButton } from './TooltipIconButton'

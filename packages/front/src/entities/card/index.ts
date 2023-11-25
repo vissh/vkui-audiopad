@@ -1,1 +1,1 @@
-export { CardCell } from "./ui/CardCell";
+export { CardCell } from './ui/CardCell'

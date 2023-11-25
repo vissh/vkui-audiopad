@@ -1,1 +1,1 @@
-export { ArtistTitle } from "./ArtistTitle";
+export { ArtistTitle } from './ArtistTitle'

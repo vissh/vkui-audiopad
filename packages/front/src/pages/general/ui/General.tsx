@@ -1,47 +1,51 @@
-import { Group } from "@vkontakte/vkui";
-import { FC } from "react";
-import { Content } from "shared/ui/content";
-import { AlbumGallery } from "widgets/album-gallery";
-import { CardGallery } from "widgets/card-gallery";
-import { NavigationWithSearch } from "widgets/navigation";
-import { TrackGallery } from "widgets/track-gallery";
-import { useGeneralData } from "../model/hooks";
+import { Group } from '@vkontakte/vkui'
+import { type FC } from 'react'
+import { AlbumGallery } from '@/widgets/album-list'
+import { CardGallery } from '@/widgets/card-gallery'
+import { Navigation } from '@/widgets/navigation'
+import { TrackGallery } from '@/widgets/track-list'
+import { Content } from '@/shared/ui/content'
+import { useGeneralData } from '../model/hooks'
 
-type GeneralProps = {
-    userId: string;
-};
+interface GeneralProps {
+  userId: string
+  active: boolean
+}
 
-export const General: FC<GeneralProps> = ({ userId }) => {
-    const { data: fetchResult, isLoading, error } = useGeneralData(userId);
+export const General: FC<GeneralProps> = ({ userId, active }) => {
+  const { data: fetchResult, isLoading, error } = useGeneralData(userId, active)
 
-    return (
-        <Content error={error}>
-            <Group>
-                <NavigationWithSearch />
+  return (
+    <Content
+      display={active}
+      error={error}
+    >
+      <Group>
+        <Navigation />
 
-                <TrackGallery
-                    mode="plain"
-                    isLoading={isLoading}
-                    userId={userId}
-                    playlist={fetchResult?.playlist}
-                />
-            </Group>
+        <TrackGallery
+          mode='plain'
+          isLoading={isLoading}
+          userId={userId}
+          playlist={fetchResult?.playlist}
+        />
+      </Group>
 
-            <CardGallery
-                isLoading={isLoading}
-                title="Собрано алгоритмами"
-                userId={userId}
-                albums={fetchResult?.baseOnYourTastes}
-            />
+      <CardGallery
+        isLoading={isLoading}
+        title='Собрано алгоритмами'
+        userId={userId}
+        albums={fetchResult?.baseOnYourTastes}
+      />
 
-            <AlbumGallery
-                mode="card"
-                isLoading={isLoading}
-                title="Собрано редакцией"
-                userId={userId}
-                albums={fetchResult?.vkMusic}
-                showAllLink={`/audios${userId}?block=playlists&section=general`}
-            />
-        </Content>
-    );
-};
+      <AlbumGallery
+        mode='card'
+        isLoading={isLoading}
+        title='Собрано редакцией'
+        userId={userId}
+        albums={fetchResult?.vkMusic}
+        showAllLink={`/audios${userId}?block=playlists&section=general`}
+      />
+    </Content>
+  )
+}

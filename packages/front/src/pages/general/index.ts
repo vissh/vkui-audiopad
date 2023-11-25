@@ -1,1 +1,1 @@
-export { General } from "./ui/General";
+export { General } from './ui/General'

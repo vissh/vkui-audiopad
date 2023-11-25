@@ -1,24 +1,24 @@
 .vkap_artist_cover_gradient {
-    min-height: var(--vkap-artist-cover-height);
-    margin-left: -8px;
-    margin-right: -8px;
+  min-height: var(--vkap-artist-cover-height);
+  margin-left: -8px;
+  margin-right: -8px;
 }
 
 .vkap_artist_cover_div {
-    padding: 16px 20px;
-    box-sizing: border-box;
-    justify-content: space-between;
-    align-items: flex-end;
-    display: flex;
-    position: relative;
-    min-height: var(--vkap-artist-cover-height);
+  padding: 16px 20px;
+  box-sizing: border-box;
+  justify-content: space-between;
+  align-items: flex-end;
+  display: flex;
+  position: relative;
+  min-height: var(--vkap-artist-cover-height);
 }
 
 .vkap_artist_code_title {
-    margin-bottom: 8px;
-    margin-top: 20px;
-    max-height: 72px;
-    font-size: 32px;
-    line-height: 36px;
-    color: white;
+  margin-bottom: 8px;
+  margin-top: 20px;
+  max-height: 72px;
+  font-size: 32px;
+  line-height: 36px;
+  color: white;
 }

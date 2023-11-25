@@ -1,1 +1,1 @@
-export { vkApiFollow } from "./api/follow";
+export { FollowIcon } from './ui/FollowIcon'

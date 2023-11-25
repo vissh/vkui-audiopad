@@ -1,47 +1,49 @@
-import { Group } from "@vkontakte/vkui";
-import { FC } from "react";
-import { Content } from "shared/ui/content";
-import { EmptyResult } from "shared/ui/empty-result";
-import { CompositePlaylist } from "widgets/composite-playlist";
-import { NavigationWithSearch } from "widgets/navigation";
-import { useSearchData } from "../model/hooks";
+import { Group } from '@vkontakte/vkui'
+import { type FC } from 'react'
+import { CatalogGallery } from '@/widgets/catalog-gallery'
+import { Navigation } from '@/widgets/navigation'
+import { Content } from '@/shared/ui/content'
+import { EmptyResult } from '@/shared/ui/empty-result'
+import { useSearchData } from '../model/hooks'
 
-type SearchResultProps = {
-    userId: string;
-    searchValue: string;
-};
+interface SearchResultProps {
+  userId: string
+  searchValue: string
+}
 
 export const SearchResult: FC<SearchResultProps> = ({ userId, searchValue }) => {
-    const { data: playlistBlocks, isLoading, error } = useSearchData(userId, searchValue);
+  const { data: blocks, isLoading, error } = useSearchData(userId, searchValue)
 
-    const firstPlaylistBlock = !!playlistBlocks && playlistBlocks.length > 0 && playlistBlocks[0];
-    const otherPlaylistsBlocks = playlistBlocks ? playlistBlocks.slice(1) : [undefined, undefined];
+  const [firstBlock, ...otherBlocks] = blocks ?? [null, null, null]
 
-    return (
-        <Content error={error}>
-            <Group>
-                <NavigationWithSearch />
+  return (
+    <Content
+      display={true}
+      error={error}>
+      <Group>
+        <Navigation />
 
-                <CompositePlaylist
-                    mode="plain"
-                    isLoading={isLoading}
-                    loadingBlock="tracks"
-                    userId={userId}
-                    playlistBlock={firstPlaylistBlock || undefined}
-                />
+        <CatalogGallery
+          mode='plain'
+          isLoading={isLoading}
+          loadingBlock='tracks'
+          userId={userId}
+          catalogBlock={firstBlock}
+        />
 
-                {!isLoading && !firstPlaylistBlock && <EmptyResult />}
-            </Group>
+        {!isLoading && firstBlock == null && <EmptyResult />}
+      </Group>
 
-            {otherPlaylistsBlocks.map((playlistBlock) => (
-                <CompositePlaylist
-                    mode="card"
-                    isLoading={isLoading}
-                    loadingBlock="albums"
-                    userId={userId}
-                    playlistBlock={playlistBlock}
-                />
-            ))}
-        </Content>
-    );
-};
+      {otherBlocks.map((catalogBlock) => (
+        <CatalogGallery
+          key={catalogBlock?.blockId}
+          mode='card'
+          isLoading={isLoading}
+          loadingBlock='albums'
+          userId={userId}
+          catalogBlock={catalogBlock}
+        />
+      ))}
+    </Content>
+  )
+}

@@ -1,4 +1,4 @@
 export enum EModalPage {
-    INFO = "info",
-    ARTISTS = "artists",
+  INFO = 'info',
+  ARTISTS = 'artists',
 }

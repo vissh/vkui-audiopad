@@ -1,1 +1,1 @@
-export { PlayPauseIcon } from "./ui/PlayPauseIcon";
+export { PlayPauseIcon } from './ui/PlayPauseIcon'

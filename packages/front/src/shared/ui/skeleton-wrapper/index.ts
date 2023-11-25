@@ -1,1 +1,1 @@
-export { SkeletonWrapper } from "./SkeletonWrapper";
+export { SkeletonWrapper } from './SkeletonWrapper'

@@ -1,1 +1,1 @@
-export { MyMusic } from "./ui/MyMusic";
+export { MyMusic } from './ui/MyMusic'

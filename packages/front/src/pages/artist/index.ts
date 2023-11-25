@@ -1,1 +1,1 @@
-export { ArtistResult } from "./ui/ArtistResult";
+export { ArtistResult } from './ui/ArtistResult'

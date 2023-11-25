@@ -1,6 +1,6 @@
-import { TPlaylistBlock } from "shared/types";
+import { type CatalogBlock } from '@/shared/types'
 
-export type FetchArtistResult = {
-    backgroundImage: string;
-    playlistBlocks: TPlaylistBlock[];
-};
+export interface FetchArtistResult {
+  backgroundImage: string
+  blocks: CatalogBlock[]
+}

@@ -1,4 +1,4 @@
-export type TFetchSearchArgs = {
-    ownerId: string;
-    value: string;
-};
+export interface FetchSearchArgs {
+  ownerId: string
+  value: string
+}

@@ -1,36 +1,36 @@
-import { vkFetch } from "@vk-audiopad/common";
-import { getPlaylistBlocks } from "shared/lib/parsers/playlist-block";
-import { TFetchExploreResult, TFetchMoreExploreArgs } from "../model/types";
+import { cast, vkClient, type commonTypes } from '@vk-audiopad/common'
+import { getCatalogBlocks } from '@/shared/lib/catalog-block'
+import { type FetchExploreResult, type FetchMoreExploreArgs } from '../model/types'
 
-export const fetchExplore = async (ownerId: string): Promise<TFetchExploreResult> => {
-    const jsonData = await vkFetch("https://vk.com/al_audio.php?act=section", {
-        act: "section",
-        al: "1",
-        claim: "0",
-        is_layer: "0",
-        owner_id: ownerId,
-        section: "explore",
-    });
+export const fetchExplore = async (ownerId: string): Promise<FetchExploreResult> => {
+  const resp = await vkClient.request('https://vk.com/al_audio.php?act=section', {
+    act: 'section',
+    al: '1',
+    claim: '0',
+    is_layer: '0',
+    owner_id: ownerId,
+    section: 'explore'
+  })
 
-    return prepareResult(jsonData);
-};
+  return prepareResult(resp)
+}
 
-export const fetchMoreExplore = async ({ sectionId, nextFrom }: TFetchMoreExploreArgs): Promise<TFetchExploreResult> => {
-    const jsonData = await vkFetch("https://vk.com/al_audio.php?act=load_catalog_section", {
-        al: "1",
-        section_id: sectionId,
-        start_from: nextFrom,
-    });
+export const fetchMoreExplore = async ({ sectionId, nextFrom }: FetchMoreExploreArgs): Promise<FetchExploreResult> => {
+  const resp = await vkClient.request('https://vk.com/al_audio.php?act=load_catalog_section', {
+    al: '1',
+    section_id: sectionId,
+    start_from: nextFrom
+  })
 
-    return prepareResult(jsonData);
-};
+  return prepareResult(resp)
+}
 
-const prepareResult = (jsonData: any): TFetchExploreResult => {
-    const payload = jsonData.payload[1][1];
+const prepareResult = (resp: commonTypes.VKApiResponse): FetchExploreResult => {
+  const sectionInfo = cast.castToJSONObject(vkClient.parseResponsePayload(resp, [1, 1]))
 
-    return {
-        nextFrom: payload.nextFrom,
-        sectionId: payload.sectionId,
-        playlistBlocks: getPlaylistBlocks(jsonData),
-    };
-};
+  return {
+    nextFrom: cast.safeCastToString(sectionInfo.nextFrom),
+    sectionId: cast.safeCastToString(sectionInfo.sectionId),
+    blocks: getCatalogBlocks(resp)
+  }
+}

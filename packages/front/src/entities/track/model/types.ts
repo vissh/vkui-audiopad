@@ -1,2 +1,2 @@
-export type TTrackState = "normal" | "played" | "paused" | "disabled";
-export type TActionButton = "similar" | "addToQueue" | "add" | "deleteWithRestore" | "delete" | "restore";
+export type TrackState = 'normal' | 'played' | 'paused' | 'disabled'
+export type ActionButton = 'similar' | 'addToQueue' | 'add' | 'deleteWithRestore' | 'delete' | 'restore'

@@ -1,25 +1,27 @@
-import { baseTypes } from "@vk-audiopad/common";
-import { Icon20Add } from "@vkontakte/icons";
-import { FC } from "react";
-import { removeDeletedTrack } from "shared/lib/tracks";
-import { TooltipIconButton } from "shared/ui/tooltip-icon-button";
-import { vkApiRestore } from "../api/restore";
+import { type commonTypes } from '@vk-audiopad/common'
+import { Icon20Add } from '@vkontakte/icons'
+import { type FC } from 'react'
+import { TooltipIconButton } from '@/shared/ui/tooltip-icon-button'
+import { vkApiRestore } from '../api/restore'
+import { deletedTrackForRestore } from '../model/deleted-tracks'
 
-type RestoreButtonProps = {
-    track: baseTypes.TTrackItem;
-    onAfterRestore: () => void;
-};
+interface RestoreButtonProps {
+  track: commonTypes.TrackItem
+  onAfterRestore: () => void
+}
 
 export const RestoreButton: FC<RestoreButtonProps> = ({ track, onAfterRestore }) => {
-    return (
-        <TooltipIconButton
-            text="Восстановить аудиозапись"
-            icon={Icon20Add}
-            onClick={async () => {
-                await vkApiRestore(track);
-                removeDeletedTrack(track);
-                onAfterRestore();
-            }}
-        />
-    );
-};
+  const restore = async () => {
+    await vkApiRestore(track)
+    deletedTrackForRestore.pop(track)
+    onAfterRestore()
+  }
+
+  return (
+    <TooltipIconButton
+      text='Восстановить аудиозапись'
+      icon={Icon20Add}
+      onClick={() => { void restore() }}
+    />
+  )
+}

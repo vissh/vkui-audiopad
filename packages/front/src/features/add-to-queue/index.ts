@@ -1,2 +1,1 @@
-export { AddToQueueButton } from "./ui/AddToQueueButton";
-
+export { AddToQueueButton } from './ui/AddToQueueButton'

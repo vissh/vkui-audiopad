@@ -1,2 +1,2 @@
-export { WrappedAlbumList as AlbumList } from "./ui/WrappedAlbumList";
-
+export { AlbumGallery } from './gallery/AlbumGallery'
+export { AlbumList } from './list/AlbumList'

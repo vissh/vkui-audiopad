@@ -1,1 +1,1 @@
-export { VolumeSlider } from "./ui/VolumeSlider";
+export { VolumeSlider } from './ui/VolumeSlider'

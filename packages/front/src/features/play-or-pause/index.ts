@@ -1,2 +1,2 @@
-export { playOrPause } from "./lib/play";
-export { PlayPauseButton } from "./ui/PlayPauseButton";
+export { playOrPause } from './lib/play'
+export { PlayPauseButton } from './ui/PlayPauseButton'

@@ -1,1 +1,1 @@
-export { PreviousButton } from "./ui/PreviousButton";
+export { PreviousButton } from './ui/PreviousButton'

@@ -1,0 +1,4 @@
+.vkap_album_list_container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, 146px);
+}

@@ -1,53 +1,42 @@
-import { baseEnums, vkFetch } from "@vk-audiopad/common";
-import { getTextFromHtmlElements, toAlbum, toTitlePlaylist } from "shared/lib/utils";
-import { TFetchMyMusicResult } from "../model/types";
+import { vkClient } from '@vk-audiopad/common'
+import { getCatalogBlocks, isTracksCatalogBlock } from '@/shared/lib/catalog-block'
+import {
+  type CatalogBlock,
+  type TracksCatalogBlock
+} from '@/shared/types'
+import { type FetchMyMusicResult } from '../model/types'
 
-export const fetchMyMusic = async (ownerId: string): Promise<TFetchMyMusicResult> => {
+export const fetchMyMusic = async (ownerId: string): Promise<FetchMyMusicResult> => {
+  const resp = await vkClient.request('https://vk.com/al_audio.php?act=section', {
+    act: 'section',
+    al: '1',
+    claim: '0',
+    is_layer: '0',
+    owner_id: ownerId,
+    section: 'all'
+  })
 
-    const jsonData = await vkFetch("https://vk.com/al_audio.php?act=section", {
-        act: "section",
-        al: "1",
-        claim: "0",
-        is_layer: "0",
-        owner_id: ownerId,
-        section: "all",
-    });
+  const catalogBlocks = getCatalogBlocks(resp)
+  const [firstBlock, ...otherBlocks] = catalogBlocks
+  const lastTracksCatalogBlock = getLastTracksCatalogBlock(catalogBlocks)
 
-    const htmlElement = document.createElement("html");
-    htmlElement.innerHTML = jsonData.payload[1][0];
+  return {
+    firstBlock,
+    otherBlocks: otherBlocks.filter((catalogBlock) => catalogBlock !== lastTracksCatalogBlock),
+    lastTracksCatalogBlock
+  }
+}
 
-    const playlists: any[] = jsonData.payload[1][1].playlists;
+const getLastTracksCatalogBlock = (blocks: CatalogBlock[]): TracksCatalogBlock | null => {
+  const [firstBlock, ...otherBlocks] = blocks
 
-    return playlists.reduce((result: TFetchMyMusicResult, playlist: any) => {
-        if (playlist.type === "my" && playlist.list?.length) {
-            if (playlist.list[0][baseEnums.EAudioTupleIndex.CONTEXT] === baseEnums.EPlaylistType.RECENT_AUDIOS) {
-                result.recentTracksPlaylist = toTitlePlaylist(playlist);
-            } else if (playlist.list[0][baseEnums.EAudioTupleIndex.CONTEXT] === baseEnums.EPlaylistType.MY_AUDIOS) {
-                result.playlist = toTitlePlaylist(playlist);
-            }
-        } else if (playlist.type === "radio") {
-            result.radiostationsPlaylist = toTitlePlaylist(playlist);
-        } else if (playlist.type === "playlist") {
-            playlist.infoLine = getYearInfo(htmlElement, playlist);
-            result.albums.push(toAlbum(playlist));
-        }
-        return result;
-    }, {
-        playlist: null,
-        recentTracksPlaylist: null,
-        radiostationsPlaylist: null,
-        albums: [],
-    });
-};
+  const allBlocks = [...(firstBlock != null ? [firstBlock] : []), ...otherBlocks]
+  const tracksBlocks = allBlocks.filter(isTracksCatalogBlock)
+  const lastTracksCatalogBlock = tracksBlocks.length > 0 ? tracksBlocks[tracksBlocks.length - 1] : null
 
-const getYearInfo = (htmlElement: HTMLHtmlElement, playlist: any): string => {
-    const audioElements = htmlElement.getElementsByClassName("_audio_pl_" + playlist.ownerId + "_" + playlist.id);
-    if (audioElements.length > 0) {
-        const yearElements = audioElements[0].getElementsByClassName("audio_pl__year_subtitle");
-        if (yearElements.length > 0) {
-            return getTextFromHtmlElements(yearElements);
-        }
-    }
+  if (lastTracksCatalogBlock === firstBlock) {
+    return null
+  }
 
-    return "";
-};
+  return lastTracksCatalogBlock
+}

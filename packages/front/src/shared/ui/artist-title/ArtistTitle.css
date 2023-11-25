@@ -1,15 +1,15 @@
 .vkap_artists {
-    color: var(--vkui--color_text_secondary);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    cursor: pointer;
+  color: var(--vkui--color_text_secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  cursor: pointer;
 }
 
 .vkap_artist {
-    color: var(--vkui--color_text_secondary);
+  color: var(--vkui--color_text_secondary);
 }
 
 .vkap_artist:hover {
-    text-decoration: underline;
+  text-decoration: underline;
 }

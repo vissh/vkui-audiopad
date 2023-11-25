@@ -1,1 +1,1 @@
-export { Explore } from "./ui/Explore";
+export { Explore } from './ui/Explore'

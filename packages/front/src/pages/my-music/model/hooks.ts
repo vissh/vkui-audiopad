@@ -1,35 +1,34 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { baseTypes } from "@vk-audiopad/common";
-import { fetchMorePlaylistTracks } from "shared/api";
-import { TFetchPlaylistResult } from "shared/types";
-import { fetchMyMusic } from "../api/fetchers";
-import { TFetchMyMusicResult } from "./types";
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { type commonTypes } from '@vk-audiopad/common'
+import { fetchMorePlaylistTracks, type FetchPlaylistResult } from '@/shared/api'
+import { fetchMyMusic } from '../api/fetchers'
+import { type FetchMyMusicResult } from './types'
 
-const queryKey: ReadonlyArray<string> = ["myMusic"];
+const queryKey: readonly string[] = ['myMusic']
 
-export const useMyMusicData = (userId: string) => {
-    return useQuery({
-        queryKey: queryKey,
-        queryFn: () => fetchMyMusic(userId),
-        refetchOnWindowFocus: false,
-        enabled: !!userId,
-        retry: 2,
-    });
-};
+export const useMyMusicData = (userId: string, enabled: boolean) => {
+  return useQuery({
+    queryKey,
+    queryFn: async () => await fetchMyMusic(userId),
+    refetchOnWindowFocus: false,
+    enabled: userId.length > 0 && enabled,
+    retry: 2
+  })
+}
 
 export const useLoadMoreMyMusicTracksMutation = () => {
-    const queryClient = useQueryClient();
+  const queryClient = useQueryClient()
 
-    return useMutation({
-        mutationFn: (playlist: baseTypes.TTitlePlaylist) => fetchMorePlaylistTracks(playlist),
-        onSuccess: (fetchResult: TFetchPlaylistResult): void => {
-            const previousData = queryClient.getQueryData<TFetchMyMusicResult>(queryKey);
-            if (previousData && previousData.playlist) {
-                fetchResult.playlist.tracks.unshift(...previousData.playlist.tracks);
-                previousData.playlist = fetchResult.playlist;
-                queryClient.setQueryData(queryKey, previousData);
-            }
-        },
-        retry: 2,
-    });
-};
+  return useMutation({
+    mutationFn: async (playlist: commonTypes.Playlist) => await fetchMorePlaylistTracks(playlist),
+    onSuccess: (fetchResult: FetchPlaylistResult): void => {
+      const previousData = queryClient.getQueryData<FetchMyMusicResult>(queryKey)
+      if ((previousData?.lastTracksCatalogBlock) != null) {
+        fetchResult.playlist.tracks.unshift(...previousData.lastTracksCatalogBlock.playlist.tracks)
+        previousData.lastTracksCatalogBlock.playlist = fetchResult.playlist
+        queryClient.setQueryData(queryKey, previousData)
+      }
+    },
+    retry: 2
+  })
+}

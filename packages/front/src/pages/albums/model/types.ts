@@ -1,12 +1,12 @@
-import { TPlaylistBlock } from "shared/types";
+import { type CatalogBlock } from '@/shared/types'
 
-export type TFetchNextSectionArgs = {
-    nextFrom: string;
-    sectionId: string;
-};
+export interface FetchNextSectionArgs {
+  nextFrom: string
+  sectionId: string
+}
 
-export type TFetchAlbumsResult = {
-    nextFrom: string;
-    sectionId: string;
-    playlistBlocks: TPlaylistBlock[];
-};
+export interface FetchAlbumsResult {
+  nextFrom: string
+  sectionId: string
+  blocks: CatalogBlock[]
+}

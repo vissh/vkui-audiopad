@@ -1,2 +1,1 @@
-export { NavigationWithSearch } from "./ui/NavigationWithSearch";
-
+export { Navigation } from './ui/Navigation'

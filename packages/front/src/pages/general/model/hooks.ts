@@ -1,14 +1,14 @@
-import { useQuery } from "@tanstack/react-query";
-import { fetchGeneral } from "../api/fetchers";
+import { useQuery } from '@tanstack/react-query'
+import { fetchGeneral } from '../api/fetchers'
 
-const queryName = "general";
+const queryName = 'general'
 
-export const useGeneralData = (userId: string) => {
-    return useQuery({
-        queryKey: [queryName],
-        queryFn: () => fetchGeneral(userId),
-        refetchOnWindowFocus: false,
-        enabled: !!userId,
-        retry: 2,
-    });
-};
+export const useGeneralData = (userId: string, enabled: boolean) => {
+  return useQuery({
+    queryKey: [queryName],
+    queryFn: async () => await fetchGeneral(userId),
+    refetchOnWindowFocus: false,
+    enabled: userId.length > 0 && enabled,
+    retry: 2
+  })
+}
