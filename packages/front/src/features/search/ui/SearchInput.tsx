@@ -1,19 +1,19 @@
 import { commonTypes } from '@vk-audiopad/common'
 import { Search } from '@vkontakte/vkui'
 import { memo, useEffect, useRef } from 'react'
-import { openSearchPage, selectedTabAtom } from '@/entities/content-tab'
+import { onActiveTabChanged, openSearchPage } from '@/entities/active-tab'
 import { atom, useAtom } from '@/shared/lib/atom'
 import { useDebounce } from '@/shared/lib/hooks'
 
 const autoFocusAtom = atom(false)
 const valueAtom = atom('')
 
-selectedTabAtom.watch((selectedTab) => {
-  if (selectedTab.tab === commonTypes.ContentTab.SEARCH && selectedTab.value.length > 0) {
-    valueAtom.set(selectedTab.value)
+onActiveTabChanged((activeTab) => {
+  if (activeTab.tab === commonTypes.ContentTab.SEARCH && activeTab.value.length > 0) {
+    valueAtom.set(activeTab.value)
   }
 
-  if (selectedTab.tab !== commonTypes.ContentTab.SEARCH && selectedTab.tab !== commonTypes.ContentTab.UNKNOWN) {
+  if (activeTab.tab !== commonTypes.ContentTab.SEARCH && activeTab.tab !== commonTypes.ContentTab.UNKNOWN) {
     autoFocusAtom.set(false)
     valueAtom.set('')
   }

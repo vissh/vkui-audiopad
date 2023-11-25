@@ -2,7 +2,7 @@ import { useAppearance } from '@vkontakte/vkui'
 import { type FC } from 'react'
 import ContentLoader from 'react-content-loader'
 
-export const CardGallerySkeleton: FC = () => {
+export const RecommendedGallerySkeleton: FC = () => {
   const appearance = useAppearance()
 
   const xOffset = 10

@@ -144,49 +144,49 @@ export enum Theme {
 
 export type ClickableContentTabs = ContentTab.CURRENT_PLAYLIST | ContentTab.GENERAL | ContentTab.MY_MUSIC | ContentTab.EXPLORE
 
-export interface SelectedTabUnknown {
+export interface ActiveTabUnknown {
   tab: ContentTab.UNKNOWN
 }
 
-export interface SelectedTabSearch {
+export interface ActiveTabSearch {
   tab: ContentTab.SEARCH
   value: string
 }
 
-export interface SelectedTabArtist {
+export interface ActiveTabArtist {
   tab: ContentTab.ARTIST
   id: string
   name: string
-  history?: SelectedTabs[]
+  history?: ActiveTabs[]
 }
 
-export interface SelectedTabCommon {
+export interface ActiveTabCommon {
   tab: ClickableContentTabs
 }
 
-export interface SelectedTabPlaylist {
+export interface ActiveTabPlaylist {
   tab: ContentTab.PLAYLIST
   fromId: string
   playlist: Playlist
-  history?: SelectedTabs[]
+  history?: ActiveTabs[]
 }
 
-export interface SelectedTabAlbums {
+export interface ActiveTabAlbums {
   tab: ContentTab.ALBUMS
   title: string
   showAllLink: string
-  history?: SelectedTabs[]
+  history?: ActiveTabs[]
 }
 
-export type TabWithHistory = SelectedTabPlaylist | SelectedTabAlbums
+export type TabWithHistory = ActiveTabPlaylist | ActiveTabAlbums
 
-export type SelectedTabs = (
-  SelectedTabUnknown
-  | SelectedTabCommon
-  | SelectedTabSearch
-  | SelectedTabPlaylist
-  | SelectedTabAlbums
-  | SelectedTabArtist
+export type ActiveTabs = (
+  ActiveTabUnknown
+  | ActiveTabCommon
+  | ActiveTabSearch
+  | ActiveTabPlaylist
+  | ActiveTabAlbums
+  | ActiveTabArtist
 )
 
 export interface ApplicationControlsState {
@@ -224,8 +224,8 @@ export interface ApplicationUserState {
   deviceId: string
 }
 
-export interface ApplicationSelectedTabState {
-  selectedTab: SelectedTabs
+export interface ApplicationActiveTabState {
+  activeTab: ActiveTabs
 }
 
 export type ApplicationState =
@@ -235,8 +235,8 @@ export type ApplicationState =
   ApplicationCurrentTimeState &
   ApplicationPlaylistSystemState &
   ApplicationUserState &
-  ApplicationSelectedTabState &
-  Record<string, string | WebToken | Playlist | TrackItem | number | boolean | AudioTuple[] | SelectedTabs | null | undefined>
+  ApplicationActiveTabState &
+  Record<string, string | WebToken | Playlist | TrackItem | number | boolean | AudioTuple[] | ActiveTabs | null | undefined>
 
 export interface RepeatMessage {
   type: 'repeat'

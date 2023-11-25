@@ -8,58 +8,58 @@ import { General } from '@/pages/general'
 import { MyMusic } from '@/pages/my-music'
 import { PlaylistTracks } from '@/pages/playlist-tracks'
 import { SearchResult } from '@/pages/search-result'
-import { useSelectedTab } from '@/entities/content-tab'
+import { useActiveTab } from '@/entities/active-tab'
 import { useSessionUserId } from '@/entities/session'
 
 export const Pages: FC = () => {
   const userId = useSessionUserId()
-  const selectedTab = useSelectedTab()
+  const activeTab = useActiveTab()
 
   return (
     <>
       <CurrentPlaylist
-        active={selectedTab.tab === commonTypes.ContentTab.CURRENT_PLAYLIST}
+        active={activeTab.tab === commonTypes.ContentTab.CURRENT_PLAYLIST}
       />
 
       <General
         userId={userId}
-        active={selectedTab.tab === commonTypes.ContentTab.GENERAL}
+        active={activeTab.tab === commonTypes.ContentTab.GENERAL}
       />
 
       <MyMusic
         userId={userId}
-        active={selectedTab.tab === commonTypes.ContentTab.MY_MUSIC}
+        active={activeTab.tab === commonTypes.ContentTab.MY_MUSIC}
       />
 
       <Explore
         userId={userId}
-        active={selectedTab.tab === commonTypes.ContentTab.EXPLORE}
+        active={activeTab.tab === commonTypes.ContentTab.EXPLORE}
       />
 
-      {selectedTab.tab === commonTypes.ContentTab.SEARCH &&
+      {activeTab.tab === commonTypes.ContentTab.SEARCH &&
         <SearchResult
           userId={userId}
-          searchValue={selectedTab.value}
+          searchValue={activeTab.value}
         />
       }
-      {selectedTab.tab === commonTypes.ContentTab.ALBUMS &&
+      {activeTab.tab === commonTypes.ContentTab.ALBUMS &&
         <Albums
           userId={userId}
-          showAllLink={selectedTab.showAllLink}
+          showAllLink={activeTab.showAllLink}
         />
       }
-      {selectedTab.tab === commonTypes.ContentTab.PLAYLIST &&
+      {activeTab.tab === commonTypes.ContentTab.PLAYLIST &&
         <PlaylistTracks
           userId={userId}
-          playlist={selectedTab.playlist}
-          fromId={selectedTab.fromId}
+          playlist={activeTab.playlist}
+          fromId={activeTab.fromId}
         />
       }
-      {selectedTab.tab === commonTypes.ContentTab.ARTIST &&
+      {activeTab.tab === commonTypes.ContentTab.ARTIST &&
         <ArtistResult
           userId={userId}
-          artistId={selectedTab.id}
-          artistName={selectedTab.name}
+          artistId={activeTab.id}
+          artistName={activeTab.name}
         />
       }
     </>

@@ -1,8 +1,8 @@
 import { type commonTypes } from '@vk-audiopad/common'
 import { Icon20Stars, Icon24StarsOutline } from '@vkontakte/icons'
 import { useState, type FC } from 'react'
-import { openPlaylistPage } from '@/entities/content-tab'
-import { setSnackbar } from '@/entities/snackbar'
+import { openPlaylistPage } from '@/entities/active-tab'
+import { showNotification } from '@/entities/notification'
 import { Spinner24 } from '@/shared/ui/spinner/Spinner24'
 import { TooltipIconButton } from '@/shared/ui/tooltip-icon-button'
 import { fetchSimilarData } from '../api/similar'
@@ -24,7 +24,7 @@ export const SimilarButton: FC<SimilarButtonProps> = ({ userId, track, size = 'm
     setLoading(false)
 
     if (playlist == null) {
-      setSnackbar(<SimilarTracksNotFound />)
+      showNotification(<SimilarTracksNotFound />)
       return
     }
 

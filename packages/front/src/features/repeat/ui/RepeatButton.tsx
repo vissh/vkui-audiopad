@@ -1,11 +1,13 @@
 import { commonTypes } from '@vk-audiopad/common'
 import { Icon24Repeat1Outline, Icon24RepeatOutline } from '@vkontakte/icons'
 import { type FC } from 'react'
-import { setRepeat, useRepeat } from '@/entities/controls'
+import { useAtomValue } from '@/shared/lib/atom'
+import { sendMessage } from '@/shared/lib/send-message'
 import { TooltipIconButton } from '@/shared/ui/tooltip-icon-button'
+import { repeatAtom } from '../model/atom'
 
 export const RepeatButton: FC = () => {
-  const repeat = useRepeat()
+  const repeat = useAtomValue(repeatAtom)
 
   return (
     <>
@@ -37,4 +39,8 @@ export const RepeatButton: FC = () => {
       )}
     </>
   )
+}
+
+const setRepeat = (): void => {
+  sendMessage({ type: 'repeat' })
 }

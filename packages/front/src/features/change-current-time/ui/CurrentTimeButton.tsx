@@ -2,15 +2,16 @@ import { commonTypes, commonUtils } from '@vk-audiopad/common'
 import { Button } from '@vkontakte/vkui'
 import { type FC } from 'react'
 import { useCurrentPlaylist, useCurrentTime, useDuration, usePlayed } from '@/entities/active-track'
-import { setDurationMode, useDurationMode } from '@/entities/controls'
+import { useAtom } from '@/shared/lib/atom'
 import { Duration } from '@/shared/ui/duration'
+import { durationModeAtom } from '../model/atom'
 
 export const CurrentTimeButton: FC = () => {
   const currentPlaylist = useCurrentPlaylist()
   const duration = useDuration()
   const currentTime = useCurrentTime()
   const played = usePlayed()
-  const durationMode = useDurationMode()
+  const [durationMode, setDurationMode] = useAtom(durationModeAtom)
 
   const timeLeft = durationMode === commonTypes.DurationMode.TIME_LEFT
 

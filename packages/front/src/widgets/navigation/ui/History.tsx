@@ -2,14 +2,14 @@ import { type commonTypes } from '@vk-audiopad/common'
 import { Icon16ChevronOutline } from '@vkontakte/icons'
 import { Div, Spacing, Title } from '@vkontakte/vkui'
 import { type FC } from 'react'
+import { setActiveTab } from '@/entities/active-tab'
 import { getTabName } from '../lib/utils'
-import { selectedTabAtom } from '../model/atom'
 
 interface HistoryNavigationProps {
-  selectedTab: commonTypes.TabWithHistory
+  activeTab: commonTypes.TabWithHistory
 }
 
-export const History: FC<HistoryNavigationProps> = ({ selectedTab }) => {
+export const History: FC<HistoryNavigationProps> = ({ activeTab }) => {
   return (
     <Div
       style={{
@@ -20,13 +20,13 @@ export const History: FC<HistoryNavigationProps> = ({ selectedTab }) => {
         paddingLeft: '10px'
       }}
     >
-      {(selectedTab.history ?? []).map((tab) => (
+      {(activeTab.history ?? []).map((tab) => (
         <>
           <Title
             level='3'
             weight='3'
             className='vkap_link vkap_hidden_overflow'
-            onClick={() => { selectedTabAtom.set(tab) }}
+            onClick={() => { setActiveTab(tab) }}
           >
             {getTabName(tab)}
           </Title>
@@ -43,7 +43,7 @@ export const History: FC<HistoryNavigationProps> = ({ selectedTab }) => {
         weight='3'
         className='vkap_hidden_overflow'
       >
-        {getTabName(selectedTab)}
+        {getTabName(activeTab)}
       </Title>
     </Div>
   )

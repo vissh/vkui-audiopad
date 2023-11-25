@@ -1,8 +1,8 @@
 import { Group } from '@vkontakte/vkui'
 import { type FC } from 'react'
 import { AlbumGallery } from '@/widgets/album-list'
-import { CardGallery } from '@/widgets/card-gallery'
 import { Navigation } from '@/widgets/navigation'
+import { RecommendedGallery } from '@/widgets/recommended-gallery'
 import { TrackGallery } from '@/widgets/track-list'
 import { Content } from '@/shared/ui/content'
 import { useGeneralData } from '../model/hooks'
@@ -31,7 +31,7 @@ export const General: FC<GeneralProps> = ({ userId, active }) => {
         />
       </Group>
 
-      <CardGallery
+      <RecommendedGallery
         isLoading={isLoading}
         title='Собрано алгоритмами'
         userId={userId}

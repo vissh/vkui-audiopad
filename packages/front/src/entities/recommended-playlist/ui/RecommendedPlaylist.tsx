@@ -2,12 +2,12 @@ import { Card, Text, Title } from '@vkontakte/vkui'
 import { type FC } from 'react'
 import { type Album } from '@/shared/types'
 
-interface CardCellProps {
+interface RecommendedPlaylistProps {
   album: Album
   onClick: () => void
 }
 
-export const CardCell: FC<CardCellProps> = ({ album, onClick }) => {
+export const RecommendedPlaylist: FC<RecommendedPlaylistProps> = ({ album, onClick }) => {
   return (
     <Card
       style={{

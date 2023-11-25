@@ -3,11 +3,11 @@ import {
   DurationMode,
   RepeatMode,
   Theme,
+  type ApplicationActiveTabState,
   type ApplicationActiveTrackState,
   type ApplicationControlsState,
   type ApplicationCurrentTimeState,
   type ApplicationPlaylistSystemState,
-  type ApplicationSelectedTabState,
   type ApplicationSettingsState,
   type ApplicationState,
   type ApplicationUserState
@@ -48,12 +48,12 @@ export const User: ApplicationUserState = {
   deviceId: ''
 }
 
-export const InitialSelectedTab: ApplicationSelectedTabState = {
-  selectedTab: { tab: ContentTab.UNKNOWN }
+export const InitialActiveTab: ApplicationActiveTabState = {
+  activeTab: { tab: ContentTab.UNKNOWN }
 }
 
-export const DefaultSelectedTab: ApplicationSelectedTabState = {
-  selectedTab: { tab: ContentTab.MY_MUSIC }
+export const DefaultActiveTab: ApplicationActiveTabState = {
+  activeTab: { tab: ContentTab.MY_MUSIC }
 }
 
 export const Application: ApplicationState = {
@@ -63,5 +63,5 @@ export const Application: ApplicationState = {
   ...CurrentTime,
   ...PlaylistSystem,
   ...User,
-  ...DefaultSelectedTab
+  ...DefaultActiveTab
 }

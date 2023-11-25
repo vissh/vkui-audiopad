@@ -1,7 +1,7 @@
 import { type commonTypes } from '@vk-audiopad/common'
 import { Group, HorizontalScroll, List } from '@vkontakte/vkui'
 import { type FC } from 'react'
-import { openPlaylistPage } from '@/entities/content-tab'
+import { openPlaylistPage } from '@/entities/active-tab'
 import { batched } from '@/shared/lib/utils'
 import { ShowAllLink } from '@/shared/ui/show-all-link'
 import { SkeletonWrapper } from '@/shared/ui/skeleton-wrapper'

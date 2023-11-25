@@ -15,7 +15,7 @@ import { type FC } from 'react'
 import { Player } from '@/widgets/player'
 import { SignIn } from '@/features/sign-in'
 import { AppModalRoot, themeAtom } from '@/entities/modal'
-import { AppSnackbar } from '@/entities/snackbar'
+import { Notification } from '@/entities/notification'
 import { useAtomValue } from '@/shared/lib/atom'
 import { Pages } from './Pages'
 import './base.css'
@@ -53,7 +53,7 @@ export const Application: FC = () => {
                       <Player />
                       <Pages />
                     </SignIn>
-                    <AppSnackbar />
+                    <Notification />
                   </Panel>
                 </View>
               </SplitCol>

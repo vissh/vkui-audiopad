@@ -1,6 +1,6 @@
 import { commonTypes, commonUtils } from '@vk-audiopad/common'
 
-export const getTabName = (tab: commonTypes.SelectedTabs) => {
+export const getTabName = (tab: commonTypes.ActiveTabs) => {
   switch (tab.tab) {
     case commonTypes.ContentTab.UNKNOWN:
       return 'UNKNOWN'
@@ -23,8 +23,4 @@ export const getTabName = (tab: commonTypes.SelectedTabs) => {
     default:
       return commonUtils.assertUnreachable(tab)
   }
-}
-
-export const newHistory = (tab: commonTypes.SelectedTabs): commonTypes.SelectedTabs[] => {
-  return commonUtils.isTabWithHistory(tab) ? [...tab.history ?? [], tab] : [tab]
 }

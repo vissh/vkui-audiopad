@@ -1,5 +1,5 @@
 import { commonTypes } from '@vk-audiopad/common'
-import { selectedTabAtom } from '@/entities/content-tab'
+import { onActiveTabChanged } from '@/entities/active-tab'
 import { sendMessage } from '@/shared/lib/send-message'
 
 const deletedTracks = new Map<string, commonTypes.TrackItem>()
@@ -24,8 +24,8 @@ export const deletedTrackForRestore = {
   }
 }
 
-selectedTabAtom.watch((selectedTab) => {
-  if (selectedTab.tab !== commonTypes.ContentTab.UNKNOWN) {
+onActiveTabChanged((activeTab) => {
+  if (activeTab.tab !== commonTypes.ContentTab.UNKNOWN) {
     deletedTrackForRestore.clear()
   }
 })

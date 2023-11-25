@@ -2,19 +2,21 @@ import { commonTypes, commonUtils } from '@vk-audiopad/common'
 import { Tabs } from '@vkontakte/vkui'
 import { memo, type FC } from 'react'
 import { SearchInput } from '@/features/search'
+import { useActiveTab } from '@/entities/active-tab'
 import { useCurrentPlaylist } from '@/entities/active-track'
-import { ContentTab, History, useSelectedTab } from '@/entities/content-tab'
+import { ContentTab } from './ContentTab'
+import { History } from './History'
 
 interface NavigationProps {
   children?: React.ReactNode
 }
 
 export const Navigation: FC<NavigationProps> = ({ children }) => {
-  const selectedTab = useSelectedTab()
+  const activeTab = useActiveTab()
 
   return (
     <>
-      {commonUtils.isTabWithHistory(selectedTab) ? <History selectedTab={selectedTab} /> : <ContentTabs />}
+      {commonUtils.isTabWithHistory(activeTab) ? <History activeTab={activeTab} /> : <ContentTabs />}
       {children != null && children}
       {children == null && <SearchInput />}
     </>

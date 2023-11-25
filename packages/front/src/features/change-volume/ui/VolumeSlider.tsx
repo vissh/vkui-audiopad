@@ -1,12 +1,13 @@
 import { FormItem, Slider } from '@vkontakte/vkui'
 import { useEffect, useState, type FC } from 'react'
-import { setVolume, useVolume } from '@/entities/controls'
+import { useAtom } from '@/shared/lib/atom'
 import { useDebounce } from '@/shared/lib/hooks'
+import { volumeAtom } from '../model/atom'
 
 const delayMs = 50
 
 export const VolumeSlider: FC = () => {
-  const volume = useVolume()
+  const [volume, setVolume] = useAtom(volumeAtom)
   const [sliderVolume, setSliderVolume] = useState(100)
 
   useEffect(() => {

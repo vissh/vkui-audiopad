@@ -1,11 +1,11 @@
 import { ApplicationControls, ApplicationSettings } from './initial-state'
-import { type SelectedTabs, type TabWithHistory } from './types'
+import { type ActiveTabs, type TabWithHistory } from './types'
 
 export const assertUnreachable = (_: never): never => {
   throw new Error('Statement should be unreachable')
 }
 
-export const isTabWithHistory = (tab: SelectedTabs): tab is TabWithHistory => {
+export const isTabWithHistory = (tab: ActiveTabs): tab is TabWithHistory => {
   return 'history' in tab
 }
 

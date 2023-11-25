@@ -1,10 +1,11 @@
 import { Icon24ShuffleOutline } from '@vkontakte/icons'
 import { type FC } from 'react'
-import { setShuffle, useShuffle } from '@/entities/controls'
+import { useAtom } from '@/shared/lib/atom'
 import { TooltipIconButton } from '@/shared/ui/tooltip-icon-button'
+import { shuffleAtom } from '../model/atom'
 
 export const ShuffleButton: FC = () => {
-  const shuffle = useShuffle()
+  const [shuffle, setShuffle] = useAtom(shuffleAtom)
 
   const changeShuffleMode = () => {
     setShuffle(!shuffle)
