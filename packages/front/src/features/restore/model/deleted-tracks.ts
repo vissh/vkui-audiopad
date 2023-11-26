@@ -1,6 +1,6 @@
 import { commonTypes } from '@vk-audiopad/common'
-import { onActiveTabChanged } from '@/entities/active-tab'
 import { sendMessage } from '@/shared/lib/send-message'
+import { onActiveTabChanged } from '@/shared/model'
 
 const deletedTracks = new Map<string, commonTypes.TrackItem>()
 

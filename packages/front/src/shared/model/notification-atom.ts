@@ -1,4 +1,4 @@
-import { atom, useAtomValue } from '@/shared/lib/atom'
+import { atom, useAtomValue } from '../lib/atom'
 
 const notificationAtom = atom<React.ReactNode | null>(null)
 

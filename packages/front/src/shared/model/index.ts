@@ -6,4 +6,5 @@ export {
   openSearchPage,
   setActiveTab,
   useActiveTab
-} from './model/atom'
+} from './active-tab-atom'
+export { showNotification, useNotification } from './notification-atom'

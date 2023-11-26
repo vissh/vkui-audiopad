@@ -1,6 +1,6 @@
 import { type commonTypes } from '@vk-audiopad/common'
 import { type FC } from 'react'
-import { openArtistPage, openSearchPage } from '@/entities/active-tab'
+import { openArtistPage, openSearchPage } from '@/shared/model'
 import { ArtistTitle } from '@/shared/ui/artist-title'
 
 interface SearchArtistProps {

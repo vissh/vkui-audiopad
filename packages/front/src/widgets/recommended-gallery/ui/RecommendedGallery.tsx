@@ -1,7 +1,7 @@
 import { CardScroll, Group, Header } from '@vkontakte/vkui'
 import { type FC } from 'react'
-import { openPlaylistPage } from '@/entities/active-tab'
 import { RecommendedPlaylist } from '@/entities/recommended-playlist'
+import { openPlaylistPage } from '@/shared/model'
 import { type Album } from '@/shared/types'
 import { SkeletonWrapper } from '@/shared/ui/skeleton-wrapper'
 import { RecommendedGallerySkeleton } from './RecommendedGallerySkeleton'

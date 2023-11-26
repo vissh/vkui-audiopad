@@ -8,8 +8,8 @@ import { General } from '@/pages/general'
 import { MyMusic } from '@/pages/my-music'
 import { PlaylistTracks } from '@/pages/playlist-tracks'
 import { SearchResult } from '@/pages/search-result'
-import { useActiveTab } from '@/entities/active-tab'
 import { useSessionUserId } from '@/entities/session'
+import { useActiveTab } from '@/shared/model'
 
 export const Pages: FC = () => {
   const userId = useSessionUserId()

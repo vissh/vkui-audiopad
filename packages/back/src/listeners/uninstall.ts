@@ -1,3 +1,3 @@
 export const startListeningOnUninstalled = (): void => {
-  chrome.runtime.setUninstallURL('https://forms.gle/Hkrt19PPE9heWE8S6')
+  chrome.runtime.setUninstallURL('https://forms.gle/W867zaorTXqacZew8')
 }

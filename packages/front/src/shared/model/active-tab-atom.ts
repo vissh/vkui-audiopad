@@ -1,5 +1,5 @@
 import { commonTypes, commonUtils, initialState } from '@vk-audiopad/common'
-import { storageAtom, useAtomValue } from '@/shared/lib/atom'
+import { storageAtom, useAtomValue } from '../lib/atom'
 
 const activeTabAtom = storageAtom({
   key: 'activeTab',
@@ -18,6 +18,10 @@ const activeTabAtom = storageAtom({
 activeTabAtom.watch(() => {
   window.scrollTo(0, 0)
 })
+
+const newHistory = (tab: commonTypes.ActiveTabs): commonTypes.ActiveTabs[] => {
+  return commonUtils.isTabWithHistory(tab) ? [...tab.history ?? [], tab] : [tab]
+}
 
 export const useActiveTab = () => {
   return useAtomValue(activeTabAtom)
@@ -60,8 +64,4 @@ export const openAlbumsPage = (title: string, showAllLink: string) => {
     showAllLink,
     history: newHistory(activeTabAtom.get())
   })
-}
-
-const newHistory = (tab: commonTypes.ActiveTabs): commonTypes.ActiveTabs[] => {
-  return commonUtils.isTabWithHistory(tab) ? [...tab.history ?? [], tab] : [tab]
 }

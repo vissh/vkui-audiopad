@@ -1,7 +1,7 @@
 import { Icon28InfoCircleOutline } from '@vkontakte/icons'
 import { Snackbar } from '@vkontakte/vkui'
 import { type FC } from 'react'
-import { showNotification } from '@/entities/notification'
+import { showNotification } from '@/shared/model'
 
 export const SimilarTracksNotFound: FC = () => {
   return (

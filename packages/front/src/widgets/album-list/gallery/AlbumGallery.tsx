@@ -1,6 +1,6 @@
 import { Group, HorizontalScroll } from '@vkontakte/vkui'
 import { type FC } from 'react'
-import { openAlbumsPage } from '@/entities/active-tab'
+import { openAlbumsPage } from '@/shared/model'
 import { type Album as AlbumType } from '@/shared/types'
 import { ShowAllLink } from '@/shared/ui/show-all-link'
 import { SkeletonWrapper } from '@/shared/ui/skeleton-wrapper'

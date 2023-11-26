@@ -1,9 +1,9 @@
 import { commonTypes } from '@vk-audiopad/common'
 import { Search } from '@vkontakte/vkui'
 import { memo, useEffect, useRef } from 'react'
-import { onActiveTabChanged, openSearchPage } from '@/entities/active-tab'
 import { atom, useAtom } from '@/shared/lib/atom'
 import { useDebounce } from '@/shared/lib/hooks'
+import { onActiveTabChanged, openSearchPage } from '@/shared/model'
 
 const autoFocusAtom = atom(false)
 const valueAtom = atom('')

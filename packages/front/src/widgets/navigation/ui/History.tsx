@@ -2,7 +2,7 @@ import { type commonTypes } from '@vk-audiopad/common'
 import { Icon16ChevronOutline } from '@vkontakte/icons'
 import { Div, Spacing, Title } from '@vkontakte/vkui'
 import { type FC } from 'react'
-import { setActiveTab } from '@/entities/active-tab'
+import { setActiveTab } from '@/shared/model'
 import { getTabName } from '../lib/utils'
 
 interface HistoryNavigationProps {
