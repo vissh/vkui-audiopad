@@ -14,17 +14,11 @@ Chrome extension for [VK Music](https://music.vk.com/)
 
 ## Build
 
-1. run ./build.sh
+Run the script `./build.sh`
 
-   ```bash
-   docker run -it --rm --name vk-audiopad-build -v "$PWD":/usr/src/app --user $(id -u) -w /usr/src/app node:20-alpine /bin/sh build.sh
-   ```
-
-2. zip folder ./extension
-
-   ```bash
-   (cd extension; zip -r ../vk-audiopad.zip *)
-   ```
+```bash
+docker run -it --rm --name vk-audiopad-build -v "$PWD":/usr/src/app --user $(id -u) -w /usr/src/app node:20-alpine /bin/sh build.sh
+```
 
 ## Architectural methodology
 
