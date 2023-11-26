@@ -10,9 +10,9 @@ export const RecommendedGallerySkeleton: FC = () => {
   return (
     <ContentLoader
       speed={2}
-      width={780}
+      width={764}
       height={264}
-      viewBox='0 0 780 264'
+      viewBox='0 0 764 264'
       backgroundColor={appearance === 'light' ? '#F0F2F5' : '#292929'}
       foregroundColor={appearance === 'light' ? '#E7E8EC' : '#333333'}
       title=''

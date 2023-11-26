@@ -26,18 +26,19 @@ declare global {
   }
 }
 
+const queryClient = new QueryClient()
+
 export const Application: FC = () => {
-  const queryClient = new QueryClient()
   const theme = useAtomValue(themeAtom)
 
   return (
-    <ConfigProvider
-      platform={Platform.ANDROID}
-      hasCustomPanelHeaderAfter={false}
-      appearance={theme === commonTypes.Theme.SYSTEM ? undefined : theme}
-    >
-      <AdaptivityProvider>
-        <QueryClientProvider client={queryClient}>
+    <QueryClientProvider client={queryClient}>
+      <ConfigProvider
+        platform={Platform.ANDROID}
+        hasCustomPanelHeaderAfter={false}
+        appearance={theme === commonTypes.Theme.SYSTEM ? undefined : theme}
+      >
+        <AdaptivityProvider>
           <AppRoot>
             <SplitLayout
               style={{ justifyContent: 'center' }}
@@ -59,8 +60,8 @@ export const Application: FC = () => {
               </SplitCol>
             </SplitLayout>
           </AppRoot>
-        </QueryClientProvider>
-      </AdaptivityProvider>
-    </ConfigProvider>
+        </AdaptivityProvider>
+      </ConfigProvider>
+    </QueryClientProvider>
   )
 }

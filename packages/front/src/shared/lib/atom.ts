@@ -4,8 +4,11 @@ interface Atom<AtomType> {
   get: () => AtomType
   set: (newValue: AtomType) => void
   subscribe: (callback: (newValue: AtomType) => void) => () => void
-  mutate: (mutator: (newValue: AtomType, previousValue: AtomType) => void) => void
   watch: (watcher: (newValue: AtomType) => void) => void
+}
+
+interface StorageAtom<AtomType> extends Atom<AtomType> {
+  mutate: (mutator: (newValue: AtomType, previousValue: AtomType) => void) => void
 }
 
 export const useAtom = <T>(atom: Atom<T>): [T, (newValue: T) => void] => {
@@ -20,7 +23,6 @@ export const atom = <T>(initialValue: T): Atom<T> => {
   let value = initialValue
 
   const subscribes = new Set<(newValue: T) => void>()
-  const mutators = new Set<(newValue: T, previousValue: T) => void>()
   const watchers = new Set<(newValue: T) => void>()
 
   return {
@@ -29,8 +31,6 @@ export const atom = <T>(initialValue: T): Atom<T> => {
       if (value === newValue) {
         return
       }
-
-      mutators.forEach((mutator) => { mutator(newValue, value) })
 
       value = newValue
 
@@ -41,8 +41,34 @@ export const atom = <T>(initialValue: T): Atom<T> => {
       subscribes.add(callback)
       return () => subscribes.delete(callback)
     },
-    mutate: (mutator) => {
-      mutators.add(mutator)
+    watch: (watcher) => {
+      watchers.add(watcher)
+    }
+  }
+}
+
+export const lsAtom = <T extends string>(keyName: string, initialValue: T): Atom<T> => {
+  let value = window.localStorage.getItem(keyName) as T ?? initialValue
+
+  const subscribes = new Set<(newValue: T) => void>()
+  const watchers = new Set<(newValue: T) => void>()
+
+  return {
+    get: () => value,
+    set: (newValue) => {
+      if (value === newValue) {
+        return
+      }
+
+      value = newValue
+
+      window.localStorage.setItem(keyName, value)
+      subscribes.forEach((callback) => { callback(value) })
+      watchers.forEach((watcher) => { watcher(value) })
+    },
+    subscribe: (callback) => {
+      subscribes.add(callback)
+      return () => subscribes.delete(callback)
     },
     watch: (watcher) => {
       watchers.add(watcher)
@@ -61,7 +87,7 @@ export const storageAtom = <T>({
   default?: T
   compareObjects: ((previousValue: T | undefined, newValue: T | undefined) => boolean) | false
 }
-): Atom<T> => {
+): StorageAtom<T> => {
   let value = initialValue
 
   const subscribes = new Set<(newValue: T) => void>()
