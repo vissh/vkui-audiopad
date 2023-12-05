@@ -3,7 +3,7 @@ import { Application } from '@/app/Application'
 
 const container = document.getElementById('root')
 
-if (container != null) {
+if (container !== null) {
   const root = createRoot(container)
   root.render(<Application />)
 }
