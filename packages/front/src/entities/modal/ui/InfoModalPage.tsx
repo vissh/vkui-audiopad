@@ -44,6 +44,7 @@ export const InfoModalPage = ({ ...props }) => {
         <ShortcutInfo />
         <Rate />
         <FeedbackInfo />
+        <SourceCode />
       </Group>
     </ModalPage>
   )
@@ -163,6 +164,18 @@ const Rate = () => {
       multiline
     >
       Буду благодарен за вашу оценку на странице расширения {isFirefoxExtension ? firefoxLink : chromeLink}
+    </SimpleCell>
+  )
+}
+
+const SourceCode = () => {
+  return (
+    <SimpleCell
+      hasHover={false}
+      hasActive={false}
+      multiline
+    >
+      Исходный код <Link href="https://github.com/vissh/vkui-audiopad" target="_blank">https://github.com/vissh/vkui-audiopad</Link>
     </SimpleCell>
   )
 }
