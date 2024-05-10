@@ -5,42 +5,43 @@ import { destroyPlayer, playTrack } from '../player'
 import { applicationState } from '../state'
 import { createAudiosIds, getNewIndex, sendListenedData, shuffle } from '../utils'
 
-export const playNewTrack = async (trackIndex: number, playlist: commonTypes.Playlist, fromOriginalSort?: boolean): Promise<void> => {
+export const playNewTrack = async (newTrackId: string | null, playlist: commonTypes.Playlist): Promise<void> => {
   destroyPlayer()
   sendListenedData(commonTypes.EndOfStreamReason.NEW)
 
-  const currentPlaylist = applicationState.currentPlaylist
-
-  const isNewPlaylist: boolean = (currentPlaylist == null) || differentPlaylists(playlist, currentPlaylist)
-
-  let audiosIds = applicationState.audiosIds
-  const originalAudiosIds = applicationState.originalAudiosIds
-
-  if (isNewPlaylist) {
-    audiosIds = createAudiosIds(playlist.tracks)
-  }
-
-  let trackId: string
-  let accessKey: string
+  const isNewPlaylist: boolean = (applicationState.currentPlaylist == null) || differentPlaylists(playlist, applicationState.currentPlaylist)
+  let audiosIds = isNewPlaylist ? createAudiosIds(playlist.tracks) : applicationState.audiosIds
   let track: commonTypes.TrackItem
-
-  if (!isNewPlaylist && (fromOriginalSort ?? false) && applicationState.shuffle) {
-    [trackId, accessKey] = originalAudiosIds[trackIndex] ?? originalAudiosIds[0]
-    trackIndex = audiosIds.findIndex(([elementTrackId]) => elementTrackId === trackId)
-  } else {
-    [trackId, accessKey] = audiosIds[trackIndex] ?? audiosIds[0]
-  }
+  let trackIndex: number
 
   if (playlist.isRadio) {
-    track = playlist.tracks[trackIndex]
+    const foundIndex = newTrackId != null ? playlist.tracks.findIndex((track) => track.id === newTrackId) : 0
+    if (foundIndex === -1) {
+      throw new Error(`Radio-track ${newTrackId} not found`)
+    }
+    track = playlist.tracks[foundIndex]
+    trackIndex = foundIndex
   } else {
+    let foundIndex = newTrackId != null ? audiosIds.findIndex(([trackId]) => trackId === newTrackId) : 0
+    if (foundIndex === -1) {
+      audiosIds = createAudiosIds(playlist.tracks)
+      foundIndex = audiosIds.findIndex(([trackId]) => trackId === newTrackId)
+      if (foundIndex === -1) {
+        throw new Error(`Track ${newTrackId} not found`)
+      }
+    }
+
+    const [trackId, accessKey] = audiosIds[foundIndex]
     const possibleTrack = await fetchTrackInfo(applicationState.userId, trackId, accessKey)
+
     if (possibleTrack == null) {
-      const newIndex = getNewIndex('next', applicationState.activeTrackIndex, applicationState.audiosIds.length)
-      await playNewTrack(newIndex, playlist, fromOriginalSort)
+      const newIndex = getNewIndex('next', foundIndex, audiosIds.length)
+      await new Promise(resolve => setTimeout(resolve, 500))
+      await playNewTrack(audiosIds[newIndex][0], playlist)
       return
     }
     track = possibleTrack
+    trackIndex = foundIndex
   }
 
   const changes: Partial<commonTypes.ApplicationState> = {

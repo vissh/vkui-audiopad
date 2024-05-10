@@ -15,10 +15,9 @@ import { getActionButtons, getTrackState } from './utils'
 interface TrackProps {
   playlist: commonTypes.Playlist
   track: commonTypes.TrackItem
-  trackIndex: number
 }
 
-export const Track: FC<TrackProps> = ({ playlist, track: originalTrack, trackIndex }) => {
+export const Track: FC<TrackProps> = ({ playlist, track: originalTrack }) => {
   const userId = useSessionUserId()
   const currentPlaylist = useCurrentPlaylist()
   const activeTrack = useActiveTrack()
@@ -47,7 +46,7 @@ export const Track: FC<TrackProps> = ({ playlist, track: originalTrack, trackInd
       duration={track.duration}
       image={track.image}
       trackState={trackState}
-      onClick={() => { playOrPause(trackState, trackIndex, playlist) }}
+      onClick={() => { playOrPause(trackState, track.id, playlist) }}
       actions={
         <>
           {actionButtons.has('similar') && (

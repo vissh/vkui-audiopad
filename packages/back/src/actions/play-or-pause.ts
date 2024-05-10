@@ -28,5 +28,5 @@ const reloadTrack = async (): Promise<void> => {
     return
   }
 
-  await playNewTrack(applicationState.activeTrackIndex, applicationState.currentPlaylist)
+  await playNewTrack(applicationState.activeTrack.id, applicationState.currentPlaylist)
 }

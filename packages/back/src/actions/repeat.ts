@@ -17,6 +17,6 @@ export const repeat = async (): Promise<void> => {
 export const playCurrentTrack = async (): Promise<void> => {
   sendListenedData(commonTypes.EndOfStreamReason.NEW)
   if ((applicationState.activeTrack != null) && (applicationState.currentPlaylist != null)) {
-    await playNewTrack(applicationState.activeTrackIndex, applicationState.currentPlaylist)
+    await playNewTrack(applicationState.activeTrack.id, applicationState.currentPlaylist)
   }
 }

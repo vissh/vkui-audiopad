@@ -15,7 +15,7 @@ export const editCurrentPlaylist = (
   let originalAudiosIds = applicationState.originalAudiosIds
 
   if (originalAudiosIds.length > 0) {
-    originalAudiosIds = changeAudiosIds(originalAudiosIds, actions)
+    originalAudiosIds = changeAudiosIds(oldPlaylist.tracks, originalAudiosIds, actions)
 
     // Только когда shuffle нужно отдельно пройтись по сохраненному массиву, чтобы удалить треки.
     // Сохранение порядка в данном случае не интересует, так как треки и так были перемешаны.
@@ -25,7 +25,7 @@ export const editCurrentPlaylist = (
 
     audiosIds = audiosIds.filter(([trackId]) => !deletedTrackIds.has(trackId))
   } else {
-    audiosIds = changeAudiosIds(audiosIds, actions)
+    audiosIds = changeAudiosIds(oldPlaylist.tracks, audiosIds, actions)
   }
 
   const activeTrackIndex = Math.max(0, audiosIds.findIndex(audioTuple => audioTuple[0] === trackId))
@@ -37,16 +37,37 @@ export const editCurrentPlaylist = (
   })
 }
 
-const changeAudiosIds = (audiosIds: commonTypes.AudioTuple[], actions: commonTypes.EditActions): commonTypes.AudioTuple[] => {
+const changeAudiosIds = (
+  oldTracks: commonTypes.TrackItem[],
+  audiosIds: commonTypes.AudioTuple[],
+  actions: commonTypes.EditActions
+): commonTypes.AudioTuple[] => {
   let result = [...audiosIds]
+  let tracks = [...oldTracks]
+
   actions.forEach(action => {
     if (action[0] === 'remove') {
-      result.splice(action[1], 1)
+      const trackIndex = action[1]
+      const track = tracks[trackIndex]
+      const audiosIdsIndex = result.findIndex(([trackId]) => trackId === track.id)
+      tracks.splice(trackIndex, 1)
+      result.splice(audiosIdsIndex, 1)
     } else if (action[0] === 'move') {
-      const [from, to] = [action[1], action[2]]
+      const [fromTrackIndex, toTrackIndex] = [action[1], action[2]]
+
+      const fromTrack = tracks[fromTrackIndex]
+      const toTrack = tracks[toTrackIndex]
+      const fromAudiosIdsIndex = result.findIndex(([trackId]) => trackId === fromTrack.id)
+      const toAudiosIdsIndex = result.findIndex(([trackId]) => trackId === toTrack.id)
+
+      const tmpTracks = [...tracks]
+      tmpTracks.splice(fromTrackIndex, 1)
+      tmpTracks.splice(toTrackIndex, 0, tracks[fromTrackIndex])
+      tracks = tmpTracks
+
       const ids = [...result]
-      ids.splice(from, 1)
-      ids.splice(to, 0, result[from])
+      ids.splice(fromAudiosIdsIndex, 1)
+      ids.splice(toAudiosIdsIndex, 0, result[fromAudiosIdsIndex])
       result = ids
     }
   })

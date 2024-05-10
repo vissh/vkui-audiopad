@@ -17,7 +17,7 @@ interface AlbumProps {
 export const Album: FC<AlbumProps> = ({ userId, album }) => {
   const playNewAlbum = async () => {
     const playlistFetchResult = await fetchPlaylist({ fromId: userId, playlist: album })
-    playOrPause('normal', 0, playlistFetchResult.playlist)
+    playOrPause('normal', null, playlistFetchResult.playlist)
   }
 
   const openAlbum = () => {

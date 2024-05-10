@@ -7,7 +7,12 @@ export const fetchTrackInfo = async (ownerId: string, trackId: string, accessKey
     audio_ids: trackId + '_' + accessKey
   })
 
-  const trackInfo = cast.castToArray(vkClient.parseResponsePayload(resp, [1, 0, 0]))
+  const trackInfoList = cast.castToArray(vkClient.parseResponsePayload(resp, [1, 0]))
+  if (trackInfoList.length === 0) {
+    return null
+  }
+
+  const trackInfo = cast.castToArray(trackInfoList[0])
   const url = cast.castToString(trackInfo[commonTypes.AudioTupleIndex.URL])
 
   const track = converter.toTrackItem(trackInfo)

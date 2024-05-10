@@ -24,12 +24,11 @@ export const TrackList: FC<TrackListProps> = ({ isLoading, playlist, header }) =
             mode='plain'
             header={header != null && header.length > 0 && <Header>{header}</Header>}
           >
-            {playlist.tracks.map((track, index) => (
+            {playlist.tracks.map((track) => (
               <Track
                 key={track.id}
                 playlist={playlist}
                 track={track}
-                trackIndex={index}
               />
             ))}
           </Group>

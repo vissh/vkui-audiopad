@@ -19,14 +19,16 @@ const playNewTrackByIndex = async (action: ActionType): Promise<void> => {
     return
   }
 
-  let newIndex = 0
+  let trackId: string
 
   if (applicationState.currentPlaylist.isRadio) {
     const tracks = applicationState.currentPlaylist.tracks
-    newIndex = getNewIndex(action, applicationState.activeTrackIndex, tracks.length)
+    const newIndex = getNewIndex(action, applicationState.activeTrackIndex, tracks.length)
+    trackId = tracks[newIndex].id
   } else {
-    newIndex = getNewIndex(action, applicationState.activeTrackIndex, applicationState.audiosIds.length)
+    const newIndex = getNewIndex(action, applicationState.activeTrackIndex, applicationState.audiosIds.length)
+    trackId = applicationState.audiosIds[newIndex][0]
   }
 
-  await playNewTrack(newIndex, applicationState.currentPlaylist)
+  await playNewTrack(trackId, applicationState.currentPlaylist)
 }

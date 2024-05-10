@@ -15,7 +15,7 @@ export const startListeningPopupMessages = (): void => {
 const messageHandler = async (message: commonTypes.Messages): Promise<void> => {
   switch (message.type) {
     case 'active-track':
-      await playNewTrack(message.trackIndex, message.playlist, true)
+      await playNewTrack(message.trackId, message.playlist)
       break
     case 'next-track':
       await nextTrack()

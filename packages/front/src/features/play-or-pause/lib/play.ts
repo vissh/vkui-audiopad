@@ -5,7 +5,7 @@ import { sendMessage } from '@/shared/lib/send-message'
 
 export const playOrPause = (
   trackState: TrackState,
-  trackIndex: number,
+  trackId: string | null,
   playlist: commonTypes.Playlist
 ) => {
   if (trackState === 'played') {
@@ -18,5 +18,5 @@ export const playOrPause = (
     return
   }
 
-  sendMessage({ type: 'active-track', trackIndex, playlist })
+  sendMessage({ type: 'active-track', trackId, playlist })
 }

@@ -20,8 +20,7 @@ interface TrackGalleryProps {
 }
 
 export const TrackGallery: FC<TrackGalleryProps> = ({ mode, isLoading, userId, playlist }) => {
-  const toTrackIndex = (track: commonTypes.TrackItem, index: number) => [track, index] as [commonTypes.TrackItem, number]
-  const columnsTracks = playlist != null ? batched(playlist.tracks.map(toTrackIndex), rows, columns) : []
+  const columnsTracks = playlist != null ? batched(playlist.tracks, rows, columns) : []
 
   return (
     <SkeletonWrapper
@@ -44,12 +43,11 @@ export const TrackGallery: FC<TrackGalleryProps> = ({ mode, isLoading, userId, p
             <div style={{ display: 'flex' }}>
               {columnsTracks.map((tracksWithIndexes, columnIndex) => (
                 <List key={columnIndex} style={{ width: columnWidth, minWidth: columnWidth }}>
-                  {tracksWithIndexes.map(([track, trackIndex]) => (
+                  {tracksWithIndexes.map((track) => (
                     <Track
                       key={track.id}
                       playlist={playlist}
                       track={track}
-                      trackIndex={trackIndex}
                     />
                   ))}
                 </List>

@@ -258,7 +258,7 @@ export interface NextTrackMessage {
 
 export interface ActiveTrackMessage {
   type: 'active-track'
-  trackIndex: number
+  trackId: string | null
   playlist: Playlist
 }
 

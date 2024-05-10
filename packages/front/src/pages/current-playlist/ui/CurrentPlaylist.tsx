@@ -150,7 +150,6 @@ export const CurrentPlaylist: FC<CurrentPlaylistProps> = ({ active }) => {
                     key={track.id}
                     playlist={playlist ?? currentPlaylist}
                     track={track}
-                    trackIndex={index}
                   />
                 }
               </>
