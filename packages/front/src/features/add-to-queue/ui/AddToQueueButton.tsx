@@ -1,4 +1,4 @@
-import { type commonTypes } from '@vk-audiopad/common'
+import { commonTypes } from '@vk-audiopad/common'
 import { Icon20ListAddOutline, Icon20ListPlayOutline } from '@vkontakte/icons'
 import { useState, type FC } from 'react'
 import { sendMessage } from '@/shared/lib/send-message'
@@ -22,7 +22,11 @@ export const AddToQueueButton: FC<AddToQueueButtonProps> = ({ track }) => {
           text='Воспроизвести следующей'
           icon={Icon20ListPlayOutline}
           onClick={() => {
-            sendMessage({ type: 'add-to-queue', track })
+            sendMessage({
+              target: commonTypes.MessageType.SERVICE_WORKER,
+              type: 'add-to-queue',
+              track
+            })
             setAdded(true)
           }}
         />

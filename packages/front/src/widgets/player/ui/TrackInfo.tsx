@@ -2,6 +2,7 @@ import { Headline } from '@vkontakte/vkui'
 import { type CSSProperties, type FC } from 'react'
 import { SearchArtist } from '@/features/search-artist'
 import { useActiveTrack, useCurrentPlaylist } from '@/entities/active-track'
+import { getText } from '@/shared/lib/cast-to-types'
 
 const maxTitleChars = 23
 
@@ -18,7 +19,7 @@ export const TrackInfo: FC = () => {
 
   let titleStyle: CSSProperties = {}
 
-  const title = (activeTrack?.title ?? '').trim()
+  const title = getText((activeTrack?.title ?? '').trim())
 
   if (!(currentPlaylist?.isRadio ?? false) && title.length >= maxTitleChars) {
     titleStyle = {

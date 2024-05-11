@@ -56,8 +56,7 @@ export const toTrackItem = (trackInfo: JSONValue[], isRadio: boolean = false): T
 }
 
 export const decode = (value: string): string => {
-  const txt = new DOMParser().parseFromString(value, 'text/html')
-  return txt.documentElement.textContent ?? ''
+  return value.replace(/<\s*[^>]*>/gi, '')
 }
 
 const decodeArtist = (rawArtist: JSONValue): TrackArtist => {

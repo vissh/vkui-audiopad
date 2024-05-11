@@ -1,6 +1,7 @@
 import { commonUtils } from '@vk-audiopad/common'
 import { Cell, Separator } from '@vkontakte/vkui'
 import { type FC } from 'react'
+import { getText } from '@/shared/lib/cast-to-types'
 import { Duration } from '@/shared/ui/duration'
 import { type TrackState } from '../model/types'
 import './TrackCell.css'
@@ -63,7 +64,7 @@ export const TrackCell: FC<TrackCellProps> = ({
       }
       subtitle={artist}
     >
-      {disabled ? <span className='vkap_secondary_color'>{title}</span> : title}
+      {disabled ? <span className='vkap_secondary_color'>{getText(title)}</span> : getText(title)}
     </Cell>
   )
 }

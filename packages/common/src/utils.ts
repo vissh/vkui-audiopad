@@ -28,3 +28,7 @@ export const clearStorage = (saveCustomKeys?: string[]): void => {
     void chrome.storage.local.remove(removeKeys)
   })
 }
+
+export const isFirefox = (): boolean => {
+  return false
+}

@@ -1,3 +1,4 @@
+import { commonTypes } from '@vk-audiopad/common'
 import { Slider } from '@vkontakte/vkui'
 import { useEffect, useState, type FC } from 'react'
 import { useCurrentTime, useDuration } from '@/entities/active-track'
@@ -19,7 +20,11 @@ export const CurrentTimeSlider: FC = () => {
 
   const mouseUp = (e: React.PointerEvent) => {
     e.currentTarget.releasePointerCapture(e.pointerId)
-    sendMessage({ type: 'current-time', value: (sliderCurrentTime * duration) / 100 })
+    sendMessage({
+      target: commonTypes.MessageType.SERVICE_WORKER,
+      type: 'current-time',
+      value: (sliderCurrentTime * duration) / 100
+    })
     setMouseDownState(false)
   }
 
@@ -46,7 +51,11 @@ export const CurrentTimeSlider: FC = () => {
 
         let value = (sliderCurrentTime * duration) / 100
         value += e.code === 'ArrowLeft' ? -1 : 1
-        sendMessage({ type: 'current-time', value })
+        sendMessage({
+          target: commonTypes.MessageType.SERVICE_WORKER,
+          type: 'current-time',
+          value
+        })
       }}
     />
   )

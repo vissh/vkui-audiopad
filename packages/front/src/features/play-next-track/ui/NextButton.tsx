@@ -1,3 +1,4 @@
+import { commonTypes } from '@vk-audiopad/common'
 import { Icon20SkipForward } from '@vkontakte/icons'
 import { IconButton } from '@vkontakte/vkui'
 import { type FC } from 'react'
@@ -7,7 +8,12 @@ export const NextButton: FC = () => {
   return (
     <IconButton
       hasHover={false}
-      onClick={() => { sendMessage({ type: 'next-track' }) }}
+      onClick={() => {
+        sendMessage({
+          target: commonTypes.MessageType.SERVICE_WORKER,
+          type: 'next-track'
+        })
+      }}
       style={{ height: 48 }}
     >
       <Icon20SkipForward />

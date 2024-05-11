@@ -1,4 +1,4 @@
-import { type commonTypes } from '@vk-audiopad/common'
+import { commonTypes } from '@vk-audiopad/common'
 import { setPlayed } from '@/entities/active-track'
 import { type TrackState } from '@/entities/track'
 import { sendMessage } from '@/shared/lib/send-message'
@@ -18,5 +18,10 @@ export const playOrPause = (
     return
   }
 
-  sendMessage({ type: 'active-track', trackId, playlist })
+  sendMessage({
+    target: commonTypes.MessageType.SERVICE_WORKER,
+    type: 'active-track',
+    trackId,
+    playlist
+  })
 }

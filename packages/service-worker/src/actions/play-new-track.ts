@@ -1,12 +1,11 @@
 import { commonTypes } from '@vk-audiopad/common'
 import { fetchAudiosIdsBySource } from '../fetchers/audio-ids-by-source'
 import { fetchTrackInfo } from '../fetchers/track-info'
-import { destroyPlayer, playTrack } from '../player'
+import { playTrack } from '../offscreen/play-track'
 import { applicationState } from '../state'
 import { createAudiosIds, getNewIndex, sendListenedData, shuffle } from '../utils'
 
 export const playNewTrack = async (newTrackId: string | null, playlist: commonTypes.Playlist): Promise<void> => {
-  destroyPlayer()
   sendListenedData(commonTypes.EndOfStreamReason.NEW)
 
   const isNewPlaylist: boolean = (applicationState.currentPlaylist == null) || differentPlaylists(playlist, applicationState.currentPlaylist)
@@ -56,7 +55,7 @@ export const playNewTrack = async (newTrackId: string | null, playlist: commonTy
 
   void chrome.storage.local.set(changes)
 
-  playTrack(track)
+  await playTrack(track.url, applicationState.volume)
 
   if (isNewPlaylist && !playlist.isRadio) {
     const audiosIds = await fetchAudiosIdsBySource(playlist)

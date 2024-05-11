@@ -1,25 +1,13 @@
 {
-  "name": "@vk-audiopad/common",
+  "name": "@vk-audiopad/service-worker",
   "version": "1.0.0",
   "type": "module",
-  "files": [
-    "dist"
-  ],
-  "main": "./dist/vk-audiopad-common-lib.umd.cjs",
-  "module": "./dist/vk-audiopad-common-lib.js",
-  "types": "./dist/index.d.ts",
-  "exports": {
-    ".": {
-      "import": "./dist/vk-audiopad-common-lib.js",
-      "require": "./dist/vk-audiopad-common-lib.umd.cjs"
-    }
-  },
   "scripts": {
     "build": "npm install && tsc && ./node_modules/.bin/vite build",
     "eslint:fix": "eslint --fix src"
   },
   "dependencies": {
-    "serialize-error": "11.0.3"
+    "@vk-audiopad/common": "file:../common"
   },
   "devDependencies": {
     "@types/chrome": "0.0.267",
@@ -30,7 +18,6 @@
     "eslint": "^8.53.0",
     "eslint-config-standard-with-typescript": "^39.1.1",
     "typescript": "5.4.5",
-    "vite": "4.4.11",
-    "vite-plugin-dts": "2.3.0"
+    "vite": "^4.4.5"
   }
 }

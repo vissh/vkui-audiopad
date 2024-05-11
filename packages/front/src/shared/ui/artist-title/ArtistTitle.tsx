@@ -1,6 +1,7 @@
 import { type commonTypes } from '@vk-audiopad/common'
 import { Subhead } from '@vkontakte/vkui'
 import { type FC } from 'react'
+import { getText } from '../../lib/cast-to-types'
 import './ArtistTitle.css'
 
 interface ArtistTitleProps {
@@ -24,6 +25,8 @@ export const ArtistTitle: FC<ArtistTitleProps> = ({ track, onSearch, onArtist })
     }
   }
 
+  const artist = getText(track.artist)
+
   return (
     <Subhead className='vkap_artists'>
       {track.mainArtists.length > 0
@@ -37,10 +40,10 @@ export const ArtistTitle: FC<ArtistTitleProps> = ({ track, onSearch, onArtist })
           )}
         </>
         : <span
-          onClick={searchClick(track.artist)}
+          onClick={searchClick(artist)}
           className='vkap_artist'
         >
-          {track.artist}
+          {artist}
         </span>
       }
     </Subhead>
@@ -51,15 +54,18 @@ const groupArtists = (
   artists: commonTypes.TrackArtist[],
   onClick: (artist: commonTypes.TrackArtist) => (e: React.MouseEvent) => void
 ) => {
-  return artists.map((artist, index, arr) => (
-    <>
-      <span
-        onClick={onClick(artist)}
-        className='vkap_artist'
-      >
-        {artist.name}
-      </span>
-      {index !== arr.length - 1 ? ', ' : ''}
-    </>
-  ))
+  return artists.map((artist, index, arr) => {
+    artist.name = getText(artist.name)
+    return (
+      <>
+        <span
+          onClick={onClick(artist)}
+          className='vkap_artist'
+        >
+          {artist.name}
+        </span>
+        {index !== arr.length - 1 ? ', ' : ''}
+      </>
+    )
+  })
 }

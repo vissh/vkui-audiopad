@@ -1,0 +1,22 @@
+[
+  {
+    "id": 1,
+    "priority": 1,
+    "action": {
+      "type": "modifyHeaders",
+      "requestHeaders": [
+        {
+          "header": "origin",
+          "operation": "set",
+          "value": "https://vk.com"
+        }
+      ]
+    },
+    "condition": {
+      "urlFilter": "||vk.com/",
+      "resourceTypes": [
+        "xmlhttprequest"
+      ]
+    }
+  }
+]

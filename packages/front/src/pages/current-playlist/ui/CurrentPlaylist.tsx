@@ -1,4 +1,4 @@
-import { type commonTypes } from '@vk-audiopad/common'
+import { commonTypes } from '@vk-audiopad/common'
 import { Icon20Cancel, Icon20Check, Icon20ListPenOutline } from '@vkontakte/icons'
 import { Button, Group, Header, List } from '@vkontakte/vkui'
 import { useEffect, useState, type FC } from 'react'
@@ -44,6 +44,7 @@ export const CurrentPlaylist: FC<CurrentPlaylistProps> = ({ active }) => {
 
     if (actions.length > 0) {
       sendMessage({
+        target: commonTypes.MessageType.SERVICE_WORKER,
         type: 'edit-current-playlist',
         playlist,
         oldPlaylist: currentPlaylist,

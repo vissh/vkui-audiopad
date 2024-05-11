@@ -2,20 +2,21 @@
   "name": "vk audiopad – VK Музыка бесплатно без рекламы",
   "description": "С плеером для ВК Музыки, вы можете слушать музыку из ВКонтакте бесплатно и без рекламы",
   "author": "Denis Matveev <unsumulum@gmail.com>",
-  "version": "3.2.6",
-  "manifest_version": 2,
+  "version": "3.3.0",
+  "manifest_version": 3,
+  "minimum_chrome_version": "116",
   "icons": {
     "16": "icons/icon16.png",
     "32": "icons/icon32.png",
     "48": "icons/icon48.png",
     "128": "icons/icon128.png"
   },
-  "browser_action": {
+  "action": {
     "default_popup": "index.html"
   },
   "background": {
-    "page": "background.html",
-    "persistent": true
+    "service_worker": "service-worker.js",
+    "type": "module"
   },
   "commands": {
     "010-play-pause": {
@@ -46,11 +47,24 @@
       "description": "Повтор"
     }
   },
-  "permissions": [
-    "*://*.vk.com/*",
-    "storage",
-    "webRequest",
-    "webRequestBlocking"
+  "host_permissions": [
+    "*://*.vk.com/*"
   ],
-  "content_security_policy": "script-src 'self' blob: 'sha256-zBAu63Ml0ZcBZR6RNMSWf9u1NRTTGFWaawf+oYHzLHs=' https://top-fwz1.mail.ru/js/code.js https://top-fwz1.mail.ru/js/dyn-goal-config.js; object-src 'self'"
+  "permissions": [
+    "declarativeNetRequest",
+    "offscreen",
+    "storage"
+  ],
+  "declarative_net_request": {
+    "rule_resources": [
+      {
+        "id": "vkcom",
+        "enabled": true,
+        "path": "rules/vkcom.json"
+      }
+    ]
+  },
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'self';"
+  }
 }

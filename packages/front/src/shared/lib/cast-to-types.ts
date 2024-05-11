@@ -52,11 +52,14 @@ export const toAlbum = (raw: commonTypes.JSONValue): Album => {
   }
 }
 
-const getText = (str: string) => {
+const _parser = new DOMParser()
+
+export const getText = (str: string) => {
   if (str.startsWith('<')) {
     const htmlElement = document.createElement('html')
     htmlElement.innerHTML = str
     str = htmlElement.innerText
   }
-  return converter.decode(str)
+  const doc = _parser.parseFromString(str, 'text/html')
+  return doc.documentElement.textContent ?? ''
 }

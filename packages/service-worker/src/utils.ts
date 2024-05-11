@@ -1,6 +1,5 @@
 import { commonTypes, commonUtils } from '@vk-audiopad/common'
 import { fetchListenedData } from './fetchers/listened-data'
-import { audioElement } from './player'
 import { applicationState } from './state'
 import { type ActionType, type TListenedData } from './types'
 
@@ -20,24 +19,25 @@ export const sendListenedData = (endStreamReason: commonTypes.EndOfStreamReason)
     const listenedData: TListenedData = {
       userId: applicationState.userId,
       track: applicationState.activeTrack,
-      listened: Math.floor(audioElement.currentTime),
+      listened: Math.floor(applicationState.currentTime),
       endStreamReason
     }
     setTimeout(async () => { await fetchListenedData(listenedData) }, 10)
   }
 }
 
-export const setBadgeText = (durationMode: commonTypes.DurationMode): void => {
+export const setBadgeText = (durationMode: commonTypes.DurationMode, duration: number, currentTime: number): void => {
   const timeLeft = durationMode === commonTypes.DurationMode.TIME_LEFT
-  const [duration, currentTime] = [audioElement.duration ?? 0, Math.floor(audioElement.currentTime)]
 
-  if ((duration !== 0) && duration !== Infinity) {
+  if (applicationState.currentPlaylist != null && applicationState.currentPlaylist?.isRadio) {
+    void chrome.action.setBadgeText({ text: commonUtils.toHHMMSS(currentTime) })
+    return
+  }
+
+  if (duration !== 0) {
     const time = timeLeft ? duration - currentTime : currentTime
     const value = commonUtils.toHHMMSS(time)
-    void chrome.browserAction.setBadgeText({ text: timeLeft ? '-' + value : value })
-  } else if (duration === Infinity) {
-    // radio
-    void chrome.browserAction.setBadgeText({ text: commonUtils.toHHMMSS(currentTime) })
+    void chrome.action.setBadgeText({ text: timeLeft ? '-' + value : value })
   }
 }
 
