@@ -3,7 +3,7 @@ import { storage } from './storage'
 
 export const applicationState: commonTypes.ApplicationState = Object.assign({}, initialState.Application)
 
-const loadState = async (): Promise<void> => {
+export const loadState = async (): Promise<void> => {
   const partialAppState = await storage.load()
   Object.assign(applicationState, partialAppState)
 
@@ -17,5 +17,3 @@ const loadState = async (): Promise<void> => {
 
   void chrome.action.setBadgeBackgroundColor({ color: '#0077FF' })
 }
-
-void loadState()

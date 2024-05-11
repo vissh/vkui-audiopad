@@ -24,3 +24,7 @@ export const setupOffscreenDocument = async (): Promise<void> => {
     creating = null
   }
 }
+
+export const closeOffscreenDocument = async (): Promise<void> => {
+  await chrome.offscreen.closeDocument()
+}

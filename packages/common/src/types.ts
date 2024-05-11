@@ -316,6 +316,10 @@ export interface AudioPlayerErrorMessage extends IServiceWorkerMessage {
   type: 'audio-player-error'
 }
 
+export interface CloseOffscreenDocumentMessage extends IServiceWorkerMessage {
+  type: 'close-offscreen-document'
+}
+
 export type ServiceWorkerMessage = (
   RepeatMessage
   | AddToQueueMessage
@@ -331,6 +335,7 @@ export type ServiceWorkerMessage = (
   | AudioPlayerEndedMessage
   | AudioPlayerErrorMessage
   | AudioPlayerTimeupdateMessage
+  | CloseOffscreenDocumentMessage
 )
 
 export interface AudioPlayerTimeupdateMessage extends IServiceWorkerMessage {

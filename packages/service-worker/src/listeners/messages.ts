@@ -11,6 +11,7 @@ import { onTimeUpdate } from '../actions/on-audio-timeupdate'
 import { playNewTrack } from '../actions/play-new-track'
 import { reloadTrack } from '../actions/reload-track'
 import { repeat } from '../actions/repeat'
+import { closeOffscreenDocument } from '../offscreen/setup'
 import { updateCurrentTime } from '../offscreen/update-current-time'
 
 export const startListeningMessages = (): void => {
@@ -64,6 +65,9 @@ const messageHandler = async (message: commonTypes.Message): Promise<void> => {
       break
     case 'audio-player-timeupdate':
       await onTimeUpdate(message)
+      break
+    case 'close-offscreen-document':
+      await closeOffscreenDocument()
       break
     default:
       commonUtils.assertUnreachable(message)

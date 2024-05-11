@@ -27,7 +27,7 @@ export const playTrack = async (url: string, volume: number): Promise<void> => {
   hls.on(Hls.Events.MEDIA_ATTACHED, () => { void audioElement.play() })
 }
 
-const destroyPlayer = (): void => {
+export const destroyPlayer = (): void => {
   while (hlsWorkers.length > 0) {
     const oldHlsWorker = hlsWorkers.pop()
     if (oldHlsWorker == null) {
