@@ -42,5 +42,8 @@ export const RepeatButton: FC = () => {
 }
 
 const setRepeat = (): void => {
-  sendMessage({ target: commonTypes.MessageType.SERVICE_WORKER, type: 'repeat' })
+  sendMessage({
+    target: commonTypes.MessageTarget.SERVICE_WORKER,
+    type: commonTypes.MessageType.REPEAT
+  })
 }

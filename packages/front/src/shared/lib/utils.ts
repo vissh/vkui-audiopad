@@ -23,3 +23,9 @@ export const batched = <T>(arr: T[], size: number, limit?: number): T[][] => {
 
   return result
 }
+
+const parser = new DOMParser()
+
+export const parseFromString = (str: string): Document => {
+  return parser.parseFromString(str, 'text/html')
+}

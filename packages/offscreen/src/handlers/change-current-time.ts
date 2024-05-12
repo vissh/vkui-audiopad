@@ -1,5 +1,5 @@
 import { audioElement } from '../audio-element'
 
-export const setCurrentTime = (value: number): void => {
+export const changeCurrentTime = (value: number): void => {
   audioElement.currentTime = value
 }

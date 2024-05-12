@@ -1,5 +1,6 @@
 import { commonTypes } from '@vk-audiopad/common'
 import { audioElement } from '../audio-element'
+import { sendMessage } from '../send-message'
 
 export const playOrPause = (played: boolean): void => {
   if (audioElement.src.length > 0) {
@@ -9,10 +10,9 @@ export const playOrPause = (played: boolean): void => {
       audioElement.pause()
     }
   } else if (played) {
-    const message: commonTypes.ReloadTrackMessage = {
-      target: commonTypes.MessageType.SERVICE_WORKER,
-      type: 'reload-track'
-    }
-    void (chrome.runtime.sendMessage(message))
+    void sendMessage({
+      target: commonTypes.MessageTarget.SERVICE_WORKER,
+      type: commonTypes.MessageType.RELOAD_TRACK
+    })
   }
 }

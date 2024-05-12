@@ -8,7 +8,12 @@ export const PreviousButton: FC = () => {
   return (
     <IconButton
       hasHover={false}
-      onClick={() => { sendMessage({ target: commonTypes.MessageType.SERVICE_WORKER, type: 'previous-track' }) }}
+      onClick={() => {
+        sendMessage({
+          target: commonTypes.MessageTarget.SERVICE_WORKER,
+          type: commonTypes.MessageType.PREVIOUS_TRACK
+        })
+      }}
       style={{ height: 48 }}
     >
       <Icon20SkipBack />

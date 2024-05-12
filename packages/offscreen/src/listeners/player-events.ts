@@ -1,5 +1,6 @@
 import { commonTypes } from '@vk-audiopad/common'
 import { audioElement } from '../audio-element'
+import { sendMessage } from '../send-message'
 
 export const startListeningPlayerEvents = (): void => {
   audioElement.addEventListener('playing', sendPlaying)
@@ -10,9 +11,9 @@ export const startListeningPlayerEvents = (): void => {
 }
 
 const sendPlaying = (): void => {
-  sendMessage({
-    target: commonTypes.MessageType.SERVICE_WORKER,
-    type: 'audio-player-playing',
+  void sendMessage({
+    target: commonTypes.MessageTarget.SERVICE_WORKER,
+    type: commonTypes.MessageType.AUDIO_PLAYER_PLAYING,
     volume: audioElement.volume,
     duration: audioElement.duration,
     currentTime: audioElement.currentTime
@@ -20,36 +21,32 @@ const sendPlaying = (): void => {
 }
 
 const sendPause = (): void => {
-  sendMessage({
-    target: commonTypes.MessageType.SERVICE_WORKER,
-    type: 'audio-player-pause'
+  void sendMessage({
+    target: commonTypes.MessageTarget.SERVICE_WORKER,
+    type: commonTypes.MessageType.AUDIO_PLAYER_PAUSE
   })
 }
 
 const sendEnded = (): void => {
-  sendMessage({
-    target: commonTypes.MessageType.SERVICE_WORKER,
-    type: 'audio-player-ended'
+  void sendMessage({
+    target: commonTypes.MessageTarget.SERVICE_WORKER,
+    type: commonTypes.MessageType.AUDIO_PLAYER_ENDED
   })
 }
 
 const sendError = (): void => {
-  sendMessage({
-    target: commonTypes.MessageType.SERVICE_WORKER,
-    type: 'audio-player-error'
+  void sendMessage({
+    target: commonTypes.MessageTarget.SERVICE_WORKER,
+    type: commonTypes.MessageType.AUDIO_PLAYER_ENDED
   })
 }
 
 const sendTimeupdate = (): void => {
-  sendMessage({
-    target: commonTypes.MessageType.SERVICE_WORKER,
-    type: 'audio-player-timeupdate',
+  void sendMessage({
+    target: commonTypes.MessageTarget.SERVICE_WORKER,
+    type: commonTypes.MessageType.AUDIO_PLAYER_TIMEUPDATED,
     paused: audioElement.paused,
     duration: audioElement.duration,
     currentTime: audioElement.currentTime
   })
-}
-
-const sendMessage = (message: commonTypes.Message): void => {
-  void (chrome.runtime.sendMessage(message))
 }

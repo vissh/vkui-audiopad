@@ -44,8 +44,8 @@ export const CurrentPlaylist: FC<CurrentPlaylistProps> = ({ active }) => {
 
     if (actions.length > 0) {
       sendMessage({
-        target: commonTypes.MessageType.SERVICE_WORKER,
-        type: 'edit-current-playlist',
+        target: commonTypes.MessageTarget.SERVICE_WORKER,
+        type: commonTypes.MessageType.EDIT_CURRENT_PLAYLIST,
         playlist,
         oldPlaylist: currentPlaylist,
         actions

@@ -3,8 +3,8 @@ import { sendOffscreenMessage } from './send-message'
 
 export const playOrPause = async (played: boolean): Promise<void> => {
   await sendOffscreenMessage({
-    target: commonTypes.MessageType.OFFSCREEN,
-    type: 'play-or-pause',
+    target: commonTypes.MessageTarget.OFFSCREEN,
+    type: commonTypes.MessageType.PLAY_OR_PAUSE,
     played
   })
 }

@@ -23,8 +23,8 @@ export const AddToQueueButton: FC<AddToQueueButtonProps> = ({ track }) => {
           icon={Icon20ListPlayOutline}
           onClick={() => {
             sendMessage({
-              target: commonTypes.MessageType.SERVICE_WORKER,
-              type: 'add-to-queue',
+              target: commonTypes.MessageTarget.SERVICE_WORKER,
+              type: commonTypes.MessageType.ADD_TO_QUEUE,
               track
             })
             setAdded(true)

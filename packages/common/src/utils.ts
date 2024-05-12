@@ -1,5 +1,5 @@
 import { ApplicationControls, ApplicationSettings } from './initial-state'
-import { type ActiveTabs, type TabWithHistory } from './types'
+import { MessageType, type ActiveTabs, type Message, type TabWithHistory } from './types'
 
 export const assertUnreachable = (_: never): never => {
   throw new Error('Statement should be unreachable')
@@ -31,4 +31,42 @@ export const clearStorage = (saveCustomKeys?: string[]): void => {
 
 export const isFirefox = (): boolean => {
   return false
+}
+
+let _offscreenDocumentSupport: boolean | null = null
+
+export const offscreenDocumentSupport = async (): Promise<boolean> => {
+  if (_offscreenDocumentSupport != null) {
+    return _offscreenDocumentSupport
+  }
+
+  const env = await (await fetch(chrome.runtime.getURL('environment.json'))).json()
+  _offscreenDocumentSupport = env['offscreen-document-support'] as boolean
+  return _offscreenDocumentSupport
+}
+
+export const addBackgroundMessageListener = (handler: (message: Message) => void): void => {
+  const customEventsElement = document.getElementById('custom-events')
+  if (customEventsElement == null) {
+    throw new Error('custom-events element not found')
+  }
+  Object.values(MessageType).forEach((eventName) => {
+    customEventsElement.addEventListener(eventName, (event) => {
+      if (isCustomEvent(event)) {
+        handler(event.detail as Message)
+      }
+    })
+  })
+}
+
+export const sendBackgroundMessage = (message: Message): void => {
+  const customEventsElement = document.getElementById('custom-events')
+  if (customEventsElement == null) {
+    throw new Error('custom-events element not found')
+  }
+  customEventsElement.dispatchEvent(new CustomEvent(message.type, { detail: message }))
+}
+
+const isCustomEvent = (event: Event): event is CustomEvent => {
+  return 'detail' in event
 }

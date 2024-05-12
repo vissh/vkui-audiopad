@@ -21,8 +21,8 @@ export const CurrentTimeSlider: FC = () => {
   const mouseUp = (e: React.PointerEvent) => {
     e.currentTarget.releasePointerCapture(e.pointerId)
     sendMessage({
-      target: commonTypes.MessageType.SERVICE_WORKER,
-      type: 'current-time',
+      target: commonTypes.MessageTarget.SERVICE_WORKER,
+      type: commonTypes.MessageType.CURRENT_TIME,
       value: (sliderCurrentTime * duration) / 100
     })
     setMouseDownState(false)
@@ -52,8 +52,8 @@ export const CurrentTimeSlider: FC = () => {
         let value = (sliderCurrentTime * duration) / 100
         value += e.code === 'ArrowLeft' ? -1 : 1
         sendMessage({
-          target: commonTypes.MessageType.SERVICE_WORKER,
-          type: 'current-time',
+          target: commonTypes.MessageTarget.SERVICE_WORKER,
+          type: commonTypes.MessageType.CURRENT_TIME,
           value
         })
       }}

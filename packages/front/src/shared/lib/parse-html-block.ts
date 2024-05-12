@@ -1,4 +1,5 @@
 import { CatalogBlockDataType, type ParsedAlbumInfo, type ParsedCatalogBlock } from '../types'
+import { parseFromString } from './utils'
 
 const trackDataTypes = new Set(['music_audios', 'radiostations'])
 const albumsDataTypes = new Set(['music_playlists'])
@@ -11,8 +12,7 @@ interface BlockDataTypeElement {
 }
 
 export const parseCatalogBlocks = (blockIds: string[], html: string): ParsedCatalogBlock[] => {
-  const htmlElement = document.createElement('html')
-  htmlElement.innerHTML = html
+  const htmlElement = parseFromString(html)
 
   return blockIds
     .reduce(toBlockDataTypeElement(htmlElement), [])
@@ -36,7 +36,7 @@ export const findSectionId = (html: string): string | null => {
   return sectionId != null && sectionId.length > 0 ? sectionId : null
 }
 
-const toBlockDataTypeElement = (htmlElement: HTMLHtmlElement) => {
+const toBlockDataTypeElement = (htmlElement: Document) => {
   return (result: BlockDataTypeElement[], blockId: string): BlockDataTypeElement[] => {
     const blockElement = htmlElement.querySelector(`[data-id=${blockId}]`)
 

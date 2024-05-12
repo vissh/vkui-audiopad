@@ -238,86 +238,115 @@ export type ApplicationState =
   ApplicationActiveTabState &
   Record<string, string | WebToken | Playlist | TrackItem | number | boolean | AudioTuple[] | ActiveTabs | null | undefined>
 
-export enum MessageType {
+export enum MessageTarget {
   SERVICE_WORKER = 'service-worker',
   OFFSCREEN = 'offscreen',
 }
 
+export enum MessageType {
+  REPEAT = 'repeat',
+  ADD_TO_QUEUE = 'add-to-queue',
+  CURRENT_TIME = 'current-time',
+  NEXT_TRACK = 'next-track',
+  ACTIVE_TRACK = 'active-track',
+  PREVIOUS_TRACK = 'previous-track',
+  DELETE_TRACK = 'delete-track',
+  EDIT_CURRENT_PLAYLIST = 'edit-current-playlist',
+  RELOAD_TRACK = 'reload-track',
+  AUDIO_PLAYER_PLAYING = 'audio-player-playing',
+  AUDIO_PLAYER_PAUSE = 'audio-player-pause',
+  AUDIO_PLAYER_ENDED = 'audio-player-ended',
+  AUDIO_PLAYER_ERROR = 'audio-player-error',
+  AUDIO_PLAYER_TIMEUPDATED = 'audio-player-timeupdate',
+  CLOSE_OFFSCREEN_DOCUMENT = 'close-offscreen-document',
+  PLAY_TRACK = 'play-track',
+  PLAY_OR_PAUSE = 'play-or-pause',
+  CHANGE_VOLUME = 'change-volume',
+  CHANGE_CURRENT_TIME = 'change-current-time'
+}
+
 interface IServiceWorkerMessage {
-  target: MessageType.SERVICE_WORKER
+  target: MessageTarget.SERVICE_WORKER
 }
 
 interface IOffscreenMessage {
-  target: MessageType.OFFSCREEN
+  target: MessageTarget.OFFSCREEN
 }
 
 export interface RepeatMessage extends IServiceWorkerMessage {
-  type: 'repeat'
+  type: MessageType.REPEAT
 }
 
 export interface AddToQueueMessage extends IServiceWorkerMessage {
-  type: 'add-to-queue'
+  type: MessageType.ADD_TO_QUEUE
   track: TrackItem
 }
 
 export interface CurrentTimeMessage extends IServiceWorkerMessage {
-  type: 'current-time'
+  type: MessageType.CURRENT_TIME
   value: number
 }
 
 export interface NextTrackMessage extends IServiceWorkerMessage {
-  type: 'next-track'
+  type: MessageType.NEXT_TRACK
 }
 
 export interface ActiveTrackMessage extends IServiceWorkerMessage {
-  type: 'active-track'
+  type: MessageType.ACTIVE_TRACK
   trackId: string | null
   playlist: Playlist
 }
 
 export interface PreviousTrackMessage extends IServiceWorkerMessage {
-  type: 'previous-track'
+  type: MessageType.PREVIOUS_TRACK
 }
 
 export interface DeleteTrackMessage extends IServiceWorkerMessage {
-  type: 'delete-track'
+  type: MessageType.DELETE_TRACK
   track: TrackItem
 }
 
 export type EditActions = Array<['move', number, number] | ['remove', number]>
 
 export interface EditCurrentPlaylistMessage extends IServiceWorkerMessage {
-  type: 'edit-current-playlist'
+  type: MessageType.EDIT_CURRENT_PLAYLIST
   playlist: Playlist
   oldPlaylist: Playlist
   actions: EditActions
 }
 
 export interface ReloadTrackMessage extends IServiceWorkerMessage {
-  type: 'reload-track'
+  type: MessageType.RELOAD_TRACK
 }
 
 export interface AudioPlayerPlayingMessage extends IServiceWorkerMessage {
-  type: 'audio-player-playing'
+  type: MessageType.AUDIO_PLAYER_PLAYING
   volume: number
   duration: number
   currentTime: number
 }
 
 export interface AudioPlayerPauseMessage extends IServiceWorkerMessage {
-  type: 'audio-player-pause'
+  type: MessageType.AUDIO_PLAYER_PAUSE
 }
 
 export interface AudioPlayerEndedMessage extends IServiceWorkerMessage {
-  type: 'audio-player-ended'
+  type: MessageType.AUDIO_PLAYER_ENDED
 }
 
 export interface AudioPlayerErrorMessage extends IServiceWorkerMessage {
-  type: 'audio-player-error'
+  type: MessageType.AUDIO_PLAYER_ERROR
 }
 
 export interface CloseOffscreenDocumentMessage extends IServiceWorkerMessage {
-  type: 'close-offscreen-document'
+  type: MessageType.CLOSE_OFFSCREEN_DOCUMENT
+}
+
+export interface AudioPlayerTimeupdateMessage extends IServiceWorkerMessage {
+  type: MessageType.AUDIO_PLAYER_TIMEUPDATED
+  paused: boolean
+  duration: number
+  currentTime: number
 }
 
 export type ServiceWorkerMessage = (
@@ -338,39 +367,32 @@ export type ServiceWorkerMessage = (
   | CloseOffscreenDocumentMessage
 )
 
-export interface AudioPlayerTimeupdateMessage extends IServiceWorkerMessage {
-  type: 'audio-player-timeupdate'
-  paused: boolean
-  duration: number
-  currentTime: number
-}
-
 export interface OffscreenPlayTrackMessage extends IOffscreenMessage {
-  type: 'play-track'
+  type: MessageType.PLAY_TRACK
   url: string
   volume: number
 }
 
 export interface OffscreenPlayOrPauseMessage extends IOffscreenMessage {
-  type: 'play-or-pause'
+  type: MessageType.PLAY_OR_PAUSE
   played: boolean
 }
 
-export interface OffscreenSetVolumeMessage extends IOffscreenMessage {
-  type: 'set-volume'
+export interface OffscreenChangeVolumeMessage extends IOffscreenMessage {
+  type: MessageType.CHANGE_VOLUME
   value: number
 }
 
-export interface OffscreenSetCurrentTimeMessage extends IOffscreenMessage {
-  type: 'set-current-time'
+export interface OffscreenChangeCurrentTimeMessage extends IOffscreenMessage {
+  type: MessageType.CHANGE_CURRENT_TIME
   value: number
 }
 
 export type OffscreenMessage = (
   OffscreenPlayTrackMessage
   | OffscreenPlayOrPauseMessage
-  | OffscreenSetVolumeMessage
-  | OffscreenSetCurrentTimeMessage
+  | OffscreenChangeVolumeMessage
+  | OffscreenChangeCurrentTimeMessage
 )
 
 export type Message = (

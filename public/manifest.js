@@ -1,4 +1,28 @@
-{
+const { argv, stdout } = require('node:process');
+
+const chromeValues = {
+  "background": {
+    "service_worker": "service-worker.js",
+    "type": "module"
+  },
+  "permissions": [
+    "declarativeNetRequest",
+    "offscreen",
+    "storage"
+  ],
+}
+
+const firefoxValues = {
+  "background": {
+    "page": "offscreen.html",
+  },
+  "permissions": [
+    "declarativeNetRequest",
+    "storage"
+  ],
+}
+
+const commonManifest = {
   "name": "vk audiopad – VK Музыка бесплатно без рекламы",
   "description": "С плеером для ВК Музыки, вы можете слушать музыку из ВКонтакте бесплатно и без рекламы",
   "author": "Denis Matveev <unsumulum@gmail.com>",
@@ -13,10 +37,6 @@
   },
   "action": {
     "default_popup": "index.html"
-  },
-  "background": {
-    "service_worker": "service-worker.js",
-    "type": "module"
   },
   "commands": {
     "010-play-pause": {
@@ -50,11 +70,6 @@
   "host_permissions": [
     "*://*.vk.com/*"
   ],
-  "permissions": [
-    "declarativeNetRequest",
-    "offscreen",
-    "storage"
-  ],
   "declarative_net_request": {
     "rule_resources": [
       {
@@ -67,4 +82,12 @@
   "content_security_policy": {
     "extension_pages": "script-src 'self'; object-src 'self';"
   }
+}
+
+if (argv[2] === 'chrome') {
+  stdout.write(JSON.stringify({ ...commonManifest, ...chromeValues }, null, 2))
+}
+
+if (argv[2] === 'firefox') {
+  stdout.write(JSON.stringify({ ...commonManifest, ...firefoxValues }, null, 2))
 }

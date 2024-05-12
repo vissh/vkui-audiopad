@@ -14,60 +14,64 @@ import { repeat } from '../actions/repeat'
 import { closeOffscreenDocument } from '../offscreen/setup'
 import { updateCurrentTime } from '../offscreen/update-current-time'
 
-export const startListeningMessages = (): void => {
-  chrome.runtime.onMessage.addListener((message) => { void messageHandler(message) })
+export const startListeningMessages = async (): Promise<void> => {
+  chrome.runtime.onMessage.addListener(messageHandler)
+
+  if (!await commonUtils.offscreenDocumentSupport()) {
+    commonUtils.addBackgroundMessageListener(messageHandler)
+  }
 }
 
-const messageHandler = async (message: commonTypes.Message): Promise<void> => {
-  if (message.target !== commonTypes.MessageType.SERVICE_WORKER) {
+const messageHandler = (message: commonTypes.Message): void => {
+  if (message.target !== commonTypes.MessageTarget.SERVICE_WORKER) {
     return
   }
 
   switch (message.type) {
-    case 'active-track':
-      await playNewTrack(message.trackId, message.playlist)
+    case commonTypes.MessageType.ACTIVE_TRACK:
+      void playNewTrack(message.trackId, message.playlist)
       break
-    case 'next-track':
-      await nextTrack()
+    case commonTypes.MessageType.NEXT_TRACK:
+      void nextTrack()
       break
-    case 'previous-track':
-      await previousTrack()
+    case commonTypes.MessageType.PREVIOUS_TRACK:
+      void previousTrack()
       break
-    case 'current-time':
-      await updateCurrentTime(message.value ?? 0)
+    case commonTypes.MessageType.CURRENT_TIME:
+      void updateCurrentTime(message.value ?? 0)
       break
-    case 'repeat':
-      await repeat()
+    case commonTypes.MessageType.REPEAT:
+      void repeat()
       break
-    case 'edit-current-playlist':
+    case commonTypes.MessageType.EDIT_CURRENT_PLAYLIST:
       editCurrentPlaylist(message.playlist, message.oldPlaylist, message.actions)
       break
-    case 'delete-track':
-      await deleteTrack(message.track)
+    case commonTypes.MessageType.DELETE_TRACK:
+      void deleteTrack(message.track)
       break
-    case 'add-to-queue':
-      await addToQueue(message.track)
+    case commonTypes.MessageType.ADD_TO_QUEUE:
+      void addToQueue(message.track)
       break
-    case 'reload-track':
-      await reloadTrack()
+    case commonTypes.MessageType.RELOAD_TRACK:
+      void reloadTrack()
       break
-    case 'audio-player-playing':
-      await onPlaying(message)
+    case commonTypes.MessageType.AUDIO_PLAYER_PLAYING:
+      void onPlaying(message)
       break
-    case 'audio-player-pause':
-      await onPause()
+    case commonTypes.MessageType.AUDIO_PLAYER_PAUSE:
+      void onPause()
       break
-    case 'audio-player-ended':
-      await onEnded()
+    case commonTypes.MessageType.AUDIO_PLAYER_ENDED:
+      void onEnded()
       break
-    case 'audio-player-error':
-      await onError()
+    case commonTypes.MessageType.AUDIO_PLAYER_ERROR:
+      void onError()
       break
-    case 'audio-player-timeupdate':
-      await onTimeUpdate(message)
+    case commonTypes.MessageType.AUDIO_PLAYER_TIMEUPDATED:
+      void onTimeUpdate(message)
       break
-    case 'close-offscreen-document':
-      await closeOffscreenDocument()
+    case commonTypes.MessageType.CLOSE_OFFSCREEN_DOCUMENT:
+      void closeOffscreenDocument()
       break
     default:
       commonUtils.assertUnreachable(message)

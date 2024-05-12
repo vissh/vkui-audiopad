@@ -1,6 +1,7 @@
 import { cast, vkClient } from '@vk-audiopad/common'
 import { getCatalogBlocks } from '@/shared/lib/catalog-block'
 import { findSectionId } from '@/shared/lib/parse-html-block'
+import { parseFromString } from '@/shared/lib/utils'
 import { type FetchArtistResult } from '../model/types'
 
 export const fetchArtistData = async (artistId: string): Promise<FetchArtistResult> => {
@@ -25,9 +26,8 @@ export const fetchArtistData = async (artistId: string): Promise<FetchArtistResu
 }
 
 const getBackgroundImage = (html: string): string => {
-  const htmlElement = document.createElement('html')
-  htmlElement.innerHTML = html
-  const coverElements = htmlElement.getElementsByClassName('MusicAuthor_block__cover')
+  const root = parseFromString(html)
+  const coverElements = root.getElementsByClassName('MusicAuthor_block__cover')
 
   if (coverElements.length === 0) {
     return ''

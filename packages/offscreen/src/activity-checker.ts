@@ -1,10 +1,13 @@
-import { commonTypes } from '@vk-audiopad/common'
+import { commonTypes, commonUtils } from '@vk-audiopad/common'
 import { audioElement } from './audio-element'
 import { destroyPlayer } from './handlers/play-track'
+import { sendMessage } from './send-message'
 
 const MIN_IDLE_TIME = 5 * 60 * 1000
 const CHECK_INTERVAL = 1 * 60 * 1000
+
 let timeOfLastActivity = Date.now()
+let intervalId = 0
 
 export const startActivityChecker = (): void => {
   audioElement.addEventListener('playing', updateActivity)
@@ -12,14 +15,19 @@ export const startActivityChecker = (): void => {
   audioElement.addEventListener('ended', updateActivity)
   audioElement.addEventListener('error', updateActivity)
   audioElement.addEventListener('timeupdate', updateActivity)
-  setInterval(checkActivity, CHECK_INTERVAL)
+  intervalId = setInterval(checkActivity, CHECK_INTERVAL)
 }
 
 const updateActivity = (): void => {
   timeOfLastActivity = Date.now()
 }
 
-const checkActivity = (): void => {
+const checkActivity = async (): Promise<void> => {
+  if (!await commonUtils.offscreenDocumentSupport()) {
+    clearInterval(intervalId)
+    return
+  }
+
   if (Date.now() - timeOfLastActivity > MIN_IDLE_TIME) {
     destroyPlayer()
     killMe()
@@ -27,9 +35,8 @@ const checkActivity = (): void => {
 }
 
 const killMe = (): void => {
-  const message: commonTypes.CloseOffscreenDocumentMessage = {
-    target: commonTypes.MessageType.SERVICE_WORKER,
-    type: 'close-offscreen-document'
-  }
-  void (chrome.runtime.sendMessage(message))
+  void (sendMessage({
+    target: commonTypes.MessageTarget.SERVICE_WORKER,
+    type: commonTypes.MessageType.CLOSE_OFFSCREEN_DOCUMENT
+  }))
 }

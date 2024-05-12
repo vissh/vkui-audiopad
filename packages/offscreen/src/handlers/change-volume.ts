@@ -1,5 +1,5 @@
 import { audioElement } from '../audio-element'
 
-export const setVolume = (value: number): void => {
+export const changeVolume = (value: number): void => {
   audioElement.volume = value
 }

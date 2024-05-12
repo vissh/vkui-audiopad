@@ -19,8 +19,8 @@ export const playOrPause = (
   }
 
   sendMessage({
-    target: commonTypes.MessageType.SERVICE_WORKER,
-    type: 'active-track',
+    target: commonTypes.MessageTarget.SERVICE_WORKER,
+    type: commonTypes.MessageType.ACTIVE_TRACK,
     trackId,
     playlist
   })

@@ -1,5 +1,6 @@
 import { cast, converter, type commonTypes } from '@vk-audiopad/common'
 import { type Album } from '../types'
+import { parseFromString } from './utils'
 
 export const toTitlePlaylist = (playlist: commonTypes.JSONObject): commonTypes.Playlist => {
   const isRadio = cast.safeCastToString(playlist.type) === 'radio'
@@ -28,9 +29,8 @@ export const toAlbum = (raw: commonTypes.JSONValue): Album => {
 
   const gridCoverUrls: string[] = []
   if (coverUrl.length === 0 && htmlGridCovers.length > 0) {
-    const htmlElement = document.createElement('html')
-    htmlElement.innerHTML = htmlGridCovers
-    htmlElement.querySelectorAll('[style^="background-image:url"]').forEach(el => {
+    const root = parseFromString(htmlGridCovers)
+    root.querySelectorAll('[style^="background-image:url"]').forEach(el => {
       const url = (el as HTMLInputElement).style.backgroundImage.slice(4, -1).replace(/"/g, '')
       if (url.length > 0) {
         gridCoverUrls.push(url)
@@ -52,14 +52,7 @@ export const toAlbum = (raw: commonTypes.JSONValue): Album => {
   }
 }
 
-const _parser = new DOMParser()
-
 export const getText = (str: string) => {
-  if (str.startsWith('<')) {
-    const htmlElement = document.createElement('html')
-    htmlElement.innerHTML = str
-    str = htmlElement.innerText
-  }
-  const doc = _parser.parseFromString(str, 'text/html')
+  const doc = parseFromString(str)
   return doc.documentElement.textContent ?? ''
 }

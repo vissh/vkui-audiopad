@@ -15,7 +15,11 @@ export const deletedTrackForRestore = {
 
   clear: (): void => {
     Object.values(deletedTracks).forEach((track) => {
-      sendMessage({ target: commonTypes.MessageType.SERVICE_WORKER, type: 'delete-track', track })
+      sendMessage({
+        target: commonTypes.MessageTarget.SERVICE_WORKER,
+        type: commonTypes.MessageType.DELETE_TRACK,
+        track
+      })
     })
 
     Array.from(deletedTracks.keys()).forEach(trackId => {

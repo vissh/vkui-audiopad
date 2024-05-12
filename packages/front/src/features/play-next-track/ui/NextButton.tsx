@@ -10,8 +10,8 @@ export const NextButton: FC = () => {
       hasHover={false}
       onClick={() => {
         sendMessage({
-          target: commonTypes.MessageType.SERVICE_WORKER,
-          type: 'next-track'
+          target: commonTypes.MessageTarget.SERVICE_WORKER,
+          type: commonTypes.MessageType.NEXT_TRACK
         })
       }}
       style={{ height: 48 }}
