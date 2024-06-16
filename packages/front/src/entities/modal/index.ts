@@ -1,2 +1,2 @@
-export { setInfoModal, themeAtom } from './model/atom'
+export { setInfoModal, setRequestPermissionModal, setSignInModal, themeAtom } from './model/atom'
 export { AppModalRoot } from './ui/AppModalRoot'

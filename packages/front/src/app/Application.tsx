@@ -20,12 +20,6 @@ import { Notification } from '@/shared/ui/notification'
 import { Pages } from './Pages'
 import './base.css'
 
-declare global {
-  interface Window {
-    _tmr: undefined | unknown[]
-  }
-}
-
 const queryClient = new QueryClient()
 
 export const Application: FC = () => {
@@ -50,10 +44,9 @@ export const Application: FC = () => {
               >
                 <View activePanel='vkaudiopad'>
                   <Panel id='vkaudiopad'>
-                    <SignIn>
-                      <Player />
-                      <Pages />
-                    </SignIn>
+                    <SignIn />
+                    <Player />
+                    <Pages />
                     <Notification />
                   </Panel>
                 </View>

@@ -1,15 +1,19 @@
 import { type FC } from 'react'
+import { setRequestPermissionModal, setSignInModal } from '@/entities/modal'
 import { useUpdateWebToken } from '../model/hooks'
-import { Welcome } from './Welcome'
 
-interface SignInProps {
-  children: React.ReactNode
-}
-
-export const SignIn: FC<SignInProps> = ({ children }) => {
+export const SignIn: FC = () => {
   const { data: webToken } = useUpdateWebToken()
 
-  const signedIn: boolean = webToken?.error == null
+  if (webToken?.error != null) {
+    setSignInModal()
+  }
 
-  return <>{signedIn ? children : <Welcome />}</>
+  chrome.permissions.contains({ origins: ['*://*.vk.com/*'] }, (result) => {
+    if (!result) {
+      setRequestPermissionModal()
+    }
+  })
+
+  return null
 }
