@@ -1,4 +1,4 @@
-import { TextTooltip } from '@vkontakte/vkui/dist/components/TextTooltip/TextTooltip'
+import { Tooltip } from '@vkontakte/vkui'
 import { type FC } from 'react'
 import './TooltipIconButton.css'
 
@@ -15,11 +15,10 @@ export const TooltipIconButton: FC<TooltipIconButtonProps> = (props) => {
   const accentClassName = (props.accent ?? false) ? '' : 'vkap_tooltip_icon_button'
 
   return (
-    <TextTooltip
+    <Tooltip
       text={props.text}
       hideWhenReferenceHidden={true}
-      arrowPadding={0}
-      showDelay={500}
+      usePortal={true}
     >
       <props.icon
         className={`${accentClassName} ${paddingClassName}`}
@@ -30,6 +29,6 @@ export const TooltipIconButton: FC<TooltipIconButtonProps> = (props) => {
           }
         }}
       />
-    </TextTooltip>
+    </Tooltip>
   )
 }
