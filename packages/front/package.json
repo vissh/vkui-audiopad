@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "dependencies": {
-    "@tanstack/react-query": "4.36.1",
+    "@tanstack/react-query": "5.45.1",
     "@vk-audiopad/common": "file:../common",
     "@vkontakte/icons": "2.114.0",
     "@vkontakte/vk-bridge": "2.14.1",

@@ -24,16 +24,16 @@ export const InfinityContent: FC<InfinityContentProps> = ({
   const { ref, inView } = useInView({ skip: !hasMore })
 
   useEffect(() => {
-    if (hasMore && inView && !loadMoreMutation.isLoading) {
+    if (hasMore && inView && !loadMoreMutation.isPending) {
       loadMoreMutation.mutate(loadMoreArgs)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [inView, hasMore, loadMoreMutation.isLoading])
+  }, [inView, hasMore, loadMoreMutation.isPending])
 
   return (
     <Content
       display={display}
-      loading={loadMoreMutation.isLoading}
+      loading={loadMoreMutation.isPending}
       error={error}
     >
       {children}
