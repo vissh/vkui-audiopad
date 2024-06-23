@@ -31,7 +31,7 @@ export const History: FC<HistoryNavigationProps> = ({ activeTab }) => {
             {getTabName(tab)}
           </Title>
           &#8194;
-          <Spacing>
+          <Spacing style={{ padding: '4px 0' }}> {/* TODO: VKUI fix https://github.com/VKCOM/VKUI/pull/7035 */}
             <Icon16ChevronOutline className='vkap_secondary_color' />
           </Spacing>
           &#8194;

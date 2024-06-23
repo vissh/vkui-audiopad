@@ -28,7 +28,7 @@ export const Player: FC = () => {
         </>
       }
     >
-      <Group mode='plain'>
+      <Group mode='plain' style={{ marginLeft: '8px' }}>
         <TrackInfo />
         <CurrentTimeSlider />
       </Group>
