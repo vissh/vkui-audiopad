@@ -1,10 +1,10 @@
 import { Div } from '@vkontakte/vkui'
 import { type FC } from 'react'
+import { AlbumSkeleton } from '@/entities/album'
 import { type Album as AlbumType } from '@/shared/types'
 import { SkeletonWrapper } from '@/shared/ui/skeleton-wrapper'
 import { Album } from '../album/Album'
 import './AlbumList.css'
-import { AlbumListSkeleton } from './AlbumListSkeleton'
 
 interface AlbumListProps {
   isLoading: boolean
@@ -15,7 +15,6 @@ interface AlbumListProps {
 export const AlbumList: FC<AlbumListProps> = ({ isLoading, userId, albums }) => {
   return (
     <SkeletonWrapper
-      mode='plain'
       isLoading={isLoading}
       skeleton={<AlbumListSkeleton />}
     >
@@ -31,5 +30,15 @@ export const AlbumList: FC<AlbumListProps> = ({ isLoading, userId, albums }) => 
         </Div>
       )}
     </SkeletonWrapper>
+  )
+}
+
+const AlbumListSkeleton: FC = () => {
+  return (
+    <Div className='vkap_album_list_container'>
+      {Array.from(Array(8).keys()).map((index) => (
+        <AlbumSkeleton key={index} />
+      ))}
+    </Div>
   )
 }

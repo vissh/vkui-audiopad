@@ -1,1 +1,1 @@
-export { AlbumCell } from './ui/AlbumCell'
+export { AlbumCell, AlbumSkeleton } from './ui/AlbumCell'

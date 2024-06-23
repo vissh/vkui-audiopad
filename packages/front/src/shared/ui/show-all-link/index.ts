@@ -1,1 +1,1 @@
-export { ShowAllLink } from './ShowAllLink'
+export { ShowAllLink, ShowAllLinkSkeleton } from './ShowAllLink'

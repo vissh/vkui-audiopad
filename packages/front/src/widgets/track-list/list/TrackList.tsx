@@ -1,9 +1,9 @@
 import { type commonTypes } from '@vk-audiopad/common'
 import { Group, Header } from '@vkontakte/vkui'
 import { type FC } from 'react'
+import { TrackSkeleton } from '@/entities/track'
 import { SkeletonWrapper } from '@/shared/ui/skeleton-wrapper'
 import { Track } from '../track/Track'
-import { SkeletonTitleTracks } from './TrackListSkeleton'
 
 interface TrackListProps {
   isLoading: boolean
@@ -15,9 +15,8 @@ export const TrackList: FC<TrackListProps> = ({ isLoading, playlist, header }) =
   return (
     <>
       <SkeletonWrapper
-        mode='plain'
         isLoading={isLoading}
-        skeleton={<SkeletonTitleTracks />}
+        skeleton={<TrackListSkeleton />}
       >
         {playlist != null &&
           <Group
@@ -35,5 +34,15 @@ export const TrackList: FC<TrackListProps> = ({ isLoading, playlist, header }) =
         }
       </SkeletonWrapper>
     </>
+  )
+}
+
+const TrackListSkeleton: FC = () => {
+  return (
+    <Group mode='plain'>
+      {Array.from(Array(10).keys()).map((index) => (
+        <TrackSkeleton key={index} />
+      ))}
+    </Group>
   )
 }

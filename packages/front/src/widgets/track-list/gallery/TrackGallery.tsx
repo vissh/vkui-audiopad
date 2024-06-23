@@ -1,12 +1,12 @@
 import { type commonTypes } from '@vk-audiopad/common'
 import { Group, HorizontalScroll, List } from '@vkontakte/vkui'
 import { type FC } from 'react'
+import { TrackSkeleton } from '@/entities/track'
 import { batched } from '@/shared/lib/utils'
 import { openPlaylistPage } from '@/shared/model'
-import { ShowAllLink } from '@/shared/ui/show-all-link'
+import { ShowAllLink, ShowAllLinkSkeleton } from '@/shared/ui/show-all-link'
 import { SkeletonWrapper } from '@/shared/ui/skeleton-wrapper'
 import { Track } from '../track/Track'
-import { TrackGallerySkeleton } from './TrackGallerySkeleton'
 
 const rows = 3
 const columns = 6
@@ -20,13 +20,10 @@ interface TrackGalleryProps {
 }
 
 export const TrackGallery: FC<TrackGalleryProps> = ({ mode, isLoading, userId, playlist }) => {
-  const columnsTracks = playlist != null ? batched(playlist.tracks, rows, columns) : []
-
   return (
     <SkeletonWrapper
-      mode={mode}
       isLoading={isLoading}
-      skeleton={<TrackGallerySkeleton />}
+      skeleton={<TrackGallerySkeleton mode={mode} />}
     >
       {playlist != null && (
         <Group
@@ -41,7 +38,7 @@ export const TrackGallery: FC<TrackGalleryProps> = ({ mode, isLoading, userId, p
         >
           <HorizontalScroll>
             <div style={{ display: 'flex' }}>
-              {columnsTracks.map((tracksWithIndexes, columnIndex) => (
+              {batched(playlist.tracks, rows, columns).map((tracksWithIndexes, columnIndex) => (
                 <List key={columnIndex} style={{ width: columnWidth, minWidth: columnWidth }}>
                   {tracksWithIndexes.map((track) => (
                     <Track
@@ -57,5 +54,30 @@ export const TrackGallery: FC<TrackGalleryProps> = ({ mode, isLoading, userId, p
         </Group>
       )}
     </SkeletonWrapper>
+  )
+}
+
+interface TrackGallerySkeletonProps {
+  mode: 'plain' | 'card'
+}
+
+const TrackGallerySkeleton: FC<TrackGallerySkeletonProps> = ({ mode }) => {
+  return (
+    <Group
+      mode={mode}
+      header={<ShowAllLinkSkeleton />}
+    >
+      <HorizontalScroll>
+        <div style={{ display: 'flex' }}>
+          {Array.from(Array(columns).keys()).map((colIndex) => (
+            <List key={colIndex} style={{ width: columnWidth, minWidth: columnWidth }}>
+              {Array.from(Array(rows).keys()).map((rowIndex) => (
+                <TrackSkeleton key={rowIndex} />
+              ))}
+            </List>
+          ))}
+        </div>
+      </HorizontalScroll>
+    </Group>
   )
 }

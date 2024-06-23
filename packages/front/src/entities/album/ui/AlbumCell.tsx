@@ -1,8 +1,10 @@
 import { Icon36PlaylistOutline } from '@vkontakte/icons'
-import { HorizontalCell, Image } from '@vkontakte/vkui'
+import { HorizontalCell, Image, Skeleton } from '@vkontakte/vkui'
 import { type FC } from 'react'
 import { type Album } from '@/shared/types'
 import './AlbumCell.css'
+
+const size = 136
 
 interface AlbumCellProps {
   album: Album
@@ -22,9 +24,22 @@ export const AlbumCell: FC<AlbumCellProps> = ({ album, overlay, onClick }) => {
     >
       {/* TODO: GridAvatar или что-то подобное. Для ручных плейлистов бывает несколько обложек. */}
       {(album.coverUrl.length > 0)
-        ? <Image src={album.coverUrl} loading={'lazy'} size={136}>{overlay}</Image>
-        : <Image size={136}><Icon36PlaylistOutline /></Image>
+        ? <Image src={album.coverUrl} loading={'lazy'} size={size}>{overlay}</Image>
+        : <Image size={size}><Icon36PlaylistOutline /></Image>
       }
+    </HorizontalCell>
+  )
+}
+
+export const AlbumSkeleton: FC = () => {
+  return (
+    <HorizontalCell
+      style={{ display: 'block' }}
+      size='l'
+      header={<Skeleton width={100} />}
+      subtitle={<Skeleton width={75} />}
+    >
+      <Skeleton width={size} height={size} />
     </HorizontalCell>
   )
 }

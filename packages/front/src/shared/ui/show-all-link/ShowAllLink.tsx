@@ -1,4 +1,4 @@
-import { Header, Link } from '@vkontakte/vkui'
+import { Header, Link, Skeleton } from '@vkontakte/vkui'
 import { type FC } from 'react'
 
 interface ShowAllLinkProps {
@@ -11,6 +11,14 @@ export const ShowAllLink: FC<ShowAllLinkProps> = ({ title, showLink, onClick }) 
   return (
     <Header aside={showLink && <Link onClick={onClick}>Показать все</Link>}>
       {title}
+    </Header>
+  )
+}
+
+export const ShowAllLinkSkeleton: FC = () => {
+  return (
+    <Header aside={<Skeleton width={90} />}>
+      {<Skeleton width={75} />}
     </Header>
   )
 }

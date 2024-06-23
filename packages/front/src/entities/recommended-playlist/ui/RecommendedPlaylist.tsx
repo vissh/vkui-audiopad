@@ -1,6 +1,9 @@
-import { Card, Text, Title } from '@vkontakte/vkui'
+import { Card, Skeleton, Text, Title } from '@vkontakte/vkui'
 import { type FC } from 'react'
 import { type Album } from '@/shared/types'
+
+const width = '165px'
+const height = '200px'
 
 interface RecommendedPlaylistProps {
   album: Album
@@ -12,9 +15,9 @@ export const RecommendedPlaylist: FC<RecommendedPlaylistProps> = ({ album, onCli
     <Card
       style={{
         backgroundImage: 'url(' + album.coverUrl + ')',
-        backgroundSize: '165px 200px',
-        width: '165px',
-        height: '200px',
+        backgroundSize: `${width} ${height}`,
+        width,
+        height,
         cursor: 'pointer'
       }}
       onClick={onClick}
@@ -40,6 +43,20 @@ export const RecommendedPlaylist: FC<RecommendedPlaylistProps> = ({ album, onCli
       >
         {album.authorLine}
       </Text>
+    </Card>
+  )
+}
+
+export const RecommendedPlaylistSkeleton: FC = () => {
+  return (
+    <Card
+      style={{
+        backgroundSize: `${width} ${height}`,
+        width,
+        height
+      }}
+    >
+      <Skeleton width={width} height={height} />
     </Card>
   )
 }

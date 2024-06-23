@@ -1,1 +1,1 @@
-export { RecommendedPlaylist } from './ui/RecommendedPlaylist'
+export { RecommendedPlaylist, RecommendedPlaylistSkeleton } from './ui/RecommendedPlaylist'
