@@ -25,6 +25,7 @@ export const VolumeSlider: FC = () => {
     <FormItem>
       <Slider
         withTooltip
+        size='s'
         style={{ width: 100 }}
         min={0}
         max={100}

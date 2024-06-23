@@ -38,6 +38,7 @@ export const CurrentTimeSlider: FC = () => {
 
   return (
     <Slider
+      size='s'
       min={0}
       max={100}
       value={sliderCurrentTime}
