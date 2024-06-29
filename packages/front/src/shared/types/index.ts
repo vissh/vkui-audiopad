@@ -3,6 +3,8 @@ import { type commonTypes } from '@vk-audiopad/common'
 export enum CatalogBlockDataType {
   TRACKS = 'tracks',
   ALBUMS = 'albums',
+  RECOMMENDATIONS = 'recommendations',
+  VIBES = 'vibes',
 }
 
 export type Album = commonTypes.Playlist & {
@@ -27,7 +29,23 @@ export interface AlbumsCatalogBlock {
   showAllLink: string
 }
 
-export type CatalogBlock = TracksCatalogBlock | AlbumsCatalogBlock
+export interface RecommendationsCatalogBlock {
+  blockId: string
+  dataType: CatalogBlockDataType.RECOMMENDATIONS
+  title: string
+  albums: Album[]
+  showAllLink: string
+}
+
+export interface VibesCatalogBlock {
+  blockId: string
+  dataType: CatalogBlockDataType.VIBES
+  title: string
+  albums: Album[]
+  showAllLink: string
+}
+
+export type CatalogBlock = TracksCatalogBlock | AlbumsCatalogBlock | RecommendationsCatalogBlock | VibesCatalogBlock
 
 export interface ParsedAlbumInfo {
   id: string

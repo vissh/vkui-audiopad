@@ -1,11 +1,9 @@
 import { Group } from '@vkontakte/vkui'
-import { type FC } from 'react'
-import { AlbumGallery } from '@/widgets/album-list'
+import { useEffect, useState, type FC } from 'react'
+import { CatalogGallery } from '@/widgets/catalog-gallery'
 import { Navigation } from '@/widgets/navigation'
-import { RecommendedGallery } from '@/widgets/recommended-gallery'
-import { TrackGallery } from '@/widgets/track-list'
-import { Content } from '@/shared/ui/content'
-import { useGeneralData } from '../model/hooks'
+import { InfinityContent } from '@/shared/ui/infinity-content'
+import { useGeneralData, useLoadMoreGeneralDataMutation } from '../model/hooks'
 
 interface GeneralProps {
   userId: string
@@ -13,39 +11,49 @@ interface GeneralProps {
 }
 
 export const General: FC<GeneralProps> = ({ userId, active }) => {
-  const { data: fetchResult, isLoading, error } = useGeneralData(userId, active)
+  const [wasAlreadyOpen, setWasAlreadyOpen] = useState(active)
+
+  const { data: fetchResult, isLoading, error } = useGeneralData(userId, wasAlreadyOpen)
+  const loadMoreMutation = useLoadMoreGeneralDataMutation()
+
+  const [firstBlock, ...otherBlocks] = fetchResult?.blocks ?? [null, null, null]
+
+  useEffect(() => {
+    if (active) {
+      setWasAlreadyOpen(true)
+    }
+  }, [active])
 
   return (
-    <Content
+    <InfinityContent
       display={active}
+      hasMore={(fetchResult != null) ? fetchResult.nextFrom.length > 0 : false}
+      loadMoreMutation={loadMoreMutation}
+      loadMoreArgs={{ nextFrom: fetchResult?.nextFrom, sectionId: fetchResult?.sectionId }}
       error={error}
     >
       <Group>
         <Navigation />
 
-        <TrackGallery
+        <CatalogGallery
           mode='plain'
           isLoading={isLoading}
+          loadingBlock='tracks'
           userId={userId}
-          playlist={fetchResult?.playlist}
+          catalogBlock={firstBlock}
         />
       </Group>
 
-      <RecommendedGallery
-        isLoading={isLoading}
-        title='Собрано алгоритмами'
-        userId={userId}
-        albums={fetchResult?.baseOnYourTastes}
-      />
-
-      <AlbumGallery
-        mode='card'
-        isLoading={isLoading}
-        title='Собрано редакцией'
-        userId={userId}
-        albums={fetchResult?.vkMusic}
-        showAllLink={`/audios${userId}?block=playlists&section=general`}
-      />
-    </Content>
+      {otherBlocks.map((catalogBlock) => (
+        <CatalogGallery
+          key={catalogBlock?.blockId}
+          mode='card'
+          isLoading={isLoading}
+          loadingBlock='albums'
+          userId={userId}
+          catalogBlock={catalogBlock}
+        />
+      ))}
+    </InfinityContent>
   )
 }

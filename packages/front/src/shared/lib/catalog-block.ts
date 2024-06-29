@@ -5,6 +5,7 @@ import {
   type AlbumsCatalogBlock,
   type CatalogBlock,
   type ParsedCatalogBlock,
+  type RecommendationsCatalogBlock,
   type TracksCatalogBlock
 } from '../types'
 import { toAlbum, toTitlePlaylist } from './cast-to-types'
@@ -51,7 +52,7 @@ export const getCatalogBlocks = (resp: commonTypes.VKApiResponse): CatalogBlock[
       return result
     }, {})
 
-  return parsedCatalogBlocks
+  const resultCatalogBlocks: CatalogBlock[] = parsedCatalogBlocks
     .filter((parsedCatalogBlock) => {
       return parsedCatalogBlock.dataType === CatalogBlockDataType.TRACKS ? blocksWithTracks[parsedCatalogBlock.blockId] != null : true
     })
@@ -60,6 +61,13 @@ export const getCatalogBlocks = (resp: commonTypes.VKApiResponse): CatalogBlock[
         ? toTracksCatalogBlock(parsedCatalogBlock, blocksWithTracks)
         : toAlbumsCatalogBlock(parsedCatalogBlock, albums)
     ))
+
+  const recommendationsBlock = getRecommendationsCatalogBlock(playlists)
+  if (recommendationsBlock.albums.length > 0) {
+    resultCatalogBlocks.splice(1, 0, recommendationsBlock)
+  }
+
+  return resultCatalogBlocks
 }
 
 const getHtmlSection = (resp: commonTypes.VKApiResponse): string => {
@@ -98,5 +106,17 @@ const toAlbumsCatalogBlock = (parsedCatalogBlocks: ParsedCatalogBlock, albums: R
       return album
     }),
     showAllLink: parsedCatalogBlocks.showAllLink
+  }
+}
+
+const getRecommendationsCatalogBlock = (playlists: commonTypes.JSONObject[]): RecommendationsCatalogBlock => {
+  return {
+    blockId: 'recommendation-block-id',
+    dataType: CatalogBlockDataType.RECOMMENDATIONS,
+    title: 'Собрано алгоритмами',
+    albums: playlists
+      .filter((playlist) => playlist.is_generated_playlist === true)
+      .map((playlist) => toAlbum(playlist)),
+    showAllLink: ''
   }
 }

@@ -1,8 +1,12 @@
-import { type commonTypes } from '@vk-audiopad/common'
-import { type Album } from '@/shared/types'
+import { type CatalogBlock } from '@/shared/types'
 
-export interface FetchGeneralResult {
-  playlist: commonTypes.Playlist | null
-  baseOnYourTastes: Album[]
-  vkMusic: Album[]
+export interface FetchResult {
+  nextFrom: string
+  sectionId: string
+  blocks: CatalogBlock[]
+}
+
+export interface FetchMoreArgs {
+  nextFrom: string
+  sectionId: string
 }
