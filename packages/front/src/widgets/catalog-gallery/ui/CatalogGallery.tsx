@@ -3,6 +3,8 @@ import { type FC } from 'react'
 // eslint-disable-next-line @conarti/feature-sliced/layers-slices
 import { AlbumGallery } from '@/widgets/album-list'
 // eslint-disable-next-line @conarti/feature-sliced/layers-slices
+import { BannerGallery } from '@/widgets/banner-gallery'
+// eslint-disable-next-line @conarti/feature-sliced/layers-slices
 import { RecommendedGallery } from '@/widgets/recommended-gallery'
 // eslint-disable-next-line @conarti/feature-sliced/layers-slices
 import { TrackGallery } from '@/widgets/track-list'
@@ -61,6 +63,11 @@ export const CatalogGallery: FC<CatalogGalleryProps> = ({
         userId={userId}
         albums={catalogBlock.albums}
         showAllLink={catalogBlock.showAllLink}
+      />
+    case CatalogBlockDataType.BANNERS:
+      return <BannerGallery
+        userId={userId}
+        albums={catalogBlock.albums}
       />
     default:
       commonUtils.assertUnreachable(catalogBlock)

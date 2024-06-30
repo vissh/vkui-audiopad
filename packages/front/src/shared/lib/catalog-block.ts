@@ -3,6 +3,7 @@ import {
   CatalogBlockDataType,
   type Album,
   type AlbumsCatalogBlock,
+  type BannersCatalogBlock,
   type CatalogBlock,
   type ParsedCatalogBlock,
   type RecommendationsCatalogBlock,
@@ -91,19 +92,43 @@ const toTracksCatalogBlock = (
   }
 }
 
-const toAlbumsCatalogBlock = (parsedCatalogBlocks: ParsedCatalogBlock, albums: Record<string, Album>): AlbumsCatalogBlock => {
+const toAlbumsCatalogBlock = (parsedCatalogBlocks: ParsedCatalogBlock, albums: Record<string, Album>): AlbumsCatalogBlock | BannersCatalogBlock => {
   const blockId = parsedCatalogBlocks.blockId
   const title = parsedCatalogBlocks.title
 
+  const isBanner = parsedCatalogBlocks.parsedAlbums.filter((pl) => pl.img !== '').length > 0
+
   return {
-    dataType: CatalogBlockDataType.ALBUMS,
+    dataType: isBanner ? CatalogBlockDataType.BANNERS : CatalogBlockDataType.ALBUMS,
     title,
     blockId,
     albums: parsedCatalogBlocks.parsedAlbums.map((pl) => {
-      const album = albums[pl.id]
-      album.blockId = blockId
-      album.infoLine = pl.subtitle
-      return album
+      if (isBanner) {
+        const [ownerId, playlistId, accessHash] = pl.id.split('_')
+        return {
+          id: playlistId,
+          blockId,
+          title: pl.title,
+          tracks: [],
+          isRadio: false,
+          accessHash,
+          ownerId,
+          nextOffset: '',
+          hasMore: false,
+          followHash: '',
+          isFollowed: false,
+          coverUrl: pl.img,
+          gridCoverUrls: [pl.img],
+          authorLine: pl.title,
+          authorName: pl.text,
+          infoLine: pl.subtext
+        }
+      } else {
+        const album = albums[pl.id]
+        album.blockId = blockId
+        album.infoLine = pl.subtitle
+        return album
+      }
     }),
     showAllLink: parsedCatalogBlocks.showAllLink
   }

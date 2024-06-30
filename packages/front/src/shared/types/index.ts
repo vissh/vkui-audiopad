@@ -5,6 +5,7 @@ export enum CatalogBlockDataType {
   ALBUMS = 'albums',
   RECOMMENDATIONS = 'recommendations',
   VIBES = 'vibes',
+  BANNERS = 'banners'
 }
 
 export type Album = commonTypes.Playlist & {
@@ -45,11 +46,23 @@ export interface VibesCatalogBlock {
   showAllLink: string
 }
 
-export type CatalogBlock = TracksCatalogBlock | AlbumsCatalogBlock | RecommendationsCatalogBlock | VibesCatalogBlock
+export interface BannersCatalogBlock {
+  blockId: string
+  dataType: CatalogBlockDataType.BANNERS
+  title: string
+  albums: Album[]
+  showAllLink: string
+}
+
+export type CatalogBlock = TracksCatalogBlock | AlbumsCatalogBlock | RecommendationsCatalogBlock | VibesCatalogBlock | BannersCatalogBlock
 
 export interface ParsedAlbumInfo {
   id: string
+  img: string
+  title: string
   subtitle: string
+  text: string
+  subtext: string
 }
 
 export interface ParsedCatalogBlock {

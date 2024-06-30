@@ -2,8 +2,10 @@ import { CatalogBlockDataType, type ParsedAlbumInfo, type ParsedCatalogBlock } f
 import { parseFromString } from './utils'
 
 const trackDataTypes = new Set(['music_audios', 'radiostations'])
-const albumsDataTypes = new Set(['music_playlists'])
+const albumsDataTypes = new Set(['music_playlists', 'catalog_banners'])
 const catalogDataTypes = new Set([...trackDataTypes, ...albumsDataTypes])
+
+const albumLinkPrefix = 'https://vk.com/music/album/'
 
 interface BlockDataTypeElement {
   blockId: string
@@ -95,7 +97,24 @@ const findParent = (blockElement: Element): Element | null => {
 const findInfoAboutAlbums = (blockElement: Element): ParsedAlbumInfo[] => {
   return Array.from(blockElement.querySelectorAll('[data-id]'))
     .reduce((result: ParsedAlbumInfo[], albumElement: Element): ParsedAlbumInfo[] => {
-      const albumId = albumElement.getAttribute('data-id')
+      let albumId: string | null = null
+      let imgSrc = ''
+
+      if (albumElement.getElementsByClassName('BannerItem__content').length > 0) {
+        const links = albumElement.getElementsByClassName('BannerItem__link')
+        if (links.length === 1) {
+          const href = links[0].getAttribute('href')
+          if (href != null && href.startsWith(albumLinkPrefix)) {
+            albumId = href.substring(albumLinkPrefix.length)
+          }
+        }
+        const images = albumElement.getElementsByClassName('Banner__backgroundImage')
+        if (images.length > 0) {
+          imgSrc = images[0].getAttribute('src') ?? ''
+        }
+      } else {
+        albumId = albumElement.getAttribute('data-id')
+      }
 
       if (albumId == null || albumId.length === 0) {
         return result
@@ -103,6 +122,10 @@ const findInfoAboutAlbums = (blockElement: Element): ParsedAlbumInfo[] => {
 
       result.push({
         id: albumId,
+        img: imgSrc,
+        title: getTextFromHtmlElements(albumElement.getElementsByClassName('BannerItem__title')),
+        text: getTextFromHtmlElements(albumElement.getElementsByClassName('BannerItem__text')),
+        subtext: getTextFromHtmlElements(albumElement.getElementsByClassName('BannerItem__subtext')),
         subtitle: getTextFromHtmlElements(albumElement.getElementsByClassName('audio_pl__year_subtitle'))
       })
 
