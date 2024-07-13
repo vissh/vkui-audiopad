@@ -34,6 +34,7 @@ const ContentTabs = memo(function ContentTabs () {
         <ContentTab tab={commonTypes.ContentTab.GENERAL} />
         <ContentTab tab={commonTypes.ContentTab.MY_MUSIC} />
         <ContentTab tab={commonTypes.ContentTab.EXPLORE} />
+        <ContentTab tab={commonTypes.ContentTab.TON} />
       </Tabs>
     </>
   )

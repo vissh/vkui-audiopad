@@ -20,6 +20,8 @@ export const getTabName = (tab: commonTypes.ActiveTabs) => {
       return tab.title
     case commonTypes.ContentTab.ARTIST:
       return tab.name
+    case commonTypes.ContentTab.TON:
+      return 'TON'
     default:
       return commonUtils.assertUnreachable(tab)
   }

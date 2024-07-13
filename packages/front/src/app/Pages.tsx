@@ -8,6 +8,7 @@ import { General } from '@/pages/general'
 import { MyMusic } from '@/pages/my-music'
 import { PlaylistTracks } from '@/pages/playlist-tracks'
 import { SearchResult } from '@/pages/search-result'
+import { TonNftList } from '@/pages/ton'
 import { useSessionUserId } from '@/entities/session'
 import { useActiveTab } from '@/shared/model'
 
@@ -34,6 +35,11 @@ export const Pages: FC = () => {
       <Explore
         userId={userId}
         active={activeTab.tab === commonTypes.ContentTab.EXPLORE}
+      />
+
+      <TonNftList
+        userId={userId}
+        active={activeTab.tab === commonTypes.ContentTab.TON}
       />
 
       {activeTab.tab === commonTypes.ContentTab.SEARCH &&

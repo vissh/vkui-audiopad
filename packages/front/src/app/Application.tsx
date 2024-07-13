@@ -1,4 +1,5 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { TonConnectUIProvider } from '@tonconnect/ui-react'
 import { commonTypes } from '@vk-audiopad/common'
 import {
   AdaptivityProvider,
@@ -27,34 +28,36 @@ export const Application: FC = () => {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <ConfigProvider
-        platform={Platform.ANDROID}
-        hasCustomPanelHeaderAfter={false}
-        appearance={theme === commonTypes.Theme.SYSTEM ? undefined : theme}
-      >
-        <AdaptivityProvider>
-          <AppRoot>
-            <SplitLayout
-              style={{ justifyContent: 'center' }}
-              modal={<AppModalRoot />}
-            >
-              <SplitCol
-                maxWidth={1216}
-                minWidth={780}
+      <TonConnectUIProvider manifestUrl='http://audiopad.ru/tonconnect-manifest.json'>
+        <ConfigProvider
+          platform={Platform.ANDROID}
+          hasCustomPanelHeaderAfter={false}
+          appearance={theme === commonTypes.Theme.SYSTEM ? undefined : theme}
+        >
+          <AdaptivityProvider>
+            <AppRoot>
+              <SplitLayout
+                style={{ justifyContent: 'center' }}
+                modal={<AppModalRoot />}
               >
-                <View activePanel='vkaudiopad'>
-                  <Panel id='vkaudiopad'>
-                    <SignIn />
-                    <Player />
-                    <Pages />
-                    <Notification />
-                  </Panel>
-                </View>
-              </SplitCol>
-            </SplitLayout>
-          </AppRoot>
-        </AdaptivityProvider>
-      </ConfigProvider>
+                <SplitCol
+                  maxWidth={1216}
+                  minWidth={780}
+                >
+                  <View activePanel='vkaudiopad'>
+                    <Panel id='vkaudiopad'>
+                      <SignIn />
+                      <Player />
+                      <Pages />
+                      <Notification />
+                    </Panel>
+                  </View>
+                </SplitCol>
+              </SplitLayout>
+            </AppRoot>
+          </AdaptivityProvider>
+        </ConfigProvider>
+      </TonConnectUIProvider>
     </QueryClientProvider>
   )
 }

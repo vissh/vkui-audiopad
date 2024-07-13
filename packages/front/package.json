@@ -5,6 +5,7 @@
   "type": "module",
   "dependencies": {
     "@tanstack/react-query": "5.45.1",
+    "@tonconnect/ui-react": "^2.0.5",
     "@vk-audiopad/common": "file:../common",
     "@vkontakte/icons": "2.124.0",
     "@vkontakte/vkui": "6.2.0",

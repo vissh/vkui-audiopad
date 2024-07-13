@@ -84,6 +84,7 @@ export enum ContentTab {
   PLAYLIST = 'playlist',
   ALBUMS = 'albums',
   ARTIST = 'artist',
+  TON = 'ton',
 }
 
 export enum RepeatMode {
@@ -142,7 +143,7 @@ export enum Theme {
   DARK = 'dark',
 }
 
-export type ClickableContentTabs = ContentTab.CURRENT_PLAYLIST | ContentTab.GENERAL | ContentTab.MY_MUSIC | ContentTab.EXPLORE
+export type ClickableContentTabs = ContentTab.CURRENT_PLAYLIST | ContentTab.GENERAL | ContentTab.MY_MUSIC | ContentTab.EXPLORE | ContentTab.TON
 
 export interface ActiveTabUnknown {
   tab: ContentTab.UNKNOWN
