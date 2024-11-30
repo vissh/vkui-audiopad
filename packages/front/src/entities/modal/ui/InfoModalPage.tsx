@@ -175,6 +175,8 @@ const SourceCode = () => {
       hasActive={false}
       multiline
     >
+      Вступайте в <Link href="https://t.me/fuyoka" target="_blank">Telegram-канал</Link>, если хотите начать разрабатывать фичи для расширения и получать за это оплату!
+      <br/><br/>
       Исходный код <Link href="https://github.com/vissh/vkui-audiopad" target="_blank">https://github.com/vissh/vkui-audiopad</Link>
     </SimpleCell>
   )
