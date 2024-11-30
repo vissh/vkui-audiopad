@@ -5,21 +5,31 @@ export const request = async (url: string, params: Record<string, string>): Prom
   const formData = new FormData()
   Object.keys(params).forEach(key => { formData.set(key, params[key]) })
 
-  const fetchPayload = async (): Promise<JSONValue> => {
+  const fetchPayload = async (): Promise<[JSONValue, boolean]> => {
     const resp = await fetch(url, {
       method: 'POST',
       body: formData,
       headers: { 'x-requested-with': 'XMLHttpRequest' }
     })
 
-    return JSON.parse(await win1251ResponseToUTF8String(resp))
+    const content = await win1251ResponseToUTF8String(resp)
+
+    try {
+      return [JSON.parse(content), false]
+    } catch (err) {
+      return [null, true]
+    }
   }
 
-  let resp = await fetchPayload()
+  const [resp, parseError] = await fetchPayload()
 
-  if (needRetry(resp)) {
+  if (parseError || needRetry(resp)) {
     await fetch('https://vk.com')
-    resp = await fetchPayload()
+    const [respAfterReconnect, retryParseError] = await fetchPayload()
+    if (retryParseError) {
+      throw new Error('respAfterReconnect')
+    }
+    return respAfterReconnect
   }
 
   return resp
