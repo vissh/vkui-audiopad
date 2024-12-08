@@ -13,6 +13,12 @@ const chromeValues = {
 }
 
 const firefoxValues = {
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "{a489e182-af99-4bd3-bbef-d5325702bbcd}",
+      "strict_min_version": "113.0"
+    }
+  },
   "background": {
     "page": "offscreen.html",
   },
@@ -26,7 +32,7 @@ const commonManifest = {
   "name": "vk audiopad – VK Музыка бесплатно без рекламы",
   "description": "С плеером для ВК Музыки, вы можете слушать музыку из ВКонтакте бесплатно и без рекламы",
   "author": "Denis Matveev <unsumulum@gmail.com>",
-  "version": "3.3.2",
+  "version": "3.3.3",
   "manifest_version": 3,
   "minimum_chrome_version": "116",
   "icons": {
