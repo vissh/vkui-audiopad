@@ -14,7 +14,6 @@ export const AppModalRoot: FC = () => {
   return (
     <ModalRoot
       activeModal={activeModal}
-      onOpen={() => (document.body.style.position = 'unset')} // TODO: Genius!
       onClose={() => {
         if (activeModal != null && !preventClose.includes(activeModal)) {
           setActiveModal(null)

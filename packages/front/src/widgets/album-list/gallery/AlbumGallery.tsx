@@ -41,15 +41,13 @@ export const AlbumGallery: FC<AlbumGalleryProps> = ({
           }
         >
           <HorizontalScroll>
-            <div style={{ display: 'flex' }}>
-              {albums.map((album, albumIndex) => (
-                <Album
-                  key={albumIndex}
-                  userId={userId}
-                  album={album}
-                />
-              ))}
-            </div>
+            {albums.map((album, albumIndex) => (
+              <Album
+                key={albumIndex}
+                userId={userId}
+                album={album}
+              />
+            ))}
           </HorizontalScroll>
         </Group>
       )}
@@ -68,11 +66,9 @@ const AlbumGallerySkeleton: FC<AlbumGallerySkeletonProps> = ({ mode }) => {
       header={<ShowAllLinkSkeleton />}
     >
       <HorizontalScroll>
-        <div style={{ display: 'flex' }}>
-          {Array.from(Array(8).keys()).map((index) => (
-            <AlbumSkeleton key={index} />
-          ))}
-        </div>
+        {Array.from(Array(8).keys()).map((index) => (
+          <AlbumSkeleton key={index} />
+        ))}
       </HorizontalScroll>
     </Group>
   )

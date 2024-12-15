@@ -27,6 +27,8 @@ export const History: FC<HistoryNavigationProps> = ({ activeTab }) => {
             weight='3'
             className='vkap_link vkap_hidden_overflow'
             onClick={() => { setActiveTab(tab) }}
+            Component='h3'
+            useAccentWeight
           >
             {getTabName(tab)}
           </Title>
@@ -37,11 +39,12 @@ export const History: FC<HistoryNavigationProps> = ({ activeTab }) => {
           &#8194;
         </>
       ))}
-
       <Title
         level='3'
         weight='3'
         className='vkap_hidden_overflow'
+        Component='h3'
+        useAccentWeight
       >
         {getTabName(activeTab)}
       </Title>

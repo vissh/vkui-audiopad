@@ -28,7 +28,7 @@ export const ArtistTitle: FC<ArtistTitleProps> = ({ track, onSearch, onArtist })
   const artist = getText(track.artist)
 
   return (
-    <Subhead className='vkap_artists'>
+    <Subhead className='vkap_artists' Component='h5'>
       {track.mainArtists.length > 0
         ? <>
           {groupArtists(track.mainArtists, openArtistPage)}

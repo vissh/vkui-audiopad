@@ -16,7 +16,7 @@ export const SignInModalPage = ({ ...props }) => {
       <Group>
         <Placeholder
           icon={<Icon56LogoVk />}
-          header='Вход ВКонтакте'
+          title='Вход ВКонтакте'
           action={
             <Link
               href='https://vk.com/'

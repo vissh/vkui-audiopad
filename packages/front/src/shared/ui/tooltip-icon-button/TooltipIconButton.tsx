@@ -16,7 +16,7 @@ export const TooltipIconButton: FC<TooltipIconButtonProps> = (props) => {
 
   return (
     <Tooltip
-      text={props.text}
+      description={props.text}
       hideWhenReferenceHidden={true}
       usePortal={true}
     >

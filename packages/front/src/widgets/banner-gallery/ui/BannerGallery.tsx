@@ -12,15 +12,13 @@ export const BannerGallery: FC<BannerGalleryProps> = ({ userId, albums }) => {
   return (
     <Group mode='plain'>
       <HorizontalScroll>
-        <div style={{ display: 'flex' }}>
-          {albums.map((album, albumIndex) => (
-            <Banner
-              key={albumIndex}
-              userId={userId}
-              album={album}
-            />
-          ))}
-        </div>
+        {albums.map((album, albumIndex) => (
+          <Banner
+            key={albumIndex}
+            userId={userId}
+            album={album}
+          />
+        ))}
       </HorizontalScroll>
     </Group>
   )

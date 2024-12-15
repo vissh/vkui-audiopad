@@ -20,7 +20,7 @@ export const RecommendedGallery: FC<RecommendedGalleryProps> = ({ isLoading, tit
     >
       {albums.length > 0 && (
         <Group header={<Header>{title}</Header>}>
-          <CardScroll size='s'>
+          <CardScroll size='s' padding>
             {albums.map((album, cardIndex) => (
               <RecommendedPlaylist
                 key={cardIndex}
@@ -38,7 +38,7 @@ export const RecommendedGallery: FC<RecommendedGalleryProps> = ({ isLoading, tit
 const RecommendedGallerySkeleton: FC = () => {
   return (
     <Group header={<Header>{<Skeleton width={160} />}</Header>}>
-      <CardScroll size='s'>
+      <CardScroll size='s' padding>
         {Array.from(Array(8).keys()).map((index) => (
           <RecommendedPlaylistSkeleton key={index} />
         ))}

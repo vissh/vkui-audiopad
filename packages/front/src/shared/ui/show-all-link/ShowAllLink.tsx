@@ -9,7 +9,7 @@ interface ShowAllLinkProps {
 
 export const ShowAllLink: FC<ShowAllLinkProps> = ({ title, showLink, onClick }) => {
   return (
-    <Header aside={showLink && <Link onClick={onClick}>Показать все</Link>}>
+    <Header after={showLink && <Link onClick={onClick}>Показать все</Link>}>
       {title}
     </Header>
   )
@@ -17,7 +17,7 @@ export const ShowAllLink: FC<ShowAllLinkProps> = ({ title, showLink, onClick }) 
 
 export const ShowAllLinkSkeleton: FC = () => {
   return (
-    <Header aside={<Skeleton width={90} />}>
+    <Header after={<Skeleton width={90} />}>
       {<Skeleton width={75} />}
     </Header>
   )

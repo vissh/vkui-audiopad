@@ -24,9 +24,8 @@ export const Banner: FC<BannerProps> = ({ userId, album }) => {
 
   return (
     <HorizontalCell
-      style={{ display: 'block' }}
-      size='l'
-      header={album.title}
+      size='auto'
+      title={album.title}
       subtitle={album.authorName}
       extraSubtitle={album.infoLine}
       onClick={openAlbum}

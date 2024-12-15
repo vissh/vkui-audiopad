@@ -20,7 +20,7 @@ activeTabAtom.watch(() => {
 })
 
 const newHistory = (tab: commonTypes.ActiveTabs): commonTypes.ActiveTabs[] => {
-  return commonUtils.isTabWithHistory(tab) ? [...tab.history ?? [], tab] : [tab]
+  return commonUtils.isTabWithHistory(tab) ? [...(tab.history ?? []), tab] : [tab]
 }
 
 export const useActiveTab = () => {

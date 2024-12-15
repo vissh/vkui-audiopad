@@ -33,11 +33,11 @@ export const TrackInfo: FC = () => {
     <div style={trackNameStyle}>
       {(activeTrack != null)
         ? <>
-          <Headline level='1' style={titleStyle}>{title}</Headline>
-          <Headline>&ensp;–&ensp;</Headline>
+          <Headline level='1' style={titleStyle} Component='h4'>{title}</Headline>
+          <Headline Component='h4'>&ensp;–&ensp;</Headline>
           <SearchArtist track={activeTrack} />
         </>
-        : <Headline level='1' style={titleStyle}>&ensp;</Headline>
+        : <Headline level='1' style={titleStyle} Component='h4'>&ensp;</Headline>
       }
     </div>
   )

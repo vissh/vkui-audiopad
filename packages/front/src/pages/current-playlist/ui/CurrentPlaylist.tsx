@@ -98,7 +98,7 @@ export const CurrentPlaylist: FC<CurrentPlaylistProps> = ({ active }) => {
           mode='plain'
           header={
             <Header
-              aside={
+              after={
                 editMode
                   ? <>
                     <Button

@@ -22,7 +22,7 @@ export const ArtistCover: FC<ArtistCoverProps> = ({ title, backgroundImage }) =>
       style={gradientStyle}
     >
       <Div className='vkap_artist_cover_div'>
-        <Title className='vkap_artist_code_title'>{title}</Title>
+        <Title className='vkap_artist_code_title' Component='h1'>{title}</Title>
       </Div>
     </Gradient>
   )

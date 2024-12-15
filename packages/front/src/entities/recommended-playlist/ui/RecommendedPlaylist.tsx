@@ -31,6 +31,8 @@ export const RecommendedPlaylist: FC<RecommendedPlaylistProps> = ({ album, onCli
         }}
         level='1'
         weight='1'
+        Component='h1'
+        useAccentWeight
       >
         {album.title}
       </Title>

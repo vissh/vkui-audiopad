@@ -64,7 +64,7 @@ const ErrorResult: FC<ErrorProps> = ({ error }) => {
         Если ошибка не пропадает, скопируйте данные и отправьте сообщение в {link}. Спасибо!
         <br />
 
-        <FormItem top='Скопируйте информацию об ошибке'>
+        <FormItem top='Скопируйте информацию об ошибке' topComponent='h5'>
           <Textarea value={JSON.stringify(serializeError(error))} />
         </FormItem>
 

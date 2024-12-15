@@ -15,9 +15,8 @@ interface AlbumCellProps {
 export const AlbumCell: FC<AlbumCellProps> = ({ album, overlay, onClick }) => {
   return (
     <HorizontalCell
-      style={{ display: 'block' }}
-      size='l'
-      header={<span className='vkap_subtitle'>{album.title}</span>}
+      size='xl'
+      title={<span className='vkap_subtitle'>{album.title}</span>}
       subtitle={<span className='vkap_subtitle'>{album.authorName}</span>}
       extraSubtitle={album.infoLine.length > 0 && <span className='vkap_subtitle'>{album.infoLine}</span>}
       onClick={onClick}
@@ -34,9 +33,8 @@ export const AlbumCell: FC<AlbumCellProps> = ({ album, overlay, onClick }) => {
 export const AlbumSkeleton: FC = () => {
   return (
     <HorizontalCell
-      style={{ display: 'block' }}
-      size='l'
-      header={<Skeleton width={100} />}
+      size='xl'
+      title={<Skeleton width={100} />}
       subtitle={<Skeleton width={75} />}
     >
       <Skeleton width={size} height={size} />

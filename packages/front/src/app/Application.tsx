@@ -30,13 +30,12 @@ export const Application: FC = () => {
       <ConfigProvider
         platform={Platform.ANDROID}
         hasCustomPanelHeaderAfter={false}
-        appearance={theme === commonTypes.Theme.SYSTEM ? undefined : theme}
+        colorScheme={theme === commonTypes.Theme.SYSTEM ? undefined : theme}
       >
         <AdaptivityProvider>
           <AppRoot>
             <SplitLayout
               style={{ justifyContent: 'center' }}
-              modal={<AppModalRoot />}
             >
               <SplitCol
                 maxWidth={1216}
@@ -51,6 +50,7 @@ export const Application: FC = () => {
                   </Panel>
                 </View>
               </SplitCol>
+              <AppModalRoot />
             </SplitLayout>
           </AppRoot>
         </AdaptivityProvider>

@@ -37,19 +37,17 @@ export const TrackGallery: FC<TrackGalleryProps> = ({ mode, isLoading, userId, p
           }
         >
           <HorizontalScroll>
-            <div style={{ display: 'flex' }}>
-              {batched(playlist.tracks, rows, columns).map((tracksWithIndexes, columnIndex) => (
-                <List key={columnIndex} style={{ width: columnWidth, minWidth: columnWidth }}>
-                  {tracksWithIndexes.map((track) => (
-                    <Track
-                      key={track.id}
-                      playlist={playlist}
-                      track={track}
-                    />
-                  ))}
-                </List>
-              ))}
-            </div>
+            {batched(playlist.tracks, rows, columns).map((tracksWithIndexes, columnIndex) => (
+              <List key={columnIndex} style={{ width: columnWidth, minWidth: columnWidth, display: 'block' }}>
+                {tracksWithIndexes.map((track) => (
+                  <Track
+                    key={track.id}
+                    playlist={playlist}
+                    track={track}
+                  />
+                ))}
+              </List>
+            ))}
           </HorizontalScroll>
         </Group>
       )}
@@ -68,15 +66,13 @@ const TrackGallerySkeleton: FC<TrackGallerySkeletonProps> = ({ mode }) => {
       header={<ShowAllLinkSkeleton />}
     >
       <HorizontalScroll>
-        <div style={{ display: 'flex' }}>
-          {Array.from(Array(columns).keys()).map((colIndex) => (
-            <List key={colIndex} style={{ width: columnWidth, minWidth: columnWidth }}>
-              {Array.from(Array(rows).keys()).map((rowIndex) => (
-                <TrackSkeleton key={rowIndex} />
-              ))}
-            </List>
-          ))}
-        </div>
+        {Array.from(Array(columns).keys()).map((colIndex) => (
+          <List key={colIndex} style={{ width: columnWidth, minWidth: columnWidth }}>
+            {Array.from(Array(rows).keys()).map((rowIndex) => (
+              <TrackSkeleton key={rowIndex} />
+            ))}
+          </List>
+        ))}
       </HorizontalScroll>
     </Group>
   )
