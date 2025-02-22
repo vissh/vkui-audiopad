@@ -10,7 +10,7 @@ export const TrackIcon: FC = () => {
     <IconButton
       hasHover={false}
       hasActive={false}
-      style={{ height: 48 }}
+      style={{ height: 48, marginLeft: '8px' }}
     >
       {activeTrack != null && activeTrack.image.length > 0
         ? <Image src={activeTrack.image} />

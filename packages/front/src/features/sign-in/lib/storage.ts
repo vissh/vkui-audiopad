@@ -3,12 +3,14 @@ import { v4 as uuid4 } from 'uuid'
 
 export const updateWebToken = (webToken: commonTypes.WebToken) => {
   if (webToken.error?.type === 'unauthorized') {
-    logout(); return
+    logout()
+    return
   }
 
   chrome.storage.local.get(['userId', 'deviceId'], (items) => {
     if (webToken.error != null) {
-      logout(); return
+      logout()
+      return
     }
 
     void login(items.userId, items.deviceId, webToken)
@@ -27,11 +29,12 @@ const login = async (
   const items = {
     userId: webToken.userId,
     webToken,
-    deviceId: (deviceId != null) || uuid4()
+    deviceId: deviceId ?? uuid4()
   }
 
   if (userId === webToken.userId) {
-    await chrome.storage.local.set(items); return
+    await chrome.storage.local.set(items)
+    return
   }
 
   items.deviceId = uuid4()

@@ -6,16 +6,16 @@ import { type Album } from '@/shared/types'
 import { SkeletonWrapper } from '@/shared/ui/skeleton-wrapper'
 
 interface RecommendedGalleryProps {
-  isLoading: boolean
+  isPending: boolean
   title: string
   userId: string
   albums: Album[] | undefined
 }
 
-export const RecommendedGallery: FC<RecommendedGalleryProps> = ({ isLoading, title, userId, albums = [] }) => {
+export const RecommendedGallery: FC<RecommendedGalleryProps> = ({ isPending, title, userId, albums = [] }) => {
   return (
     <SkeletonWrapper
-      isLoading={isLoading}
+      isPending={isPending}
       skeleton={<RecommendedGallerySkeleton />}
     >
       {albums.length > 0 && (

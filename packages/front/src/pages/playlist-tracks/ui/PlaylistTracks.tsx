@@ -13,7 +13,7 @@ interface PlaylistTracksProps {
 }
 
 export const PlaylistTracks: FC<PlaylistTracksProps> = ({ userId, playlist, fromId }) => {
-  const { data: fetchResult, isLoading, error } = useBlockPlaylistData(userId, playlist, fromId)
+  const { data: fetchResult, isPending, error } = useBlockPlaylistData(userId, playlist, fromId)
   const loadMoreMutation = useLoadMoreBlockPlaylistTracksMutation()
 
   return (
@@ -29,7 +29,7 @@ export const PlaylistTracks: FC<PlaylistTracksProps> = ({ userId, playlist, from
         <Spacing />
 
         <TrackList
-          isLoading={isLoading}
+          isPending={isPending}
           playlist={fetchResult?.playlist}
         />
       </Group>

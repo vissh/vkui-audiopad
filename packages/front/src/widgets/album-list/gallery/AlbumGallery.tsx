@@ -9,7 +9,7 @@ import { Album } from '../album/Album'
 
 interface AlbumGalleryProps {
   mode: 'plain' | 'card'
-  isLoading: boolean
+  isPending: boolean
   userId: string
   title: string
   albums: AlbumType[] | undefined
@@ -18,7 +18,7 @@ interface AlbumGalleryProps {
 
 export const AlbumGallery: FC<AlbumGalleryProps> = ({
   mode,
-  isLoading,
+  isPending,
   userId,
   title,
   albums = [],
@@ -26,7 +26,7 @@ export const AlbumGallery: FC<AlbumGalleryProps> = ({
 }) => {
   return (
     <SkeletonWrapper
-      isLoading={isLoading}
+      isPending={isPending}
       skeleton={<AlbumGallerySkeleton mode={mode} />}
     >
       {albums.length > 0 && (

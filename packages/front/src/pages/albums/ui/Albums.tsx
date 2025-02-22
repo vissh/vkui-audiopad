@@ -13,7 +13,7 @@ interface AlbumsProps {
 }
 
 export const Albums: FC<AlbumsProps> = ({ userId, showAllLink }) => {
-  const { data: fetchResult, isLoading, error } = useAlbumsData(showAllLink)
+  const { data: fetchResult, isPending, error } = useAlbumsData(showAllLink)
   const loadMoreMutation = useLoadMoreAlbumsDataMutation(showAllLink)
 
   const [firstBlock, ...otherBlocks] = fetchResult?.blocks ?? [null, null, null]
@@ -30,18 +30,18 @@ export const Albums: FC<AlbumsProps> = ({ userId, showAllLink }) => {
       <Group>
         <Navigation />
 
-        {isLoading || albumsBlock != null
+        {isPending || albumsBlock != null
           ? <>
             <Spacing />
             <AlbumList
-              isLoading={isLoading}
+              isPending={isPending}
               userId={userId}
               albums={albumsBlock?.albums}
             />
           </>
           : <CatalogGallery
             mode='plain'
-            isLoading={isLoading}
+            isPending={isPending}
             loadingBlock='albums'
             userId={userId}
             catalogBlock={firstBlock}
@@ -53,7 +53,7 @@ export const Albums: FC<AlbumsProps> = ({ userId, showAllLink }) => {
         <CatalogGallery
           key={catalogBlock?.blockId}
           mode='card'
-          isLoading={isLoading}
+          isPending={isPending}
           loadingBlock='albums'
           userId={userId}
           catalogBlock={catalogBlock}

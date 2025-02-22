@@ -12,7 +12,7 @@ interface SearchResultProps {
 }
 
 export const SearchResult: FC<SearchResultProps> = ({ userId, searchValue }) => {
-  const { data: blocks, isLoading, error } = useSearchData(userId, searchValue)
+  const { data: blocks, isPending, error } = useSearchData(userId, searchValue)
 
   const [firstBlock, ...otherBlocks] = blocks ?? [null, null, null]
 
@@ -25,20 +25,20 @@ export const SearchResult: FC<SearchResultProps> = ({ userId, searchValue }) => 
 
         <CatalogGallery
           mode='plain'
-          isLoading={isLoading}
+          isPending={isPending}
           loadingBlock='tracks'
           userId={userId}
           catalogBlock={firstBlock}
         />
 
-        {!isLoading && firstBlock == null && <EmptyResult />}
+        {!isPending && firstBlock == null && <EmptyResult />}
       </Group>
 
       {otherBlocks.map((catalogBlock) => (
         <CatalogGallery
           key={catalogBlock?.blockId}
           mode='card'
-          isLoading={isLoading}
+          isPending={isPending}
           loadingBlock='albums'
           userId={userId}
           catalogBlock={catalogBlock}

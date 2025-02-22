@@ -34,11 +34,11 @@ export const addToQueue = async (track: commonTypes.TrackItem): Promise<void> =>
   const newActiveTrackIndex = newAudioIds.findIndex(([trackId]) => trackId === applicationState.activeTrack?.id)
   const newOriginalActiveTrackIndex = newOriginalAudiosIds.findIndex(([trackId]) => trackId === applicationState.activeTrack?.id)
 
-  let addToIndex = getNewIndex('next', newActiveTrackIndex, newAudioIds.length)
+  let [addToIndex] = getNewIndex('next', newActiveTrackIndex, newAudioIds.length)
   newAudioIds.splice(addToIndex, 0, audioTuple)
 
   if (newOriginalActiveTrackIndex !== -1) {
-    addToIndex = getNewIndex('next', newOriginalActiveTrackIndex, newOriginalAudiosIds.length)
+    [addToIndex] = getNewIndex('next', newOriginalActiveTrackIndex, newOriginalAudiosIds.length)
     newOriginalAudiosIds.splice(addToIndex, 0, audioTuple)
   }
 

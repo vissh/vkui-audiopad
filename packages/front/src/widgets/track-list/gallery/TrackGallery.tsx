@@ -14,15 +14,15 @@ const columnWidth = 354
 
 interface TrackGalleryProps {
   mode: 'plain' | 'card'
-  isLoading: boolean
+  isPending: boolean
   userId: string
   playlist: commonTypes.Playlist | undefined | null
 }
 
-export const TrackGallery: FC<TrackGalleryProps> = ({ mode, isLoading, userId, playlist }) => {
+export const TrackGallery: FC<TrackGalleryProps> = ({ mode, isPending, userId, playlist }) => {
   return (
     <SkeletonWrapper
-      isLoading={isLoading}
+      isPending={isPending}
       skeleton={<TrackGallerySkeleton mode={mode} />}
     >
       {playlist != null && (

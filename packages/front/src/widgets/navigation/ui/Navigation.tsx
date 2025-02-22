@@ -1,5 +1,5 @@
 import { commonTypes, commonUtils } from '@vk-audiopad/common'
-import { Tabs } from '@vkontakte/vkui'
+import { Div, Tabs } from '@vkontakte/vkui'
 import { memo, type FC } from 'react'
 import { SearchInput } from '@/features/search'
 import { useCurrentPlaylist } from '@/entities/active-track'
@@ -9,16 +9,23 @@ import { History } from './History'
 
 interface NavigationProps {
   children?: React.ReactNode
+  noPaddingBottom?: boolean
 }
 
-export const Navigation: FC<NavigationProps> = ({ children }) => {
+export const Navigation: FC<NavigationProps> = ({ children, noPaddingBottom = false }) => {
   const activeTab = useActiveTab()
 
   return (
     <>
       {commonUtils.isTabWithHistory(activeTab) ? <History activeTab={activeTab} /> : <ContentTabs />}
       {children != null && children}
-      {children == null && <SearchInput />}
+      {children == null && <Div
+        style={{
+          paddingTop: '8px',
+          paddingBottom: noPaddingBottom ? 'unset' : '8px'
+        }}>
+        <SearchInput />
+      </Div>}
     </>
   )
 }

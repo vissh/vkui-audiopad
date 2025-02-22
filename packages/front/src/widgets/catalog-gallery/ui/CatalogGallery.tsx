@@ -12,7 +12,7 @@ import { CatalogBlockDataType, type CatalogBlock } from '@/shared/types'
 
 interface CatalogGalleryProps {
   mode: 'plain' | 'card'
-  isLoading: boolean
+  isPending: boolean
   loadingBlock: 'tracks' | 'albums'
   userId: string
   catalogBlock: CatalogBlock | undefined | null
@@ -20,29 +20,29 @@ interface CatalogGalleryProps {
 
 export const CatalogGallery: FC<CatalogGalleryProps> = ({
   mode,
-  isLoading,
+  isPending,
   loadingBlock,
   userId,
   catalogBlock
 }) => {
-  if (isLoading || catalogBlock == null) {
+  if (isPending || catalogBlock == null) {
     return loadingBlock === 'tracks'
-      ? <TrackGallery mode={mode} isLoading={isLoading} userId={userId} playlist={null} />
-      : <AlbumGallery mode={mode} isLoading={isLoading} title='' userId={userId} albums={undefined} showAllLink={undefined} />
+      ? <TrackGallery mode={mode} isPending={isPending} userId={userId} playlist={null} />
+      : <AlbumGallery mode={mode} isPending={isPending} title='' userId={userId} albums={undefined} showAllLink={undefined} />
   }
 
   switch (catalogBlock.dataType) {
     case CatalogBlockDataType.TRACKS:
       return <TrackGallery
         mode={mode}
-        isLoading={isLoading}
+        isPending={isPending}
         userId={userId}
         playlist={catalogBlock.playlist}
       />
     case CatalogBlockDataType.ALBUMS:
       return <AlbumGallery
         mode={mode}
-        isLoading={isLoading}
+        isPending={isPending}
         title={catalogBlock.title}
         userId={userId}
         albums={catalogBlock.albums}
@@ -50,7 +50,7 @@ export const CatalogGallery: FC<CatalogGalleryProps> = ({
       />
     case CatalogBlockDataType.RECOMMENDATIONS:
       return <RecommendedGallery
-        isLoading={isLoading}
+        isPending={isPending}
         title={catalogBlock.title}
         userId={userId}
         albums={catalogBlock.albums}
@@ -58,7 +58,7 @@ export const CatalogGallery: FC<CatalogGalleryProps> = ({
     case CatalogBlockDataType.VIBES:
       return <AlbumGallery
         mode={mode}
-        isLoading={isLoading}
+        isPending={isPending}
         title={catalogBlock.title}
         userId={userId}
         albums={catalogBlock.albums}

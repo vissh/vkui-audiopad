@@ -12,10 +12,10 @@ interface MyMusicProps {
 }
 
 export const MyMusic: FC<MyMusicProps> = ({ userId, active }) => {
-  const { data: fetchResult, isLoading, error } = useMyMusicData(userId, active)
+  const { data: fetchResult, isPending, error } = useMyMusicData(userId, active)
   const loadMoreMutation = useLoadMoreMyMusicTracksMutation()
 
-  const otherBlocks = isLoading ? [null, null] : (fetchResult?.otherBlocks ?? [])
+  const otherBlocks = isPending ? [null, null] : (fetchResult?.otherBlocks ?? [])
 
   return (
     <InfinityContent
@@ -30,7 +30,7 @@ export const MyMusic: FC<MyMusicProps> = ({ userId, active }) => {
 
         <CatalogGallery
           mode='plain'
-          isLoading={isLoading}
+          isPending={isPending}
           loadingBlock='tracks'
           userId={userId}
           catalogBlock={fetchResult?.firstBlock}
@@ -42,7 +42,7 @@ export const MyMusic: FC<MyMusicProps> = ({ userId, active }) => {
           <CatalogGallery
             key={catalogBlock?.blockId}
             mode='card'
-            isLoading={isLoading}
+            isPending={isPending}
             loadingBlock={blockIndex % 2 === 0 ? 'albums' : 'tracks'}
             userId={userId}
             catalogBlock={catalogBlock}
@@ -53,7 +53,7 @@ export const MyMusic: FC<MyMusicProps> = ({ userId, active }) => {
         fetchResult.lastTracksCatalogBlock.playlist.tracks.length > 0 &&
         <Group>
           <TrackList
-            isLoading={isLoading}
+            isPending={isPending}
             playlist={fetchResult.lastTracksCatalogBlock.playlist}
             header={fetchResult.lastTracksCatalogBlock.playlist.title}
           />

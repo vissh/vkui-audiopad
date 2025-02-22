@@ -111,6 +111,7 @@ const toAlbumsCatalogBlock = (parsedCatalogBlocks: ParsedCatalogBlock, albums: R
           title: pl.title,
           tracks: [],
           isRadio: false,
+          isVkMix: false,
           accessHash,
           ownerId,
           nextOffset: '',

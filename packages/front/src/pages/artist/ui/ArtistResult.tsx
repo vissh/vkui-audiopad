@@ -14,7 +14,7 @@ interface ArtistResultProps {
 }
 
 export const ArtistResult: FC<ArtistResultProps> = ({ userId, artistId, artistName }) => {
-  const { data: fetchResult, isLoading, error } = useArtistData(userId, artistId)
+  const { data: fetchResult, isPending, error } = useArtistData(userId, artistId)
 
   const [firstBlock, ...otherBlocks] = fetchResult?.blocks ?? [null, null, null]
 
@@ -25,27 +25,27 @@ export const ArtistResult: FC<ArtistResultProps> = ({ userId, artistId, artistNa
       <Group>
         <Navigation>
           <ArtistCover
-            title={isLoading ? '' : artistName}
+            title={isPending ? '' : artistName}
             backgroundImage={fetchResult?.backgroundImage ?? ''}
           />
         </Navigation>
 
         <CatalogGallery
           mode='plain'
-          isLoading={isLoading}
+          isPending={isPending}
           loadingBlock='tracks'
           userId={userId}
           catalogBlock={firstBlock}
         />
 
-        {!isLoading && firstBlock == null && <EmptyResult />}
+        {!isPending && firstBlock == null && <EmptyResult />}
       </Group>
 
       {otherBlocks.map((catalogBlock) => (
         <CatalogGallery
           key={catalogBlock?.blockId}
           mode='card'
-          isLoading={isLoading}
+          isPending={isPending}
           loadingBlock='albums'
           userId={userId}
           catalogBlock={catalogBlock}

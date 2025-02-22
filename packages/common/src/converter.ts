@@ -1,6 +1,7 @@
 import {
   castToArray,
   castToJSONObject,
+  castToNumber,
   castToString,
   safeCastToArray,
   safeCastToNumber,
@@ -8,6 +9,7 @@ import {
 } from './cast'
 import {
   AudioTupleIndex,
+  TrackFlagBit,
   type JSONObject,
   type JSONValue,
   type TrackArtist,
@@ -34,6 +36,7 @@ export const toTrackItem = (trackInfo: JSONValue[], isRadio: boolean = false): T
 
   return {
     id: safeCastToString(trackInfo[AudioTupleIndex.OWNER_ID]) + '_' + safeCastToString(trackInfo[AudioTupleIndex.ID]),
+    fromAct: true,
     accessKey: safeCastToString(trackInfo[AudioTupleIndex.ACCESS_KEY]),
     url: isRadio ? safeCastToString(trackInfo[AudioTupleIndex.URL]) : '',
     image: safeCastToString(trackInfo[AudioTupleIndex.COVER_URL]).split(',https://')[0],
@@ -52,6 +55,34 @@ export const toTrackItem = (trackInfo: JSONValue[], isRadio: boolean = false): T
     replaceHash,
     urlHash,
     restoreHash
+  }
+}
+
+export const toTrackItemFromAPIResponse = (response: JSONObject): TrackItem => {
+  const data = castToJSONObject(castToArray(response.response)[0])
+  const accessKey = castToString(data.access_key)
+
+  return {
+    id: `${castToNumber(data.owner_id)}_${castToNumber(data.id)}`,
+    fromAct: false,
+    accessKey,
+    url: castToString(data.url),
+    image: castToString(castToJSONObject(data.thumb).photo_68),
+    artist: castToString(data.artist),
+    mainArtists: castToArray(data.main_artists).map(decodeArtist),
+    featArtists: safeCastToArray(data.featured_artists).map(decodeArtist),
+    title: castToString(data.title),
+    duration: castToNumber(data.duration),
+    context: '',
+    flags: TrackFlagBit.CAN_ADD,
+    trackCode: castToString(data.track_code),
+    addHash: '',
+    editHash: '',
+    actionHash: '',
+    deleteHash: '',
+    replaceHash: '',
+    urlHash: '',
+    restoreHash: ''
   }
 }
 

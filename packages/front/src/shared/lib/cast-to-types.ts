@@ -16,6 +16,7 @@ export const toTitlePlaylist = (playlist: commonTypes.JSONObject): commonTypes.P
     title: isRadio ? 'Радиостанции' : getText(cast.safeCastToString(playlist.title)),
     tracks: converter.toTracksItems(playlist),
     isRadio,
+    isVkMix: false,
     followHash: cast.safeCastToString(playlist.followHash),
     isFollowed: cast.safeCastToBoolean(playlist.isFollowed)
   }

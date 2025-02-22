@@ -19,14 +19,18 @@ const playNewTrackByIndex = async (action: ActionType): Promise<void> => {
     return
   }
 
-  let trackId: string
+  let trackId: string | null
 
   if (applicationState.currentPlaylist.isRadio) {
     const tracks = applicationState.currentPlaylist.tracks
-    const newIndex = getNewIndex(action, applicationState.activeTrackIndex, tracks.length)
+    const [newIndex] = getNewIndex(action, applicationState.activeTrackIndex, tracks.length)
     trackId = tracks[newIndex].id
+  } else if (applicationState.currentPlaylist.isVkMix) {
+    const tracks = applicationState.currentPlaylist.tracks
+    const [newIndex, overflow] = getNewIndex(action, applicationState.activeTrackIndex, tracks.length)
+    trackId = overflow ? null : tracks[newIndex].id
   } else {
-    const newIndex = getNewIndex(action, applicationState.activeTrackIndex, applicationState.audiosIds.length)
+    const [newIndex] = getNewIndex(action, applicationState.activeTrackIndex, applicationState.audiosIds.length)
     trackId = applicationState.audiosIds[newIndex][0]
   }
 

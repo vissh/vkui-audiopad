@@ -6,16 +6,16 @@ import { SkeletonWrapper } from '@/shared/ui/skeleton-wrapper'
 import { Track } from '../track/Track'
 
 interface TrackListProps {
-  isLoading: boolean
+  isPending: boolean
   playlist: commonTypes.Playlist | undefined
   header?: string
 }
 
-export const TrackList: FC<TrackListProps> = ({ isLoading, playlist, header }) => {
+export const TrackList: FC<TrackListProps> = ({ isPending, playlist, header }) => {
   return (
     <>
       <SkeletonWrapper
-        isLoading={isLoading}
+        isPending={isPending}
         skeleton={<TrackListSkeleton />}
       >
         {playlist != null &&

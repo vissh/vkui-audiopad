@@ -13,7 +13,7 @@ interface ExploreProps {
 export const Explore: FC<ExploreProps> = ({ userId, active }) => {
   const [wasAlreadyOpen, setWasAlreadyOpen] = useState(active)
 
-  const { data: fetchResult, isLoading, error } = useExploreData(userId, wasAlreadyOpen)
+  const { data: fetchResult, isPending, error } = useExploreData(userId, wasAlreadyOpen)
   const loadMoreMutation = useLoadMoreExploreDataMutation()
 
   const [firstBlock, ...otherBlocks] = fetchResult?.blocks ?? [null, null, null]
@@ -37,7 +37,7 @@ export const Explore: FC<ExploreProps> = ({ userId, active }) => {
 
         <CatalogGallery
           mode='plain'
-          isLoading={isLoading}
+          isPending={isPending}
           loadingBlock='tracks'
           userId={userId}
           catalogBlock={firstBlock}
@@ -48,7 +48,7 @@ export const Explore: FC<ExploreProps> = ({ userId, active }) => {
         <CatalogGallery
           key={catalogBlock?.blockId}
           mode='card'
-          isLoading={isLoading}
+          isPending={isPending}
           loadingBlock='albums'
           userId={userId}
           catalogBlock={catalogBlock}

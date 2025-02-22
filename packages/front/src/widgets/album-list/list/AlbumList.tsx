@@ -7,15 +7,15 @@ import { Album } from '../album/Album'
 import './AlbumList.css'
 
 interface AlbumListProps {
-  isLoading: boolean
+  isPending: boolean
   userId: string
   albums: AlbumType[] | null | undefined
 }
 
-export const AlbumList: FC<AlbumListProps> = ({ isLoading, userId, albums }) => {
+export const AlbumList: FC<AlbumListProps> = ({ isPending, userId, albums }) => {
   return (
     <SkeletonWrapper
-      isLoading={isLoading}
+      isPending={isPending}
       skeleton={<AlbumListSkeleton />}
     >
       {(albums != null) && albums.length > 0 && (

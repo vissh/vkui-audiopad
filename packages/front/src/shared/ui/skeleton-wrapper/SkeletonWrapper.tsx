@@ -1,15 +1,15 @@
 import { type FC } from 'react'
 
 interface SkeletonWrapperProps {
-  isLoading: boolean
+  isPending: boolean
   skeleton: React.ReactNode
   children: React.ReactNode
 }
 
-export const SkeletonWrapper: FC<SkeletonWrapperProps> = ({ isLoading, skeleton, children }) => {
+export const SkeletonWrapper: FC<SkeletonWrapperProps> = ({ isPending, skeleton, children }) => {
   return (
     <>
-      {isLoading && <>{skeleton}</>}
+      {isPending && <>{skeleton}</>}
       {children}
     </>
   )

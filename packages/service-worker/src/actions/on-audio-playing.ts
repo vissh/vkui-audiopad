@@ -1,4 +1,5 @@
 import { type commonTypes } from '@vk-audiopad/common'
+import { fetchQueueParams } from '../fetchers/queue-params'
 import { fetchStartPlayback } from '../fetchers/start-playback'
 import { applicationState } from '../state'
 import { storage } from '../storage'
@@ -14,6 +15,7 @@ export const onPlaying = async (message: commonTypes.AudioPlayerPlayingMessage):
   const deviceId = applicationState.deviceId
   setTimeout(async () => {
     if (track != null) {
+      await fetchQueueParams(track)
       await fetchStartPlayback(track, deviceId)
     }
   }, 100)

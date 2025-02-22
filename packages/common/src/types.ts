@@ -36,8 +36,20 @@ export enum TrackFlagBit {
   EXPLICIT = 1 << 10,
 }
 
+export type TrackFlagMask = (
+  typeof TrackFlagBit.HAS_LYRICS
+  | typeof TrackFlagBit.CAN_ADD
+  | typeof TrackFlagBit.CLAIMED
+  | typeof TrackFlagBit.QUEUE
+  | typeof TrackFlagBit.HQ
+  | typeof TrackFlagBit.LONG_PERFORMER
+  | typeof TrackFlagBit.UMA
+  | typeof TrackFlagBit.REPLACEABLE
+  | typeof TrackFlagBit.EXPLICIT
+)
 export interface TrackItem {
   id: string
+  fromAct: boolean
   accessKey: string
   url: string
   image: string
@@ -47,7 +59,7 @@ export interface TrackItem {
   title: string
   duration: number
   context: string
-  flags: number // TrackFlagBit
+  flags: TrackFlagMask
   trackCode: string
   addHash: string
   editHash: string
@@ -64,6 +76,7 @@ export interface Playlist {
   title: string
   tracks: TrackItem[]
   isRadio: boolean
+  isVkMix: boolean
   accessHash: string
   ownerId: string
   nextOffset: string

@@ -44,6 +44,7 @@ export const SearchInput = memo(function SearchInput () {
         setValue(e.target.value)
         setSearchValueToStorage(e.target.value)
       }}
+      noPadding={true}
     />
   )
 })

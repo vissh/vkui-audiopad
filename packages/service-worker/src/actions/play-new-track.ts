@@ -1,14 +1,18 @@
-import { commonTypes } from '@vk-audiopad/common'
+import { commonTypes, vkApiClient } from '@vk-audiopad/common'
 import { fetchAudiosIdsBySource } from '../fetchers/audio-ids-by-source'
 import { fetchTrackInfo } from '../fetchers/track-info'
 import { playTrack } from '../offscreen/play-track'
 import { applicationState } from '../state'
 import { createAudiosIds, getNewIndex, sendListenedData, shuffle } from '../utils'
 
+const MAX_VK_MIX_HISTORY = 30
+
 export const playNewTrack = async (newTrackId: string | null, playlist: commonTypes.Playlist): Promise<void> => {
   sendListenedData(commonTypes.EndOfStreamReason.NEW)
 
   const isNewPlaylist: boolean = (applicationState.currentPlaylist == null) || differentPlaylists(playlist, applicationState.currentPlaylist)
+  const savePlaylist: boolean = isNewPlaylist || playlist.isVkMix
+
   let audiosIds = isNewPlaylist ? createAudiosIds(playlist.tracks) : applicationState.audiosIds
   let track: commonTypes.TrackItem
   let trackIndex: number
@@ -20,6 +24,25 @@ export const playNewTrack = async (newTrackId: string | null, playlist: commonTy
     }
     track = playlist.tracks[foundIndex]
     trackIndex = foundIndex
+  } else if (playlist.isVkMix) {
+    if (newTrackId == null) {
+      track = await vkApiClient.getStreamMixAudios()
+      if (playlist.tracks.length >= MAX_VK_MIX_HISTORY) {
+        playlist.tracks.splice(0, 1)
+        playlist.id = (+new Date().getTime()).toString()
+      }
+      trackIndex = playlist.tracks.push(track) - 1
+    } else {
+      const foundIndex = newTrackId != null ? audiosIds.findIndex(([trackId]) => trackId === newTrackId) : 0
+      const [trackId, accessKey] = audiosIds[foundIndex]
+      const possibleTrack = await fetchTrackInfo(applicationState.userId, trackId, accessKey)
+      if (possibleTrack == null) {
+        return
+      }
+      track = possibleTrack
+      trackIndex = foundIndex
+    }
+    audiosIds = createAudiosIds(playlist.tracks)
   } else {
     let foundIndex = newTrackId != null ? audiosIds.findIndex(([trackId]) => trackId === newTrackId) : 0
     if (foundIndex === -1) {
@@ -34,7 +57,7 @@ export const playNewTrack = async (newTrackId: string | null, playlist: commonTy
     const possibleTrack = await fetchTrackInfo(applicationState.userId, trackId, accessKey)
 
     if (possibleTrack == null) {
-      const newIndex = getNewIndex('next', foundIndex, audiosIds.length)
+      const [newIndex] = getNewIndex('next', foundIndex, audiosIds.length)
       await new Promise(resolve => setTimeout(resolve, 500))
       await playNewTrack(audiosIds[newIndex][0], playlist)
       return
@@ -48,7 +71,7 @@ export const playNewTrack = async (newTrackId: string | null, playlist: commonTy
     activeTrackIndex: trackIndex
   }
 
-  if (isNewPlaylist) {
+  if (savePlaylist) {
     changes.currentPlaylist = playlist
     changes.audiosIds = audiosIds
   }
@@ -57,7 +80,7 @@ export const playNewTrack = async (newTrackId: string | null, playlist: commonTy
 
   await playTrack(track.url, applicationState.volume)
 
-  if (isNewPlaylist && !playlist.isRadio) {
+  if (isNewPlaylist && !playlist.isRadio && !playlist.isVkMix) {
     const audiosIds = await fetchAudiosIdsBySource(playlist)
 
     if (applicationState.shuffle) {

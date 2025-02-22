@@ -22,7 +22,9 @@ export const sendListenedData = (endStreamReason: commonTypes.EndOfStreamReason)
       listened: Math.floor(applicationState.currentTime),
       endStreamReason
     }
-    setTimeout(async () => { await fetchListenedData(listenedData) }, 10)
+    setTimeout(async () => {
+      await fetchListenedData(listenedData)
+    }, 10)
   }
 }
 
@@ -45,7 +47,10 @@ export const createAudiosIds = (tracks: commonTypes.TrackItem[]): commonTypes.Au
   return tracks.map(track => [track.id, track.accessKey])
 }
 
-export const getNewIndex = (action: ActionType, index: number, length: number): number => {
-  const value = action === 'next' ? (index + 1) % length : (index === 0 ? length : index) - 1
-  return value < 0 ? 0 : value
+export const getNewIndex = (action: ActionType, index: number, length: number): [number, boolean] => {
+  const overflow = (action === 'next' && index + 1 === length) || (action === 'prev' && index === 0)
+  return [
+    overflow ? (action === 'next' ? 0 : length - 1) : (action === 'next' ? index + 1 : index - 1),
+    overflow
+  ]
 }
