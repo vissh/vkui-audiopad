@@ -9,8 +9,7 @@ interface SkeletonWrapperProps {
 export const SkeletonWrapper: FC<SkeletonWrapperProps> = ({ isPending, skeleton, children }) => {
   return (
     <>
-      {isPending && <>{skeleton}</>}
-      {children}
+      {isPending ? <>{skeleton}</> : <>{children}</>}
     </>
   )
 }

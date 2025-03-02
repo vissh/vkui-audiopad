@@ -1,10 +1,10 @@
-import { commonTypes, commonUtils } from '@vk-audiopad/common'
-import { Div, Tabs } from '@vkontakte/vkui'
+import { commonUtils } from '@vk-audiopad/common'
+import { Div, Flex } from '@vkontakte/vkui'
 import { memo, type FC } from 'react'
 import { SearchInput } from '@/features/search'
-import { useCurrentPlaylist } from '@/entities/active-track'
 import { useActiveTab } from '@/shared/model'
-import { ContentTab } from './ContentTab'
+import { ActionTabs } from './ActionTabs'
+import { ContentTabs } from './ContentTabs'
 import { History } from './History'
 
 interface NavigationProps {
@@ -17,7 +17,7 @@ export const Navigation: FC<NavigationProps> = ({ children, noPaddingBottom = fa
 
   return (
     <>
-      {commonUtils.isTabWithHistory(activeTab) ? <History activeTab={activeTab} /> : <ContentTabs />}
+      {commonUtils.isTabWithHistory(activeTab) ? <History activeTab={activeTab} /> : <ApplicationTabs />}
       {children != null && children}
       {children == null && <Div
         style={{
@@ -30,18 +30,11 @@ export const Navigation: FC<NavigationProps> = ({ children, noPaddingBottom = fa
   )
 }
 
-const ContentTabs = memo(function ContentTabs () {
-  const currentPlaylist = useCurrentPlaylist()
-  const currentPlaylistExists = currentPlaylist != null && currentPlaylist.tracks.length > 0
-
+const ApplicationTabs = memo(function ApplicationTabs () {
   return (
-    <>
-      <Tabs mode='accent'>
-        {currentPlaylistExists && <ContentTab tab={commonTypes.ContentTab.CURRENT_PLAYLIST} />}
-        <ContentTab tab={commonTypes.ContentTab.GENERAL} />
-        <ContentTab tab={commonTypes.ContentTab.MY_MUSIC} />
-        <ContentTab tab={commonTypes.ContentTab.EXPLORE} />
-      </Tabs>
-    </>
+    <Flex justify='space-between' noWrap>
+      <ContentTabs />
+      <ActionTabs />
+    </Flex>
   )
 })

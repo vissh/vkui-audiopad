@@ -1,3 +1,4 @@
+import { useColorScheme } from '@vkontakte/vkui'
 import { useEffect, useRef, useState, type FC } from 'react'
 import { useCurrentPlaylist, usePlayed } from '@/entities/active-track'
 
@@ -32,11 +33,14 @@ export const VKMixBalls: FC<VKMixBallsProps> = ({ width, height }) => {
   const animationFrameId = useRef<number | null>(null)
   const [animated, setAnimated] = useState(AnimatedState.INITIAL)
 
+  const colorScheme = useColorScheme()
   const currentPlaylist = useCurrentPlaylist()
   const played = usePlayed()
 
   useEffect(() => {
     const startAnimation = (initial: boolean): void => {
+      stopAnimation()
+
       const canvas = canvasRef.current as (HTMLCanvasElement | null)
       if (canvas == null) {
         return
@@ -71,10 +75,11 @@ export const VKMixBalls: FC<VKMixBallsProps> = ({ width, height }) => {
         startAnimation(false)
         break
       case AnimatedState.PAUSE:
+        startAnimation(false)
         stopAnimation()
         break
     }
-  }, [animated])
+  }, [animated, colorScheme])
 
   useEffect(() => {
     return () => {
@@ -85,8 +90,8 @@ export const VKMixBalls: FC<VKMixBallsProps> = ({ width, height }) => {
   }, [])
 
   useEffect(() => {
-    if (currentPlaylist != null && currentPlaylist.isVkMix) {
-      setAnimated(played ? AnimatedState.START : AnimatedState.PAUSE)
+    if (currentPlaylist != null) {
+      setAnimated(played && currentPlaylist.isVkMix ? AnimatedState.START : AnimatedState.PAUSE)
     } else {
       setAnimated(AnimatedState.INITIAL)
     }

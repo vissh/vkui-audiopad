@@ -1,10 +1,9 @@
-import { Div } from '@vkontakte/vkui'
+import { Flex } from '@vkontakte/vkui'
 import { type FC } from 'react'
 import { AlbumSkeleton } from '@/entities/album'
 import { type Album as AlbumType } from '@/shared/types'
 import { SkeletonWrapper } from '@/shared/ui/skeleton-wrapper'
 import { Album } from '../album/Album'
-import './AlbumList.css'
 
 interface AlbumListProps {
   isPending: boolean
@@ -19,7 +18,7 @@ export const AlbumList: FC<AlbumListProps> = ({ isPending, userId, albums }) => 
       skeleton={<AlbumListSkeleton />}
     >
       {(albums != null) && albums.length > 0 && (
-        <Div className='vkap_album_list_container'>
+        <Flex>
           {albums.map((album) => (
             <Album
               key={album.id}
@@ -27,7 +26,7 @@ export const AlbumList: FC<AlbumListProps> = ({ isPending, userId, albums }) => 
               album={album}
             />
           ))}
-        </Div>
+        </Flex>
       )}
     </SkeletonWrapper>
   )
@@ -35,10 +34,10 @@ export const AlbumList: FC<AlbumListProps> = ({ isPending, userId, albums }) => 
 
 const AlbumListSkeleton: FC = () => {
   return (
-    <Div className='vkap_album_list_container'>
+    <Flex>
       {Array.from(Array(8).keys()).map((index) => (
         <AlbumSkeleton key={index} />
       ))}
-    </Div>
+    </Flex>
   )
 }

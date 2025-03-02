@@ -3,8 +3,9 @@ import { type FC } from 'react'
 import { useAtom } from '@/shared/lib/atom'
 import { activeModalPageAtom } from '../model/atom'
 import { ModalPage } from '../model/types'
-import { InfoModalPage } from './InfoModalPage'
+import { LikeModalPage } from './LikeModelPage'
 import { RequestPermissionModalPage } from './RequestPermissionModalPage'
+import { SettingsModalPage } from './SettingsModalPage'
 import { SignInModalPage } from './SignInModalPage'
 
 export const AppModalRoot: FC = () => {
@@ -20,8 +21,8 @@ export const AppModalRoot: FC = () => {
         }
       }}
     >
-      <InfoModalPage
-        id={ModalPage.INFO}
+      <SettingsModalPage
+        id={ModalPage.SETTINGS}
         dynamicContentHeight
       />
       <SignInModalPage
@@ -30,7 +31,12 @@ export const AppModalRoot: FC = () => {
       />
       <RequestPermissionModalPage
         id={ModalPage.REQUEST_PERMISSION}
-        dynamicContentHeight />
+        dynamicContentHeight
+      />
+      <LikeModalPage
+        id={ModalPage.LIKE}
+        dynamicContentHeight
+      />
     </ModalRoot>
   )
 }

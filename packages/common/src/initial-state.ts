@@ -21,7 +21,9 @@ export const ApplicationControls: ApplicationControlsState = {
 }
 
 export const ApplicationSettings: ApplicationSettingsState = {
-  theme: Theme.SYSTEM
+  theme: Theme.SYSTEM,
+  likeVersion: 0,
+  settingsVersion: 0
 }
 
 export const ApplicationActiveTrack: ApplicationActiveTrackState = {
@@ -53,7 +55,7 @@ export const InitialActiveTab: ApplicationActiveTabState = {
 }
 
 export const DefaultActiveTab: ApplicationActiveTabState = {
-  activeTab: { tab: ContentTab.MY_MUSIC }
+  activeTab: { tab: ContentTab.GENERAL }
 }
 
 export const Application: ApplicationState = {

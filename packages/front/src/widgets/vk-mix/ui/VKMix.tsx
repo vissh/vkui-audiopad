@@ -17,39 +17,37 @@ export const VKMix: FC<VKMixProps> = ({ isPending }) => {
       isPending={isPending}
       skeleton={<VKMixSkeleton width={WIDTH} height={HEIGHT} />}
     >
-      {!isPending &&
-        <Group mode='plain' style={{ textAlign: 'center', paddingBottom: 'unset' }}>
-          <div style={{ position: 'relative', width: '100%', height: 'auto' }}>
-            <VKMixBalls width={WIDTH} height={HEIGHT} />
+      <Group mode='plain' style={{ textAlign: 'center', paddingBottom: 'unset' }}>
+        <div style={{ position: 'relative', width: '100%', height: 'auto' }}>
+          <VKMixBalls width={WIDTH} height={HEIGHT} />
 
-            <div style={{
-              position: 'absolute',
-              top: '50%',
-              left: '50%',
-              transform: 'translate(-50%, -50%)',
-              textAlign: 'center',
-              width: '100%'
-            }}>
-              <Flex align="center" justify="center" style={{ width: '100%' }}>
-                <Div>
-                  <VKMixButton />
-                </Div>
-              </Flex>
-              <Title level='2' weight='2'>
-                Слушать VK Микс
-              </Title>
-              <Spacing />
-              <Headline
-                level='1'
-                weight='3'
-                style={{ color: 'var(--vkui--color_text_secondary)' }}
-              >
-                Музыкальные рекомендации для вас
-              </Headline>
-            </div>
+          <div style={{
+            position: 'absolute',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            textAlign: 'center',
+            width: '100%'
+          }}>
+            <Flex align="center" justify="center" style={{ width: '100%' }}>
+              <Div>
+                <VKMixButton />
+              </Div>
+            </Flex>
+            <Title level='2' weight='2'>
+              Слушать VK Микс
+            </Title>
+            <Spacing />
+            <Headline
+              level='1'
+              weight='3'
+              style={{ color: 'var(--vkui--color_text_secondary)' }}
+            >
+              Музыкальные рекомендации для вас
+            </Headline>
           </div>
-        </Group>
-      }
+        </div>
+      </Group>
     </SkeletonWrapper>
 
   )

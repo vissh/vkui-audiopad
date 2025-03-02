@@ -2,7 +2,6 @@ import { commonTypes } from '@vk-audiopad/common'
 import { type FC } from 'react'
 import { AddToMyMusicButton } from '@/features/add-to-my-music'
 import { DeleteFromMyMusicButton } from '@/features/delete-from-my-music'
-import { SettingButton } from '@/features/open-settings'
 import { RepeatButton } from '@/features/repeat'
 import { ShuffleButton } from '@/features/shuffle'
 import { SimilarButton } from '@/features/similar'
@@ -54,7 +53,6 @@ export const Buttons: FC = () => {
           track={activeTrack}
         />
       }
-      <SettingButton />
     </>
   )
 }

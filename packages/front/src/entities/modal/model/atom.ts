@@ -5,8 +5,8 @@ import { ModalPage } from './types'
 export const themeAtom = lsAtom('theme', initialState.ApplicationSettings.theme)
 export const activeModalPageAtom = atom<ModalPage | null>(null)
 
-export const setInfoModal = () => {
-  activeModalPageAtom.set(ModalPage.INFO)
+export const setSettingsModal = () => {
+  activeModalPageAtom.set(ModalPage.SETTINGS)
 }
 
 export const setSignInModal = () => {
@@ -15,4 +15,8 @@ export const setSignInModal = () => {
 
 export const setRequestPermissionModal = () => {
   activeModalPageAtom.set(ModalPage.REQUEST_PERMISSION)
+}
+
+export const setLikeModal = () => {
+  activeModalPageAtom.set(ModalPage.LIKE)
 }

@@ -211,6 +211,8 @@ export interface ApplicationControlsState {
 
 export interface ApplicationSettingsState {
   theme: Theme
+  likeVersion: number
+  settingsVersion: number
 }
 
 export interface ApplicationActiveTrackState {
