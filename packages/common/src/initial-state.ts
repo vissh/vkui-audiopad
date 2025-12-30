@@ -17,7 +17,8 @@ export const ApplicationControls: ApplicationControlsState = {
   volume: 0.5,
   shuffle: false,
   repeat: RepeatMode.NONE,
-  durationMode: DurationMode.TIME_PASSED
+  durationMode: DurationMode.TIME_PASSED,
+  castToStatus: false
 }
 
 export const ApplicationSettings: ApplicationSettingsState = {

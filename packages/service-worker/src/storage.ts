@@ -63,5 +63,6 @@ export const storage = {
   shuffle: new State<boolean>('shuffle'),
   repeat: new State<commonTypes.RepeatMode>('repeat'),
   durationMode: new State<commonTypes.DurationMode>('durationMode'),
+  castToStatus: new State<boolean>('castToStatus'),
   hlsDebug: new State<boolean>('hlsDebug')
 }

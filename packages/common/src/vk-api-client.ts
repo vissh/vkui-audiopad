@@ -111,3 +111,16 @@ const setWebTokenToStorage = async (webToken: WebToken): Promise<void> => {
     })
   })
 }
+
+export const setBroadcast = async (ownerId?: string, audioId?: string): Promise<JSONObject> => {
+  const params: Record<string, string> = {}
+  if (ownerId != null && audioId != null) {
+    params.audio = `${ownerId}_${audioId}`
+  }
+
+  return await request(
+    `https://api.vk.com/method/audio.setBroadcast?v=${QUERY_API_VERSION}`,
+    'POST',
+    params
+  )
+}
