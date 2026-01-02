@@ -207,6 +207,7 @@ export interface ApplicationControlsState {
   shuffle: boolean
   repeat: RepeatMode
   durationMode: DurationMode
+  castToStatus: boolean
 }
 
 export interface ApplicationSettingsState {

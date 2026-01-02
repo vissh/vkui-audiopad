@@ -3,6 +3,7 @@ import { type FC } from 'react'
 import { AddToMyMusicButton } from '@/features/add-to-my-music'
 import { DeleteFromMyMusicButton } from '@/features/delete-from-my-music'
 import { RepeatButton } from '@/features/repeat'
+import { CastToStatusButton } from '@/features/cast-to-status'
 import { ShuffleButton } from '@/features/shuffle'
 import { SimilarButton } from '@/features/similar'
 import { useActiveTrack } from '@/entities/active-track'
@@ -46,6 +47,7 @@ export const Buttons: FC = () => {
       )}
       <ShuffleButton />
       <RepeatButton />
+      <CastToStatusButton />
       {activeTrackExists &&
         <SimilarButton
           padding
