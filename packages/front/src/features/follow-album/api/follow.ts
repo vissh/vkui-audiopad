@@ -1,7 +1,7 @@
 import { cast, vkClient, type commonTypes } from '@vk-audiopad/common'
 
 export const vkApiFollow = async (playlist: commonTypes.Playlist): Promise<boolean> => {
-  const resp = await vkClient.request('https://vk.com/al_audio.php?act=follow_playlist', {
+  const resp = await vkClient.request('https://vk.ru/al_audio.php?act=follow_playlist', {
     act: 'follow_playlist',
     al: '1',
     block_id: playlist.blockId,

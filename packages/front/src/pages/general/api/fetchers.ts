@@ -3,7 +3,7 @@ import { getCatalogBlocks } from '@/shared/lib/catalog-block'
 import { type FetchMoreArgs, type FetchResult } from '../model/types'
 
 export const fetchGeneral = async (ownerId: string): Promise<FetchResult> => {
-  const resp = await vkClient.request('https://vk.com/al_audio.php?act=section', {
+  const resp = await vkClient.request('https://vk.ru/al_audio.php?act=section', {
     act: 'section',
     al: '1',
     claim: '0',
@@ -16,7 +16,7 @@ export const fetchGeneral = async (ownerId: string): Promise<FetchResult> => {
 }
 
 export const fetchMore = async ({ sectionId, nextFrom }: FetchMoreArgs): Promise<FetchResult> => {
-  const resp = await vkClient.request('https://vk.com/al_audio.php?act=load_catalog_section', {
+  const resp = await vkClient.request('https://vk.ru/al_audio.php?act=load_catalog_section', {
     al: '1',
     section_id: sectionId,
     start_from: nextFrom

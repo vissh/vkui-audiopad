@@ -5,7 +5,7 @@ import { parseFromString } from '@/shared/lib/utils'
 import { type FetchArtistResult } from '../model/types'
 
 export const fetchArtistData = async (artistId: string): Promise<FetchArtistResult> => {
-  const respArtist = await fetch(`https://vk.com/artist/${artistId}`)
+  const respArtist = await fetch(`https://vk.ru/artist/${artistId}`)
   const html = await respArtist.text()
 
   const sectionId = findSectionId(html)
@@ -14,7 +14,7 @@ export const fetchArtistData = async (artistId: string): Promise<FetchArtistResu
     throw new Error('Artist sectionId not found')
   }
 
-  const resp = await vkClient.request('https://vk.com/al_audio.php?act=load_catalog_section', {
+  const resp = await vkClient.request('https://vk.ru/al_audio.php?act=load_catalog_section', {
     al: '1',
     section_id: sectionId
   })

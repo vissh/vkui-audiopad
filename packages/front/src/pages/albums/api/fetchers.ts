@@ -4,7 +4,7 @@ import { findSectionId } from '@/shared/lib/parse-html-block'
 import { type FetchAlbumsResult, type FetchNextSectionArgs } from '../model/types'
 
 export const fetchAlbums = async (showAllLink: string): Promise<FetchAlbumsResult> => {
-  const resp = await fetch(`https://vk.com${showAllLink}`)
+  const resp = await fetch(`https://vk.ru${showAllLink}`)
   const html = await resp.text()
 
   const sectionId = findSectionId(html)
@@ -16,7 +16,7 @@ export const fetchAlbums = async (showAllLink: string): Promise<FetchAlbumsResul
 }
 
 export const fetchMoreAlbums = async (args: FetchNextSectionArgs): Promise<FetchAlbumsResult> => {
-  const resp = await vkClient.request('https://vk.com/al_audio.php?act=load_catalog_section', {
+  const resp = await vkClient.request('https://vk.ru/al_audio.php?act=load_catalog_section', {
     al: '1',
     section_id: args.sectionId,
     start_from: args.nextFrom

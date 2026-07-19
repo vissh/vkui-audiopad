@@ -5,7 +5,7 @@ const trackDataTypes = new Set(['music_audios', 'radiostations'])
 const albumsDataTypes = new Set(['music_playlists', 'catalog_banners'])
 const catalogDataTypes = new Set([...trackDataTypes, ...albumsDataTypes])
 
-const albumLinkPrefix = 'https://vk.com/music/album/'
+const albumLinkPrefix = 'https://vk.ru/music/album/'
 
 interface BlockDataTypeElement {
   blockId: string

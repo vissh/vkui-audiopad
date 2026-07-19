@@ -19,7 +19,7 @@ const deleteTrack = async (track: commonTypes.TrackItem, restore: boolean): Prom
 const actDelete = async (track: commonTypes.TrackItem, restore: boolean): Promise<void> => {
   const [ownerId, audioId] = track.id.split('_')
 
-  await vkClient.request('https://vk.com/al_audio.php?act=delete_audio', {
+  await vkClient.request('https://vk.ru/al_audio.php?act=delete_audio', {
     act: 'delete_audio',
     al: '1',
     aid: audioId,
@@ -34,7 +34,7 @@ const apiDelete = async (track: commonTypes.TrackItem): Promise<void> => {
   const [ownerId, audioId] = track.id.split('_')
 
   await vkApiClient.request(
-    `https://api.vk.com/method/audio.delete?v=${vkApiClient.QUERY_API_VERSION}&client_id=${vkApiClient.API_VERSION}`,
+    `https://api.vk.ru/method/audio.delete?v=${vkApiClient.QUERY_API_VERSION}&client_id=${vkApiClient.API_VERSION}`,
     'POST',
     {
       audio_id: audioId,

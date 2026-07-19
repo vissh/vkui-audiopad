@@ -20,7 +20,7 @@ export const UnauthorizedWebToken: WebToken = {
 
 export const getStreamMixAudios = async (): Promise<TrackItem> => {
   const resp = await request(
-    `https://api.vk.com/method/audio.getStreamMixAudios?v=${QUERY_API_VERSION}&client_id=${VK_APP_ID}`,
+    `https://api.vk.ru/method/audio.getStreamMixAudios?v=${QUERY_API_VERSION}&client_id=${VK_APP_ID}`,
     'POST',
     {
       mix_id: 'common',
@@ -71,7 +71,7 @@ export const updateWebToken = async (): Promise<WebToken> => {
 }
 
 export const fetchAppWebToken = async (): Promise<WebToken> => {
-  const resp = await vkClientRequest('https://login.vk.com/?act=web_token', {
+  const resp = await vkClientRequest('https://login.vk.ru/?act=web_token', {
     version: '1',
     app_id: VK_APP_ID,
     access_token: ''
@@ -119,7 +119,7 @@ export const setBroadcast = async (ownerId?: string, audioId?: string): Promise<
   }
 
   return await request(
-    `https://api.vk.com/method/audio.setBroadcast?v=${QUERY_API_VERSION}`,
+    `https://api.vk.ru/method/audio.setBroadcast?v=${QUERY_API_VERSION}`,
     'POST',
     params
   )

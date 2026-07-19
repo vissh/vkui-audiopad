@@ -9,7 +9,7 @@ export const SignIn: FC = () => {
     setSignInModal()
   }
 
-  chrome.permissions.contains({ origins: ['*://*.vk.com/*'] }, (result) => {
+  chrome.permissions.contains({ origins: ['*://*.vk.ru/*'] }, (result) => {
     if (!result) {
       setRequestPermissionModal()
     }

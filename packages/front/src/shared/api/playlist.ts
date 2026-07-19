@@ -19,7 +19,7 @@ export const fetchPlaylist = async (fetchArgs: FetchPlaylistArgs): Promise<Fetch
 }
 
 export const fetchMorePlaylistTracks = async (playlist: commonTypes.Playlist): Promise<FetchPlaylistResult> => {
-  const resp = await vkClient.request('https://vk.com/al_audio.php?act=load_block_playlist',
+  const resp = await vkClient.request('https://vk.ru/al_audio.php?act=load_block_playlist',
     {
       al: '1',
       block_id: playlist.blockId,
@@ -31,7 +31,7 @@ export const fetchMorePlaylistTracks = async (playlist: commonTypes.Playlist): P
 }
 
 const fetchPlaylistByBlockId = async (fetchArgs: FetchPlaylistArgs): Promise<FetchPlaylistResult> => {
-  const resp = await vkClient.request('https://vk.com/al_audio.php?act=load_block_playlist', {
+  const resp = await vkClient.request('https://vk.ru/al_audio.php?act=load_block_playlist', {
     al: '1',
     block_id: fetchArgs.playlist.blockId,
     start_from: '0'
@@ -41,7 +41,7 @@ const fetchPlaylistByBlockId = async (fetchArgs: FetchPlaylistArgs): Promise<Fet
 }
 
 const fetchPlaylistById = async (fetchArgs: FetchPlaylistArgs): Promise<FetchPlaylistResult> => {
-  const resp = await vkClient.request('https://vk.com/al_audio.php?act=load_section', {
+  const resp = await vkClient.request('https://vk.ru/al_audio.php?act=load_section', {
     access_hash: fetchArgs.playlist.accessHash,
     al: '1',
     claim: '0',

@@ -19,7 +19,7 @@ export const RequestPermissionModalPage = ({ ...props }) => {
           action={
             <Link
               onClick={() => {
-                chrome.permissions.request({ origins: ['*://*.vk.com/*'] }, () => {
+                chrome.permissions.request({ origins: ['*://*.vk.ru/*'] }, () => {
                   location.reload()
                 })
               }}
@@ -28,7 +28,7 @@ export const RequestPermissionModalPage = ({ ...props }) => {
             </Link>
           }
         >
-          Для работы необходимо разрешить запросы к vk.com
+          Для работы необходимо разрешить запросы к vk.ru
         </Placeholder>
       </Group>
     </ModalPage>

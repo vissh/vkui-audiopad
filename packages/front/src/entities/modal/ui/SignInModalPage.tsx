@@ -19,14 +19,14 @@ export const SignInModalPage = ({ ...props }) => {
           title='Вход ВКонтакте'
           action={
             <Link
-              href='https://vk.com/'
+              href='https://vk.ru/'
               target='_blank'
             >
               <Button size='m'>Перейти на сайт</Button>
             </Link>
           }
         >
-          Авторизуйтесь на сайте vk.com для использования расширения
+          Авторизуйтесь на сайте vk.ru для использования расширения
         </Placeholder>
       </Group>
     </ModalPage>

@@ -32,7 +32,7 @@ const commonManifest = {
   "name": "vk audiopad – VK Музыка бесплатно без рекламы",
   "description": "С плеером для ВК Музыки, вы можете слушать музыку из ВКонтакте бесплатно и без рекламы",
   "author": "Denis Matveev <unsumulum@gmail.com>",
-  "version": "3.3.7",
+  "version": "3.3.8",
   "manifest_version": 3,
   "minimum_chrome_version": "116",
   "icons": {
@@ -74,7 +74,7 @@ const commonManifest = {
     }
   },
   "host_permissions": [
-    "*://*.vk.com/*"
+    "*://*.vk.ru/*"
   ],
   "declarative_net_request": {
     "rule_resources": [

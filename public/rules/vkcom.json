@@ -8,12 +8,12 @@
         {
           "header": "origin",
           "operation": "set",
-          "value": "https://vk.com"
+          "value": "https://vk.ru"
         }
       ]
     },
     "condition": {
-      "urlFilter": "||vk.com/",
+      "urlFilter": "||vk.ru/",
       "excludedInitiatorDomains": [
         "vk.com",
         "vk.ru"

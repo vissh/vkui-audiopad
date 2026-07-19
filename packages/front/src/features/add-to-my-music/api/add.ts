@@ -9,7 +9,7 @@ export const vkApiAdd = async (track: commonTypes.TrackItem): Promise<commonType
 
 const actMode = async (track: commonTypes.TrackItem): Promise<commonTypes.TrackItem> => {
   const [ownerId, audioId] = track.id.split('_')
-  const resp = await vkClient.request('https://vk.com/al_audio.php?act=add', {
+  const resp = await vkClient.request('https://vk.ru/al_audio.php?act=add', {
     al: '1',
     audio_id: audioId,
     audio_owner_id: ownerId,
@@ -26,7 +26,7 @@ const actMode = async (track: commonTypes.TrackItem): Promise<commonTypes.TrackI
 const apiMode = async (track: commonTypes.TrackItem): Promise<commonTypes.TrackItem> => {
   const [ownerId, audioId] = track.id.split('_')
   const resp = await vkApiClient.request(
-    `https://api.vk.com/method/audio.add?v=${vkApiClient.QUERY_API_VERSION}&client_id=${vkApiClient.VK_APP_ID}`,
+    `https://api.vk.ru/method/audio.add?v=${vkApiClient.QUERY_API_VERSION}&client_id=${vkApiClient.VK_APP_ID}`,
     'POST',
     {
       audio_id: audioId,

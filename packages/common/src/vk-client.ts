@@ -24,7 +24,7 @@ export const request = async (url: string, params: Record<string, string>): Prom
   const [resp, parseError] = await fetchPayload()
 
   if (parseError || needRetry(resp)) {
-    await fetch('https://vk.com')
+    await fetch('https://vk.ru')
     const [respAfterReconnect, retryParseError] = await fetchPayload()
     if (retryParseError) {
       throw new Error('respAfterReconnect')

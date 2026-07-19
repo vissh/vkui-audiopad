@@ -31,7 +31,7 @@ const _getProfileNavigationInfo = async (webToken: commonTypes.WebToken): Promis
   params.set('v', vkApiClient.API_VERSION)
   params.set('access_token', webToken.accessToken)
 
-  const resp = await fetch(`https://api.vk.com/method/account.getProfileNavigationInfo?v=${vkApiClient.QUERY_API_VERSION}&client_id=${vkApiClient.VK_APP_ID}`, {
+  const resp = await fetch(`https://api.vk.ru/method/account.getProfileNavigationInfo?v=${vkApiClient.QUERY_API_VERSION}&client_id=${vkApiClient.VK_APP_ID}`, {
     method: 'POST',
     body: params
   })

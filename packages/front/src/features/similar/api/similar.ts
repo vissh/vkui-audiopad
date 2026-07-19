@@ -16,7 +16,7 @@ export const fetchSimilarData = async (
     section: 'recoms_audio'
   })
 
-  const resp = await fetch('https://vk.com/al_audio.php?' + queryParams.toString())
+  const resp = await fetch('https://vk.ru/al_audio.php?' + queryParams.toString())
 
   const html = await resp.text()
 
@@ -26,7 +26,7 @@ export const fetchSimilarData = async (
     return null
   }
 
-  const respSection = await vkClient.request('https://vk.com/al_audio.php?act=load_catalog_section', {
+  const respSection = await vkClient.request('https://vk.ru/al_audio.php?act=load_catalog_section', {
     al: '1',
     section_id: sectionId
   })
