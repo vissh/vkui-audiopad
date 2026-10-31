@@ -1,0 +1,22 @@
+{
+  "name": "vkui-audiopad",
+  "version": "1.0.0",
+  "private": true,
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "build": "./build.sh",
+    "build:common": "npm run build -w @vk-audiopad/common",
+    "check": "npm run build -w @vk-audiopad/common && npm run -ws --if-present typecheck && npm run -ws --if-present lint",
+    "test": "vitest run",
+    "eslint:fix": "npm run -ws --if-present eslint:fix"
+  },
+  "devDependencies": {
+    "vitest": "^3.2.4"
+  },
+  "allowScripts": {
+    "esbuild@0.28.2": true,
+    "esbuild@0.18.20": true
+  }
+}

@@ -7,7 +7,7 @@ const MIN_IDLE_TIME = 5 * 60 * 1000
 const CHECK_INTERVAL = 1 * 60 * 1000
 
 let timeOfLastActivity = Date.now()
-let intervalId = 0
+let intervalId: ReturnType<typeof setInterval> | undefined
 
 export const startActivityChecker = (): void => {
   audioElement.addEventListener('playing', updateActivity)

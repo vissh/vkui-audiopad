@@ -19,3 +19,7 @@ Run the script `./to-publish.sh`, the result will be in the `dist` directory.
 ## Architectural methodology
 
 Project based on [Feature-Sliced Design](https://feature-sliced.design/)
+
+## AI-assisted development
+
+Instructions for AI agents: [AGENTS.md](./AGENTS.md), architecture details: [docs/ai/architecture.md](./docs/ai/architecture.md). MCP servers (VKUI docs, Chrome extension debugging) are auto-discovered via `.mcp.json` (Claude Code, Cursor) and `opencode.json` (opencode).

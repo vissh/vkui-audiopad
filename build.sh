@@ -5,27 +5,32 @@ set -e
 chrome_dir="chrome_extension"
 firefox_dir="firefox_extension"
 
-if [ "$#" -eq 0 ]; then
+if [ ! -x node_modules/.bin/tsc ]; then
+  echo 'Installing dependencies...'
+  npm ci
+fi
+
+if [ "$#" -eq 0 ] || [ ! -d packages/common/dist ]; then
   echo 'Building common lib...'
-  (cd packages/common && npm install && npm run build)
+  npm run build -w @vk-audiopad/common
   echo '`common-lib` builded.'
 fi
 
 if [ "$#" -eq 0 ] || [ "$1" = "offscreen" ]; then
   echo -e '\nBuilding offscreen...'
-  (cd packages/offscreen && npm install && npm run build)
+  npm run build -w @vk-audiopad/offscreen
   echo '`offscreen` builded.'
 fi
 
 if [ "$#" -eq 0 ] || [ "$1" = "service-worker" ]; then
   echo -e '\nBuilding service-worker...'
-  (cd packages/service-worker && npm install && npm run build)
+  npm run build -w @vk-audiopad/service-worker
   echo '`service-worker` builded.'
 fi
 
 if [ "$#" -eq 0 ] || [ "$1" = "front" ]; then
   echo -e '\nBuilding front...'
-  (cd packages/front && npm install && npm run build)
+  npm run build -w @vk-audiopad/front
   echo '`front` builded.'
 fi
 

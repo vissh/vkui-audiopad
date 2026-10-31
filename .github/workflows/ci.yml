@@ -1,0 +1,26 @@
+name: CI
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - name: Install dependencies
+        run: npm ci
+      - name: Fail fast if dependencies were not installed
+        run: test -x node_modules/.bin/tsc || { echo 'npm ci did not install dependencies'; exit 1; }
+      - name: Typecheck and lint
+        run: npm run check
+      - name: Tests
+        run: npm test
+      - name: Build extension
+        run: ./build.sh

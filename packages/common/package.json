@@ -15,7 +15,9 @@
     }
   },
   "scripts": {
-    "build": "npm install && tsc && ./node_modules/.bin/vite build",
+    "build": "tsc && vite build",
+    "typecheck": "tsc",
+    "lint": "eslint src",
     "eslint:fix": "eslint --fix src"
   },
   "dependencies": {
