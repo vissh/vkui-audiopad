@@ -5,19 +5,19 @@ import { TooltipIconButton } from '@/shared/ui/tooltip-icon-button'
 import { castToStatusAtom } from '../model/atom'
 
 export const CastToStatusButton: FC = () => {
-    const [castToStatus, setCastToStatus] = useAtom(castToStatusAtom)
+  const [castToStatus, setCastToStatus] = useAtom(castToStatusAtom)
 
-    const toggle = () => {
-        setCastToStatus(!castToStatus)
-    }
+  const toggle = () => {
+    setCastToStatus(!castToStatus)
+  }
 
-    return (
-        <TooltipIconButton
-            accent={castToStatus}
-            padding
-            text='Транслировать музыку в статус'
-            icon={Icon28RadiowavesLeftAndRightOutline}
-            onClick={toggle}
-        />
-    )
+  return (
+    <TooltipIconButton
+      accent={castToStatus}
+      padding
+      text='Транслировать музыку в статус'
+      icon={Icon28RadiowavesLeftAndRightOutline}
+      onClick={toggle}
+    />
+  )
 }

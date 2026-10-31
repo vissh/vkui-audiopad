@@ -1,0 +1,36 @@
+name: Update agent skills
+
+on:
+  schedule:
+    - cron: '0 6 1 * *' # 1st day of month, 06:00 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  update-skills:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Update vendored skills (skills-lock.json)
+        run: npx -y skills update -y -p
+
+      - name: Create pull request if changed
+        uses: peter-evans/create-pull-request@v6
+        with:
+          branch: chore/update-agent-skills
+          title: 'chore: update AI agent skills'
+          commit-message: 'chore: update vendored AI agent skills'
+          body: |
+            Automated update of the vendored agent skill (`.agents/skills/`)
+            via `npx skills update` — see docs/ai/maintenance.md.
+
+            Review the diff: methodology changes may affect AGENTS.md rules
+            (eslint is the mechanical enforcement, this skill is advisory).
+          delete-branch: true

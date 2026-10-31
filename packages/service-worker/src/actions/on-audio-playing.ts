@@ -13,10 +13,11 @@ export const onPlaying = async (message: commonTypes.AudioPlayerPlayingMessage):
 
   const track = applicationState.activeTrack
   const deviceId = applicationState.deviceId
-  setTimeout(async () => {
+  setTimeout(() => {
     if (track != null) {
-      await fetchQueueParams(track)
-      await fetchStartPlayback(track, deviceId)
+      void fetchQueueParams(track).then(async () => {
+        await fetchStartPlayback(track, deviceId)
+      })
     }
   }, 100)
 }

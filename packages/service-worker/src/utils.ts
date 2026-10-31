@@ -22,8 +22,8 @@ export const sendListenedData = (endStreamReason: commonTypes.EndOfStreamReason)
       listened: Math.floor(applicationState.currentTime),
       endStreamReason
     }
-    setTimeout(async () => {
-      await fetchListenedData(listenedData)
+    setTimeout(() => {
+      void fetchListenedData(listenedData)
     }, 10)
   }
 }

@@ -1,0 +1,15 @@
+{
+  "mcpServers": {
+    "vkui": {
+      "command": "npx",
+      "args": ["-y", "@vkontakte/vkui-mcp@1.1.0"],
+      "env": {
+        "VKUI_VERSION": "7.11.7"
+      }
+    },
+    "chrome-devtools": {
+      "command": "npx",
+      "args": ["chrome-devtools-mcp@1.12.0", "--categoryExtensions"]
+    }
+  }
+}

@@ -3,11 +3,13 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "build": "npm install && tsc && ./node_modules/.bin/vite build",
+    "build": "tsc && vite build",
+    "typecheck": "tsc",
+    "lint": "eslint src",
     "eslint:fix": "eslint --fix src"
   },
   "dependencies": {
-    "@vk-audiopad/common": "file:../common"
+    "@vk-audiopad/common": "*"
   },
   "devDependencies": {
     "@types/chrome": "0.0.267",
