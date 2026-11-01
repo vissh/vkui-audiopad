@@ -23,6 +23,7 @@
   },
   "devDependencies": {
     "@conarti/eslint-plugin-feature-sliced": "2.0.1",
+    "@eslint/compat": "2.1.1",
     "@stylistic/eslint-plugin": "5.10.0",
     "@types/node": "26.6.6",
     "@types/react": "19.3.0",
