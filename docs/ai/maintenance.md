@@ -29,6 +29,8 @@
 
 ## Процедура обновления VKUI (пример «связанного» обновления)
 
+Полный roadmap отложенных крупных обновлений (TS 7, eslint 9/10, VKUI 8/React 19, hls.js) с обязательным workflow верификации — см. **deferred-updates.md**.
+
 1. `npm install @vkontakte/vkui@<новая> -w @vk-audiopad/front`
 2. Миграции смотреть через MCP `vkui` (`list_migration_targets` / `get_migration_target`) или доки https://vkui.io/migrations/
 3. Исправить код, поднять `npm run check`, при необходимости `./build.sh`

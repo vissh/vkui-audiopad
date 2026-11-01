@@ -42,6 +42,10 @@ npm run eslint:fix   # автофикс линта во всех пакетах
 
 Как и кем обновляются AGENTS.md, скиллы, MCP и зависимости — см. **docs/ai/maintenance.md**. Коротко: зависимости и скиллы обновляет CI/Dependabot, `AGENTS.md` и `docs/ai/*` — вместе с кодом в том же PR, CI должен быть зелёным.
 
+### Отложенные крупные обновления
+
+Roadmap крупных обновлений (TypeScript 7, eslint 9/10, VKUI 8/React 19, hls.js) с обязательным workflow верификации — **docs/ai/deferred-updates.md**. По запросу пользователя «давай обновлять» — стартуй оттуда, по одному PR на пункт.
+
 ## Правила разработки
 
 ### Feature Sliced Design (packages/front)
