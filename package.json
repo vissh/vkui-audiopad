@@ -8,11 +8,13 @@
   "scripts": {
     "build": "./build.sh",
     "build:common": "npm run build -w @vk-audiopad/common",
-    "check": "npm run build -w @vk-audiopad/common && npm run -ws --if-present typecheck && npm run -ws --if-present lint",
+    "check": "node scripts/validate-package-versions.mjs && npm run build -w @vk-audiopad/common && npm run -ws --if-present typecheck && npm run -ws --if-present lint",
     "test": "vitest run",
-    "eslint:fix": "npm run -ws --if-present eslint:fix"
+    "eslint:fix": "npm run -ws --if-present eslint:fix",
+    "verify:build": "node scripts/verify-build-output.mjs"
   },
   "devDependencies": {
+    "semver": "7.8.5",
     "vite": "6.4.5",
     "vitest": "^4.1.12"
   },
