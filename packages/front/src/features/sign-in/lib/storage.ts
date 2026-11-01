@@ -13,7 +13,7 @@ export const updateWebToken = (webToken: commonTypes.WebToken) => {
       return
     }
 
-    void login(items.userId, items.deviceId, webToken)
+    void login(items.userId as string | undefined, items.deviceId as string | undefined, webToken)
   })
 }
 

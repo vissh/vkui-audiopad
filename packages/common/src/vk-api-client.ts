@@ -99,7 +99,7 @@ export const fetchAppWebToken = async (): Promise<WebToken> => {
 const getWebTokenFromStorage = async (): Promise<WebToken | undefined> => {
   return await new Promise((resolve) => {
     chrome.storage.local.get(('webToken'), (result) => {
-      resolve(result.webToken)
+      resolve(result.webToken as WebToken | undefined)
     })
   })
 }

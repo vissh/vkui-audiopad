@@ -10,7 +10,7 @@ class State<T> {
   async get (): Promise<T | undefined> {
     return await new Promise((resolve) => {
       chrome.storage.local.get([this.stateName], (result) => {
-        resolve(result[this.stateName])
+        resolve(result[this.stateName] as T | undefined)
       })
     })
   }
@@ -24,7 +24,7 @@ class State<T> {
   listen (callback: (value: T | undefined) => void): void {
     chrome.storage.local.onChanged.addListener(changes => {
       if (Object.prototype.hasOwnProperty.call(changes, this.stateName)) {
-        callback(changes[this.stateName].newValue)
+        callback(changes[this.stateName].newValue as T | undefined)
       }
     })
   }
