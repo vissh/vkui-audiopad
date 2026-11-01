@@ -1,6 +1,6 @@
 import { castToJSONObject, castToNumber, castToString, safeCastToString } from './cast'
 import { toTrackItemFromAPIResponse } from './converter'
-import { type JSONObject, type TrackItem, type WebToken } from './types'
+import { type JSONObject, type JSONValue, type TrackItem, type WebToken } from './types'
 import { request as vkClientRequest } from './vk-client'
 
 export const VK_APP_ID = '6287487'
@@ -39,7 +39,7 @@ export const request = async (url: string, method: 'GET' | 'POST', params: Recor
 
   const _request = async (url: string, method: 'GET' | 'POST', formData: URLSearchParams): Promise<JSONObject> => {
     const resp = await fetch(url, { method, body: formData })
-    return castToJSONObject(await resp.json())
+    return castToJSONObject(await resp.json() as JSONValue)
   }
 
   const data = await _request(url, method, formData)

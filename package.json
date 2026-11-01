@@ -13,10 +13,10 @@
     "eslint:fix": "npm run -ws --if-present eslint:fix"
   },
   "devDependencies": {
-    "vitest": "^3.2.4"
+    "vite": "6.4.5",
+    "vitest": "^4.1.12"
   },
   "allowScripts": {
-    "esbuild@0.28.2": true,
-    "esbuild@0.18.20": true
+    "esbuild@0.25.12": true
   }
 }
