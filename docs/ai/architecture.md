@@ -49,6 +49,7 @@
 **front (клиент):**
 - `shared/lib/atom.ts` — минималистичные атомы без библиотек: `atom()`, `lsAtom()` (localStorage, только string), `storageAtom()` (chrome.storage.local + автосинхронизация между контекстами через `storage.onChanged`, с `mutate`-хуками для side-эффектов). Чтение в React — `useAtomValue`/`useAtom` (useSyncExternalStore).
 - Серверные данные — `@tanstack/react-query` (провайдер в `app/Application.tsx`), fetchers на страницах `pages/*/api/fetchers.ts`.
+- React 19 живёт только в `packages/front`, но `@types/react(-dom)` объявлены и в корневом `package.json` (devDependencies): при `moduleResolution: "node"` типы VKUI из корневого `node_modules` не находят `@types/react`, вложенный в `packages/front/node_modules` — пропсы VKUI «пустеют» (нет `children`/`className`/`style`). Корневые типы не убирать.
 - Важные атомы: `entities/active-track/model/atom.ts` (активный трек), `entities/session` (сессия/токен), `entities/modal`.
 
 **service-worker:**

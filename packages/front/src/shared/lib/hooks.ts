@@ -4,7 +4,7 @@ type Timer = ReturnType<typeof setTimeout>
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const useDebounce = <T extends any[]>(func: (...args: T) => void, delay: number): (...args: T) => void => {
-  const timer = useRef<Timer>()
+  const timer = useRef<Timer | undefined>(undefined)
 
   useEffect(() => {
     return () => { clearTimeout(timer.current) }

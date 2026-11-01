@@ -1,7 +1,7 @@
 # AGENTS.md — инструкция для ИИ-агентов
 
 Браузерное расширение **VK Audiopad** — плеер для VK Music (vk.ru) для Chrome и Firefox.
-Manifest V3, TypeScript strict, React 18 + VKUI 7, методология Feature Sliced Design.
+Manifest V3, TypeScript strict, React 19 + VKUI 8, методология Feature Sliced Design.
 
 ## Команды
 
@@ -26,7 +26,7 @@ npm run eslint:fix   # автофикс линта во всех пакетах
 | Пакет | Назначение |
 |---|---|
 | `packages/common` | Общая библиотека `@vk-audiopad/common`: типы (включая протокол сообщений), VK API клиенты, конвертеры, утилиты. Сборка библиотекой (vite + dts). **Остальные пакеты импортируют типы из его `dist/` — сначала собери common** (`npm run build:common`). |
-| `packages/front` | UI попапа расширения (index.html → popup): React 18, VKUI 8.x, @tanstack/react-query. Строгий FSD. |
+| `packages/front` | UI попапа расширения (index.html → popup): React 19, VKUI 8.x, @tanstack/react-query. Строгий FSD. |
 | `packages/offscreen` | Offscreen-документ Chrome: аудиоэлемент + hls.js. В Firefox работает как фоновая страница (тот же код). |
 | `packages/service-worker` | MV3 background service worker: оркестрация воспроизведения, очереди, плейлисты, интеграция с VK. |
 
