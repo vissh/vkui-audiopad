@@ -1,18 +1,33 @@
-import { cast, vkClient } from '@vk-audiopad/common'
+import { cast, catalogLink, vkApiClient, vkClient } from '@vk-audiopad/common'
 import { getCatalogBlocks } from '@/shared/lib/catalog-block'
-import { findSectionId } from '@/shared/lib/parse-html-block'
 import { type FetchAlbumsResult, type FetchNextSectionArgs } from '../model/types'
 
 export const fetchAlbums = async (showAllLink: string): Promise<FetchAlbumsResult> => {
-  const resp = await fetch(`https://vk.ru${showAllLink}`)
-  const html = await resp.text()
-
-  const sectionId = findSectionId(html)
+  const sectionId = await resolveSectionId(showAllLink)
   if (sectionId == null) {
     throw new Error('Albums sectionId not found')
   }
 
   return await fetchMoreAlbums({ nextFrom: '', sectionId })
+}
+
+const resolveSectionId = async (showAllLink: string): Promise<string | null> => {
+  const token = catalogLink.sectionIdFromShowAllLink(showAllLink)
+  if (token != null) {
+    return token
+  }
+
+  const artistLink = catalogLink.parseArtistShowAllLink(showAllLink)
+  if (artistLink != null) {
+    return await vkApiClient.getArtistCatalogSectionId(artistLink.artistId, artistLink.url)
+  }
+
+  const audioSectionLink = catalogLink.parseAudioSectionShowAllLink(showAllLink)
+  if (audioSectionLink != null) {
+    return await vkApiClient.getAudioCatalogSectionId(audioSectionLink.url)
+  }
+
+  return null
 }
 
 export const fetchMoreAlbums = async (args: FetchNextSectionArgs): Promise<FetchAlbumsResult> => {

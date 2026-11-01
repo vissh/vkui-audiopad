@@ -1,4 +1,5 @@
 export * as cast from './cast'
+export * as catalogLink from './catalog-link'
 export * as converter from './converter'
 export * as initialState from './initial-state'
 export * as commonTypes from './types'

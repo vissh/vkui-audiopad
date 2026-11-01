@@ -31,6 +31,70 @@ export const getStreamMixAudios = async (): Promise<TrackItem> => {
   return toTrackItemFromAPIResponse(resp)
 }
 
+// vk.ru artist pages moved to the token-based catalog API: the page HTML
+// no longer embeds a sectionId, so we resolve it via catalog.getAudioArtist
+// and feed the old al_audio.php?act=load_catalog_section endpoint with it.
+// The optional page url selects an artist subpage section (releases,
+// featuring_releases, top_audios, ...).
+export const getArtistCatalogSectionId = async (artistId: string, pageUrl?: string): Promise<string | null> => {
+  const params: Record<string, string> = {
+    artist_id: artistId,
+    need_blocks: '1',
+    ref: ''
+  }
+  if (pageUrl != null) {
+    params.url = pageUrl
+  }
+
+  const resp = await request(
+    `https://api.vk.ru/method/catalog.getAudioArtist?v=${QUERY_API_VERSION}&client_id=${VK_APP_ID}`,
+    'POST',
+    params
+  )
+
+  return firstSectionId(resp)
+}
+
+// "Show all" links of general/explore/my-music blocks point to
+// /audios<ownerId>?section=<name>&block=<block> pages; their section id
+// is resolved via catalog.getAudio with the page url.
+export const getAudioCatalogSectionId = async (pageUrl: string): Promise<string | null> => {
+  const resp = await request(
+    `https://api.vk.ru/method/catalog.getAudio?v=${QUERY_API_VERSION}&client_id=${VK_APP_ID}`,
+    'POST',
+    {
+      url: pageUrl,
+      need_blocks: '1'
+    }
+  )
+
+  return firstSectionId(resp)
+}
+
+// Returns null on malformed/error responses instead of throwing a cryptic
+// cast error: the expected failure mode here is vk.ru format drift, and the
+// caller reports a clean 'sectionId not found'.
+const firstSectionId = (resp: JSONObject): string | null => {
+  if (isJSONObjectValue(resp.response)) {
+    const catalog = resp.response.catalog
+    if (isJSONObjectValue(catalog)) {
+      const sections = catalog.sections
+      if (Array.isArray(sections) && isJSONObjectValue(sections[0])) {
+        const sectionId = safeCastToString(sections[0].id)
+        if (sectionId.length > 0) {
+          return sectionId
+        }
+      }
+    }
+  }
+
+  return null
+}
+
+const isJSONObjectValue = (value: JSONValue): value is JSONObject => {
+  return typeof value === 'object' && value != null && !Array.isArray(value)
+}
+
 export const request = async (url: string, method: 'GET' | 'POST', params: Record<string, string>): Promise<JSONObject> => {
   const formData = new URLSearchParams(params)
 
