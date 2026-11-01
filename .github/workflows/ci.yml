@@ -19,13 +19,19 @@ jobs:
       - name: Fail fast if dependencies were not installed
         run: |
           test -x node_modules/.bin/tsc || { echo 'npm ci did not install dependencies'; exit 1; }
-          if grep '"resolved": "' package-lock.json | grep -v -E '"resolved": "(https://registry\.npmjs\.org/|packages/)'; then
+          if grep '"resolved": "' package-lock.json | grep -v -E '"resolved": "(https://registry.npmjs.org/|packages/)'; then
             echo 'package-lock.json contains non-public registry URLs'
             exit 1
           fi
+      - name: Dependency tree sanity
+        run: npm ls --workspaces
+      - name: Audit (critical only)
+        run: npm audit --audit-level=critical
       - name: Typecheck and lint
         run: npm run check
       - name: Tests
         run: npm test
       - name: Build extension
         run: ./build.sh
+      - name: Verify build output
+        run: node scripts/verify-build-output.mjs
