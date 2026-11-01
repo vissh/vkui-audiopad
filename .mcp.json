@@ -4,7 +4,7 @@
       "command": "npx",
       "args": ["-y", "@vkontakte/vkui-mcp@1.1.0"],
       "env": {
-        "VKUI_VERSION": "7.11.7"
+        "VKUI_VERSION": "8.4.3"
       }
     },
     "chrome-devtools": {

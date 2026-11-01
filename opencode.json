@@ -9,7 +9,7 @@
       "command": ["npx", "-y", "@vkontakte/vkui-mcp@1.1.0"],
       "enabled": true,
       "environment": {
-        "VKUI_VERSION": "7.11.7"
+        "VKUI_VERSION": "8.4.3"
       }
     },
     "chrome-devtools": {

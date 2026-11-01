@@ -4,14 +4,17 @@ import {
   Group,
   Link,
   ModalPage,
-  Placeholder
+  Placeholder,
+  type CustomModalProps,
+  type OpenModalPageProps
 } from '@vkontakte/vkui'
 
-export const RequestPermissionModalPage = ({ ...props }) => {
+export const RequestPermissionModalPage = ({ modalProps }: CustomModalProps<OpenModalPageProps>) => {
   return (
     <ModalPage
-      {...props}
+      {...modalProps}
       hideCloseButton={true}
+      preventClose={true}
     >
       <Group>
         <Placeholder

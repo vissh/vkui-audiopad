@@ -4,7 +4,7 @@ import { type FC } from 'react'
 import { type Album } from '@/shared/types'
 import './AlbumCell.css'
 
-const size = 136
+const size = 128
 
 interface AlbumCellProps {
   album: Album
@@ -15,7 +15,7 @@ interface AlbumCellProps {
 export const AlbumCell: FC<AlbumCellProps> = ({ album, overlay, onClick }) => {
   return (
     <HorizontalCell
-      size='xl'
+      size='l'
       title={<span className='vkap_subtitle'>{album.title}</span>}
       subtitle={<span className='vkap_subtitle'>{album.authorName}</span>}
       extraSubtitle={album.infoLine.length > 0 && <span className='vkap_subtitle'>{album.infoLine}</span>}
@@ -33,9 +33,9 @@ export const AlbumCell: FC<AlbumCellProps> = ({ album, overlay, onClick }) => {
 export const AlbumSkeleton: FC = () => {
   return (
     <HorizontalCell
-      size='xl'
-      title={<Skeleton width={100} />}
-      subtitle={<Skeleton width={75} />}
+      size='l'
+      title={<Skeleton width={110} />}
+      subtitle={<Skeleton width={80} />}
     >
       <Skeleton width={size} height={size} />
     </HorizontalCell>

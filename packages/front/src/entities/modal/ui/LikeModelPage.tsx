@@ -18,22 +18,24 @@ import {
   Platform,
   Text,
   useAdaptivityConditionalRender,
-  usePlatform
+  usePlatform,
+  type CustomModalProps,
+  type OpenModalPageProps
 } from '@vkontakte/vkui'
 
-export const LikeModalPage = ({ ...props }) => {
+export const LikeModalPage = ({ modalProps, close }: CustomModalProps<OpenModalPageProps>) => {
   const platform = usePlatform()
   const { sizeX } = useAdaptivityConditionalRender()
 
   return (
     <ModalPage
-      {...props}
+      {...modalProps}
       header={
         <ModalPageHeader
           before={
             sizeX.compact !== false &&
             platform === Platform.ANDROID &&
-            <PanelHeaderClose className={sizeX.compact.className} />
+            <PanelHeaderClose className={sizeX.compact.className} onClick={() => { close() }} />
           }
         >
           Дорогие пользователи!
