@@ -37,7 +37,11 @@ export const SearchInput = memo(function SearchInput () {
 
   return (
     <Search
-      getRef={inputRef}
+      slotProps={{
+        input: {
+          getRootRef: inputRef
+        }
+      }}
       value={value}
       onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
         setAutoFocus(true)

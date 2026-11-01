@@ -26,7 +26,7 @@ npm run eslint:fix   # автофикс линта во всех пакетах
 | Пакет | Назначение |
 |---|---|
 | `packages/common` | Общая библиотека `@vk-audiopad/common`: типы (включая протокол сообщений), VK API клиенты, конвертеры, утилиты. Сборка библиотекой (vite + dts). **Остальные пакеты импортируют типы из его `dist/` — сначала собери common** (`npm run build:common`). |
-| `packages/front` | UI попапа расширения (index.html → popup): React 18, VKUI 7.1.3, @tanstack/react-query. Строгий FSD. |
+| `packages/front` | UI попапа расширения (index.html → popup): React 18, VKUI 8.x, @tanstack/react-query. Строгий FSD. |
 | `packages/offscreen` | Offscreen-документ Chrome: аудиоэлемент + hls.js. В Firefox работает как фоновая страница (тот же код). |
 | `packages/service-worker` | MV3 background service worker: оркестрация воспроизведения, очереди, плейлисты, интеграция с VK. |
 
@@ -34,8 +34,8 @@ npm run eslint:fix   # автофикс линта во всех пакетах
 
 ## ИИ-инструменты в этом репо
 
-- **MCP `vkui`** (конфиги: `.mcp.json` для Claude Code/Cursor, `opencode.json` для opencode): доки VKUI, пропсы компонентов, примеры, миграции. Используй для подбора компонентов вместо выдумывания API. Внимание: MCP настроен на VKUI 7.11.7, в репо стоит 7.1.3 — возможны расхождения, сверяйся с `packages/front/package.json`.
-- **MCP `chrome-devtools`** (с `--categoryExtensions`): ставит/перезагружает распакованное расширение в Chrome, читает консоль. Цикл проверки: `./build.sh` → `install_extension` (путь `dist/chrome_extension`) → `trigger_extension_action` → `list_console_messages`.
+- **MCP `vkui`** (конфиги: `.mcp.json` для Claude Code/Cursor, `opencode.json` для opencode): доки VKUI, пропсы компонентов, примеры, миграции. Используй для подбора компонентов вместо выдумывания API. `VKUI_VERSION` в конфигах держим равной версии из `packages/front/package.json` (доки других версий могут расходиться с фактами).
+- **MCP `chrome-devtools`** (с `--categoryExtensions`): ставит/перезагружает распакованное расширение в Chrome, читает консоль. Цикл проверки: `./build.sh` → `install_extension` (путь `dist/chrome_extension`) → `trigger_extension_action` → `list_console_messages`. Полный смок-цикл с залогиненным vk.ru, бейзлайн консоли и приёмы отладки попапа: **docs/ai/testing.md** — читай перед живой проверкой.
 - FSD-скилл (`.agents/skills/feature-sliced-design/`): подключай при работе со слоями front. Не редактируй руками — обновление через `npx skills update -y -p` (CI делает это автоматически раз в месяц).
 
 ### Обслуживание инструкций
@@ -81,6 +81,7 @@ npm run eslint:fix   # автофикс линта во всех пакетах
 
 - Vitest, файлы `*.test.ts` рядом с исходниками в `packages/common` (пока только чистая логика: конвертеры, утилиты).
 - Новую чистую логику в common сопровождай тестом. Логику с сетью/chrome API не тестируем (пока нет инфраструктуры для этого).
+- Живая проверка расширения (смок в Chrome, известные баги): **docs/ai/testing.md**.
 
 ## Типичные задачи
 

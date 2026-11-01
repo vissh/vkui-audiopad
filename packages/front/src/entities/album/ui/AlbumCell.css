@@ -4,5 +4,5 @@
   overflow: hidden;
   text-overflow: ellipsis;
   cursor: pointer;
-  max-width: 18ch;
+  max-width: 100%;
 }

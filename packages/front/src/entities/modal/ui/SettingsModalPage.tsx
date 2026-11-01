@@ -16,24 +16,26 @@ import {
   Text,
   Textarea,
   useAdaptivityConditionalRender,
-  usePlatform
+  usePlatform,
+  type CustomModalProps,
+  type OpenModalPageProps
 } from '@vkontakte/vkui'
 import { useAtom } from '@/shared/lib/atom'
 import { themeAtom } from '../model/atom'
 
-export const SettingsModalPage = ({ ...props }) => {
+export const SettingsModalPage = ({ modalProps, close }: CustomModalProps<OpenModalPageProps>) => {
   const platform = usePlatform()
   const { sizeX } = useAdaptivityConditionalRender()
 
   return (
     <ModalPage
-      {...props}
+      {...modalProps}
       header={
         <ModalPageHeader
           before={
             sizeX.compact !== false &&
             platform === Platform.ANDROID &&
-            <PanelHeaderClose className={sizeX.compact.className} />
+            <PanelHeaderClose className={sizeX.compact.className} onClick={() => { close() }} />
           }
         >
           Настройки
@@ -82,7 +84,7 @@ const ShortcutInfo = () => {
       Инструкция по настройке горячих клавиш <Link href={firefoxLink} target='_blank'>{firefoxLink}</Link>.
     </Text>
     : <Text>
-      Настройка горячих клавиш доступна по адресу: <Textarea readOnly onClick={autoSelect}>chrome://extensions/shortcuts</Textarea>
+      Настройка горячих клавиш доступна по адресу: <Textarea readOnly value='chrome://extensions/shortcuts' slotProps={{ textArea: { onClick: autoSelect } }} />
     </Text>
 
   return (
@@ -106,7 +108,7 @@ const FullscreenMode = () => {
       multiline
     >
       <Text>Полноэкранный режим доступен по адресу:</Text>
-      <Textarea readOnly onClick={(autoSelect)}>{location.href}</Textarea>
+      <Textarea readOnly value={location.href} slotProps={{ textArea: { onClick: autoSelect } }} />
       {isFirefoxExtension() ? null : <Text>Для ещё большего удобства, можете <Link href='https://support.google.com/chrome/answer/15085120' target='_blank'>создать ярлык</Link>.</Text>}
     </SimpleCell>
   )
