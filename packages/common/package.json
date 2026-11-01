@@ -21,10 +21,10 @@
     "eslint:fix": "eslint --fix src"
   },
   "dependencies": {
-    "serialize-error": "11.0.3"
+    "serialize-error": "13.0.2"
   },
   "devDependencies": {
-    "@vitejs/plugin-react": "^4.0.3",
+    "@vitejs/plugin-react": "^5.2.0",
     "typescript": "5.9.3",
     "vite": "6.4.5",
     "vite-plugin-dts": "5.1.2"
