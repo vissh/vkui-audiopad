@@ -15,7 +15,7 @@ export const startActivityChecker = (): void => {
   audioElement.addEventListener('ended', updateActivity)
   audioElement.addEventListener('error', updateActivity)
   audioElement.addEventListener('timeupdate', updateActivity)
-  intervalId = setInterval(checkActivity, CHECK_INTERVAL)
+  intervalId = setInterval(() => { void checkActivity() }, CHECK_INTERVAL)
 }
 
 const updateActivity = (): void => {

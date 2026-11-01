@@ -95,13 +95,13 @@ export const storageAtom = <T>({
   const watchers = new Set<(newValue: T) => void>()
 
   chrome.storage.local.get(keyName, (items) => {
-    memorySet(items[keyName], true)
+    memorySet(items[keyName] as T | undefined, true)
   })
 
   chrome.storage.local.onChanged.addListener((changes: Record<string, chrome.storage.StorageChange>) => {
     const change = changes[keyName]
     if (change != null) {
-      memorySet(change.newValue, true)
+      memorySet(change.newValue as T | undefined, true)
     }
   })
 
