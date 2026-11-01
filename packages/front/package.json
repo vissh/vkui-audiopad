@@ -24,7 +24,7 @@
   "devDependencies": {
     "@conarti/eslint-plugin-feature-sliced": "^1.0.5",
     "@feature-sliced/eslint-config": "^0.1.0-beta.6",
-    "@stylistic/eslint-plugin": "^1.2.0",
+    "@stylistic/eslint-plugin": "^5.10.0",
     "@stylistic/eslint-plugin-jsx": "^1.2.0",
     "@stylistic/eslint-plugin-ts": "^1.2.0",
     "@types/chrome": "0.3.7",
