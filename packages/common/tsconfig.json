@@ -23,6 +23,10 @@
     "noUnusedParameters": true,
     "noImplicitReturns": true,
     "skipLibCheck": true,
+    "types": [
+      "chrome",
+      "firefox-webext-browser"
+    ],
     "outDir": "./build",
     "baseUrl": "./",
     "incremental": true

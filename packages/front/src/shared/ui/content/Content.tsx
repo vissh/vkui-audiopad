@@ -7,6 +7,7 @@ interface ContentProps {
   display: boolean
   loading?: boolean
   hideLoader?: boolean
+
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   error: any | null
   children: ReactNode

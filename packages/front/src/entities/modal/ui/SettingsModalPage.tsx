@@ -80,12 +80,16 @@ const ShortcutInfo = () => {
   const firefoxLink = 'https://support.mozilla.org/ru/kb/menedzher-sochetaniya-klavish-dopolnenij-v-firefox'
 
   const description = isFirefoxExtension()
-    ? <Text>
-      Инструкция по настройке горячих клавиш <Link href={firefoxLink} target='_blank'>{firefoxLink}</Link>.
-    </Text>
-    : <Text>
-      Настройка горячих клавиш доступна по адресу: <Textarea readOnly value='chrome://extensions/shortcuts' slotProps={{ textArea: { onClick: autoSelect } }} />
-    </Text>
+    ? (
+        <Text>
+          Инструкция по настройке горячих клавиш <Link href={firefoxLink} target='_blank'>{firefoxLink}</Link>.
+        </Text>
+      )
+    : (
+        <Text>
+          Настройка горячих клавиш доступна по адресу: <Textarea readOnly value='chrome://extensions/shortcuts' slotProps={{ textArea: { onClick: autoSelect } }} />
+        </Text>
+      )
 
   return (
     <SimpleCell

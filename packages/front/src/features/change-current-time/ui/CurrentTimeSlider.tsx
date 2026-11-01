@@ -1,6 +1,6 @@
 import { commonTypes } from '@vk-audiopad/common'
 import { Slider } from '@vkontakte/vkui'
-import { useEffect, useState, type FC } from 'react'
+import { useState, type FC } from 'react'
 import { useCurrentTime, useDuration } from '@/entities/active-track'
 import { sendMessage } from '@/shared/lib/send-message'
 
@@ -10,12 +10,23 @@ export const CurrentTimeSlider: FC = () => {
   const currentTime = useCurrentTime()
   const duration = useDuration()
 
-  const [sliderCurrentTime, setSliderCurrentTime] = useState(0)
-  const [mouseDownState, setMouseDownState] = useState(false)
+  const [sliderValue, setSliderValue] = useState<number | null>(null)
+  const [dragging, setDragging] = useState(false)
+  // drop local override once playback position catches up,
+  // but never while the user is holding the slider
+  const [syncedTime, setSyncedTime] = useState(currentTime)
+  if (currentTime !== syncedTime) {
+    setSyncedTime(currentTime)
+    if (!dragging) {
+      setSliderValue(null)
+    }
+  }
+
+  const sliderCurrentTime = sliderValue ?? ((duration !== 0) ? (currentTime * 100) / duration : 0)
 
   const mouseDown = (e: React.PointerEvent) => {
     e.currentTarget.setPointerCapture(e.pointerId)
-    setMouseDownState(true)
+    setDragging(true)
   }
 
   const mouseUp = (e: React.PointerEvent) => {
@@ -25,16 +36,9 @@ export const CurrentTimeSlider: FC = () => {
       type: commonTypes.MessageType.CURRENT_TIME,
       value: (sliderCurrentTime * duration) / 100
     })
-    setMouseDownState(false)
+    // keep the dragged position until the next playback tick overrides it
+    setDragging(false)
   }
-
-  useEffect(() => {
-    if (!mouseDownState) {
-      const value = (duration !== 0) ? (currentTime * 100) / duration : 0
-      setSliderCurrentTime(value)
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentTime, duration])
 
   return (
     <Slider
@@ -42,7 +46,7 @@ export const CurrentTimeSlider: FC = () => {
       min={0}
       max={100}
       value={sliderCurrentTime}
-      onChange={setSliderCurrentTime}
+      onChange={setSliderValue}
       onPointerDown={mouseDown}
       onPointerUp={mouseUp}
       onKeyDown={(e) => {

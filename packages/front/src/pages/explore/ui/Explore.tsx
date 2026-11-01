@@ -1,5 +1,5 @@
 import { Group } from '@vkontakte/vkui'
-import { useEffect, useState, type FC } from 'react'
+import { useState, type FC } from 'react'
 import { CatalogGallery } from '@/widgets/catalog-gallery'
 import { Navigation } from '@/widgets/navigation'
 import { InfinityContent } from '@/shared/ui/infinity-content'
@@ -12,17 +12,14 @@ interface ExploreProps {
 
 export const Explore: FC<ExploreProps> = ({ userId, active }) => {
   const [wasAlreadyOpen, setWasAlreadyOpen] = useState(active)
+  if (active && !wasAlreadyOpen) {
+    setWasAlreadyOpen(true)
+  }
 
   const { data: fetchResult, isPending, error } = useExploreData(userId, wasAlreadyOpen)
   const loadMoreMutation = useLoadMoreExploreDataMutation()
 
   const [firstBlock, ...otherBlocks] = fetchResult?.blocks ?? [null, null, null]
-
-  useEffect(() => {
-    if (active) {
-      setWasAlreadyOpen(true)
-    }
-  }, [active])
 
   return (
     <InfinityContent

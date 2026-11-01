@@ -1,6 +1,6 @@
 import { type commonTypes } from '@vk-audiopad/common'
 import { Subhead } from '@vkontakte/vkui'
-import { type FC } from 'react'
+import { Fragment, type FC } from 'react'
 import { getText } from '../../lib/cast-to-types'
 import './ArtistTitle.css'
 
@@ -31,21 +31,20 @@ export const ArtistTitle: FC<ArtistTitleProps> = ({ track, onSearch, onArtist })
     <Subhead className='vkap_artists' Component='h5'>
       {track.mainArtists.length > 0
         ? <>
-          {groupArtists(track.mainArtists, openArtistPage)}
-          {track.featArtists.length > 0 && (
-            <>
+            {groupArtists(track.mainArtists, openArtistPage)}
+            {track.featArtists.length > 0 && (
+              <>
               &nbsp;feat.&nbsp;
-              {groupArtists(track.featArtists, openArtistPage)}
-            </>
-          )}
-        </>
+                {groupArtists(track.featArtists, openArtistPage)}
+              </>
+            )}
+          </>
         : <span
-          onClick={searchClick(artist)}
-          className='vkap_artist'
-        >
-          {artist}
-        </span>
-      }
+            onClick={searchClick(artist)}
+            className='vkap_artist'
+          >
+            {artist}
+          </span>}
     </Subhead>
   )
 }
@@ -57,7 +56,7 @@ const groupArtists = (
   return artists.map((artist, index, arr) => {
     artist.name = getText(artist.name)
     return (
-      <>
+      <Fragment key={`${artist.id}-${index}`}>
         <span
           onClick={onClick(artist)}
           className='vkap_artist'
@@ -65,7 +64,7 @@ const groupArtists = (
           {artist.name}
         </span>
         {index !== arr.length - 1 ? ', ' : ''}
-      </>
+      </Fragment>
     )
   })
 }

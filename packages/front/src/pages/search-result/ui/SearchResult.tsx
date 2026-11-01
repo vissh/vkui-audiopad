@@ -19,7 +19,8 @@ export const SearchResult: FC<SearchResultProps> = ({ userId, searchValue }) => 
   return (
     <Content
       display={true}
-      error={error}>
+      error={error}
+    >
       <Group>
         <Navigation />
 

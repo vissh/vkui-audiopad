@@ -3,7 +3,7 @@ import { type FC } from 'react'
 import { AlbumSkeleton } from '@/entities/album'
 import { type Album as AlbumType } from '@/shared/types'
 import { SkeletonWrapper } from '@/shared/ui/skeleton-wrapper'
-import { Album } from '../album/Album'
+import { Album } from './Album'
 
 interface AlbumListProps {
   isPending: boolean

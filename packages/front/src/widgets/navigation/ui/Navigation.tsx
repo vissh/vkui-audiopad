@@ -19,13 +19,16 @@ export const Navigation: FC<NavigationProps> = ({ children, noPaddingBottom = fa
     <>
       {commonUtils.isTabWithHistory(activeTab) ? <History activeTab={activeTab} /> : <ApplicationTabs />}
       {children != null && children}
-      {children == null && <Div
-        style={{
-          paddingTop: '8px',
-          paddingBottom: noPaddingBottom ? 'unset' : '8px'
-        }}>
-        <SearchInput />
-      </Div>}
+      {children == null && (
+        <Div
+          style={{
+            paddingTop: '8px',
+            paddingBottom: noPaddingBottom ? 'unset' : '8px'
+          }}
+        >
+          <SearchInput />
+        </Div>
+      )}
     </>
   )
 }

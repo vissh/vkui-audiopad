@@ -15,22 +15,21 @@ export const AddToQueueButton: FC<AddToQueueButtonProps> = ({ track }) => {
     <>
       {added
         ? <TooltipIconButton
-          text='Воспроизвести следующей'
-          icon={Icon20ListAddOutline}
-        />
+            text='Воспроизвести следующей'
+            icon={Icon20ListAddOutline}
+          />
         : <TooltipIconButton
-          text='Воспроизвести следующей'
-          icon={Icon20ListPlayOutline}
-          onClick={() => {
-            sendMessage({
-              target: commonTypes.MessageTarget.SERVICE_WORKER,
-              type: commonTypes.MessageType.ADD_TO_QUEUE,
-              track
-            })
-            setAdded(true)
-          }}
-        />
-      }
+            text='Воспроизвести следующей'
+            icon={Icon20ListPlayOutline}
+            onClick={() => {
+              sendMessage({
+                target: commonTypes.MessageTarget.SERVICE_WORKER,
+                type: commonTypes.MessageType.ADD_TO_QUEUE,
+                track
+              })
+              setAdded(true)
+            }}
+          />}
     </>
   )
 }

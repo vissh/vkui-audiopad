@@ -1,4 +1,4 @@
-export { TrackGallery } from './gallery/TrackGallery'
-export { TrackList } from './list/TrackList'
-export { Track } from './track/Track'
-export { getTrackState } from './track/utils'
+export { TrackGallery } from './ui/TrackGallery'
+export { TrackList } from './ui/TrackList'
+export { Track } from './ui/Track'
+export { getTrackState } from './ui/utils'

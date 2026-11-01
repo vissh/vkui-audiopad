@@ -1,2 +1,2 @@
-export { AlbumGallery } from './gallery/AlbumGallery'
-export { AlbumList } from './list/AlbumList'
+export { AlbumGallery } from './ui/AlbumGallery'
+export { AlbumList } from './ui/AlbumList'

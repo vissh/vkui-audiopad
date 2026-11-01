@@ -12,7 +12,14 @@ export default defineConfig({
   },
   plugins: [
     dts({
-      insertTypesEntry: true
+      insertTypesEntry: true,
+      // fail the build on type errors instead of only logging them,
+      // so `npm run check` catches what the declaration pass sees
+      afterDiagnostic: (diagnostics) => {
+        if (diagnostics.length > 0) {
+          throw new Error(`Declaration build has ${diagnostics.length} type error(s), see log above`)
+        }
+      },
     }),
   ],
 });

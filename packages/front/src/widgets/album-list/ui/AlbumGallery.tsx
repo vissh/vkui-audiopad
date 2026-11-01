@@ -5,7 +5,7 @@ import { openAlbumsPage } from '@/shared/model'
 import { type Album as AlbumType } from '@/shared/types'
 import { ShowAllLink, ShowAllLinkSkeleton } from '@/shared/ui/show-all-link'
 import { SkeletonWrapper } from '@/shared/ui/skeleton-wrapper'
-import { Album } from '../album/Album'
+import { Album } from './Album'
 
 interface AlbumGalleryProps {
   mode: 'plain' | 'card'

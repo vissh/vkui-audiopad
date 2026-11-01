@@ -37,7 +37,7 @@ export const RecommendedGallery: FC<RecommendedGalleryProps> = ({ isPending, tit
 
 const RecommendedGallerySkeleton: FC = () => {
   return (
-    <Group header={<Header>{<Skeleton width={160} />}</Header>}>
+    <Group header={<Header><Skeleton width={160} /></Header>}>
       <CardScroll size='s' padding>
         {Array.from(Array(8).keys()).map((index) => (
           <RecommendedPlaylistSkeleton key={index} />

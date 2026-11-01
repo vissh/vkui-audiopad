@@ -1,6 +1,6 @@
 import { Icon24Pause, Icon24Play } from '@vkontakte/icons'
 import { Button, useColorScheme } from '@vkontakte/vkui'
-import { useEffect, useState, type CSSProperties, type FC } from 'react'
+import { useState, type CSSProperties, type FC } from 'react'
 import { playOrPause } from '@/features/play-or-pause'
 import { setPlayed, useCurrentPlaylist, usePlayed } from '@/entities/active-track'
 
@@ -10,20 +10,20 @@ export const VKMixButton: FC = () => {
   const vkMixPlayed = currentPlaylist != null && currentPlaylist.isVkMix && played
 
   const colorScheme = useColorScheme()
-  const [styles, setStyles] = useState<CSSProperties>(colorScheme === 'light' ? buttonLightStyle : buttonDarkStyle)
+  const [hovered, setHovered] = useState(false)
 
-  useEffect(() => {
-    setStyles(colorScheme === 'light' ? buttonLightStyle : buttonDarkStyle)
-  }, [colorScheme])
+  const styles = hovered
+    ? (colorScheme === 'light' ? buttonLightHoverStyle : buttonDarkHoverStyle)
+    : (colorScheme === 'light' ? buttonLightStyle : buttonDarkStyle)
 
   return (
     <Button
       after={vkMixPlayed ? <Icon24Pause /> : <Icon24Play />}
       rounded={true}
-      size={'l'}
+      size='l'
       style={styles}
-      onPointerEnter={() => { setStyles(colorScheme === 'light' ? buttonLightHoverStyle : buttonDarkHoverStyle) }}
-      onPointerLeave={() => { setStyles(colorScheme === 'light' ? buttonLightStyle : buttonDarkStyle) }}
+      onPointerEnter={() => { setHovered(true) }}
+      onPointerLeave={() => { setHovered(false) }}
       onClick={() => {
         if (currentPlaylist != null && currentPlaylist.isVkMix) {
           setPlayed(!played)

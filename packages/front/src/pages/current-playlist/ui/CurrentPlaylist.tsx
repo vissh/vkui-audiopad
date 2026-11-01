@@ -1,7 +1,7 @@
 import { commonTypes } from '@vk-audiopad/common'
 import { Icon20Cancel, Icon20Check, Icon20ListPenOutline } from '@vkontakte/icons'
 import { Button, Group, Header, List } from '@vkontakte/vkui'
-import { useEffect, useState, type FC } from 'react'
+import { Fragment, useState, type FC } from 'react'
 import { Navigation } from '@/widgets/navigation'
 import { Track } from '@/widgets/track-list'
 import { setCurrentPlaylist, useCurrentPlaylist } from '@/entities/active-track'
@@ -18,16 +18,21 @@ export const CurrentPlaylist: FC<CurrentPlaylistProps> = ({ active }) => {
   const currentPlaylist = useCurrentPlaylist()
 
   const [editMode, setEditMode] = useState(false)
-  const [playlist, setPlaylist] = useState<commonTypes.Playlist | null>(null)
+  const [playlist, setPlaylist] = useState<commonTypes.Playlist | null>(
+    currentPlaylist != null ? { ...currentPlaylist, tracks: [...currentPlaylist.tracks] } : null
+  )
   const [actions, setActions] = useState<commonTypes.EditActions>([])
 
   const loadMoreMutation = useLoadMorePlaylistTracksMutation(playlist)
 
-  useEffect(() => {
+  // keep the local editable copy in sync with the stored playlist
+  const [syncedPlaylist, setSyncedPlaylist] = useState(currentPlaylist)
+  if (currentPlaylist !== syncedPlaylist) {
+    setSyncedPlaylist(currentPlaylist)
     if (currentPlaylist != null) {
       setPlaylist({ ...currentPlaylist, tracks: [...currentPlaylist.tracks] })
     }
-  }, [currentPlaylist])
+  }
 
   const openEditMode = () => {
     if (currentPlaylist == null) {
@@ -101,35 +106,35 @@ export const CurrentPlaylist: FC<CurrentPlaylistProps> = ({ active }) => {
               after={
                 editMode
                   ? <>
-                    <Button
-                      key='acceptButton'
-                      mode='tertiary'
-                      before={<Icon20Check />}
-                      style={{ marginBottom: '0px' }}
-                      onClick={accept}
-                    >
-                      Применить
-                    </Button>
-                    <Button
-                      key='cancelButton'
-                      mode='tertiary'
-                      appearance='negative'
-                      before={<Icon20Cancel />}
-                      style={{ marginBottom: '0px' }}
-                      onClick={cancel}
-                    >
-                      Отмена
-                    </Button>
-                  </>
+                      <Button
+                        key='acceptButton'
+                        mode='tertiary'
+                        before={<Icon20Check />}
+                        style={{ marginBottom: '0px' }}
+                        onClick={accept}
+                      >
+                        Применить
+                      </Button>
+                      <Button
+                        key='cancelButton'
+                        mode='tertiary'
+                        appearance='negative'
+                        before={<Icon20Cancel />}
+                        style={{ marginBottom: '0px' }}
+                        onClick={cancel}
+                      >
+                        Отмена
+                      </Button>
+                    </>
                   : <Button
-                    key='editButton'
-                    mode='tertiary'
-                    before={<Icon20ListPenOutline />}
-                    style={{ marginBottom: '0px' }}
-                    onClick={openEditMode}
-                  >
+                      key='editButton'
+                      mode='tertiary'
+                      before={<Icon20ListPenOutline />}
+                      style={{ marginBottom: '0px' }}
+                      onClick={openEditMode}
+                    >
                     Режим редактирования
-                  </Button>
+                    </Button>
               }
             >
               {currentPlaylist?.title}
@@ -138,22 +143,19 @@ export const CurrentPlaylist: FC<CurrentPlaylistProps> = ({ active }) => {
         >
           <List>
             {currentPlaylist != null && (playlist ?? currentPlaylist).tracks.map((track, index) => (
-              <>
+              <Fragment key={track.id}>
                 {editMode
                   ? <EditableTrack
-                    key={track.id}
-                    track={track}
-                    trackIndex={index}
-                    onDragFinish={moveTrack}
-                    onRemove={removeTrack}
-                  />
+                      track={track}
+                      trackIndex={index}
+                      onDragFinish={moveTrack}
+                      onRemove={removeTrack}
+                    />
                   : <Track
-                    key={track.id}
-                    playlist={playlist ?? currentPlaylist}
-                    track={track}
-                  />
-                }
-              </>
+                      playlist={playlist ?? currentPlaylist}
+                      track={track}
+                    />}
+              </Fragment>
             ))}
           </List>
         </Group>

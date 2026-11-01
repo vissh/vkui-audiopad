@@ -33,42 +33,52 @@ export const CatalogGallery: FC<CatalogGalleryProps> = ({
 
   switch (catalogBlock.dataType) {
     case CatalogBlockDataType.TRACKS:
-      return <TrackGallery
-        mode={mode}
-        isPending={isPending}
-        userId={userId}
-        playlist={catalogBlock.playlist}
-      />
+      return (
+        <TrackGallery
+          mode={mode}
+          isPending={isPending}
+          userId={userId}
+          playlist={catalogBlock.playlist}
+        />
+      )
     case CatalogBlockDataType.ALBUMS:
-      return <AlbumGallery
-        mode={mode}
-        isPending={isPending}
-        title={catalogBlock.title}
-        userId={userId}
-        albums={catalogBlock.albums}
-        showAllLink={catalogBlock.showAllLink}
-      />
+      return (
+        <AlbumGallery
+          mode={mode}
+          isPending={isPending}
+          title={catalogBlock.title}
+          userId={userId}
+          albums={catalogBlock.albums}
+          showAllLink={catalogBlock.showAllLink}
+        />
+      )
     case CatalogBlockDataType.RECOMMENDATIONS:
-      return <RecommendedGallery
-        isPending={isPending}
-        title={catalogBlock.title}
-        userId={userId}
-        albums={catalogBlock.albums}
-      />
+      return (
+        <RecommendedGallery
+          isPending={isPending}
+          title={catalogBlock.title}
+          userId={userId}
+          albums={catalogBlock.albums}
+        />
+      )
     case CatalogBlockDataType.VIBES:
-      return <AlbumGallery
-        mode={mode}
-        isPending={isPending}
-        title={catalogBlock.title}
-        userId={userId}
-        albums={catalogBlock.albums}
-        showAllLink={catalogBlock.showAllLink}
-      />
+      return (
+        <AlbumGallery
+          mode={mode}
+          isPending={isPending}
+          title={catalogBlock.title}
+          userId={userId}
+          albums={catalogBlock.albums}
+          showAllLink={catalogBlock.showAllLink}
+        />
+      )
     case CatalogBlockDataType.BANNERS:
-      return <BannerGallery
-        userId={userId}
-        albums={catalogBlock.albums}
-      />
+      return (
+        <BannerGallery
+          userId={userId}
+          albums={catalogBlock.albums}
+        />
+      )
     default:
       commonUtils.assertUnreachable(catalogBlock)
   }

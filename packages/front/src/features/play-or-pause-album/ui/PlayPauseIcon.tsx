@@ -27,15 +27,17 @@ export const PlayPauseIcon: FC<PlayPauseIconProps> = ({ album, onPlayNewAlbum })
       {(currentPlaylist != null) && currentPlaylist.id === album.id
         ? played
           ? <Icon36Pause
-            className='vkap_cover_pl_act_btn'
-            onClick={resumePauseAlbum} />
+              className='vkap_cover_pl_act_btn'
+              onClick={resumePauseAlbum}
+            />
           : <Icon36Play
-            className='vkap_cover_pl_act_btn'
-            onClick={resumePauseAlbum} />
+              className='vkap_cover_pl_act_btn'
+              onClick={resumePauseAlbum}
+            />
         : <Icon36Play
-          className='vkap_cover_pl_act_btn'
-          onClick={playNewAlbum} />
-      }
+            className='vkap_cover_pl_act_btn'
+            onClick={playNewAlbum}
+          />}
     </>
   )
 }
