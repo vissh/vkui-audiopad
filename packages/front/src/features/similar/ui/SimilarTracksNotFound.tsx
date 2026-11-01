@@ -9,7 +9,7 @@ export const SimilarTracksNotFound: FC = () => {
       duration={3400}
       subtitle='Попробуйте другую аудиозапись'
       onClosed={() => { showNotification(null) }}
-      before={<Icon28InfoCircleOutline fill="var(--vkui--color_icon_accent)" />}
+      before={<Icon28InfoCircleOutline fill='var(--vkui--color_icon_accent)' />}
     >
       Мы не смогли найти ничего похожего
     </Snackbar>

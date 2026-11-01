@@ -26,3 +26,11 @@ fi
 (cd dist/chrome_extension && zip -r ../$chrome_extension_filename *)
 (cd dist/firefox_extension && zip -r ../$firefox_extension_filename *)
 git archive -o dist/$source_code_filename HEAD
+
+# The docker build (linux) replaces node_modules with linux-flavored optional
+# binaries (e.g. @rollup/rollup-linux-*); restore host-native deps so that
+# `npm run check` / `npm test` keep working locally afterwards.
+if command -v npm > /dev/null 2>&1; then
+  echo 'Restoring host-native node_modules...'
+  npm install --no-fund --no-audit
+fi

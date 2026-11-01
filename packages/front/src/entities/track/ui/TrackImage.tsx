@@ -13,14 +13,13 @@ export const TrackImage: FC<TrackImageProps> = ({ imageSrc, trackState, showOver
   return (
     <Image
       src={imageSrc}
-      loading={'lazy'}
+      loading='lazy'
     >
       {showOverlay &&
         <>
           <PlayPauseIcon trackState={trackState} />
           {(imageSrc.length === 0) && <Icon28SongOutline />}
-        </>
-      }
+        </>}
     </Image>
   )
 }
@@ -42,14 +41,14 @@ const PlayPauseIcon: FC<PlayPauseIconProps> = ({ trackState }) => {
           <Icon32PauseCircle
             width={32}
             height={32}
-            fill={'white'}
+            fill='white'
           />
         )}
         {(trackState === 'paused' || trackState === 'normal') && (
           <Icon32PlayCircle
             width={32}
             height={32}
-            fill={'white'}
+            fill='white'
           />
         )}
       </>

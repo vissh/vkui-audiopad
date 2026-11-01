@@ -23,9 +23,8 @@ export const AlbumCell: FC<AlbumCellProps> = ({ album, overlay, onClick }) => {
     >
       {/* TODO: GridAvatar или что-то подобное. Для ручных плейлистов бывает несколько обложек. */}
       {(album.coverUrl.length > 0)
-        ? <Image src={album.coverUrl} loading={'lazy'} size={size}>{overlay}</Image>
-        : <Image size={size}><Icon36PlaylistOutline /></Image>
-      }
+        ? <Image src={album.coverUrl} loading='lazy' size={size}>{overlay}</Image>
+        : <Image size={size}><Icon36PlaylistOutline /></Image>}
     </HorizontalCell>
   )
 }

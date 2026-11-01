@@ -15,19 +15,18 @@ export const ShuffleButton: FC = () => {
     <>
       {shuffle
         ? <TooltipIconButton
-          accent
-          padding
-          text='Перемешать'
-          icon={Icon24ShuffleOutline}
-          onClick={changeShuffleMode}
-        />
+            accent
+            padding
+            text='Перемешать'
+            icon={Icon24ShuffleOutline}
+            onClick={changeShuffleMode}
+          />
         : <TooltipIconButton
-          padding
-          text='Перемешать'
-          icon={Icon24ShuffleOutline}
-          onClick={changeShuffleMode}
-        />
-      }
+            padding
+            text='Перемешать'
+            icon={Icon24ShuffleOutline}
+            onClick={changeShuffleMode}
+          />}
     </>
   )
 }

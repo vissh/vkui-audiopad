@@ -57,8 +57,7 @@ export const MyMusic: FC<MyMusicProps> = ({ userId, active }) => {
             playlist={fetchResult.lastTracksCatalogBlock.playlist}
             header={fetchResult.lastTracksCatalogBlock.playlist.title}
           />
-        </Group>
-      }
+        </Group>}
     </InfinityContent>
   )
 }

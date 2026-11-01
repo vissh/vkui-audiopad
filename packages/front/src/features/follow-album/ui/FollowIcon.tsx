@@ -29,11 +29,12 @@ export const FollowIcon: FC<FollowIconProps> = ({ album }) => {
           onClick={(e) => { void follow(e) }}
         />
       )}
-      {followed && <Icon36Done
-        className='vkap_cover_pl_act_btn'
-        onClick={(e) => { void follow(e) }}
-      />
-      }
+      {followed && (
+        <Icon36Done
+          className='vkap_cover_pl_act_btn'
+          onClick={(e) => { void follow(e) }}
+        />
+      )}
     </>
   )
 }

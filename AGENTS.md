@@ -76,7 +76,7 @@ npm run eslint:fix   # автофикс линта во всех пакетах
 ### Конвенции
 
 - TypeScript strict, без `any`-лени: `noImplicitAny` и strict включены.
-- ESLint `standard-with-typescript`: 2 пробела, без точек с запятой, одинарные кавычки — `npm run eslint:fix` приведёт код сам.
+- ESLint (flat `eslint.config.mjs`, база `neostandard`): 2 пробела, без точек с запятой, одинарные кавычки — `npm run eslint:fix` приведёт код сам.
 - Комментарии в коде на английском, минимально.
 
 ## Тесты

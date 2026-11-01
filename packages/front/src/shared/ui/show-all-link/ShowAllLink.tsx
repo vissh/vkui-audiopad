@@ -18,7 +18,7 @@ export const ShowAllLink: FC<ShowAllLinkProps> = ({ title, showLink, onClick }) 
 export const ShowAllLinkSkeleton: FC = () => {
   return (
     <Header after={<Skeleton width={90} />}>
-      {<Skeleton width={75} />}
+      <Skeleton width={75} />
     </Header>
   )
 }

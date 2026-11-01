@@ -1,7 +1,7 @@
 import { type commonTypes } from '@vk-audiopad/common'
 import { Icon16ChevronOutline } from '@vkontakte/icons'
 import { Div, Spacing, Title } from '@vkontakte/vkui'
-import { type FC } from 'react'
+import { Fragment, type FC } from 'react'
 import { setActiveTab } from '@/shared/model'
 import { getTabName } from '../lib/utils'
 
@@ -20,8 +20,8 @@ export const History: FC<HistoryNavigationProps> = ({ activeTab }) => {
         paddingLeft: '10px'
       }}
     >
-      {(activeTab.history ?? []).map((tab) => (
-        <>
+      {(activeTab.history ?? []).map((tab, index) => (
+        <Fragment key={`${tab.tab}-${index}`}>
           <Title
             level='3'
             weight='3'
@@ -37,7 +37,7 @@ export const History: FC<HistoryNavigationProps> = ({ activeTab }) => {
             <Icon16ChevronOutline className='vkap_secondary_color' />
           </Spacing>
           &#8194;
-        </>
+        </Fragment>
       ))}
       <Title
         level='3'

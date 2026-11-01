@@ -1,5 +1,5 @@
 import { useColorScheme } from '@vkontakte/vkui'
-import { useEffect, useRef, useState, type FC } from 'react'
+import { useEffect, useRef, type FC } from 'react'
 import { useCurrentPlaylist, usePlayed } from '@/entities/active-track'
 
 interface Ball {
@@ -31,11 +31,14 @@ interface VKMixBallsProps {
 export const VKMixBalls: FC<VKMixBallsProps> = ({ width, height }) => {
   const canvasRef = useRef(null)
   const animationFrameId = useRef<number | null>(null)
-  const [animated, setAnimated] = useState(AnimatedState.INITIAL)
 
   const colorScheme = useColorScheme()
   const currentPlaylist = useCurrentPlaylist()
   const played = usePlayed()
+
+  const animated = currentPlaylist != null
+    ? (played && currentPlaylist.isVkMix ? AnimatedState.START : AnimatedState.PAUSE)
+    : AnimatedState.INITIAL
 
   useEffect(() => {
     const startAnimation = (initial: boolean): void => {
@@ -88,14 +91,6 @@ export const VKMixBalls: FC<VKMixBallsProps> = ({ width, height }) => {
       }
     }
   }, [])
-
-  useEffect(() => {
-    if (currentPlaylist != null) {
-      setAnimated(played && currentPlaylist.isVkMix ? AnimatedState.START : AnimatedState.PAUSE)
-    } else {
-      setAnimated(AnimatedState.INITIAL)
-    }
-  }, [played, currentPlaylist])
 
   return (
     <canvas

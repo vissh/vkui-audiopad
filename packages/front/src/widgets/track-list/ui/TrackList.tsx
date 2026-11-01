@@ -3,7 +3,7 @@ import { Group, Header } from '@vkontakte/vkui'
 import { type FC } from 'react'
 import { TrackSkeleton } from '@/entities/track'
 import { SkeletonWrapper } from '@/shared/ui/skeleton-wrapper'
-import { Track } from '../track/Track'
+import { Track } from './Track'
 
 interface TrackListProps {
   isPending: boolean
@@ -30,8 +30,7 @@ export const TrackList: FC<TrackListProps> = ({ isPending, playlist, header }) =
                 track={track}
               />
             ))}
-          </Group>
-        }
+          </Group>}
       </SkeletonWrapper>
     </>
   )

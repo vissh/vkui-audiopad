@@ -1,5 +1,5 @@
 import { Group } from '@vkontakte/vkui'
-import { useEffect, useState, type FC } from 'react'
+import { useState, type FC } from 'react'
 import { CatalogGallery } from '@/widgets/catalog-gallery'
 import { Navigation } from '@/widgets/navigation'
 import { VKMix } from '@/widgets/vk-mix'
@@ -13,17 +13,14 @@ interface GeneralProps {
 
 export const General: FC<GeneralProps> = ({ userId, active }) => {
   const [wasAlreadyOpen, setWasAlreadyOpen] = useState(active)
+  if (active && !wasAlreadyOpen) {
+    setWasAlreadyOpen(true)
+  }
 
   const { data: fetchResult, isPending, error } = useGeneralData(userId, wasAlreadyOpen)
   const loadMoreMutation = useLoadMoreGeneralDataMutation()
 
   const [firstBlock, ...otherBlocks] = fetchResult?.blocks ?? [null, null, null]
-
-  useEffect(() => {
-    if (active) {
-      setWasAlreadyOpen(true)
-    }
-  }, [active])
 
   return (
     <InfinityContent

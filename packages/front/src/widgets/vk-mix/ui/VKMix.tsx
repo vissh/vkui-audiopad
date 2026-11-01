@@ -28,8 +28,9 @@ export const VKMix: FC<VKMixProps> = ({ isPending }) => {
             transform: 'translate(-50%, -50%)',
             textAlign: 'center',
             width: '100%'
-          }}>
-            <Flex align="center" justify="center" style={{ width: '100%' }}>
+          }}
+          >
+            <Flex align='center' justify='center' style={{ width: '100%' }}>
               <Div>
                 <VKMixButton />
               </Div>
@@ -75,10 +76,11 @@ const VKMixSkeleton: FC<VKMixSkeletonProps> = ({ width, height }) => {
           transform: 'translate(-50%, -50%)',
           textAlign: 'center',
           width: '100%'
-        }}>
-          <Flex align="center" justify="center" style={{ width: '100%' }}>
+        }}
+        >
+          <Flex align='center' justify='center' style={{ width: '100%' }}>
             <Div>
-              <Skeleton width={36} height={36} borderRadius="50%" />
+              <Skeleton width={36} height={36} borderRadius='50%' />
             </Div>
           </Flex>
           <Skeleton width={180} height={18} />

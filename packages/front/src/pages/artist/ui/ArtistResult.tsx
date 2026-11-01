@@ -21,7 +21,8 @@ export const ArtistResult: FC<ArtistResultProps> = ({ userId, artistId, artistNa
   return (
     <Content
       display={true}
-      error={error}>
+      error={error}
+    >
       <Group>
         <Navigation>
           <ArtistCover

@@ -40,28 +40,24 @@ export const Pages: FC = () => {
         <SearchResult
           userId={userId}
           searchValue={activeTab.value}
-        />
-      }
+        />}
       {activeTab.tab === commonTypes.ContentTab.ALBUMS &&
         <Albums
           userId={userId}
           showAllLink={activeTab.showAllLink}
-        />
-      }
+        />}
       {activeTab.tab === commonTypes.ContentTab.PLAYLIST &&
         <PlaylistTracks
           userId={userId}
           playlist={activeTab.playlist}
           fromId={activeTab.fromId}
-        />
-      }
+        />}
       {activeTab.tab === commonTypes.ContentTab.ARTIST &&
         <ArtistResult
           userId={userId}
           artistId={activeTab.id}
           artistName={activeTab.name}
-        />
-      }
+        />}
     </>
   )
 }

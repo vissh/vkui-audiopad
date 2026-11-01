@@ -6,7 +6,7 @@ import { batched } from '@/shared/lib/utils'
 import { openPlaylistPage } from '@/shared/model'
 import { ShowAllLink, ShowAllLinkSkeleton } from '@/shared/ui/show-all-link'
 import { SkeletonWrapper } from '@/shared/ui/skeleton-wrapper'
-import { Track } from '../track/Track'
+import { Track } from './Track'
 
 const rows = 3
 const columns = 6

@@ -32,21 +32,20 @@ export const Albums: FC<AlbumsProps> = ({ userId, showAllLink }) => {
 
         {isPending || albumsBlock != null
           ? <>
-            <Spacing />
-            <AlbumList
-              isPending={isPending}
-              userId={userId}
-              albums={albumsBlock?.albums}
-            />
-          </>
+              <Spacing />
+              <AlbumList
+                isPending={isPending}
+                userId={userId}
+                albums={albumsBlock?.albums}
+              />
+            </>
           : <CatalogGallery
-            mode='plain'
-            isPending={isPending}
-            loadingBlock='albums'
-            userId={userId}
-            catalogBlock={firstBlock}
-          />
-        }
+              mode='plain'
+              isPending={isPending}
+              loadingBlock='albums'
+              userId={userId}
+              catalogBlock={firstBlock}
+            />}
       </Group>
 
       {otherBlocks.map((catalogBlock) => (

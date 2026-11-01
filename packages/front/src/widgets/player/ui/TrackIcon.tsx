@@ -14,8 +14,7 @@ export const TrackIcon: FC = () => {
     >
       {activeTrack != null && activeTrack.image.length > 0
         ? <Image src={activeTrack.image} />
-        : <Image><Icon28SongOutline /></Image>
-      }
+        : <Image><Icon28SongOutline /></Image>}
     </IconButton>
   )
 }

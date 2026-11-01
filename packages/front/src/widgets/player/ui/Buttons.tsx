@@ -29,20 +29,18 @@ export const Buttons: FC = () => {
         <>
           {latestAddedTracks[activeTrack.id] != null
             ? <DeleteFromMyMusicButton
-              track={latestAddedTracks[activeTrack.id]}
-              onAfterDelete={() => {
-                // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
-                delete latestAddedTracks[activeTrack.id]
-                setLatestAddedTracks({ ...latestAddedTracks })
-              }}
-            />
+                track={latestAddedTracks[activeTrack.id]}
+                onAfterDelete={() => {
+                  const { [activeTrack.id]: _deleted, ...rest } = latestAddedTracks
+                  setLatestAddedTracks(rest)
+                }}
+              />
             : <AddToMyMusicButton
-              track={activeTrack}
-              onAfterAdd={(addedTrack) => {
-                setLatestAddedTracks({ [activeTrack.id]: addedTrack, ...latestAddedTracks })
-              }}
-            />
-          }
+                track={activeTrack}
+                onAfterAdd={(addedTrack) => {
+                  setLatestAddedTracks({ [activeTrack.id]: addedTrack, ...latestAddedTracks })
+                }}
+              />}
         </>
       )}
       <ShuffleButton />
@@ -53,8 +51,7 @@ export const Buttons: FC = () => {
           padding
           userId={userId}
           track={activeTrack}
-        />
-      }
+        />}
     </>
   )
 }

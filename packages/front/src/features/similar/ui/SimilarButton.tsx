@@ -34,16 +34,15 @@ export const SimilarButton: FC<SimilarButtonProps> = ({ userId, track, size = 'm
     <>
       {loading
         ? <Spinner24
-          size={size}
-          padding={padding}
-        />
+            size={size}
+            padding={padding}
+          />
         : <TooltipIconButton
-          padding={padding}
-          text='Показать похожие'
-          icon={{ s: Icon20Stars, m: Icon24StarsOutline }[size]}
-          onClick={() => { void findSimilar() }}
-        />
-      }
+            padding={padding}
+            text='Показать похожие'
+            icon={{ s: Icon20Stars, m: Icon24StarsOutline }[size]}
+            onClick={() => { void findSimilar() }}
+          />}
     </>
   )
 }

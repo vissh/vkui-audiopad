@@ -80,7 +80,7 @@
 - `entities/` — доменные модели: active-track, album, modal, recommended-playlist, session, track.
 - `shared/` — api, lib (atom, send-message), model, types, ui (переиспользуемые обёртки VKUI).
 
-Импорты только по убыванию слоя, публичный API сегмента — `index.ts` (eslint `@conarti/eslint-plugin-feature-sliced` + `@feature-sliced/eslint-config` следят).
+Импорты только по убыванию слоя, публичный API сегмента — `index.ts` (следит eslint `@conarti/eslint-plugin-feature-sliced` v2, flat-конфиг `eslint.config.mjs` в каждом пакете).
 
 ## Известные грабли
 
