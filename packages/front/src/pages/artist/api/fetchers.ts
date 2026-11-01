@@ -1,14 +1,10 @@
-import { cast, vkClient } from '@vk-audiopad/common'
+import { cast, vkApiClient, vkClient } from '@vk-audiopad/common'
 import { getCatalogBlocks } from '@/shared/lib/catalog-block'
-import { findSectionId } from '@/shared/lib/parse-html-block'
 import { parseFromString } from '@/shared/lib/utils'
 import { type FetchArtistResult } from '../model/types'
 
 export const fetchArtistData = async (artistId: string): Promise<FetchArtistResult> => {
-  const respArtist = await fetch(`https://vk.ru/artist/${artistId}`)
-  const html = await respArtist.text()
-
-  const sectionId = findSectionId(html)
+  const sectionId = await vkApiClient.getArtistCatalogSectionId(artistId)
 
   if (sectionId == null) {
     throw new Error('Artist sectionId not found')
