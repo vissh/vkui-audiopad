@@ -6,7 +6,7 @@ module.exports = {
   },
   settings: {
     react: {
-      version: "18.2.0"
+      version: "19.3.1"
     }
   },
   extends: [
@@ -35,4 +35,17 @@ module.exports = {
     "react/react-in-jsx-scope": "off",
     "@typescript-eslint/explicit-function-return-type": "off",
   },
+  overrides: [
+    {
+      // React 19 types include Promise in ReactNode (async components),
+      // false-positive on functions returning ReactNode
+      files: [
+        "src/shared/model/notification-atom.ts",
+        "src/shared/ui/notification/Notification.tsx",
+      ],
+      rules: {
+        "@typescript-eslint/promise-function-async": "off",
+      },
+    },
+  ],
 };
