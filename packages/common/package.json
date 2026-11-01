@@ -10,6 +10,7 @@
   "types": "./dist/index.d.ts",
   "exports": {
     ".": {
+      "types": "./dist/index.d.ts",
       "import": "./dist/vk-audiopad-common-lib.js",
       "require": "./dist/vk-audiopad-common-lib.umd.cjs"
     }
@@ -25,7 +26,7 @@
   },
   "devDependencies": {
     "@vitejs/plugin-react": "^6.1.2",
-    "typescript": "5.9.3",
+    "typescript": "6.0.3",
     "vite": "8.3.5",
     "vite-plugin-dts": "5.1.2"
   }

@@ -1,5 +1,4 @@
 import { cast, vkApiClient, type commonTypes } from '@vk-audiopad/common'
-import { type JSONValue } from '@vk-audiopad/common/dist/types'
 import { serializeError } from 'serialize-error'
 
 export const fetchWebToken = async (): Promise<commonTypes.WebToken> => {
@@ -36,6 +35,6 @@ const _getProfileNavigationInfo = async (webToken: commonTypes.WebToken): Promis
     body: params
   })
 
-  const jsonResp = cast.castToJSONObject((await resp.json()) as JSONValue)
+  const jsonResp = cast.castToJSONObject((await resp.json()) as commonTypes.JSONValue)
   return 'response' in jsonResp
 }

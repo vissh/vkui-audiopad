@@ -9,7 +9,7 @@
     ],
     "allowJs": true,
     "declaration": true,
-    "moduleResolution": "Node",
+    "moduleResolution": "bundler",
     "noImplicitAny": false,
     "noEmitOnError": true,
     "removeComments": false,
@@ -28,7 +28,6 @@
       "firefox-webext-browser"
     ],
     "outDir": "./build",
-    "baseUrl": "./",
     "incremental": true
   },
   "include": [
