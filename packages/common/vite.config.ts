@@ -8,6 +8,8 @@ export default defineConfig({
       entry: resolve(__dirname, "src/index.ts"),
       name: "vk-audiopad-common-lib",
       fileName: "vk-audiopad-common-lib",
+      // vite 7+ defaults lib formats to ['es']; keep the es+umd pair vite 6 produced
+      formats: ["es", "umd"],
     },
   },
   plugins: [
