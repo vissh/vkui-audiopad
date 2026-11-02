@@ -37,7 +37,7 @@ const sendEnded = (): void => {
 const sendError = (): void => {
   void sendMessage({
     target: commonTypes.MessageTarget.SERVICE_WORKER,
-    type: commonTypes.MessageType.AUDIO_PLAYER_ENDED
+    type: commonTypes.MessageType.AUDIO_PLAYER_ERROR
   })
 }
 
