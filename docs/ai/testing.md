@@ -37,6 +37,11 @@
   `chrome.storage.local.set({ activeTab: { tab: 'general' | 'my-music' | 'explore' | ..., value: '' } })`
   (значения — enum `ContentTab` в `packages/common/src/types.ts`).
 - Замер вёрстки — `evaluate_script` + `getBoundingClientRect()`: ширины ячеек, зазоры между соседями (`next.left - prev.right`), переполнение текста (`span.right - cell.right > 0`). Так ловятся наезды/слипание без визуального просмотра.
+- Диагностика «треки мгновенно переключаются / не играют» (урок VK Mix, PR #37):
+  1. Смотри storage, а не UI — `evaluate_script` в попапе: `chrome.storage.local.get(['currentPlaylist','played','currentTime','activeTrack'])`. `tracksCount` растёт при `played: false` = цикл ошибок воспроизведения.
+  2. Прощупай URL трека прямо в попапе (тот же origin, что offscreen): `new Audio()` с `crossOrigin='anonymous'` и без, слушай `error`/`playing`; рядом `fetch(url, {mode:'cors'})`. Error code 4 с crossOrigin + ok без + TypeError от fetch = CDN без CORS-заголовков.
+  3. Offscreen-документ не виден в `list_pages` MCP — до его консоли не добраться, диагностируй через попап (п.1–2) и консоль SW (`serviceWorkerId`).
+  4. При проверке сборки: offscreen-бандл — `offscreen_assets/app-*.js`; `assets/index-*.js` — это front, его хэш при правках offscreen не меняется.
 
 ## Известные баги (pre-existing, не регрессии волн обновлений)
 
