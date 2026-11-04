@@ -1,7 +1,7 @@
 import { type commonTypes } from '@vk-audiopad/common'
 import { Icon20Cancel } from '@vkontakte/icons'
 import { type FC } from 'react'
-import { TooltipIconButton } from '@/shared/ui/tooltip-icon-button'
+import { AsyncTooltipIconButton } from '@/shared/ui/tooltip-icon-button'
 import { vkApiDeleteWithRestore } from '../api/delete'
 
 interface DeleteFromMyMusicWithRestoreButtonProps {
@@ -19,10 +19,11 @@ export const DeleteFromMyMusicWithRestoreButton: FC<DeleteFromMyMusicWithRestore
   }
 
   return (
-    <TooltipIconButton
-      text='Удалить аудиозапись'
+    <AsyncTooltipIconButton
+      text='Удалить из моей музыки'
       icon={Icon20Cancel}
-      onClick={() => { void deleteFromMyMusic() }}
+      errorMessage='Не удалось удалить аудиозапись. Проверьте библиотеку VK перед повторной попыткой.'
+      onClick={deleteFromMyMusic}
     />
   )
 }

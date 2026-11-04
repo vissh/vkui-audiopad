@@ -1,0 +1,39 @@
+.vkap_ui_recovery {
+  position: fixed;
+  inset: 0;
+  overflow: auto;
+  box-sizing: border-box;
+  min-width: 280px;
+  padding: 24px;
+  background: #fff;
+  color: #222;
+  font: 16px/1.5 system-ui, sans-serif;
+}
+
+.vkap_ui_recovery h1 {
+  margin: 0 0 12px;
+  font-size: 22px;
+}
+
+.vkap_ui_recovery button {
+  max-width: 100%;
+  padding: 10px 16px;
+  border: 1px solid currentColor;
+  border-radius: 8px;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+
+.vkap_ui_recovery button:focus-visible {
+  outline: 3px solid #0077ff;
+  outline-offset: 3px;
+}
+
+@media (prefers-color-scheme: dark) {
+  .vkap_ui_recovery {
+    background: #191919;
+    color: #eee;
+  }
+}

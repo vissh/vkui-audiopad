@@ -1,3 +1,4 @@
+export { withTimeout } from './with-timeout'
 import { ApplicationControls, ApplicationSettings } from './initial-state'
 import { MessageType, type ActiveTabs, type Message, type TabWithHistory } from './types'
 
@@ -20,13 +21,12 @@ const saveSettingsKeys = new Set([
   ...Object.keys(ApplicationSettings)
 ])
 
-export const clearStorage = (saveCustomKeys?: string[]): void => {
+export const clearStorage = async (saveCustomKeys?: string[]): Promise<void> => {
   const saveKeys = saveCustomKeys == null ? saveSettingsKeys : new Set([...saveSettingsKeys, ...saveCustomKeys])
 
-  chrome.storage.local.get((items) => {
-    const removeKeys = Object.keys(items).filter(x => !saveKeys.has(x))
-    void chrome.storage.local.remove(removeKeys)
-  })
+  const items = await chrome.storage.local.get()
+  const removeKeys = Object.keys(items).filter(key => !saveKeys.has(key))
+  await chrome.storage.local.remove(removeKeys)
 }
 
 export const isFirefox = (): boolean => {
@@ -45,18 +45,18 @@ export const offscreenDocumentSupport = async (): Promise<boolean> => {
   return _offscreenDocumentSupport
 }
 
-export const addBackgroundMessageListener = (handler: (message: Message) => void): void => {
+export const addBackgroundMessageListener = (handler: (message: Message) => void): (() => void) => {
   const customEventsElement = document.getElementById('custom-events')
   if (customEventsElement == null) {
     throw new Error('custom-events element not found')
   }
-  Object.values(MessageType).forEach((eventName) => {
-    customEventsElement.addEventListener(eventName, (event) => {
-      if (isCustomEvent(event)) {
-        handler(event.detail as Message)
-      }
-    })
-  })
+  const listener = (event: Event): void => {
+    if (isCustomEvent(event)) handler(event.detail as Message)
+  }
+  Object.values(MessageType).forEach(eventName => { customEventsElement.addEventListener(eventName, listener) })
+  return () => {
+    Object.values(MessageType).forEach(eventName => { customEventsElement.removeEventListener(eventName, listener) })
+  }
 }
 
 export const sendBackgroundMessage = (message: Message): void => {

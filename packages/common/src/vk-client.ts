@@ -1,16 +1,20 @@
 import { castToArray } from './cast'
 import { type JSONValue, type VKApiResponse } from './types'
 
-export const request = async (url: string, params: Record<string, string>): Promise<VKApiResponse> => {
+export const request = async (url: string, params: Record<string, string>, signal?: AbortSignal, { requireOk = false, retryAfterReconnect = true } = {}): Promise<VKApiResponse> => {
+  signal?.throwIfAborted()
   const formData = new FormData()
   Object.keys(params).forEach(key => { formData.set(key, params[key]) })
 
   const fetchPayload = async (): Promise<[JSONValue, boolean]> => {
     const resp = await fetch(url, {
       method: 'POST',
+      signal,
       body: formData,
       headers: { 'x-requested-with': 'XMLHttpRequest' }
     })
+
+    if (requireOk && !resp.ok) throw new Error('VK HTTP request failed')
 
     const content = await win1251ResponseToUTF8String(resp)
 
@@ -22,10 +26,14 @@ export const request = async (url: string, params: Record<string, string>): Prom
   }
 
   const [resp, parseError] = await fetchPayload()
+  signal?.throwIfAborted()
 
   if (parseError || needRetry(resp)) {
-    await fetch('https://vk.ru')
+    if (!retryAfterReconnect) throw new Error('VK request failed')
+    await fetch('https://vk.ru', { signal })
+    signal?.throwIfAborted()
     const [respAfterReconnect, retryParseError] = await fetchPayload()
+    signal?.throwIfAborted()
     if (retryParseError) {
       throw new Error('respAfterReconnect')
     }
@@ -33,6 +41,12 @@ export const request = async (url: string, params: Record<string, string>): Prom
   }
 
   return resp
+}
+
+export const assertMutationResponse = (resp: VKApiResponse): void => {
+  if (typeof resp !== 'object' || resp == null || Array.isArray(resp) || !Array.isArray(resp.payload)) throw new Error('Invalid VK mutation response')
+  if (resp.payload[0] !== 0 && resp.payload[0] !== '0') throw new Error('VK mutation failed')
+  if (!Array.isArray(resp.payload[1])) throw new Error('Invalid VK mutation response')
 }
 
 export const parseResponsePayload = (resp: VKApiResponse, indexes: [number, ...number[]]): JSONValue => {

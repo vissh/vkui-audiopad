@@ -13,8 +13,8 @@ interface AlbumsProps {
 }
 
 export const Albums: FC<AlbumsProps> = ({ userId, showAllLink }) => {
-  const { data: fetchResult, isPending, error } = useAlbumsData(showAllLink)
-  const loadMoreMutation = useLoadMoreAlbumsDataMutation(showAllLink)
+  const { data: fetchResult, isPending, error } = useAlbumsData(userId, showAllLink)
+  const loadMoreMutation = useLoadMoreAlbumsDataMutation()
 
   const [firstBlock, ...otherBlocks] = fetchResult?.blocks ?? [null, null, null]
   const albumsBlock = isAlbumsCatalogBlock(firstBlock) && otherBlocks.length === 0 ? firstBlock : null
@@ -23,8 +23,10 @@ export const Albums: FC<AlbumsProps> = ({ userId, showAllLink }) => {
     <InfinityContent
       display={true}
       hasMore={(fetchResult?.nextFrom ?? '').length > 0}
+      paginationScope={JSON.stringify([userId, 'albums', showAllLink])}
+      pageKey={fetchResult?.nextFrom ?? ''}
       loadMoreMutation={loadMoreMutation}
-      loadMoreArgs={{ nextFrom: fetchResult?.nextFrom, sectionId: fetchResult?.sectionId }}
+      loadMoreArgs={fetchResult == null ? undefined : { userId, showAllLink, nextFrom: fetchResult.nextFrom, sectionId: fetchResult.sectionId }}
       error={error}
     >
       <Group>

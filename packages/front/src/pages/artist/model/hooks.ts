@@ -6,7 +6,7 @@ const queryName = 'artist'
 export const useArtistData = (userId: string, artistId: string) => {
   return useQuery({
     queryKey: [queryName, userId, artistId],
-    queryFn: async () => await fetchArtistData(artistId),
+    queryFn: async ({ signal }) => await fetchArtistData(artistId, signal),
     refetchOnWindowFocus: false,
     refetchOnMount: false,
     enabled: userId.length > 0 && artistId.length > 0,

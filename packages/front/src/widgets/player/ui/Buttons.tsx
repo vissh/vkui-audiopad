@@ -8,7 +8,7 @@ import { ShuffleButton } from '@/features/shuffle'
 import { SimilarButton } from '@/features/similar'
 import { useActiveTrack } from '@/entities/active-track'
 import { useSessionUserId } from '@/entities/session'
-import { atom, useAtom } from '@/shared/lib/atom'
+import { atom, useAtomValue } from '@/shared/lib/atom'
 
 const initialAddedTracks: Record<string, commonTypes.TrackItem> = {}
 const latestAddedTracksAtom = atom(initialAddedTracks)
@@ -17,7 +17,8 @@ export const Buttons: FC = () => {
   const userId = useSessionUserId()
   const activeTrack = useActiveTrack()
 
-  const [latestAddedTracks, setLatestAddedTracks] = useAtom(latestAddedTracksAtom)
+  const latestAddedTracks = useAtomValue(latestAddedTracksAtom)
+  const libraryKey = JSON.stringify([userId, activeTrack?.id])
 
   const activeTrackExists = activeTrack != null
   const canAdd = activeTrackExists && (activeTrack.flags & commonTypes.TrackFlagBit.CAN_ADD) !== 0
@@ -27,18 +28,18 @@ export const Buttons: FC = () => {
     <>
       {canAdd && someoneElsesTrack && (
         <>
-          {latestAddedTracks[activeTrack.id] != null
+          {latestAddedTracks[libraryKey] != null
             ? <DeleteFromMyMusicButton
-                track={latestAddedTracks[activeTrack.id]}
+                track={latestAddedTracks[libraryKey]}
                 onAfterDelete={() => {
-                  const { [activeTrack.id]: _deleted, ...rest } = latestAddedTracks
-                  setLatestAddedTracks(rest)
+                  const { [libraryKey]: _deleted, ...rest } = latestAddedTracksAtom.get()
+                  latestAddedTracksAtom.set(rest)
                 }}
               />
             : <AddToMyMusicButton
                 track={activeTrack}
                 onAfterAdd={(addedTrack) => {
-                  setLatestAddedTracks({ [activeTrack.id]: addedTrack, ...latestAddedTracks })
+                  latestAddedTracksAtom.set({ ...latestAddedTracksAtom.get(), [libraryKey]: addedTrack })
                 }}
               />}
         </>

@@ -1,11 +1,15 @@
 import { commonTypes } from '@vk-audiopad/common'
-import { audioElement } from '../audio-element'
+import { audioElement, audioPlaybackId, audioRequestRevision, setAudioPlaybackRequested } from '../audio-element'
 import { sendMessage } from '../send-message'
+import { reportPlayerError } from '../listeners/player-events'
 
 export const playOrPause = (played: boolean): void => {
+  setAudioPlaybackRequested(played)
   if (audioElement.src.length > 0) {
     if (played) {
-      void audioElement.play()
+      const playbackId = audioPlaybackId
+      const revision = audioRequestRevision
+      void audioElement.play().catch(() => { if (playbackId != null && revision === audioRequestRevision) reportPlayerError(playbackId) })
     } else {
       audioElement.pause()
     }

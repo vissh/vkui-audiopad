@@ -1,0 +1,23 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "types": ["node", "chrome", "firefox-webext-browser", "vite/client"],
+    "paths": {
+      "@/*": ["./packages/front/src/*"],
+      "@vk-audiopad/common": ["./packages/common/src/index.ts"]
+    },
+    "allowJs": true,
+    "allowImportingTsExtensions": true,
+    "esModuleInterop": true,
+    "jsx": "react-jsx",
+    "strict": true,
+    "noEmit": true,
+    "skipLibCheck": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true
+  },
+  "include": ["tests", "scripts/**/*.test.ts", "vitest.config.mts"]
+}

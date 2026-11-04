@@ -2,13 +2,14 @@ import { cast, catalogLink, vkApiClient, vkClient } from '@vk-audiopad/common'
 import { getCatalogBlocks } from '@/shared/lib/catalog-block'
 import { type FetchAlbumsResult, type FetchNextSectionArgs } from '../model/types'
 
-export const fetchAlbums = async (showAllLink: string): Promise<FetchAlbumsResult> => {
+export const fetchAlbums = async (showAllLink: string, signal?: AbortSignal): Promise<FetchAlbumsResult> => {
   const sectionId = await resolveSectionId(showAllLink)
+  signal?.throwIfAborted()
   if (sectionId == null) {
     throw new Error('Albums sectionId not found')
   }
 
-  return await fetchMoreAlbums({ nextFrom: '', sectionId })
+  return await fetchMoreAlbums({ nextFrom: '', sectionId }, signal)
 }
 
 const resolveSectionId = async (showAllLink: string): Promise<string | null> => {
@@ -30,12 +31,12 @@ const resolveSectionId = async (showAllLink: string): Promise<string | null> => 
   return null
 }
 
-export const fetchMoreAlbums = async (args: FetchNextSectionArgs): Promise<FetchAlbumsResult> => {
+export const fetchMoreAlbums = async (args: FetchNextSectionArgs, signal?: AbortSignal): Promise<FetchAlbumsResult> => {
   const resp = await vkClient.request('https://vk.ru/al_audio.php?act=load_catalog_section', {
     al: '1',
     section_id: args.sectionId,
     start_from: args.nextFrom
-  })
+  }, signal)
 
   const playlistsPayload = cast.castToJSONObject(vkClient.parseResponsePayload(resp, [1, 1]))
 

@@ -1,9 +1,9 @@
 export {
-  setCurrentPlaylist,
-  setPlayed,
   useActiveTrack,
   useCurrentPlaylist,
   useCurrentTime,
   useDuration,
-  usePlayed
+  usePlayed,
+  usePlaybackRequested,
+  usePlaybackError
 } from './model/atom'

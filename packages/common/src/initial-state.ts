@@ -29,6 +29,10 @@ export const ApplicationSettings: ApplicationSettingsState = {
 
 export const ApplicationActiveTrack: ApplicationActiveTrackState = {
   played: false,
+  playbackRequested: false,
+  playbackInitialization: 'loading',
+  playbackId: null,
+  playbackError: null,
   activeTrack: null,
   duration: 0,
   currentPlaylist: null

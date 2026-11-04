@@ -1,6 +1,6 @@
 import { cast, vkClient, type commonTypes } from '@vk-audiopad/common'
 
-export const fetchAudiosIdsBySource = async (playlist: commonTypes.Playlist): Promise<commonTypes.AudioTuple[]> => {
+export const fetchAudiosIdsBySource = async (playlist: commonTypes.Playlist, signal?: AbortSignal): Promise<commonTypes.AudioTuple[]> => {
   const params: Record<string, string> = (
     (playlist.blockId.length > 0)
       ? {
@@ -16,7 +16,7 @@ export const fetchAudiosIdsBySource = async (playlist: commonTypes.Playlist): Pr
         }
   )
 
-  const resp = await vkClient.request('https://vk.ru/al_audio.php?act=get_audio_ids_by_source', params)
+  const resp = await vkClient.request('https://vk.ru/al_audio.php?act=get_audio_ids_by_source', params, signal)
   vkClient.parseResponsePayload(resp, [1, 0])
 
   const tracks = cast.castToArray(vkClient.parseResponsePayload(resp, [1, 0]))

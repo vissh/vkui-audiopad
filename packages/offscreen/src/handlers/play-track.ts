@@ -1,16 +1,22 @@
 import Hls from 'hls.js'
-import { audioElement } from '../audio-element'
+import { audioElement, audioPlaybackId, audioPlaybackRequested, audioRequestRevision, invalidateAudio, replaceAudio } from '../audio-element'
+import { reportPlayerError } from '../listeners/player-events'
 
 const hlsWorkers: Hls[] = []
 
-export const playTrack = async (url: string, volume: number): Promise<void> => {
+export const playTrack = async (url: string, volume: number, playbackId: string): Promise<void> => {
   destroyPlayer()
-
-  audioElement.volume = volume
+  const audio = replaceAudio(playbackId)
+  audio.volume = volume
+  const play = (): void => {
+    if (audioPlaybackId !== playbackId || !audioPlaybackRequested) return
+    const revision = audioRequestRevision
+    void audio.play().catch(() => { if (revision === audioRequestRevision) reportPlayerError(playbackId) })
+  }
 
   if (!url.includes('index.m3u8')) {
-    audioElement.src = url
-    void audioElement.play()
+    audio.src = url
+    play()
     return
   }
 
@@ -22,12 +28,15 @@ export const playTrack = async (url: string, volume: number): Promise<void> => {
   })
 
   hlsWorkers.push(hls)
+  hls.on(Hls.Events.MEDIA_ATTACHED, play)
+  hls.on(Hls.Events.ERROR, (_event, data) => { if (data.fatal) reportPlayerError(playbackId) })
   hls.loadSource(url)
-  hls.attachMedia(audioElement)
-  hls.on(Hls.Events.MEDIA_ATTACHED, () => { void audioElement.play() })
+  hls.attachMedia(audio)
 }
 
 export const destroyPlayer = (): void => {
+  invalidateAudio()
+  audioElement.pause()
   while (hlsWorkers.length > 0) {
     const oldHlsWorker = hlsWorkers.pop()
     if (oldHlsWorker == null) {

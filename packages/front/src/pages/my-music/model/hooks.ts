@@ -1,15 +1,16 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { type commonTypes } from '@vk-audiopad/common'
 import { fetchMorePlaylistTracks, type FetchPlaylistResult } from '@/shared/api'
+import { canAppendPlaylist, mergePlaylistPage } from '@/shared/lib/pagination'
 import { fetchMyMusic } from '../api/fetchers'
 import { type FetchMyMusicResult } from './types'
 
-const queryKey: readonly string[] = ['myMusic']
+const queryKey = (userId: string) => ['myMusic', userId] as const
 
 export const useMyMusicData = (userId: string, enabled: boolean) => {
   return useQuery({
-    queryKey,
-    queryFn: async () => await fetchMyMusic(userId),
+    queryKey: queryKey(userId),
+    queryFn: async ({ signal }) => await fetchMyMusic(userId, signal),
     refetchOnWindowFocus: false,
     enabled: userId.length > 0 && enabled,
     retry: 2
@@ -18,17 +19,17 @@ export const useMyMusicData = (userId: string, enabled: boolean) => {
 
 export const useLoadMoreMyMusicTracksMutation = () => {
   const queryClient = useQueryClient()
-
   return useMutation({
-    mutationFn: async (playlist: commonTypes.Playlist) => await fetchMorePlaylistTracks(playlist),
-    onSuccess: (fetchResult: FetchPlaylistResult): void => {
-      const previousData = queryClient.getQueryData<FetchMyMusicResult>(queryKey)
-      if ((previousData?.lastTracksCatalogBlock) != null) {
-        fetchResult.playlist.tracks.unshift(...previousData.lastTracksCatalogBlock.playlist.tracks)
-        previousData.lastTracksCatalogBlock.playlist = fetchResult.playlist
-        queryClient.setQueryData(queryKey, previousData)
-      }
+    networkMode: 'always',
+    mutationFn: async (args: { userId: string, playlist: commonTypes.Playlist }) => await fetchMorePlaylistTracks(args.playlist),
+    onSuccess: (result: FetchPlaylistResult, args): void => {
+      queryClient.setQueryData<FetchMyMusicResult>(queryKey(args.userId), previous => {
+        if (previous == null) return previous
+        const block = previous.lastTracksCatalogBlock
+        if (block == null || !canAppendPlaylist(block.playlist, args.playlist, result.playlist)) return previous
+        return { ...previous, lastTracksCatalogBlock: { ...block, playlist: mergePlaylistPage(block.playlist, result.playlist) } }
+      })
     },
-    retry: 2
+    retry: false
   })
 }

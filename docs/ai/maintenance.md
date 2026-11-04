@@ -1,36 +1,62 @@
-# Обслуживание ИИ-инструкций (для человека и агентов)
+# Maintaining project and agent documentation
 
-Принцип: **билд ничего не проверяет про свежесть инструкций** — он быстрый, детерминированный и без сети. Свежестью занимается CI по расписанию, а правила описаны здесь.
+Builds are deterministic and do not check whether prose is up to date. Update descriptions with the behavior they describe; scheduled CI handles dependency/skill refreshes, not factual review of every document.
 
-## Что где живёт и кто это обновляет
+## Ownership
 
-| Файл / каталог | Что это | Кто и когда обновляет |
-|---|---|---|
-| `AGENTS.md` | Правила для ИИ-агентов по этому репо | Человек/агент при изменении архитектуры. CI не трогает |
-| `docs/ai/architecture.md` | Детальная архитектура | То же — вместе с кодом, которым меняется архитектура |
-| `.agents/skills/` + `skills-lock.json` | Вендоренный FSD-скилл (пин версии) | **Автоматически**: GitHub Actions `Update agent skills` (1-е число месяца) → сам открывает PR. Вручную: `npx skills update -y -p` |
-| `.mcp.json` / `opencode.json` (MCP: vkui, chrome-devtools) | MCP-серверы для агентов: `.mcp.json` — стандарт Claude Code/Cursor, `opencode.json` — opencode. **Версии MCP-пакетов запинены** (воспроизводимость) — обновлять вручную обе конфигурации вместе | Человек. `VKUI_VERSION` — **в паре с версией `@vkontakte/vkui` в `packages/front/package.json`** (см. ниже) |
-| npm-зависимости | `package.json` / lock-файлы всех пакетов | **Автоматически**: Dependabot (раз в месяц открывает PR) |
-| GitHub Actions | `.github/workflows/*` | Dependabot (обновление версий actions) |
+| Source | Purpose and update process |
+|---|---|
+| AGENTS.md | Short repository rules for agents/contributors; update with architecture/workflow changes. CI does not rewrite it. |
+| docs/README.md and product/behavior.md | Onboarding/navigation and current user scenarios. Update when entry points, behavior or evidence changes. |
+| ai/architecture.md and ai/state-and-messages.md | Runtime boundaries, storage ownership and command lifecycle. Update in the same PR as affected code. |
+| ai/testing.md | Test harness, browser procedure, console baseline and dated live evidence. Preserve evidence scope/date. |
+| decisions/ | Design rationale/constraints; link rather than copying budgets and invariants into every guide. |
+| ai/readiness-review.md / ai/development-roadmap.md | Historical baseline / current implementation status. Preserve R/T IDs and audit evidence; update progress in the roadmap. |
+| .agents/skills/feature-sliced-design + skills-lock.json | Vendored FSD skill. Monthly Update agent skills action opens a PR; manual update: npx skills update -y -p. Never edit it by hand. |
+| .agents/skills/browser-extension-development | Project-owned extension workflow; update with runtime/tooling contracts. Not managed by skills-lock or the vendor updater. .claude/skills links to the shared directory; OpenCode skills.paths includes it. docs:check rejects separate copies/broken aliases and validates project-skill links. |
+| .mcp.json -> .codex/config.toml + opencode.json mcp | One source for pinned VKUI/Chrome/Firefox DevTools MCP settings. Edit source, run mcp:sync and commit outputs. Doctor/check/tests reject drift. See [MCP](mcp.md). |
+| CLAUDE.md | Imports @AGENTS.md; do not duplicate the rules. |
+| npm dependencies / GitHub Actions | Dependabot opens monthly dependency/action PRs. |
+
+## Language and avoiding drift
+
+Project-authored documentation and agent instructions use English only. Actual UI labels, quoted errors, code identifiers and external/vendored content retain their original language. Do not maintain English/Russian copies of the same guide. Conversation language is independent of repository language.
+
+Maintain one owning document per contract. Other documents should give a short route and link. Keep current behavior, proposals and historical findings distinct. On renaming a heading/file, update incoming links and verify anchors; language changes must preserve task IDs, evidence, commands and compatibility limits.
 
 ## CI
 
-- **CI** (`.github/workflows/ci.yml`) — на каждый push в master и каждый PR: `npm ci` → `npm run check` (typecheck + lint) → `npm test` → `./build.sh`. PR с красным CI не мержится — это касается и изменений, сделанных ИИ-агентами.
-- **Update agent skills** (`.github/workflows/update-agent-skills.yml`) — cron 1-го числа месяца + запуск вручную (workflow_dispatch). Обновляет вендоренный скилл и открывает PR, если изменилось.
-- **Dependabot** (`.github/dependabot.yml`) — ежемесячные PR на обновление npm-пакетов и версий actions.
+CI runs on master pushes and PRs: Node from .node-version -> npm from packageManager -> npm ci -> npm run check -> npm test -> full build -> verify:build -> isolated Firefox runtime smoke (Firefox 159.0 installed by setup-firefox). The browser smoke uses a fresh headless profile and a probe-only build copy, without VK login; npm test remains the offline suite. It also checks public registry URLs and audits critical advisories. Update the explicit Firefox pin in ci.yml when changing the tested browser baseline and repeat the smoke; this is not the extension minimum-version declaration. Blocking merges on red CI requires required statuses configured in GitHub; the workflow does not set that policy.
 
-## Правила для агентов
+Update agent skills runs on the first day of each month and workflow_dispatch, opening a PR if the vendored skill changed. Dependabot handles npm/action updates monthly. An update PR still needs compatibility review and green checks.
 
-- Не редактируй `.agents/skills/` руками — только через `npx skills update -y -p`.
-- `AGENTS.md` и `docs/ai/*` — часть кодовой базы: изменил архитектуру/команды — обнови в том же PR.
-- CI обязан быть зелёным; если упал по твоей вине — чини, а не отключай.
-- **Никаких приватных registry/URL в коммитах**: lock-файл и конфиги должны содержать только публичные адреса. Корневой `.npmrc` пинит публичный registry для этого репо (перекрывает личные зеркала разработчика); CI-guard отклоняет непубличные `resolved`-URL. Перед пушем проверяй: `grep -r "resolved" package-lock.json | grep -v registry.npmjs.org` — пусто.
-- `allowScripts` в корневом `package.json` — стандартная механика npm ≥11.5 (устанавливается командой `npm install-scripts approve esbuild`); нужна, чтобы postinstall esbuild не блокировался и работал vite. На npm 10 (CI, Docker) поле инертно. Если после `npm install` на свежем Node сборка падает на esbuild — выполни approve ещё раз.
+## Runtime and preflight
 
-## Процедура обновления VKUI (пример «связанного» обновления)
+- Update .node-version, packageManager and engines together with clean-install/full-check evidence. Same-major newer Node minor/patch versions are supported locally; the pin reproduces CI.
+- `node scripts/doctor.mjs --runtime-only` works before node_modules and runs during preinstall. Unsupported versions fail with an actionable message.
+- Doctor additionally checks binaries, workspace links/required scripts, direct root/workspace dependencies using npm ls --workspaces --include-workspace-root --depth=0, frontend VKUI_VERSION and all MCP client settings. It uses no network, starts no MCP and rewrites no configs.
+- Doctor does not validate every transitive peer range. eslint-plugin-react declares ESLint support through 9 and currently works with 10 via existing @eslint/compat; npm ls --all separately exposes that limitation.
+- CI/Docker install the pinned npm. Docker may use temporary /tmp/vk-audiopad-toolchain without changing host npm.
+- npm ci reproduces the lockfile; npm install is for dependency changes. CI does not run mcp:sync because regeneration would hide drift. The read-only check is npm run mcp:check.
 
-1. `npm install @vkontakte/vkui@<новая> -w @vk-audiopad/front`
-2. Миграции смотреть через MCP `vkui` (`list_migration_targets` / `get_migration_target`) или доки https://vkui.io/migrations/
-3. Исправить код, поднять `npm run check`, при необходимости `./build.sh`
-4. **Обновить `VKUI_VERSION` в `opencode.json`** на ту же версию — чтобы MCP отдавал доки соответствующей версии
-5. Опционально зафиксировать токены/брейкинги в `docs/ai/architecture.md`
+Do not commit private registry URLs. Root .npmrc selects the public registry; CI rejects nonpublic resolved entries. allowScripts retains esbuild's intentional install permission; do not allow all scripts to get past installation. Fix failures introduced by a change instead of disabling checks.
+
+## Updating VKUI
+
+1. Install the selected version with `npm install @vkontakte/vkui@<version> -w @vk-audiopad/front`.
+2. Use vkui MCP migration tools or https://vkui.io/migrations/; repair affected UI/API usage.
+3. Update VKUI_VERSION only in .mcp.json to match the frontend dependency, then run npm run mcp:sync.
+4. Run check/test and full build where required; inspect actual UI for visible changes.
+5. Update architecture/decision notes if the migration changes a contract.
+
+## Documentation validation
+
+`npm run docs:check` runs offline and is part of `npm run check`, including CI. It reads the root README/AGENTS/CONTRIBUTING/CLAUDE guides and Markdown under docs/, using a CommonMark parser and GitHub-style heading slugs. It checks local Markdown/image/reference-link targets, heading fragments (including duplicate/Unicode headings), declared HTML anchors and repository-relative paths. CLAUDE.md must remain the single @AGENTS.md import. The project-owned extension SKILL.md is also checked, including shared Claude/OpenCode discovery paths. Vendored skills and external URL availability are excluded.
+
+Inline code and bash/sh/shell fences are checked for `npm run <script>` (including selected/all workspaces), `node scripts/<file>` and `./<file>.sh` entrypoints. These examples run from the root. The checker never executes them. Prose, arbitrary shell syntax, dynamic paths and undocumented commands are not a shell program to interpret; format executable examples in this supported form. Validation does not prove that a command succeeds or that documentation's behavioral claims are true.
+
+Update links when headings/files move and update commands with package scripts in the same change. [Regression tests](../../scripts/check-documentation.test.ts) intentionally break references, anchors, entrypoints and shared instructions. Keep this check read-only; do not silently rewrite links or ignore failures in CI.
+
+## Type-safety baseline
+
+All four production packages use TypeScript strict mode without implicit-any overrides. Root tooling and workspace compilers pin TypeScript 6.0.3; update them together. `scripts/type-safety.test.ts` compiles deliberately unsafe examples under the actual workspace options, checking implicit parameters, nullable access and callback variance. Turning off strictness must not silently produce green validation. Explicit any is a workspace lint error; prefer unknown plus runtime validation at external boundaries.

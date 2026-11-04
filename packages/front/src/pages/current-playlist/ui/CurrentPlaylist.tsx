@@ -4,7 +4,7 @@ import { Button, Group, Header, List } from '@vkontakte/vkui'
 import { Fragment, useState, type FC } from 'react'
 import { Navigation } from '@/widgets/navigation'
 import { Track } from '@/widgets/track-list'
-import { setCurrentPlaylist, useCurrentPlaylist } from '@/entities/active-track'
+import { useCurrentPlaylist } from '@/entities/active-track'
 import { sendMessage } from '@/shared/lib/send-message'
 import { InfinityContent } from '@/shared/ui/infinity-content'
 import { useLoadMorePlaylistTracksMutation } from '../model/hooks'
@@ -18,27 +18,26 @@ export const CurrentPlaylist: FC<CurrentPlaylistProps> = ({ active }) => {
   const currentPlaylist = useCurrentPlaylist()
 
   const [editMode, setEditMode] = useState(false)
-  const [playlist, setPlaylist] = useState<commonTypes.Playlist | null>(
-    currentPlaylist != null ? { ...currentPlaylist, tracks: [...currentPlaylist.tracks] } : null
-  )
-  const [actions, setActions] = useState<commonTypes.EditActions>([])
+  const [{ playlist, actions }, setDraft] = useState<{ playlist: commonTypes.Playlist | null, actions: commonTypes.EditActions }>({
+    playlist: currentPlaylist != null ? { ...currentPlaylist, tracks: [...currentPlaylist.tracks] } : null,
+    actions: []
+  })
 
-  const loadMoreMutation = useLoadMorePlaylistTracksMutation(playlist)
+  const loadMoreMutation = useLoadMorePlaylistTracksMutation()
 
   // keep the local editable copy in sync with the stored playlist
   const [syncedPlaylist, setSyncedPlaylist] = useState(currentPlaylist)
   if (currentPlaylist !== syncedPlaylist) {
     setSyncedPlaylist(currentPlaylist)
-    if (currentPlaylist != null) {
-      setPlaylist({ ...currentPlaylist, tracks: [...currentPlaylist.tracks] })
-    }
+    setDraft({ playlist: currentPlaylist == null ? null : { ...currentPlaylist, tracks: [...currentPlaylist.tracks] }, actions: [] })
+    setEditMode(false)
   }
 
   const openEditMode = () => {
     if (currentPlaylist == null) {
       return
     }
-    setPlaylist({ ...currentPlaylist, tracks: [...currentPlaylist.tracks] })
+    setDraft({ playlist: { ...currentPlaylist, tracks: [...currentPlaylist.tracks] }, actions: [] })
     setEditMode(true)
   }
 
@@ -55,44 +54,39 @@ export const CurrentPlaylist: FC<CurrentPlaylistProps> = ({ active }) => {
         oldPlaylist: currentPlaylist,
         actions
       })
-      setCurrentPlaylist(playlist)
-    } else {
-      setPlaylist({ ...currentPlaylist, tracks: [...currentPlaylist.tracks] })
     }
-    setActions([])
+    setDraft({ playlist: { ...currentPlaylist, tracks: [...currentPlaylist.tracks] }, actions: [] })
     setEditMode(false)
   }
 
   const cancel = () => {
-    if (currentPlaylist != null) {
-      setPlaylist({ ...currentPlaylist, tracks: [...currentPlaylist.tracks] })
-    }
-    setActions([])
+    setDraft({ playlist: currentPlaylist == null ? null : { ...currentPlaylist, tracks: [...currentPlaylist.tracks] }, actions: [] })
     setEditMode(false)
   }
 
   const moveTrack = ({ from, to }: { from: number, to: number }) => {
-    if (playlist != null) {
-      const tracks = [...playlist.tracks]
-      tracks.splice(from, 1)
-      tracks.splice(to, 0, playlist.tracks[from])
-      setPlaylist({ ...playlist, tracks })
-      setActions([...actions, ['move', from, to]])
-    }
+    setDraft(previous => {
+      if (previous.playlist == null || !Number.isInteger(from) || !Number.isInteger(to) || from < 0 || to < 0 || from >= previous.playlist.tracks.length || to >= previous.playlist.tracks.length || from === to) return previous
+      const tracks = [...previous.playlist.tracks]
+      const [track] = tracks.splice(from, 1)
+      tracks.splice(to, 0, track)
+      return { playlist: { ...previous.playlist, tracks }, actions: [...previous.actions, ['move', from, to]] }
+    })
   }
 
   const removeTrack = (index: number) => {
-    if (playlist != null) {
-      playlist.tracks.splice(index, 1)
-      setPlaylist({ ...playlist })
-      setActions([...actions, ['remove', index]])
-    }
+    setDraft(previous => {
+      if (previous.playlist == null || !Number.isInteger(index) || index < 0 || index >= previous.playlist.tracks.length) return previous
+      return { playlist: { ...previous.playlist, tracks: previous.playlist.tracks.filter((_, trackIndex) => trackIndex !== index) }, actions: [...previous.actions, ['remove', index]] }
+    })
   }
 
   return (
     <InfinityContent
       display={active}
-      hasMore={(playlist?.hasMore) ?? false}
+      hasMore={!editMode && ((playlist?.hasMore) ?? false)}
+      paginationScope={JSON.stringify(['current-playlist', playlist?.ownerId, playlist?.id, playlist?.blockId])}
+      pageKey={playlist?.nextOffset ?? ''}
       loadMoreMutation={loadMoreMutation}
       loadMoreArgs={playlist}
     >

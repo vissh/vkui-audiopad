@@ -1,48 +1,32 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { type commonTypes } from '@vk-audiopad/common'
-import {
-  fetchMorePlaylistTracks,
-  fetchPlaylist,
-  type FetchPlaylistResult
-} from '@/shared/api'
+import { fetchMorePlaylistTracks, fetchPlaylist, type FetchPlaylistResult } from '@/shared/api'
+import { canAppendPlaylist, mergePlaylistPage } from '@/shared/lib/pagination'
 
-const queryName = 'blockPlaylist'
+type MoreArgs = { userId: string, fromId: string, source: commonTypes.Playlist, playlist: commonTypes.Playlist }
+const queryKey = (userId: string, source: commonTypes.Playlist, fromId: string) => ['blockPlaylist', userId, source.ownerId, source.id, source.blockId, fromId] as const
 
-export const useBlockPlaylistData = (
-  userId: string,
-  playlist: commonTypes.Playlist,
-  fromId: string) => {
+export const useBlockPlaylistData = (userId: string, playlist: commonTypes.Playlist, fromId: string) => {
   return useQuery({
-    queryKey: [queryName, playlist.id],
-    queryFn: async () => {
-      if (playlist.tracks.length > 0) {
-        return { playlist }
-      }
-
-      return await fetchPlaylist({
-        fromId,
-        playlist
-      })
-    },
+    queryKey: queryKey(userId, playlist, fromId),
+    queryFn: async ({ signal }) => playlist.tracks.length > 0 ? { playlist } : await fetchPlaylist({ fromId, playlist }, signal),
     refetchOnWindowFocus: false,
-    enabled: !(userId.length === 0),
+    enabled: userId.length > 0,
     retry: 2
   })
 }
 
 export const useLoadMoreBlockPlaylistTracksMutation = () => {
   const queryClient = useQueryClient()
-
   return useMutation({
-    mutationFn: async (playlist: commonTypes.Playlist) => await fetchMorePlaylistTracks(playlist),
-    onSuccess: (fetchResult: FetchPlaylistResult): void => {
-      const queryKey = [queryName, fetchResult.playlist.id]
-      const previousFetchResult = queryClient.getQueryData<FetchPlaylistResult>(queryKey)
-      if (previousFetchResult != null) {
-        fetchResult.playlist.tracks.unshift(...previousFetchResult.playlist.tracks)
-        queryClient.setQueryData(queryKey, fetchResult)
-      }
+    networkMode: 'always',
+    mutationFn: async (args: MoreArgs) => await fetchMorePlaylistTracks(args.playlist),
+    onSuccess: (result: FetchPlaylistResult, args): void => {
+      queryClient.setQueryData<FetchPlaylistResult>(queryKey(args.userId, args.source, args.fromId), previous => {
+        if (previous == null || !canAppendPlaylist(previous.playlist, args.playlist, result.playlist)) return previous
+        return { playlist: mergePlaylistPage(previous.playlist, result.playlist) }
+      })
     },
-    retry: 2
+    retry: false
   })
 }

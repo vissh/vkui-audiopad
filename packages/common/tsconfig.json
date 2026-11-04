@@ -10,7 +10,6 @@
     "allowJs": true,
     "declaration": true,
     "moduleResolution": "bundler",
-    "noImplicitAny": false,
     "noEmitOnError": true,
     "removeComments": false,
     "sourceMap": true,

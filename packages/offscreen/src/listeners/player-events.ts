@@ -1,52 +1,51 @@
 import { commonTypes } from '@vk-audiopad/common'
-import { audioElement } from '../audio-element'
+import { audioPlaybackId, listenToAudio } from '../audio-element'
 import { sendMessage } from '../send-message'
 
+let reportedError: string | null = null
+
+export const reportPlayerError = (playbackId: string): void => {
+  if (audioPlaybackId !== playbackId || reportedError === playbackId) return
+  reportedError = playbackId
+  void sendMessage({ target: commonTypes.MessageTarget.SERVICE_WORKER, type: commonTypes.MessageType.AUDIO_PLAYER_ERROR, playbackId })
+}
+
 export const startListeningPlayerEvents = (): void => {
-  audioElement.addEventListener('playing', sendPlaying)
-  audioElement.addEventListener('pause', sendPause)
-  audioElement.addEventListener('ended', sendEnded)
-  audioElement.addEventListener('error', sendError)
-  audioElement.addEventListener('timeupdate', sendTimeupdate)
-}
-
-const sendPlaying = (): void => {
-  void sendMessage({
-    target: commonTypes.MessageTarget.SERVICE_WORKER,
-    type: commonTypes.MessageType.AUDIO_PLAYER_PLAYING,
-    volume: audioElement.volume,
-    duration: audioElement.duration,
-    currentTime: audioElement.currentTime
-  })
-}
-
-const sendPause = (): void => {
-  void sendMessage({
-    target: commonTypes.MessageTarget.SERVICE_WORKER,
-    type: commonTypes.MessageType.AUDIO_PLAYER_PAUSE
-  })
-}
-
-const sendEnded = (): void => {
-  void sendMessage({
-    target: commonTypes.MessageTarget.SERVICE_WORKER,
-    type: commonTypes.MessageType.AUDIO_PLAYER_ENDED
-  })
-}
-
-const sendError = (): void => {
-  void sendMessage({
-    target: commonTypes.MessageTarget.SERVICE_WORKER,
-    type: commonTypes.MessageType.AUDIO_PLAYER_ERROR
-  })
-}
-
-const sendTimeupdate = (): void => {
-  void sendMessage({
-    target: commonTypes.MessageTarget.SERVICE_WORKER,
-    type: commonTypes.MessageType.AUDIO_PLAYER_TIMEUPDATED,
-    paused: audioElement.paused,
-    duration: audioElement.duration,
-    currentTime: audioElement.currentTime
+  listenToAudio((audio, playbackId) => {
+    const handlers = {
+      playing: () => {
+        if (playbackId == null || audioPlaybackId !== playbackId) return
+        void sendMessage({
+          target: commonTypes.MessageTarget.SERVICE_WORKER,
+          type: commonTypes.MessageType.AUDIO_PLAYER_PLAYING,
+          playbackId,
+          volume: audio.volume,
+          duration: audio.duration,
+          currentTime: audio.currentTime
+        })
+      },
+      pause: () => {
+        if (playbackId == null || audioPlaybackId !== playbackId) return
+        void sendMessage({ target: commonTypes.MessageTarget.SERVICE_WORKER, type: commonTypes.MessageType.AUDIO_PLAYER_PAUSE, playbackId })
+      },
+      ended: () => {
+        if (playbackId == null || audioPlaybackId !== playbackId) return
+        void sendMessage({ target: commonTypes.MessageTarget.SERVICE_WORKER, type: commonTypes.MessageType.AUDIO_PLAYER_ENDED, playbackId })
+      },
+      error: () => { if (playbackId != null) reportPlayerError(playbackId) },
+      timeupdate: () => {
+        if (playbackId == null || audioPlaybackId !== playbackId) return
+        void sendMessage({
+          target: commonTypes.MessageTarget.SERVICE_WORKER,
+          type: commonTypes.MessageType.AUDIO_PLAYER_TIMEUPDATED,
+          playbackId,
+          paused: audio.paused,
+          duration: audio.duration,
+          currentTime: audio.currentTime
+        })
+      }
+    }
+    Object.entries(handlers).forEach(([event, handler]) => { audio.addEventListener(event, handler) })
+    return () => { Object.entries(handlers).forEach(([event, handler]) => { audio.removeEventListener(event, handler) }) }
   })
 }

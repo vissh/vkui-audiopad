@@ -21,8 +21,10 @@ export const MyMusic: FC<MyMusicProps> = ({ userId, active }) => {
     <InfinityContent
       display={active}
       hasMore={(fetchResult?.lastTracksCatalogBlock?.playlist.hasMore) ?? false}
+      paginationScope={JSON.stringify([userId, 'my-music', fetchResult?.lastTracksCatalogBlock?.playlist?.ownerId, fetchResult?.lastTracksCatalogBlock?.playlist?.id, fetchResult?.lastTracksCatalogBlock?.playlist?.blockId])}
+      pageKey={fetchResult?.lastTracksCatalogBlock?.playlist?.nextOffset ?? ''}
       loadMoreMutation={loadMoreMutation}
-      loadMoreArgs={fetchResult?.lastTracksCatalogBlock?.playlist}
+      loadMoreArgs={fetchResult?.lastTracksCatalogBlock == null ? undefined : { userId, playlist: fetchResult.lastTracksCatalogBlock.playlist }}
       error={error}
     >
       <Group>

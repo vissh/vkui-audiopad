@@ -10,12 +10,12 @@ export interface FetchPlaylistResult {
   playlist: commonTypes.Playlist
 }
 
-export const fetchPlaylist = async (fetchArgs: FetchPlaylistArgs): Promise<FetchPlaylistResult> => {
+export const fetchPlaylist = async (fetchArgs: FetchPlaylistArgs, signal?: AbortSignal): Promise<FetchPlaylistResult> => {
   if (fetchArgs.playlist.blockId === fetchArgs.playlist.id || fetchArgs.playlist.isRadio) {
-    return await fetchPlaylistByBlockId(fetchArgs)
+    return await fetchPlaylistByBlockId(fetchArgs, signal)
   }
 
-  return await fetchPlaylistById(fetchArgs)
+  return await fetchPlaylistById(fetchArgs, signal)
 }
 
 export const fetchMorePlaylistTracks = async (playlist: commonTypes.Playlist): Promise<FetchPlaylistResult> => {
@@ -30,17 +30,17 @@ export const fetchMorePlaylistTracks = async (playlist: commonTypes.Playlist): P
   return vkApiResponseToPlaylist(resp)
 }
 
-const fetchPlaylistByBlockId = async (fetchArgs: FetchPlaylistArgs): Promise<FetchPlaylistResult> => {
+const fetchPlaylistByBlockId = async (fetchArgs: FetchPlaylistArgs, signal?: AbortSignal): Promise<FetchPlaylistResult> => {
   const resp = await vkClient.request('https://vk.ru/al_audio.php?act=load_block_playlist', {
     al: '1',
     block_id: fetchArgs.playlist.blockId,
     start_from: '0'
-  })
+  }, signal)
 
   return vkApiResponseToPlaylist(resp)
 }
 
-const fetchPlaylistById = async (fetchArgs: FetchPlaylistArgs): Promise<FetchPlaylistResult> => {
+const fetchPlaylistById = async (fetchArgs: FetchPlaylistArgs, signal?: AbortSignal): Promise<FetchPlaylistResult> => {
   const resp = await vkClient.request('https://vk.ru/al_audio.php?act=load_section', {
     access_hash: fetchArgs.playlist.accessHash,
     al: '1',
@@ -52,7 +52,7 @@ const fetchPlaylistById = async (fetchArgs: FetchPlaylistArgs): Promise<FetchPla
     owner_id: fetchArgs.playlist.ownerId,
     playlist_id: fetchArgs.playlist.id,
     type: 'playlist'
-  })
+  }, signal)
 
   return vkApiResponseToPlaylist(resp)
 }

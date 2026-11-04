@@ -1,48 +1,39 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { isAlbumsCatalogBlock } from '@/shared/lib/catalog-block'
+import { mergeAlbums, mergeCatalogBlocks } from '@/shared/lib/pagination'
 import { fetchAlbums, fetchMoreAlbums } from '../api/fetchers'
 import { type FetchAlbumsResult, type FetchNextSectionArgs } from './types'
 
-const queryKeyName = 'albums'
+type MoreArgs = FetchNextSectionArgs & { userId: string, showAllLink: string }
+const queryKey = (userId: string, showAllLink: string) => ['albums', userId, showAllLink] as const
 
-export const useAlbumsData = (showAllLink: string) => {
+export const useAlbumsData = (userId: string, showAllLink: string) => {
   return useQuery({
-    queryKey: makeQueryKey(showAllLink),
-    queryFn: async () => await fetchAlbums(showAllLink),
+    queryKey: queryKey(userId, showAllLink),
+    queryFn: async ({ signal }) => await fetchAlbums(showAllLink, signal),
+    enabled: userId.length > 0,
     refetchOnWindowFocus: false,
     refetchOnMount: false,
     retry: 2
   })
 }
 
-export const useLoadMoreAlbumsDataMutation = (showAllLink: string) => {
+export const useLoadMoreAlbumsDataMutation = () => {
   const queryClient = useQueryClient()
-
   return useMutation({
-    mutationFn: async (args: FetchNextSectionArgs) => await fetchMoreAlbums(args),
-    onSuccess: (fetchResult: FetchAlbumsResult): void => {
-      const queryKey = makeQueryKey(showAllLink)
-      const previousData = queryClient.getQueryData<FetchAlbumsResult>(queryKey)
-
-      if (previousData != null) {
-        if (previousData.blocks.length === 1 && fetchResult.blocks.length === 1) {
-          const previousAlbumsBlocks = previousData.blocks.filter(isAlbumsCatalogBlock)
-          const newAlbumsBlocks = fetchResult.blocks.filter(isAlbumsCatalogBlock)
-          if (previousAlbumsBlocks.length > 0 && newAlbumsBlocks.length > 0) {
-            newAlbumsBlocks[0].albums.unshift(...previousAlbumsBlocks[0].albums)
-          } else {
-            fetchResult.blocks.unshift(...previousData.blocks)
-          }
-        } else {
-          fetchResult.blocks.unshift(...previousData.blocks)
-        }
-        queryClient.setQueryData(queryKey, fetchResult)
-      }
+    networkMode: 'always',
+    mutationFn: async (args: MoreArgs) => await fetchMoreAlbums(args),
+    onSuccess: (result: FetchAlbumsResult, args): void => {
+      queryClient.setQueryData<FetchAlbumsResult>(queryKey(args.userId, args.showAllLink), previous => {
+        if (previous == null || previous.sectionId !== args.sectionId || previous.nextFrom !== args.nextFrom) return previous
+        const [first] = previous.blocks
+        const [next] = result.blocks
+        const blocks = previous.blocks.length === 1 && result.blocks.length === 1 && isAlbumsCatalogBlock(first) && isAlbumsCatalogBlock(next)
+          ? [{ ...next, albums: mergeAlbums(first.albums, next.albums) }]
+          : mergeCatalogBlocks(previous.blocks, result.blocks)
+        return { ...result, blocks }
+      })
     },
-    retry: 2
+    retry: false
   })
-}
-
-const makeQueryKey = (showAllLink: string): string[] => {
-  return [queryKeyName, showAllLink]
 }

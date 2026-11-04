@@ -2,7 +2,7 @@ import { cast, vkClient, type commonTypes } from '@vk-audiopad/common'
 import { getCatalogBlocks } from '@/shared/lib/catalog-block'
 import { type FetchExploreResult, type FetchMoreExploreArgs } from '../model/types'
 
-export const fetchExplore = async (ownerId: string): Promise<FetchExploreResult> => {
+export const fetchExplore = async (ownerId: string, signal?: AbortSignal): Promise<FetchExploreResult> => {
   const resp = await vkClient.request('https://vk.ru/al_audio.php?act=section', {
     act: 'section',
     al: '1',
@@ -10,7 +10,7 @@ export const fetchExplore = async (ownerId: string): Promise<FetchExploreResult>
     is_layer: '0',
     owner_id: ownerId,
     section: 'explore'
-  })
+  }, signal)
 
   return prepareResult(resp)
 }

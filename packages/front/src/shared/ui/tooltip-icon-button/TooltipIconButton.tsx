@@ -1,12 +1,15 @@
-import { Tooltip } from '@vkontakte/vkui'
+import { IconButton, Spinner, Tooltip } from '@vkontakte/vkui'
 import { type FC } from 'react'
 import './TooltipIconButton.css'
 
 export interface TooltipIconButtonProps {
   text: string
   icon: React.ComponentType<Partial<{ className: string, onClick: (e: React.MouseEvent<SVGSVGElement>) => void }>>
+  className?: string
   accent?: boolean
   padding?: boolean
+  disabled?: boolean
+  busy?: boolean
   onClick?: () => void
 }
 
@@ -20,15 +23,24 @@ export const TooltipIconButton: FC<TooltipIconButtonProps> = (props) => {
       hideWhenReferenceHidden={true}
       usePortal={true}
     >
-      <props.icon
-        className={`${accentClassName} ${paddingClassName}`}
+      <IconButton
+        label={props.text}
+        disabled={props.disabled}
+        aria-disabled={props.disabled || props.busy || undefined}
+        aria-busy={props.busy || undefined}
+        className={`vkap_icon_action ${accentClassName} ${paddingClassName} ${props.className ?? ''}`}
         onClick={(e: React.MouseEvent) => {
           e.stopPropagation()
-          if (props.onClick != null) {
+          if (!props.disabled && !props.busy && props.onClick != null) {
             props.onClick()
           }
         }}
-      />
+      >
+        <span className='vkap_icon_action_content' aria-hidden='true'>
+          <props.icon className='vkap_icon_action_glyph' />
+          {props.busy && <span className='vkap_icon_action_spinner'><Spinner size='s' /></span>}
+        </span>
+      </IconButton>
     </Tooltip>
   )
 }

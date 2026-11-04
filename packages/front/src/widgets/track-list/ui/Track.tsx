@@ -25,8 +25,10 @@ export const Track: FC<TrackProps> = ({ playlist, track: originalTrack }) => {
 
   const [track, setTrack] = useState(originalTrack)
   const [addedToMyMusic, setAddedToMyMusic] = useState(false)
-  const [deletedFromMyMusic, setDeletedFromMyMusic] = useState(false)
+  const [deletedInWindow, setDeletedInWindow] = useState<number | null>(null)
+  const deletedFromMyMusic = deletedInWindow != null
 
+  const restoreWindow = deletedTrackForRestore.window()
   const trackState = getTrackState(track, activeTrack, played)
 
   const actionButtons = getActionButtons({
@@ -39,6 +41,8 @@ export const Track: FC<TrackProps> = ({ playlist, track: originalTrack }) => {
     deletedFromMyMusic
   })
 
+  if (deletedInWindow != null && deletedInWindow !== restoreWindow) return null
+
   return (
     <TrackCell
       title={track.title}
@@ -46,6 +50,7 @@ export const Track: FC<TrackProps> = ({ playlist, track: originalTrack }) => {
       duration={track.duration}
       image={track.image}
       trackState={trackState}
+      removed={deletedFromMyMusic}
       onClick={() => { playOrPause(trackState, track.id, playlist) }}
       actions={
         <>
@@ -77,7 +82,7 @@ export const Track: FC<TrackProps> = ({ playlist, track: originalTrack }) => {
               size='s'
               track={track}
               onAfterDelete={() => {
-                deletedTrackForRestore.add(track)
+                deletedTrackForRestore.remove(track)
                 setAddedToMyMusic(false)
                 setTrack(originalTrack)
               }}
@@ -88,9 +93,9 @@ export const Track: FC<TrackProps> = ({ playlist, track: originalTrack }) => {
             <DeleteFromMyMusicWithRestoreButton
               track={track}
               onAfterDelete={() => {
-                deletedTrackForRestore.pop(track)
+                deletedTrackForRestore.add(track, restoreWindow)
                 setTrack({ ...track, flags: track.flags | commonTypes.TrackFlagBit.CLAIMED })
-                setDeletedFromMyMusic(true)
+                setDeletedInWindow(restoreWindow)
               }}
             />
           )}
@@ -100,7 +105,7 @@ export const Track: FC<TrackProps> = ({ playlist, track: originalTrack }) => {
               track={track}
               onAfterRestore={() => {
                 setTrack(originalTrack)
-                setDeletedFromMyMusic(false)
+                setDeletedInWindow(null)
               }}
             />
           )}

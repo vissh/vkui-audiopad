@@ -1,101 +1,73 @@
-# Как работать с vk.ru (для ИИ-агентов)
+# Working with vk.ru data
 
-Практические знания о внутренностях vk.ru, накопленные при фиксе каталога (ноябрь 2026).
-Для задач вида «в vk.ru появилась фича X, добавим в расширение» — читай это первым.
+Practical integration knowledge from the November 2026 catalog fixes. Read this before implementing a new VK data feature. See [architecture](architecture.md) for extension contexts and [testing](testing.md) for live validation.
 
-Смежное: `architecture.md` (как устроено расширение), `testing.md` (живой смок, бейзлайн консоли).
+## Two API families
 
-## Два семейства API vk.ru
-
-| | Legacy `al_audio.php` (vk.ru) | Token API (`api.vk.ru` / `web.api.vk.ru` `/method/*`) |
+| | Legacy al_audio.php on vk.ru | Token /method/* on api.vk.ru / web.api.vk.ru |
 |---|---|---|
-| Авторизация | куки (remixsid), без токена | `access_token` из `login.vk.ru/?act=web_token` |
-| Клиент в репо | `vkClient.request` (common/vk-client.ts, FormData + windows-1251) | `vkApiClient.request` (common/vk-api-client.ts; кеш токена в chrome.storage, авторефреш по error 5) |
-| Формат ответа | `<!--{"payload":[...]}`: `[1][0]` — HTML (CatalogBlock-разметка), `[1][1]` — JSON `{blockIds, playlists, sectionId, nextFrom}` | чистый JSON (`response.catalog.sections[].blocks[]`, `audios_ids`, `next_from`) |
-| Когда использовать | всегда, когда эндпоинт существует | когда у legacy нет нужного `act` (артисты и подстраницы) |
+| Authentication | Session cookies (remixsid), no token | access_token obtained through login.vk.ru/?act=web_token |
+| Client | vkClient.request, FormData and windows-1251 decoding | vkApiClient.request, safe typed failures, Chrome token cache and one auth refresh |
+| Response | Comment-prefixed payload; [1][0] HTML CatalogBlock markup, [1][1] JSON blockIds/playlists/sectionId/nextFrom | JSON response.catalog.sections[].blocks[], audios_ids, next_from |
+| Use | When a suitable legacy action exists | When legacy lacks the needed action, such as artist/subpage resolution |
 
-- Legacy-эндпоинты продолжают отвечать в старом формате, даже когда сайт сам ими не пользуется.
-  Известные `act`: `section` (поиск: `section=search, q, owner_id`), `load_catalog_section` (`section_id`, `start_from`).
-- Token API: `catalog.getAudioArtist` (артист + подстраницы через параметр `url`), `catalog.getAudio`
-  (блоки страницы музыки `/audios<id>?section=<name>&block=<block>` — Главная/Обзор/Моя музыка),
-  `catalog.getSection` (страницы `/music/catalog/*`, сайт зовёт через `batch.call`).
-  Паттерн единый: методу передаётся `url` страницы + `need_blocks=1` → `response.catalog.sections[0].id`.
-  Хосты `api.vk.ru` и `web.api.vk.ru` взаимозаменяемы; `app_id` = `VK_APP_ID` из vk-api-client.ts (6287487).
-- Токен получается чисто по кукам: `POST login.vk.ru/?act=web_token` (`version=1&app_id=6287487`) →
-  `{data: {access_token, expires, user_id}}`. Инфраструктура уже в `vkApiClient` — не изобретай свою.
+Legacy endpoints can still return old formats after the website moves to another request flow. Known actions include section (search uses section=search, q, owner_id) and load_catalog_section (section_id, start_from).
 
-## Каталог: opaque-токены и рабочий паттерн
+Token methods:
 
-vk.ru перевёл каталог на opaque-токены (`PUl...`, алфавит `[\w-]+`). Токен = `section_id`
-в обоих семействах API. **Server HTML больше не содержит данных каталога** (`/music/catalog/*`,
-`/artist/*` — SPA-шелл; `"sectionId"` там нет вообще).
+- catalog.getAudioArtist: artist/subpage data selected with url.
+- catalog.getAudio: music-page blocks from /audios<id>?section=<name>&block=<block>, including Home/Explore/My music.
+- catalog.getSection: /music/catalog/* pages, called by the website through batch.call.
 
-Рабочий паттерн (реализован в `catalogLink` + `getArtistCatalogSectionId`):
+The common pattern is page url + need_blocks=1 -> response.catalog.sections[0].id. The api.vk.ru/web.api.vk.ru hosts worked interchangeably in the investigated flows; app ID is VK_APP_ID (6287487) from vk-api-client.ts. These are observations about a changing upstream, not permanent guarantees.
 
-1. Взять токен:
-   - из ссылки `/audio?section=...&type=<токен>` или `/music/catalog/<токен>` → `catalogLink.sectionIdFromShowAllLink`;
-   - для артиста/подстраницы (`/artist/<id>[/releases|/featuring_releases|top_audios]`) —
-     `vkApiClient.getArtistCatalogSectionId(artistId, pageUrl?)` (внутри `catalog.getAudioArtist`;
-     `url` выбирает подстраницу, без `url` — главная секция артиста);
-   - для блоков вкладок Главная/Обзор/Моя музыка (`/audios<id>?section=<name>&block=<block>`) —
-     `catalogLink.parseAudioSectionShowAllLink` + `vkApiClient.getAudioCatalogSectionId(url)`
-     (внутри `catalog.getAudio`);
-   - диспетчеризация всех трёх форматов — `resolveSectionId` в `pages/albums/api/fetchers.ts`;
-2. Скармилить токен в `al_audio.php?act=load_catalog_section`;
-3. Ответ парсится существующим `getCatalogBlocks` — даунстрим (рендеринг) не меняется.
+Tokens are obtained from cookies through POST login.vk.ru/?act=web_token with version=1&app_id=6287487, returning data.access_token/expires/user_id. Existing vkApiClient infrastructure owns this; do not build a second token mechanism in a page.
 
-Форматы ссылок «Показать все», встречающиеся в дикой природе:
+Token methods follow [ADR 0008](../decisions/0008-vk-api-errors.md): errors reject, one 15-second budget, at most one HTTP 401/error-5 refresh/retry, no GET body and no blind replay on network/429/5xx/format/timeout. Validate each mutation's successful payload too. Shared refresh/session epochs remain T09.
 
-| Откуда | Формат | Где появляется |
+## Opaque catalog tokens
+
+Catalog section tokens use an opaque alphabet such as PUl... and [\w-]+. The token is section_id for both API families. Server HTML for /music/catalog/* and /artist/* is a SPA shell and no longer contains sectionId.
+
+The implemented catalogLink/getArtistCatalogSectionId flow:
+
+1. Resolve the token from the appropriate source:
+   - /audio?section=...&type=<token> or /music/catalog/<token> -> catalogLink.sectionIdFromShowAllLink.
+   - /artist/<id> and /releases, /featuring_releases, /top_audios -> vkApiClient.getArtistCatalogSectionId(artistId, pageUrl?), backed by catalog.getAudioArtist. url selects the subpage; omitted url selects the main artist section.
+   - /audios<id>?section=<name>&block=<block> -> catalogLink.parseAudioSectionShowAllLink and vkApiClient.getAudioCatalogSectionId(url), backed by catalog.getAudio.
+   - pages/albums/api/fetchers.ts resolveSectionId dispatches the supported forms.
+2. Pass section_id to al_audio.php?act=load_catalog_section.
+3. Keep the existing getCatalogBlocks parsing/rendering downstream.
+
+| Source | Observed show-all link | Location/handling |
 |---|---|---|
-| AJAX-ответ поиска (`section=search`) | `/audio?section=recoms_block&type=<токен>` | HTML в payload `[1][0]`, класс `audio_page_block__show_all_link` |
-| AJAX-ответы вкладок (`section=general` / `all` / `explore`) | `/audios<id>?section=<имя>&block=<блок>` (напр. `block=editors_choice`, `stay_on_trend`, `new_albums`) | там же; токена в ссылке нет — резолвить через `catalog.getAudio` с url |
-| Живой DOM сайта (vkit-компоненты) | `/music/catalog/<токен>` | не используется расширением, но валиден как источник токена |
-| Страница артиста | `/artist/<id>/{releases,featuring_releases,top_audios,videos,related}` | токена нет — резолвить через API |
-| Прочее (рекламные онбординги и т.п.) | `https://vk.com/audio?popup=...` | не каталог; парсер вернёт null → ошибка (осознанно fail-loud) |
+| Search AJAX section=search | /audio?section=recoms_block&type=<token> | HTML payload [1][0], audio_page_block__show_all_link |
+| Home/My music/Explore AJAX section=general/all/explore | /audios<id>?section=<name>&block=<block>, e.g. editors_choice/stay_on_trend/new_albums | Same HTML; resolve the token with catalog.getAudio using url |
+| Live vkit DOM | /music/catalog/<token> | Not currently scraped by the extension, but a valid token source |
+| Artist page | /artist/<id>/{releases,featuring_releases,top_audios,videos,related} | Resolve through API; URL alone contains no token |
+| Unrelated advertising/onboarding link | https://vk.com/audio?popup=... | Not a catalog link; parser returns null and the caller fails explicitly |
 
-Нюанс: контент вкладок (особенно «Обзор») **персонализирован** — набор блоков у разных аккаунтов разный
-(например, «VK Акустика» есть не у всех). Парсер должен быть привязан к **формату** ссылки, а не к имени
-блока; полноту покрытия проверяй пробой API-ответа (классифицируй все show_all ссылки), а не поголовным
-кликом по блокам.
+Blocks are personalized. A block such as «VK Акустика» is not present for everyone. Parse link formats, not names from one account; measure coverage by classifying all show-all links from relevant responses rather than clicking every block.
 
-## Живой DOM vs скрейпинг: почему у сайта классы другие
+## Live DOM and legacy response HTML differ
 
-Сайт отрендерен SPA-компонентами с хэшированными классами `vkit-*` — старых
-`audio_page_block__show_all_link`, `CatalogBlock__title` в живом DOM **нет**.
-Они существуют только в HTML внутри legacy-ответов `al_audio.php`. Поэтому:
-- не пугайся, что на живой странице «нет классов, которые парсит расширение» — это нормально;
-- не надо парсить живой DOM сайта — парси AJAX-ответы legacy-эндпоинтов.
+The website renders SPA vkit-* components. Legacy audio_page_block__show_all_link/CatalogBlock__title classes are absent from its live DOM but still appear inside al_audio.php response HTML. Their absence on the website is not evidence that extension parsing is wrong. Parse legacy AJAX responses rather than replacing the parser with live-DOM scraping.
 
-## Как расследовать изменения vk.ru (методичка)
+## Investigate an upstream change
 
-1. **Сессия**: на vk.ru проверяй залогиненность по `window.vk.id` или `#top_profile_link`
-   (не по `document.cookie` — `remixsid` httpOnly и там не виден).
-2. **SPA-ленивость**: XHR данных каталога стреляют только в активной foreground-вкладке,
-   hard-load многих страниц даёт SSR без XHR (артист — именно такой). Чтобы увидеть XHR
-   страницы артиста: открой `/audios<id>` → кликни ссылку артиста в треке (SPA-переход) → смотри сеть.
-3. **Сеть**: `list_network_requests` (xhr/fetch) → интересное в `batch.call` (тело запроса содержит
-   массив подвызовов) → `get_network_request`. Ответы каталога 0.5–1.2 МБ — не дампить целиком,
-   щупай счётчиками/регексами.
-4. **Пробы эндпоинтов** — `evaluate_script` с `fetch` из контекста страницы vk.ru (`credentials: 'include'`):
-   куки применяются сами; для token API сначала получи токен (см. выше).
-   Внимание: регексы в `evaluate_script` гонят через двойное экранирование — для извлечения из
-   экранированного JSON надёжнее indexOf-подход, а не регекс.
-5. **Сравнивай с расширением**: что именно получает расширение — см. `getCatalogBlocks` и
-   `parse-html-block.ts` (что парсится), потом ищи то же в новых ответах.
-6. **Правишь парсер формата ссылок — проверь ВСЕ источники**: у расширения четыре источника
-   show_all ссылок (`act=section` с `section=search|general|all|explore` + страница артиста).
-   Проб каждый ответ (методичка выше), классифицируй форматы и убедись, что парсер покрывает все.
-   Урок фикса каталога: первый фикс закрыл только поиск — ссылки «Обзора»/артиста оказались другими форматами.
+1. Check login through window.vk.id or #top_profile_link. document.cookie cannot establish the presence of HttpOnly remixsid.
+2. Account for SPA lazy loading: catalog XHR may require the active foreground tab. A hard navigation to an artist can give SSR without XHR; try the music page then an artist link for a SPA transition.
+3. Inspect relevant xhr/fetch requests with list_network_requests, then batch.call subcalls or al_audio.php. Catalog responses can be 0.5-1.2 MB: inspect structure/counts, not complete dumps. Network request tools may expose sensitive headers; return only the fields needed and never persist live credentials/payloads.
+4. Probe read-only endpoints with evaluate_script fetch from vk.ru using credentials: include; obtain token API credentials through the existing session flow. Escaped JSON and script argument escaping can make regex extraction fragile; use structured parsing/indexOf where appropriate.
+5. Compare what the extension receives: getCatalogBlocks/parse-html-block.ts, then the corresponding response shape. Live DOM classes are a different representation.
+6. For show-all parsers, cover search/general/all/explore responses and artist links. Classify all forms. The original catalog fix covered search first and missed Explore/artist variants.
 
-## Как добавить фичу «в vk.ru появилось X»
+Do not copy tokens, action hashes or signed media URLs into reports/fixtures. [Fixture rules](fixtures.md) explain how to preserve format evidence without personal data.
 
-1. Найди, откуда живой vk.ru берёт данные для X (методичка выше; обычно `batch.call` или `al_audio.php`).
-2. Приоритет источников: legacy `al_audio.php` (проще, куки) → token API через `vkApiClient.request`.
-   Если нужно новое VK API-поле/метод — правки в `common` (там все клиенты), не во front.
-3. Расширение: `common` (клиент/типы) → front по FSD (page/feature, react-query + fetcher, атомы для UI-состояния).
-4. Верификация: `npm run check` → `./build.sh` → скопировать `dist/chrome_extension` в `dist/` основного клона
-   (MCP ставит расширения только внутри workspace root) → `install_extension` → `trigger_extension_action`
-   → воспроизвести сценарий в попапе → консоль против бейзлайна (CSP/CORB-спам — норма).
-5. Скрейпинг хрупок: любое «безобидное» изменение формата — сверяйся с реальными ответами,
-   не с предположениями. `vk-client.ts` не рефакторить (windows-1251 перекодировка).
+## Add a VK data feature
+
+1. Identify its source on live vk.ru, usually batch.call or al_audio.php.
+2. Prefer an existing legacy endpoint where appropriate, then token API through vkApiClient.request. Add shared fields/methods to common, not a parallel client in front.
+3. Extend common clients/types -> front page/feature with its query fetcher and UI state. Follow the installed FSD skill for structure.
+4. Run check and relevant format tests, full build and verify:build. Install from an MCP-permitted path according to [testing](testing.md), open the extension, reproduce the scenario and compare console categories with the narrow baseline.
+5. Verify real format assumptions before changing fragile parsing. Preserve legacy FormData/encoding; a refactor requires fixture and behavioral evidence.

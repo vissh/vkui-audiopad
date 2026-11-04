@@ -6,7 +6,7 @@ import {
 } from '@/shared/types'
 import { type FetchMyMusicResult } from '../model/types'
 
-export const fetchMyMusic = async (ownerId: string): Promise<FetchMyMusicResult> => {
+export const fetchMyMusic = async (ownerId: string, signal?: AbortSignal): Promise<FetchMyMusicResult> => {
   const resp = await vkClient.request('https://vk.ru/al_audio.php?act=section', {
     act: 'section',
     al: '1',
@@ -14,7 +14,7 @@ export const fetchMyMusic = async (ownerId: string): Promise<FetchMyMusicResult>
     is_layer: '0',
     owner_id: ownerId,
     section: 'all'
-  })
+  }, signal)
 
   const catalogBlocks = getCatalogBlocks(resp)
   const [firstBlock, ...otherBlocks] = catalogBlocks

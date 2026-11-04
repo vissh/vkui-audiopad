@@ -1,23 +1,26 @@
 import { commonUtils, type commonTypes } from '@vk-audiopad/common'
 import { applicationState } from '../state'
-import { storage } from '../storage'
+import { commitPlayback, isCurrentPlayer } from '../playback-operation'
 import { setBadgeText } from '../utils'
 
 let previousDuration = 0
 let previousTime = 0
+let previousPlaybackId: string | null = null
 
 export const onTimeUpdate = async (message: commonTypes.AudioPlayerTimeupdateMessage): Promise<void> => {
+  if (!isCurrentPlayer(message.playbackId)) return
   const duration = message.duration ?? 0
   const currentTime = Math.floor(message.currentTime)
 
-  if (previousDuration === duration && previousTime === currentTime) {
+  if (previousPlaybackId === message.playbackId && previousDuration === duration && previousTime === currentTime) {
     return
   }
 
   previousDuration = duration
   previousTime = currentTime
+  previousPlaybackId = message.playbackId
 
-  await storage.set({ duration, currentTime })
+  if (!await commitPlayback(() => isCurrentPlayer(message.playbackId), { duration, currentTime })) return
 
   if (message.paused) {
     return
