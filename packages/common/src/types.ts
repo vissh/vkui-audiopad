@@ -218,6 +218,10 @@ export interface ApplicationSettingsState {
 
 export interface ApplicationActiveTrackState {
   played: boolean
+  playbackRequested: boolean
+  playbackInitialization: 'loading' | 'ready' | 'failed'
+  playbackId: string | null
+  playbackError: string | null
   activeTrack: TrackItem | null
   duration: number
   currentPlaylist: Playlist | null
@@ -268,6 +272,7 @@ export enum MessageType {
   PREVIOUS_TRACK = 'previous-track',
   DELETE_TRACK = 'delete-track',
   EDIT_CURRENT_PLAYLIST = 'edit-current-playlist',
+  APPEND_CURRENT_PLAYLIST = 'append-current-playlist',
   RELOAD_TRACK = 'reload-track',
   AUDIO_PLAYER_PLAYING = 'audio-player-playing',
   AUDIO_PLAYER_PAUSE = 'audio-player-pause',
@@ -277,6 +282,9 @@ export enum MessageType {
   CLOSE_OFFSCREEN_DOCUMENT = 'close-offscreen-document',
   PLAY_TRACK = 'play-track',
   PLAY_OR_PAUSE = 'play-or-pause',
+  TOGGLE_PLAYBACK = 'toggle-playback',
+  GET_PLAYER_SNAPSHOT = 'get-player-snapshot',
+  PLAYER_SNAPSHOT = 'player-snapshot',
   CHANGE_VOLUME = 'change-volume',
   CHANGE_CURRENT_TIME = 'change-current-time'
 }
@@ -291,6 +299,15 @@ interface IOffscreenMessage {
 
 export interface RepeatMessage extends IServiceWorkerMessage {
   type: MessageType.REPEAT
+}
+
+export interface PlaybackControlMessage extends IServiceWorkerMessage {
+  type: MessageType.PLAY_OR_PAUSE
+  played: boolean
+}
+
+export interface TogglePlaybackMessage extends IServiceWorkerMessage {
+  type: MessageType.TOGGLE_PLAYBACK
 }
 
 export interface AddToQueueMessage extends IServiceWorkerMessage {
@@ -331,34 +348,73 @@ export interface EditCurrentPlaylistMessage extends IServiceWorkerMessage {
   actions: EditActions
 }
 
+export interface AppendCurrentPlaylistMessage extends IServiceWorkerMessage {
+  type: MessageType.APPEND_CURRENT_PLAYLIST
+  basePlaylist: Playlist
+  playlist: Playlist
+}
+
 export interface ReloadTrackMessage extends IServiceWorkerMessage {
   type: MessageType.RELOAD_TRACK
 }
 
-export interface AudioPlayerPlayingMessage extends IServiceWorkerMessage {
+interface AudioPlayerMessage extends IServiceWorkerMessage {
+  playbackId: string
+}
+
+export interface AudioPlayerPlayingMessage extends AudioPlayerMessage {
   type: MessageType.AUDIO_PLAYER_PLAYING
   volume: number
   duration: number
   currentTime: number
 }
 
-export interface AudioPlayerPauseMessage extends IServiceWorkerMessage {
+export interface AudioPlayerPauseMessage extends AudioPlayerMessage {
   type: MessageType.AUDIO_PLAYER_PAUSE
 }
 
-export interface AudioPlayerEndedMessage extends IServiceWorkerMessage {
+export interface AudioPlayerEndedMessage extends AudioPlayerMessage {
   type: MessageType.AUDIO_PLAYER_ENDED
 }
 
-export interface AudioPlayerErrorMessage extends IServiceWorkerMessage {
+export interface AudioPlayerErrorMessage extends AudioPlayerMessage {
   type: MessageType.AUDIO_PLAYER_ERROR
+}
+
+export interface PlayerSnapshot {
+  documentId: string
+  activityRevision: number
+  idle: boolean
+  playbackId: string | null
+  hasSource: boolean
+  requested: boolean
+  paused: boolean
+  playing: boolean
+  ended: boolean
+  failed: boolean
+  currentTime: number
+  duration: number
+}
+
+export interface PlayerSnapshotMessage extends IServiceWorkerMessage {
+  type: MessageType.PLAYER_SNAPSHOT
+  requestId: string
+  snapshot: PlayerSnapshot
+}
+
+export interface GetPlayerSnapshotMessage extends IOffscreenMessage {
+  type: MessageType.GET_PLAYER_SNAPSHOT
+  requestId: string
 }
 
 export interface CloseOffscreenDocumentMessage extends IServiceWorkerMessage {
   type: MessageType.CLOSE_OFFSCREEN_DOCUMENT
+  documentId: string
+  playbackId: string | null
+  activityRevision: number
 }
 
-export interface AudioPlayerTimeupdateMessage extends IServiceWorkerMessage {
+export interface AudioPlayerTimeupdateMessage extends AudioPlayerMessage {
   type: MessageType.AUDIO_PLAYER_TIMEUPDATED
   paused: boolean
   duration: number
@@ -367,6 +423,8 @@ export interface AudioPlayerTimeupdateMessage extends IServiceWorkerMessage {
 
 export type ServiceWorkerMessage = (
   RepeatMessage
+  | PlaybackControlMessage
+  | TogglePlaybackMessage
   | AddToQueueMessage
   | CurrentTimeMessage
   | NextTrackMessage
@@ -374,6 +432,7 @@ export type ServiceWorkerMessage = (
   | PreviousTrackMessage
   | DeleteTrackMessage
   | EditCurrentPlaylistMessage
+  | AppendCurrentPlaylistMessage
   | ReloadTrackMessage
   | AudioPlayerPlayingMessage
   | AudioPlayerPauseMessage
@@ -381,10 +440,12 @@ export type ServiceWorkerMessage = (
   | AudioPlayerErrorMessage
   | AudioPlayerTimeupdateMessage
   | CloseOffscreenDocumentMessage
+  | PlayerSnapshotMessage
 )
 
 export interface OffscreenPlayTrackMessage extends IOffscreenMessage {
   type: MessageType.PLAY_TRACK
+  playbackId: string
   url: string
   volume: number
 }
@@ -406,6 +467,7 @@ export interface OffscreenChangeCurrentTimeMessage extends IOffscreenMessage {
 
 export type OffscreenMessage = (
   OffscreenPlayTrackMessage
+  | GetPlayerSnapshotMessage
   | OffscreenPlayOrPauseMessage
   | OffscreenChangeVolumeMessage
   | OffscreenChangeCurrentTimeMessage

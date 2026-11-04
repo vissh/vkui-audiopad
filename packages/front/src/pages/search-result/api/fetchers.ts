@@ -3,7 +3,7 @@ import { getCatalogBlocks } from '@/shared/lib/catalog-block'
 import { type CatalogBlock } from '@/shared/types'
 import { type FetchSearchArgs } from '../model/types'
 
-export const fetchSearchTracks = async ({ ownerId, value }: FetchSearchArgs): Promise<CatalogBlock[]> => {
+export const fetchSearchTracks = async ({ ownerId, value }: FetchSearchArgs, signal?: AbortSignal): Promise<CatalogBlock[]> => {
   const jsonData = await vkClient.request('https://vk.ru/al_audio.php?act=section', {
     act: 'section',
     al: '1',
@@ -12,7 +12,7 @@ export const fetchSearchTracks = async ({ ownerId, value }: FetchSearchArgs): Pr
     owner_id: ownerId,
     q: value,
     section: 'search'
-  })
+  }, signal)
 
   return getCatalogBlocks(jsonData)
 }

@@ -1,11 +1,11 @@
 import { cast, commonTypes, converter, vkClient } from '@vk-audiopad/common'
 import { unmaskUrl } from './unmask'
 
-export const fetchTrackInfo = async (ownerId: string, trackId: string, accessKey: string): Promise<commonTypes.TrackItem | null> => {
+export const fetchTrackInfo = async (ownerId: string, trackId: string, accessKey: string, signal?: AbortSignal): Promise<commonTypes.TrackItem | null> => {
   const resp = await vkClient.request('https://vk.ru/al_audio.php?act=reload_audios', {
     al: '1',
     audio_ids: trackId + '_' + accessKey
-  })
+  }, signal)
 
   const trackInfoList = cast.castToArray(vkClient.parseResponsePayload(resp, [1, 0]))
   if (trackInfoList.length === 0) {

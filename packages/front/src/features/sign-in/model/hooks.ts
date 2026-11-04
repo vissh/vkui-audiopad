@@ -7,12 +7,13 @@ const queryKey: Readonly<string[]> = ['webToken']
 export const useUpdateWebToken = () => {
   return useQuery({
     queryKey,
-    queryFn: async () => {
-      const webToken = await fetchWebToken()
-      setTimeout(() => { updateWebToken(webToken) }, 1)
+    queryFn: async ({ signal }) => {
+      const webToken = await fetchWebToken(signal)
+      await updateWebToken(webToken, signal)
       return webToken
     },
     refetchOnWindowFocus: false,
-    retry: 2
+    refetchOnReconnect: false,
+    retry: false
   })
 }

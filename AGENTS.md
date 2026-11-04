@@ -1,92 +1,112 @@
-# AGENTS.md — инструкция для ИИ-агентов
+# AGENTS.md — instructions for AI agents
 
-Браузерное расширение **VK Audiopad** — плеер для VK Music (vk.ru) для Chrome и Firefox.
-Manifest V3, TypeScript strict, React 19 + VKUI 8, методология Feature Sliced Design.
+**VK Audiopad** is a Chrome/Firefox player extension for VK Music (vk.ru).
+Manifest V3, strict TypeScript, React 19 + VKUI 8, Feature-Sliced Design.
 
-## Команды
+New to the project? Start with [docs/README.md](docs/README.md), then read the documents relevant to your task. Repository documentation and agent instructions use **English as the single maintained language**. Keep Russian UI labels when quoting the actual interface; do not create parallel translated copies. Existing UI localization and vendored skill content have their own sources.
 
-Работать из корня репозитория (npm workspaces, один `node_modules`).
+## Commands
+
+Run commands from the repository root: npm workspaces with one root `node_modules`.
+
+Node is pinned in `.node-version`; npm is pinned exactly by `packageManager` in the root `package.json`. CI and Docker use these pins. Local development also supports newer Node patch/minor releases in the same major; use the exact pin to reproduce CI. Before installing dependencies, run `node scripts/doctor.mjs --runtime-only`.
 
 ```bash
-npm install          # установка всех зависимостей (один раз)
-npm run check        # БЫСТРАЯ ПРОВЕРКА: сборка common + typecheck + eslint всех пакетов
-npm test             # vitest (тесты в packages/common)
-./build.sh           # полная сборка расширения → dist/chrome_extension и dist/firefox_extension
-./build.sh front     # пересобрать только один пакет (front|offscreen|service-worker)
-npm run eslint:fix   # автофикс линта во всех пакетах
+npm ci               # install dependencies from the lockfile
+npm run doctor       # runtime, tools, workspace/dependency and shared MCP checks
+npm run mcp:sync     # generate Codex/OpenCode settings after editing .mcp.json
+npm run mcp:check    # check MCP settings without writes; included in doctor/check
+npm run smoke:firefox # opt-in real Firefox runtime smoke after a full build; no VK login
+npm run docs:check   # local Markdown links/headings, runnable examples and shared instructions
+npm run check        # required fast check: common build, typecheck and lint
+npm test             # Vitest: common and offline runtime/React/tooling tests
+./build.sh           # full extension build -> dist/chrome_extension and dist/firefox_extension
+./build.sh front     # rebuild one package: front|offscreen|service-worker
+npm run eslint:fix   # fix workspace lint violations
 ```
 
-- `npm run check` — обязательный минимум перед «готово». Быстрее полного билда.
-- `./build.sh` — если меняли vite-конфиги, manifest.js, public-файлы или хотите проверить сборку целиком.
-- Загрузить расширение для ручной проверки: `chrome://extensions` → Developer mode → Load unpacked → `dist/chrome_extension`. Для Firefox: `about:debugging` → This Firefox → Load Temporary Add-on → `dist/firefox_extension`.
-- В Idea/VS Code открывай корень репо, а не пакет.
+- `npm run docs:check` checks maintained root/docs Markdown without network access. It validates local link/image targets and heading anchors, npm scripts and node/shell entrypoints in inline/shell examples, plus CLAUDE.md importing AGENTS.md. Third-party skills and external URL availability are outside this check.
+- `npm run check` is the required minimum before reporting completion. It does not run behavioral tests.
+- Use `npm install` only for intentional dependency changes. Do not update the lockfile during ordinary verification.
+- Run `./build.sh` for Vite, manifest or public asset changes, or to verify the full build. Follow it with `npm run verify:build`.
+- Chrome: `chrome://extensions` -> Developer mode -> Load unpacked -> `dist/chrome_extension`. Firefox: `about:debugging` -> This Firefox -> Load Temporary Add-on -> the manifest in `dist/firefox_extension`.
+- Open the repository root in your editor, not an individual package.
 
-## Пакеты (npm workspaces)
+## Packages
 
-| Пакет | Назначение |
+| Package | Responsibility |
 |---|---|
-| `packages/common` | Общая библиотека `@vk-audiopad/common`: типы (включая протокол сообщений), VK API клиенты, конвертеры, утилиты. Сборка библиотекой (vite + dts). **Остальные пакеты импортируют типы из его `dist/` — сначала собери common** (`npm run build:common`). |
-| `packages/front` | UI попапа расширения (index.html → popup): React 19, VKUI 8.x, @tanstack/react-query. Строгий FSD. |
-| `packages/offscreen` | Offscreen-документ Chrome: аудиоэлемент + hls.js. В Firefox работает как фоновая страница (тот же код). |
-| `packages/service-worker` | MV3 background service worker: оркестрация воспроизведения, очереди, плейлисты, интеграция с VK. |
+| `packages/common` | `@vk-audiopad/common`: types/message protocol, VK clients, converters and utilities. Vite library + declarations. Production consumers resolve its `dist/`; **build common first** with `npm run build:common`. |
+| `packages/front` | Popup UI (`index.html`): React 19, VKUI 8, TanStack Query, strict FSD. The same page can run in a browser tab. |
+| `packages/offscreen` | Chrome offscreen document: Audio + hls.js. In Firefox it runs as a background page with the SW code. |
+| `packages/service-worker` | MV3 background orchestration: playback, queues, playlists and VK integration. |
 
-Архитектура подробно (контексты, протокол сообщений, состояние, VK API): **docs/ai/architecture.md** — читай перед задачами, затрагивающими несколько пакетов.
+Before cross-package work, read [architecture](docs/ai/architecture.md) and [state/message ownership](docs/ai/state-and-messages.md).
 
-Внутренности vk.ru (два семейства API, каталог-токены, методичка расследования изменений, как добавлять фичи с данными vk.ru): **docs/ai/vkru-scraping.md** — читай перед любыми задачами про скрейпинг/новые данные vk.ru.
+Before player changes, read [ADR 0001](docs/decisions/0001-playback-operations.md): playback commands, cancellation, playbackId and the shared error budget. Send play/pause to the SW; writing `played` to storage is not a command. For startup/recovery read [ADR 0002](docs/decisions/0002-startup-recovery.md): synchronous registration, shared readiness and existing-media snapshots. Offscreen readiness and idle close/create/send follow [ADR 0003](docs/decisions/0003-offscreen-lifecycle.md).
 
-## ИИ-инструменты в этом репо
+For music action behavior and request comparisons, use [the VK parity reference](docs/product/vk-parity.md). For library delete/restore, also read [ADR 0006](docs/decisions/0006-library-delete-restore.md): VK mutations and local queue cleanup have different lifetimes.
 
-- **MCP `vkui`** (конфиги: `.mcp.json` для Claude Code/Cursor, `opencode.json` для opencode): доки VKUI, пропсы компонентов, примеры, миграции. Используй для подбора компонентов вместо выдумывания API. `VKUI_VERSION` в конфигах держим равной версии из `packages/front/package.json` (доки других версий могут расходиться с фактами).
-- **MCP `chrome-devtools`** (с `--categoryExtensions`): ставит/перезагружает распакованное расширение в Chrome, читает консоль. Цикл проверки: `./build.sh` → `install_extension` (путь `dist/chrome_extension`) → `trigger_extension_action` → `list_console_messages`. Полный смок-цикл с залогиненным vk.ru, бейзлайн консоли и приёмы отладки попапа: **docs/ai/testing.md** — читай перед живой проверкой.
-- FSD-скилл (`.agents/skills/feature-sliced-design/`): подключай при работе со слоями front. Не редактируй руками — обновление через `npx skills update -y -p` (CI делает это автоматически раз в месяц).
+Before scraping or adding vk.ru data, read [the VK integration guide](docs/ai/vkru-scraping.md): two API families, catalog tokens and investigation methods. Token method errors/deadlines/one auth retry follow [ADR 0008](docs/decisions/0008-vk-api-errors.md); a resolved request is a validated success envelope, and mutation adapters still validate their own response shape.
 
-### Обслуживание инструкций
+Before queue insertion/removal/reordering/shuffle or current-playlist paging, read [ADR 0004](docs/decisions/0004-queue-mutations.md): complete IDs versus loaded metadata, serialized mutations and hydration edits.
 
-Как и кем обновляются AGENTS.md, скиллы, MCP и зависимости — см. **docs/ai/maintenance.md**. Коротко: зависимости и скиллы обновляет CI/Dependabot, `AGENTS.md` и `docs/ai/*` — вместе с кодом в том же PR, CI должен быть зелёным.
+For query keys, account changes and pagination, read [ADR 0007](docs/decisions/0007-query-identity-and-pagination.md): per-account caches, original mutation variables, cursor guards and immutable merges.
 
-## Правила разработки
+## AI tools
 
-### Feature Sliced Design (packages/front)
+- **Shared MCP settings:** `.mcp.json` is the only source, read directly by Claude Code. `npm run mcp:sync` generates `.codex/config.toml` and the `mcp` section of `opencode.json` for OpenCode 1.x. Do not edit derived MCP settings manually: doctor/check and CI reject command, argument, environment or server-set drift. See [MCP setup](docs/ai/mcp.md) for trust, approval and updates. `CLAUDE.md` imports these instructions without copying them.
+- **`vkui` MCP:** component documentation, props, examples and migrations. Use it instead of guessing APIs. Keep `VKUI_VERSION` in `.mcp.json` equal to `@vkontakte/vkui` in `packages/front/package.json`, then run `mcp:sync`.
+- **`chrome-devtools` MCP**, with `--categoryExtensions`: install/reload unpacked extensions and inspect consoles. Workflow: full build -> `install_extension` -> `trigger_extension_action` -> `list_console_messages`. Read [testing](docs/ai/testing.md) before live checks: VK login, console baseline, popup lifetime and permitted staging paths.
+- **`firefox-devtools` MCP:** official Mozilla moz build for addon installation and browser-context inspection; dedicated visible profile and pinned tools. Read [MCP setup](docs/ai/mcp.md#firefox-extension-checks) and [Firefox testing](docs/ai/testing.md#firefox-smoke-through-mcp). A public-package connection is insufficient to inspect the tested extension origin.
+- **Extension runtime skill:** [.agents/skills/browser-extension-development/SKILL.md](.agents/skills/browser-extension-development/SKILL.md) routes manifest, messaging, lifecycle, storage and browser tasks to the owning contracts. Skills have one source under .agents/skills; .claude/skills is a symlink and OpenCode points to the same directory. docs:check rejects discovery drift and broken project-skill routes.
+- **FSD skill:** `.agents/skills/feature-sliced-design/`; apply it when changing front structure. Do not edit vendored skill files manually; update through `npx skills update -y -p` (also run monthly by CI).
 
-- Слои: `app` → `pages` → `widgets` → `features` → `entities` → `shared`. Импорт только сверху вниз, кросс-импорт внутри слоя запрещён (следит eslint `@conarti/eslint-plugin-feature-sliced` — не отключай).
-- Публичный API сегмента — только через его `index.ts`.
-- Новый UI в первую очередь собираем из компонентов VKUI (`@vkontakte/vkui`) и иконок `@vkontakte/icons`.
-- Состояние — кастомные атомы (`src/shared/lib/atom.ts`): `atom()`, `lsAtom()` (localStorage), `storageAtom()` (chrome.storage.local, синхронизация между контекстами). Серверное состояние — react-query.
+Configuration does not prove a server is connected in the current session. Without VKUI MCP, inspect installed `@vkontakte/vkui` declarations and existing project examples. Ordinary check/test/build do not require MCP.
 
-### Протокол сообщений
+## Development rules
 
-- Всё общение между контекстами — `chrome.runtime.sendMessage` с дискриминированными union-типами из `packages/common/src/types.ts` (`MessageTarget` + `MessageType`).
-- Добавил тип сообщения → обнови обработчик-роутер: `service-worker/src/listeners/messages.ts` или `offscreen/src/listeners/messages.ts`, switch с `assertUnreachable` (компилятор укажет, если забыл ветку).
-- Ошибки через границу сообщений передавай только сериализованными (`serialize-error`).
+### Frontend FSD
 
-### Chrome vs Firefox
+- Layers: `app` -> `pages` -> `widgets` -> `features` -> `entities` -> `shared`. Imports go downward; same-layer cross-imports are forbidden. Do not disable `@conarti/eslint-plugin-feature-sliced` to pass lint.
+- Use public APIs through `index.ts`.
+- Prefer VKUI components and `@vkontakte/icons` for UI.
+- State uses [custom atoms](packages/front/src/shared/lib/atom.ts): `atom` for memory, `lsAtom` for localStorage, `storageAtom` for Chrome storage/events. Server data uses react-query.
 
-- Различия задаёт `environment.json` (флаг `offscreen-document-support`), который выбирает build.sh из `public/environment-{chrome,firefox}.json`.
-- Chrome: audio в offscreen-документе + MV3 service worker. Firefox: всё в одной фоновой странице `offscreen.html`.
-- Код должен работать в обоих режимах — проверяй `commonUtils.offscreenDocumentSupport()` и `isFirefox()` из common, не хардкодь браузер.
+### Messages
 
-### Не трогать / осторожно
+- Communication uses discriminated unions from `common/src/types.ts`: `MessageTarget` + `MessageType`, with Chrome runtime or the Firefox bridge as transport.
+- A new message requires a branch in the receiving router: `service-worker/src/listeners/messages.ts` or `offscreen/src/listeners/messages.ts`. Keep exhaustive switches and `assertUnreachable`.
+- Serialize errors crossing a message boundary with `serialize-error`.
+- Static message types do not validate unknown runtime input. Validation and command responses remain planned work; see the state/message guide.
 
-- `packages/service-worker/src/fetchers/unmask.js` — вендорный минифицированный код (снятие масок с аудио-URL). Не редактируй и не форматируй.
-- `packages/common/src/vk-client.ts` — scraping внутренних эндпоинтов vk.ru: FormData + windows-1251 → UTF-8 перекодировка. Ломается от «безобидных» правок.
-- `manifest.json` не существует в репо — генерируется при сборке (`public/manifest.js`, версия и permissions там же). Изменения манифеста = правка `public/manifest.js`.
-- `public/rules/vkcom.json` — правила declarativeNetRequest (срез рекламы на vk.ru).
-- Версию расширения поднимаем в `public/manifest.js` (`version`), не в package.json.
+### Chrome and Firefox
 
-### Конвенции
+- `build.sh` chooses `public/environment-{chrome,firefox}.json` as `environment.json`; `offscreen-document-support` selects the runtime mode.
+- Chrome uses separate SW and offscreen contexts. Firefox runs both scripts in `offscreen.html`, using CustomEvents for internal communication.
+- Use `commonUtils.offscreenDocumentSupport()` for transport selection. `commonUtils.isFirefox()` currently always returns false; do not use it for new logic.
 
-- TypeScript strict, без `any`-лени: `noImplicitAny` и strict включены.
-- ESLint (flat `eslint.config.mjs`, база `neostandard`): 2 пробела, без точек с запятой, одинарные кавычки — `npm run eslint:fix` приведёт код сам.
-- Комментарии в коде на английском, минимально.
+### Sensitive files and conventions
 
-## Тесты
+- Do not edit or format `service-worker/src/fetchers/unmask.js`: vendored minified audio URL decoding.
+- Treat `common/src/vk-client.ts` carefully: legacy FormData and windows-1251 decoding are easy to break with cosmetic changes.
+- Edit `public/manifest.js`, not generated manifest.json. Extension versions are set there, not in package.json.
+- `public/rules/vkcom.json` contains declarativeNetRequest rules for vk.ru ads.
+- TypeScript uses strict mode in all four packages, including implicit-any, nullability and function-variance checks. Explicit any is an ESLint error. Do not weaken compiler/lint settings; executable negative compiler cases in scripts/type-safety.test.ts guard the strictness contract. The vendored unmask.js remains outside lint/type-checking changes.
+- ESLint flat configs use neostandard: two spaces, no semicolons, single quotes. Keep code comments minimal and in English.
 
-- Vitest, файлы `*.test.ts` рядом с исходниками в `packages/common` (пока только чистая логика: конвертеры, утилиты).
-- Новую чистую логику в common сопровождай тестом. Логику с сетью/chrome API не тестируем (пока нет инфраструктуры для этого).
-- Живая проверка расширения (смок в Chrome, известные баги): **docs/ai/testing.md**.
+## Tests and completion
 
-## Типичные задачи
+Vitest pure common tests live beside source; offline integration tests live in `tests/`, tooling tests in `scripts/*.test.ts`. React tests use jsdom and Testing Library via `@vitest-environment jsdom`.
 
-- **Новый экран/фича UI** → только `packages/front`: страница в `pages/`, фича в `features/`, данные через react-query + fetcher, состояние через атомы. Проверка: `npm run check`.
-- **Новая команда плееру** → новый `MessageType` в common + обработчик в service-worker `actions/` + роутер `listeners/messages.ts`, при необходимости команда в offscreen. Проверка: `npm run check && ./build.sh`.
-- **Правка данных VK API** → сначала `packages/common` (`vk-api-client.ts` / `vk-client.ts`), пересобрать common, потом потребители. Проверка: `npm run check` (он сам собирает common первым).
+New pure common logic needs a test. For network/Chrome/audio logic, use controlled adapters in `tests/helpers/`; unit/integration suites must not use live VK or a personal browser profile. Unexpected fetch fails by default, including when code catches the rejection; intended network failures need an explicit adapter. Tests resolve common source through a test-only alias; production still uses common/dist. Check includes test types and tooling lint.
+
+Use [the workflow](docs/ai/agent-workflow.md) to choose checks and report evidence. Typical routes:
+
+| Change | Main files and verification |
+|---|---|
+| UI screen/feature | Front page/feature, query fetcher and atoms; `npm run check`, relevant UI test and live visual check |
+| Player command | Common protocol, SW action/router, optionally offscreen handler; check, behavioral tests and full build |
+| VK data | Common client first, rebuild common, then consumers; check plus format/cancellation tests and appropriate live check |
+
+Update documentation with the code it describes. [Maintenance](docs/ai/maintenance.md) explains owners and updates. [The roadmap](docs/ai/development-roadmap.md) records current progress and acceptance criteria. [The readiness review](docs/ai/readiness-review.md) is a historical audit of `5574e83`; planned tasks do not imply implemented capabilities.

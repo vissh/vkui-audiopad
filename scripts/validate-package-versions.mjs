@@ -2,7 +2,6 @@ import { readFileSync, readdirSync, existsSync } from 'node:fs'
 import { join } from 'node:path'
 import { validRange } from 'semver'
 
-const root = JSON.parse(readFileSync('package.json', 'utf8'))
 const files = ['package.json']
 
 for (const dir of readdirSync('packages')) {

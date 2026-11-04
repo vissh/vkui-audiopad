@@ -3,8 +3,9 @@ import { getCatalogBlocks } from '@/shared/lib/catalog-block'
 import { parseFromString } from '@/shared/lib/utils'
 import { type FetchArtistResult } from '../model/types'
 
-export const fetchArtistData = async (artistId: string): Promise<FetchArtistResult> => {
+export const fetchArtistData = async (artistId: string, signal?: AbortSignal): Promise<FetchArtistResult> => {
   const sectionId = await vkApiClient.getArtistCatalogSectionId(artistId)
+  signal?.throwIfAborted()
 
   if (sectionId == null) {
     throw new Error('Artist sectionId not found')
@@ -13,7 +14,7 @@ export const fetchArtistData = async (artistId: string): Promise<FetchArtistResu
   const resp = await vkClient.request('https://vk.ru/al_audio.php?act=load_catalog_section', {
     al: '1',
     section_id: sectionId
-  })
+  }, signal)
 
   return {
     backgroundImage: getBackgroundImage(cast.safeCastToString(vkClient.parseResponsePayload(resp, [1, 0, 0]))),

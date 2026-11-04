@@ -1,0 +1,22 @@
+# Generated from .mcp.json by npm run mcp:sync. Do not edit by hand.
+
+[mcp_servers."vkui"]
+enabled = true
+command = "npx"
+args = ["-y","@vkontakte/vkui-mcp@1.1.0"]
+
+[mcp_servers."vkui".env]
+"VKUI_VERSION" = "8.4.3"
+
+[mcp_servers."chrome-devtools"]
+enabled = true
+command = "npx"
+args = ["-y","chrome-devtools-mcp@1.12.0","--categoryExtensions","--no-usage-statistics"]
+
+[mcp_servers."firefox-devtools"]
+enabled = true
+command = "npx"
+args = ["-y","@mozilla/firefox-devtools-mcp-moz@0.10.7","--tools","pages","snapshot","input","network","console","screenshot","utilities","management","webextension","script","privileged","--auto-profile","--viewport","780x600"]
+
+[mcp_servers."firefox-devtools".env]
+"MOZ_REMOTE_ALLOW_SYSTEM_ACCESS" = "1"

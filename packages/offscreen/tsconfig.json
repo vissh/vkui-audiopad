@@ -13,7 +13,6 @@
       "chrome",
       "firefox-webext-browser"
     ],
-    "noImplicitAny": false,
     "noEmitOnError": true,
     "removeComments": false,
     "sourceMap": true,

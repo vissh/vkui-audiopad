@@ -34,7 +34,7 @@ export default [
       // keep rules from the retired standard-with-typescript preset;
       // promise-function-async is not restorable without type-aware linting
       '@typescript-eslint/no-dynamic-delete': 'error',
-      '@typescript-eslint/no-explicit-any': 'warn',
+      '@typescript-eslint/no-explicit-any': 'error',
       'react/react-in-jsx-scope': 'off',
       '@typescript-eslint/explicit-function-return-type': 'off',
     },

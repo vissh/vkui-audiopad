@@ -1,7 +1,11 @@
 import { castToJSONObject, castToNumber, castToString, safeCastToString } from './cast'
 import { toTrackItemFromAPIResponse } from './converter'
-import { type JSONObject, type JSONValue, type TrackItem, type WebToken } from './types'
+import { type JSONObject, type TrackItem, type WebToken } from './types'
 import { request as vkClientRequest } from './vk-client'
+import { VKApiError } from './vk-api-error'
+import { withTimeout } from './with-timeout'
+
+export { VKApiError } from './vk-api-error'
 
 export const VK_APP_ID = '6287487'
 export const QUERY_API_VERSION = '5.246'
@@ -18,14 +22,15 @@ export const UnauthorizedWebToken: WebToken = {
   }
 }
 
-export const getStreamMixAudios = async (): Promise<TrackItem> => {
+export const getStreamMixAudios = async (signal?: AbortSignal): Promise<TrackItem> => {
   const resp = await request(
     `https://api.vk.ru/method/audio.getStreamMixAudios?v=${QUERY_API_VERSION}&client_id=${VK_APP_ID}`,
     'POST',
     {
       mix_id: 'common',
       count: '1'
-    }
+    },
+    signal
   )
 
   return toTrackItemFromAPIResponse(resp)
@@ -71,9 +76,8 @@ export const getAudioCatalogSectionId = async (pageUrl: string): Promise<string 
   return firstSectionId(resp)
 }
 
-// Returns null on malformed/error responses instead of throwing a cryptic
-// cast error: the expected failure mode here is vk.ru format drift, and the
-// caller reports a clean 'sectionId not found'.
+// A successful catalog may lack the expected section shape.
+// Transport/VK errors reject in request; missing sections return null here.
 const firstSectionId = (resp: JSONObject): string | null => {
   if (isJSONObjectValue(resp.response)) {
     const catalog = resp.response.catalog
@@ -91,89 +95,132 @@ const firstSectionId = (resp: JSONObject): string | null => {
   return null
 }
 
-const isJSONObjectValue = (value: JSONValue): value is JSONObject => {
+const isJSONObjectValue = (value: unknown): value is JSONObject => {
   return typeof value === 'object' && value != null && !Array.isArray(value)
 }
 
-export const request = async (url: string, method: 'GET' | 'POST', params: Record<string, string>): Promise<JSONObject> => {
-  const formData = new URLSearchParams(params)
-
-  const accessToken = (await getOrUpdateAccessToken()).accessToken
-  formData.set('access_token', accessToken)
-
-  const _request = async (url: string, method: 'GET' | 'POST', formData: URLSearchParams): Promise<JSONObject> => {
-    const resp = await fetch(url, { method, body: formData })
-    return castToJSONObject(await resp.json() as JSONValue)
+export const request = async (url: string, method: 'GET' | 'POST', params: Record<string, string>, signal?: AbortSignal): Promise<JSONObject> => {
+  try {
+    return await withTimeout(async requestSignal => {
+      let token = await getOrUpdateAccessToken(requestSignal)
+      for (let attempt = 0; attempt < 2; attempt++) {
+        requestSignal.throwIfAborted()
+        if (token.error?.type === 'unauthorized') throw new VKApiError('unauthorized')
+        if (token.error != null) throw new VKApiError('unavailable')
+        if (token.accessToken.length === 0 || token.userId.length === 0) throw new VKApiError('format')
+        const body = new URLSearchParams(params)
+        body.set('access_token', token.accessToken)
+        const target = new URL(url)
+        const options: RequestInit = { method, signal: requestSignal }
+        if (method === 'GET') body.forEach((value, key) => { target.searchParams.set(key, value) })
+        else options.body = body
+        try {
+          return await performRequest(target.toString(), options, requestSignal)
+        } catch (error) {
+          requestSignal.throwIfAborted()
+          if (!(error instanceof VKApiError) || error.kind !== 'unauthorized' || attempt !== 0) throw error
+          token = await updateWebToken(requestSignal)
+        }
+      }
+      throw new VKApiError('unauthorized')
+    }, 15_000, signal)
+  } catch (error) {
+    signal?.throwIfAborted()
+    if (error instanceof VKApiError) throw error
+    if (error instanceof DOMException && error.name === 'TimeoutError') throw new VKApiError('timeout')
+    throw new VKApiError('unavailable')
   }
-
-  const data = await _request(url, method, formData)
-  if (data.error != null) {
-    const error = castToJSONObject(data.error)
-    if (error.error_code === 5) {
-      const webToken = await updateWebToken()
-      formData.set('access_token', webToken.accessToken)
-      return await _request(url, method, formData)
-    }
-  }
-  return data
 }
 
-export const getOrUpdateAccessToken = async (): Promise<WebToken> => {
+const performRequest = async (url: string, options: RequestInit, signal: AbortSignal): Promise<JSONObject> => {
+  let response: Response
+  try {
+    response = await fetch(url, options)
+  } catch {
+    signal.throwIfAborted()
+    throw new VKApiError('network')
+  }
+  signal.throwIfAborted()
+  if (!response.ok) throw new VKApiError(response.status === 401 ? 'unauthorized' : response.status === 429 ? 'rate-limit' : 'http', { status: response.status })
+  let payload: unknown
+  try {
+    payload = await response.json()
+  } catch {
+    signal.throwIfAborted()
+    throw new VKApiError('format')
+  }
+  signal.throwIfAborted()
+  if (!isJSONObjectValue(payload)) throw new VKApiError('format')
+  if (payload.error != null) {
+    if (!isJSONObjectValue(payload.error) || typeof payload.error.error_code !== 'number') throw new VKApiError('format')
+    const code = payload.error.error_code
+    throw new VKApiError(code === 5 ? 'unauthorized' : code === 6 || code === 9 ? 'rate-limit' : 'vk', { code, status: response.status })
+  }
+  if (!('response' in payload)) throw new VKApiError('format')
+  return payload
+}
+
+export const getOrUpdateAccessToken = async (signal?: AbortSignal): Promise<WebToken> => {
   const webToken = await getWebTokenFromStorage()
+  signal?.throwIfAborted()
 
   if (webToken != null && (webToken.expires > Math.round((+new Date()) / 1000) + 10)) {
     return webToken
   }
 
-  return await updateWebToken()
+  return await updateWebToken(signal)
 }
 
-export const updateWebToken = async (): Promise<WebToken> => {
-  const newWebToken = await fetchAppWebToken()
-  await setWebTokenToStorage(newWebToken)
+export const updateWebToken = async (signal?: AbortSignal): Promise<WebToken> => {
+  const newWebToken = await fetchAppWebToken(signal)
+  signal?.throwIfAborted()
+  if (newWebToken.error == null) await setWebTokenToStorage(newWebToken)
   return newWebToken
 }
 
-export const fetchAppWebToken = async (): Promise<WebToken> => {
+export const fetchAppWebToken = async (signal?: AbortSignal): Promise<WebToken> => {
   const resp = await vkClientRequest('https://login.vk.ru/?act=web_token', {
     version: '1',
     app_id: VK_APP_ID,
     access_token: ''
-  })
+  }, signal, { requireOk: true })
 
-  const jsonResp = castToJSONObject(resp)
+  try {
+    const jsonResp = castToJSONObject(resp)
 
-  if (jsonResp.type === 'error' && jsonResp.error_info === 'unauthorized') {
-    return UnauthorizedWebToken
-  } else if (jsonResp.type !== 'okay') {
-    throw new Error('web_token was not received. response: ' + JSON.stringify(jsonResp))
-  }
+    if (jsonResp.type === 'error' && jsonResp.error_info === 'unauthorized') {
+      return UnauthorizedWebToken
+    } else if (jsonResp.type !== 'okay') {
+      throw new Error('VK web token was not received')
+    }
 
-  const data = castToJSONObject(jsonResp.data)
+    const data = castToJSONObject(jsonResp.data)
 
-  return {
-    userId: safeCastToString(data.user_id),
-    accessToken: castToString(data.access_token),
-    expires: castToNumber(data.expires),
-    logoutHash: castToString(data.logout_hash),
-    error: null
+    return {
+      userId: safeCastToString(data.user_id),
+      accessToken: castToString(data.access_token),
+      expires: castToNumber(data.expires),
+      logoutHash: castToString(data.logout_hash),
+      error: null
+    }
+  } catch {
+    throw new Error('Invalid VK web token response')
   }
 }
 
 const getWebTokenFromStorage = async (): Promise<WebToken | undefined> => {
-  return await new Promise((resolve) => {
-    chrome.storage.local.get(('webToken'), (result) => {
-      resolve(result.webToken as WebToken | undefined)
-    })
-  })
+  const { webToken: stored } = await chrome.storage.local.get('webToken')
+  const value: unknown = stored
+  if (typeof value !== 'object' || value == null) return undefined
+  if (!('accessToken' in value) || typeof value.accessToken !== 'string' || value.accessToken.length === 0) return undefined
+  if (!('userId' in value) || typeof value.userId !== 'string' || value.userId.length === 0) return undefined
+  if (!('expires' in value) || typeof value.expires !== 'number' || !Number.isFinite(value.expires)) return undefined
+  if (!('error' in value) || value.error !== null) return undefined
+  return { accessToken: value.accessToken, userId: value.userId, expires: value.expires, logoutHash: 'logoutHash' in value && typeof value.logoutHash === 'string' ? value.logoutHash : '', error: null }
 }
 
 const setWebTokenToStorage = async (webToken: WebToken): Promise<void> => {
-  await new Promise((resolve) => {
-    chrome.storage.local.set({ webToken }, () => {
-      resolve(null)
-    })
-  })
+  await chrome.storage.local.set({ webToken })
 }
 
 export const setBroadcast = async (ownerId?: string, audioId?: string): Promise<JSONObject> => {

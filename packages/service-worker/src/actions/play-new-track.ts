@@ -1,114 +1,141 @@
 import { commonTypes, vkApiClient } from '@vk-audiopad/common'
-import { fetchAudiosIdsBySource } from '../fetchers/audio-ids-by-source'
 import { fetchTrackInfo } from '../fetchers/track-info'
 import { playTrack } from '../offscreen/play-track'
+import { playOrPause } from '../offscreen/play-or-pause'
+import { beginPlayback, commitPlayback, getPlaybackOperation, isLatestPlayback, isRunningPlayback, MAX_PLAYBACK_ATTEMPTS, requestPlayback, waitForPlayback, type PlaybackOperation } from '../playback-operation'
 import { applicationState } from '../state'
-import { createAudiosIds, getNewIndex, sendListenedData, shuffle } from '../utils'
+import { hydrateQueue } from './hydrate-queue'
+import { createAudiosIds, sendListenedData } from '../utils'
 
 const MAX_VK_MIX_HISTORY = 30
 
-export const playNewTrack = async (newTrackId: string | null, playlist: commonTypes.Playlist): Promise<void> => {
-  sendListenedData(commonTypes.EndOfStreamReason.NEW)
-
-  const isNewPlaylist: boolean = (applicationState.currentPlaylist == null) || differentPlaylists(playlist, applicationState.currentPlaylist)
-  const savePlaylist: boolean = isNewPlaylist || playlist.isVkMix
-
-  let audiosIds = isNewPlaylist ? createAudiosIds(playlist.tracks) : applicationState.audiosIds
-  let track: commonTypes.TrackItem
-  let trackIndex: number
-
-  if (playlist.isRadio) {
-    const foundIndex = newTrackId != null ? playlist.tracks.findIndex((track) => track.id === newTrackId) : 0
-    if (foundIndex === -1) {
-      throw new Error(`Radio-track ${newTrackId} not found`)
-    }
-    track = playlist.tracks[foundIndex]
-    trackIndex = foundIndex
-  } else if (playlist.isVkMix) {
-    if (newTrackId == null) {
-      track = await vkApiClient.getStreamMixAudios()
-      if (playlist.tracks.length >= MAX_VK_MIX_HISTORY) {
-        playlist.tracks.splice(0, 1)
-        playlist.id = (+new Date().getTime()).toString()
-      }
-      trackIndex = playlist.tracks.push(track) - 1
-    } else {
-      const foundIndex = newTrackId != null ? audiosIds.findIndex(([trackId]) => trackId === newTrackId) : 0
-      const [trackId, accessKey] = audiosIds[foundIndex]
-      const possibleTrack = await fetchTrackInfo(applicationState.userId, trackId, accessKey)
-      if (possibleTrack == null) {
-        return
-      }
-      track = possibleTrack
-      trackIndex = foundIndex
-    }
-    audiosIds = createAudiosIds(playlist.tracks)
-  } else {
-    let foundIndex = newTrackId != null ? audiosIds.findIndex(([trackId]) => trackId === newTrackId) : 0
-    if (foundIndex === -1) {
-      audiosIds = createAudiosIds(playlist.tracks)
-      foundIndex = audiosIds.findIndex(([trackId]) => trackId === newTrackId)
-      if (foundIndex === -1) {
-        throw new Error(`Track ${newTrackId} not found`)
-      }
-    }
-
-    const [trackId, accessKey] = audiosIds[foundIndex]
-    const possibleTrack = await fetchTrackInfo(applicationState.userId, trackId, accessKey)
-
-    if (possibleTrack == null) {
-      const [newIndex] = getNewIndex('next', foundIndex, audiosIds.length)
-      await new Promise(resolve => setTimeout(resolve, 500))
-      await playNewTrack(audiosIds[newIndex][0], playlist)
-      return
-    }
-    track = possibleTrack
-    trackIndex = foundIndex
-  }
-
-  const changes: Partial<commonTypes.ApplicationState> = {
-    activeTrack: track,
-    activeTrackIndex: trackIndex
-  }
-
-  if (savePlaylist) {
-    changes.currentPlaylist = playlist
-    changes.audiosIds = audiosIds
-  }
-
-  void chrome.storage.local.set(changes)
-
-  await playTrack(track.url, applicationState.volume)
-
-  if (isNewPlaylist && !playlist.isRadio && !playlist.isVkMix) {
-    const audiosIds = await fetchAudiosIdsBySource(playlist)
-
-    if (applicationState.shuffle) {
-      const shuffledAudiosIds = shuffle(audiosIds)
-      const newActiveTrackIndex = shuffledAudiosIds.findIndex(([trackId]) => trackId === track.id)
-
-      void chrome.storage.local.set({
-        ...changes,
-        activeTrackIndex: newActiveTrackIndex,
-        audiosIds: shuffledAudiosIds,
-        originalAudiosIds: audiosIds
-      })
-    } else {
-      void chrome.storage.local.set({ audiosIds, originalAudiosIds: [] })
+export const stopPlayback = async (operation: PlaybackOperation, error: string): Promise<void> => {
+  if (!isLatestPlayback(operation)) return
+  const hadPlayer = operation.playbackId != null || applicationState.playbackId != null
+  operation.failed = true
+  operation.controller.abort()
+  const ownsIntent = requestPlayback(false)
+  const isCurrent = (): boolean => isLatestPlayback(operation) && ownsIntent()
+  if (await commitPlayback(isCurrent, { played: false, playbackRequested: false, playbackId: null, playbackError: error }) && hadPlayer) {
+    try {
+      await playOrPause(false, isCurrent)
+    } catch {
+      console.warn('Player could not be reached after a playback failure')
     }
   }
 }
 
-const differentPlaylists = (newPlaylist: commonTypes.Playlist, oldPlaylist: commonTypes.Playlist): boolean => {
-  if (newPlaylist.id !== oldPlaylist.id ||
-    newPlaylist.ownerId !== oldPlaylist.ownerId ||
-    newPlaylist.blockId !== oldPlaylist.blockId ||
-    newPlaylist.tracks.length !== oldPlaylist.tracks.length) {
-    return true
+export const playNewTrack = async (newTrackId: string | null, playlist: commonTypes.Playlist, previousOperation?: PlaybackOperation): Promise<void> => {
+  const isNewPlaylist = applicationState.currentPlaylist == null || differentPlaylists(playlist, applicationState.currentPlaylist)
+  const audiosIds = isNewPlaylist ? createAudiosIds(playlist.tracks) : applicationState.audiosIds
+  const pending = getPlaybackOperation()
+  const needsQueue = !playlist.isRadio && !playlist.isVkMix && (isNewPlaylist || (pending?.hydrating === true && !differentPlaylists(playlist, pending.playlist)))
+  const operation = previousOperation ?? beginPlayback(newTrackId, playlist, audiosIds)
+  if (!isRunningPlayback(operation)) return
+  if (previousOperation == null) requestPlayback(true)
+  if (previousOperation != null) {
+    operation.controller.abort()
+    operation.controller = new AbortController()
   }
+  operation.playlist = { ...playlist, tracks: [...playlist.tracks] }
+  operation.audiosIds = audiosIds.map(([id, key]) => [id, key])
+  operation.trackId = newTrackId
+  operation.loading = true
+  operation.launched = false
+  operation.hydrating = needsQueue
+  operation.playbackId = null
+  const revision = ++operation.revision
+  const isCurrent = (): boolean => isRunningPlayback(operation) && operation.revision === revision && !operation.retryPending
 
-  const newAudioIds = createAudiosIds(newPlaylist.tracks)
-  const oldAudioIds = createAudiosIds(oldPlaylist.tracks)
+  try {
+    if (!await commitPlayback(isCurrent, { playbackRequested: true })) return
+    const selected = await resolveTrack(operation)
+    if (!isCurrent()) return
+    if (selected == null) {
+      await stopPlayback(operation, 'Не удалось воспроизвести треки. Выберите другой трек или повторите попытку.')
+      return
+    }
+    const [track] = selected
+    sendListenedData(commonTypes.EndOfStreamReason.NEW)
+    operation.playbackId = crypto.randomUUID()
+    if (!await commitPlayback(isCurrent, () => ({
+      activeTrack: track,
+      activeTrackIndex: operation.audiosIds.findIndex(([id]) => id === track.id),
+      currentTime: 0,
+      duration: track.duration,
+      currentPlaylist: operation.playlist,
+      audiosIds: operation.audiosIds,
+      played: false,
+      playbackId: operation.playbackId,
+      playbackError: null,
+      ...(isNewPlaylist ? { originalAudiosIds: [] } : {})
+    }))) return
+    await playTrack(track.url, applicationState.volume, operation.playbackId, isCurrent)
+    if (isCurrent()) {
+      operation.loading = false
+      operation.launched = true
+    }
+    if (!isCurrent() || !needsQueue) return
 
-  return !newAudioIds.every(([trackId], index) => trackId === oldAudioIds[index][0])
+    await hydrateQueue(operation)
+  } catch {
+    if (isCurrent()) await stopPlayback(operation, 'Не удалось загрузить или запустить трек. Повторите попытку.')
+  } finally {
+    if (operation.revision === revision) operation.loading = false
+  }
+}
+
+const resolveTrack = async (operation: PlaybackOperation): Promise<[commonTypes.TrackItem, number] | null> => {
+  while (isRunningPlayback(operation) && operation.attempts < MAX_PLAYBACK_ATTEMPTS) {
+    const { playlist, controller } = operation
+    if (playlist.isVkMix && operation.trackId == null) {
+      operation.attempts++
+      const track = await vkApiClient.getStreamMixAudios(controller.signal)
+      if (!isRunningPlayback(operation) || operation.visited.has(track.id) || track.url.length === 0) return null
+      operation.visited.add(track.id)
+      if (playlist.tracks.length >= MAX_VK_MIX_HISTORY) {
+        playlist.tracks = playlist.tracks.slice(1)
+        playlist.id = crypto.randomUUID()
+      }
+      const index = playlist.tracks.push(track) - 1
+      operation.audiosIds = createAudiosIds(playlist.tracks)
+      operation.trackId = track.id
+      return [track, index]
+    }
+
+    let index = operation.trackId == null ? 0 : operation.audiosIds.findIndex(([id]) => id === operation.trackId)
+    if (index < 0) {
+      operation.audiosIds = createAudiosIds(playlist.tracks)
+      index = operation.audiosIds.findIndex(([id]) => id === operation.trackId)
+    }
+    if (index >= 0 && operation.visited.has(operation.audiosIds[index][0])) index = nextUnvisitedIndex(operation, index)
+    const candidate = operation.audiosIds[index]
+    if (candidate == null || operation.visited.has(candidate[0])) return null
+    operation.trackId = candidate[0]
+    operation.visited.add(candidate[0])
+    operation.attempts++
+    const track = playlist.isRadio
+      ? playlist.tracks.find(item => item.id === candidate[0]) ?? null
+      : await fetchTrackInfo(applicationState.userId, candidate[0], candidate[1], controller.signal)
+    if (!isRunningPlayback(operation)) return null
+    if (track != null && track.url.length > 0) return [track, index]
+    const next = operation.audiosIds[nextUnvisitedIndex(operation, index)]
+    if (next == null || operation.visited.has(next[0]) || operation.attempts >= MAX_PLAYBACK_ATTEMPTS) return null
+    operation.trackId = next[0]
+    if (!await waitForPlayback(operation, 500)) return null
+  }
+  return null
+}
+
+const nextUnvisitedIndex = (operation: PlaybackOperation, index: number): number => {
+  for (let offset = 1; offset <= operation.audiosIds.length; offset++) {
+    const candidate = (index + offset) % operation.audiosIds.length
+    if (!operation.visited.has(operation.audiosIds[candidate][0])) return candidate
+  }
+  return -1
+}
+
+const differentPlaylists = (next: commonTypes.Playlist, previous: commonTypes.Playlist): boolean => {
+  return next.id !== previous.id || next.ownerId !== previous.ownerId || next.blockId !== previous.blockId ||
+    next.tracks.length !== previous.tracks.length || next.tracks.some((track, index) => track.id !== previous.tracks[index].id)
 }

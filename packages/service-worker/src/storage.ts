@@ -31,11 +31,7 @@ class State<T> {
 }
 
 const load = async (): Promise<Partial<commonTypes.ApplicationState>> => {
-  return await new Promise((resolve) => {
-    chrome.storage.local.get((result) => {
-      resolve(result as Partial<commonTypes.ApplicationState>)
-    })
-  })
+  return await chrome.storage.local.get() as Partial<commonTypes.ApplicationState>
 }
 
 const listen = (afterAddListener: (value: Partial<commonTypes.ApplicationState>) => void): void => {
@@ -46,9 +42,7 @@ const listen = (afterAddListener: (value: Partial<commonTypes.ApplicationState>)
 }
 
 const set = async (changes: Partial<commonTypes.ApplicationState>): Promise<void> => {
-  await new Promise((resolve) => {
-    chrome.storage.local.set(changes, () => { resolve(null) })
-  })
+  await chrome.storage.local.set(changes)
 }
 
 export const storage = {

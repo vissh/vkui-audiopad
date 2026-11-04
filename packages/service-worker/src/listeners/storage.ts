@@ -1,21 +1,20 @@
 import { onDurationMode } from '../actions/duration-mode'
-import { onPlayed } from '../actions/play-or-pause'
 import { onShuffle } from '../actions/shuffle'
 import { onBroadcast } from '../actions/broadcast'
 import { updateVolume } from '../offscreen/update-volume'
 import { storage } from '../storage'
 
 import { applicationState } from '../state'
+import { type Readiness } from '../readiness'
 
-export const startListeningStorageEvents = (): void => {
-  storage.durationMode.listen(onDurationMode)
-  storage.volume.listen((value) => { void updateVolume(value ?? 0) })
-  storage.played.listen((played) => { void onPlayed(played) })
-  storage.shuffle.listen((shuffle) => { void onShuffle(shuffle) })
-  storage.castToStatus.listen((castToStatus) => { void onBroadcast(castToStatus ?? false) })
+export const startListeningStorageEvents = (readiness: Readiness): void => {
+  storage.durationMode.listen(value => { readiness.run(() => { onDurationMode(value) }) })
+  storage.volume.listen((value) => { readiness.run(async () => { await updateVolume(value ?? 0) }) })
+  storage.shuffle.listen((shuffle) => { readiness.run(async () => { await onShuffle(shuffle) }) })
+  storage.castToStatus.listen((castToStatus) => { readiness.run(async () => { await onBroadcast(castToStatus ?? false) }) })
   storage.activeTrack.listen((activeTrack) => {
-    if (applicationState.castToStatus && activeTrack != null) {
-      void onBroadcast(true, activeTrack)
-    }
+    readiness.run(async () => {
+      if (applicationState.castToStatus && activeTrack != null) await onBroadcast(true, activeTrack)
+    })
   })
 }

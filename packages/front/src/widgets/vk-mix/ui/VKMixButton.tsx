@@ -2,11 +2,11 @@ import { Icon24Pause, Icon24Play } from '@vkontakte/icons'
 import { Button, useColorScheme } from '@vkontakte/vkui'
 import { useState, type CSSProperties, type FC } from 'react'
 import { playOrPause } from '@/features/play-or-pause'
-import { setPlayed, useCurrentPlaylist, usePlayed } from '@/entities/active-track'
+import { useCurrentPlaylist, usePlaybackRequested } from '@/entities/active-track'
 
 export const VKMixButton: FC = () => {
   const currentPlaylist = useCurrentPlaylist()
-  const played = usePlayed()
+  const played = usePlaybackRequested()
   const vkMixPlayed = currentPlaylist != null && currentPlaylist.isVkMix && played
 
   const colorScheme = useColorScheme()
@@ -26,7 +26,7 @@ export const VKMixButton: FC = () => {
       onPointerLeave={() => { setHovered(false) }}
       onClick={() => {
         if (currentPlaylist != null && currentPlaylist.isVkMix) {
-          setPlayed(!played)
+          playOrPause(played ? 'played' : 'paused', null, currentPlaylist)
         } else {
           const vkMixPlaylist = {
             id: (+new Date().getTime()).toString(),

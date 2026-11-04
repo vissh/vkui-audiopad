@@ -4,7 +4,7 @@ export const startListeningOnInstalled = (): void => {
   // Действия при установке/обновлении расширения.
   chrome.runtime.onInstalled.addListener((details: chrome.runtime.InstalledDetails) => {
     if (details.reason === chrome.runtime.OnInstalledReason.UPDATE) {
-      commonUtils.clearStorage()
+      void commonUtils.clearStorage().catch(() => { console.warn('Update cleanup failed') })
     }
   })
 }

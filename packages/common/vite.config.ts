@@ -15,6 +15,7 @@ export default defineConfig({
   plugins: [
     dts({
       insertTypesEntry: true,
+      exclude: ['src/**/*.test.ts'],
       // fail the build on type errors instead of only logging them,
       // so `npm run check` catches what the declaration pass sees
       afterDiagnostic: (diagnostics) => {

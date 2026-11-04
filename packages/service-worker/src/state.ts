@@ -3,17 +3,28 @@ import { storage } from './storage'
 
 export const applicationState: commonTypes.ApplicationState = Object.assign({}, initialState.Application)
 
-export const loadState = async (): Promise<void> => {
-  const partialAppState = await storage.load()
-  Object.assign(applicationState, partialAppState)
+let loading: Promise<void> | undefined
 
-  if (applicationState.played) {
-    await storage.played.set(false)
-  }
+const applyChanges = (changes: Partial<commonTypes.ApplicationState>): void => {
+  Object.assign(applicationState, Object.fromEntries(Object.entries(changes).map(([key, value]) => [
+    key, value === undefined ? initialState.Application[key] : value
+  ])))
+}
 
-  storage.listen((changes) => {
-    Object.assign(applicationState, changes)
+export const loadState = (): Promise<void> => {
+  loading ??= restoreState()
+  return loading
+}
+
+const restoreState = async (): Promise<void> => {
+  let loaded = false
+  const duringLoad: Partial<commonTypes.ApplicationState> = {}
+  storage.listen(changes => {
+    if (loaded) applyChanges(changes)
+    else Object.assign(duringLoad, changes)
   })
-
-  void chrome.action.setBadgeBackgroundColor({ color: '#0077FF' })
+  applyChanges(await storage.load())
+  applyChanges(duringLoad)
+  loaded = true
+  await chrome.action.setBadgeBackgroundColor({ color: '#0077FF' })
 }

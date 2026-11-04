@@ -1,43 +1,72 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import { type UseMutationResult } from '@tanstack/react-query'
-import { useEffect, type FC } from 'react'
+import { Banner, Button } from '@vkontakte/vkui'
+import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react'
 import { useInView } from 'react-intersection-observer'
 import { Content } from '../content'
 
-interface InfinityContentProps {
-  display: boolean
-  children: React.ReactNode
-  hasMore: boolean
-  loadMoreMutation: UseMutationResult<any, any, any>
-  loadMoreArgs?: any
-  error?: any
+interface PaginationMutation<Args> {
+  isPending: boolean
+  isError: boolean
+  isSuccess: boolean
+  mutateAsync: (args: Args) => Promise<unknown>
 }
 
-export const InfinityContent: FC<InfinityContentProps> = ({
+interface InfinityContentProps<Args> {
+  display: boolean
+  children: ReactNode
+  hasMore: boolean
+  paginationScope: string
+  pageKey: string
+  loadMoreMutation: PaginationMutation<Args>
+  loadMoreArgs?: Args | null
+  error?: unknown
+}
+
+export const InfinityContent = <Args,>({
   display,
   children,
   hasMore,
+  paginationScope,
+  pageKey,
   loadMoreMutation,
   loadMoreArgs,
   error
-}) => {
-  const { ref, inView } = useInView({ skip: !hasMore })
+}: InfinityContentProps<Args>): ReactNode => {
+  const { ref, inView } = useInView({ skip: !display || !hasMore })
+  const attempts = useRef({ scope: '', keys: new Set<string>() })
+  const running = useRef(false)
+  const [requested, setRequested] = useState({ scope: '', keys: new Set<string>() })
+  const { isPending, isError, isSuccess, mutateAsync } = loadMoreMutation
+  const failed = requested.scope === paginationScope && isError
+  const stalled = requested.scope === paginationScope && isSuccess && requested.keys.has(pageKey)
+
+  const request = useCallback((explicit: boolean): void => {
+    if (!display || !hasMore || loadMoreArgs == null || error != null || running.current || isPending) return
+    const previous = attempts.current.scope === paginationScope ? attempts.current.keys : new Set<string>()
+    if (!explicit && (previous.has(pageKey) || failed)) return
+    const next = { scope: paginationScope, keys: new Set([...previous, pageKey]) }
+    attempts.current = next
+    running.current = true
+    setRequested(next)
+    // Mutation state renders the safe retry feedback; never replay automatically.
+    void mutateAsync(loadMoreArgs).catch(() => {}).finally(() => { running.current = false })
+  }, [display, hasMore, loadMoreArgs, error, isPending, paginationScope, pageKey, failed, mutateAsync])
 
   useEffect(() => {
-    if (hasMore && inView && !loadMoreMutation.isPending) {
-      loadMoreMutation.mutate(loadMoreArgs)
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [inView, hasMore, loadMoreMutation.isPending])
+    if (inView) request(false)
+  }, [inView, request])
 
   return (
-    <Content
-      display={display}
-      loading={loadMoreMutation.isPending}
-      error={error}
-    >
+    <Content display={display} loading={isPending} error={error}>
       {children}
-      {hasMore && <div ref={ref}></div>}
+      {display && hasMore && !isPending && (failed || stalled) && (
+        <Banner
+          role='status'
+          title={failed ? 'Не удалось загрузить продолжение списка' : 'Список не продолжился'}
+          subtitle='Уже загруженные записи сохранены. Можно повторить попытку.'
+          actions={<Button mode='secondary' onClick={() => { request(true) }}>Повторить</Button>}
+        />
+      )}
+      {display && hasMore && <div ref={ref}></div>}
     </Content>
   )
 }

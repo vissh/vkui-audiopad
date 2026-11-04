@@ -1,7 +1,7 @@
 import { type commonTypes } from '@vk-audiopad/common'
 import { Icon20Add, Icon24AddOutline } from '@vkontakte/icons'
 import { type FC } from 'react'
-import { TooltipIconButton } from '@/shared/ui/tooltip-icon-button'
+import { AsyncTooltipIconButton } from '@/shared/ui/tooltip-icon-button'
 import { vkApiAdd } from '../api/add'
 
 interface AddToMyMusicButtonProps {
@@ -27,11 +27,12 @@ export const AddToMyMusicButton: FC<AddToMyMusicButtonProps> = ({ track, size = 
   }
 
   return (
-    <TooltipIconButton
+    <AsyncTooltipIconButton
       padding={padding}
       text='Добавить в мою музыку'
       icon={Icon}
-      onClick={() => { void addToMyMusic() }}
+      errorMessage='Не удалось добавить аудиозапись. Проверьте библиотеку VK перед повторной попыткой.'
+      onClick={addToMyMusic}
     />
   )
 }

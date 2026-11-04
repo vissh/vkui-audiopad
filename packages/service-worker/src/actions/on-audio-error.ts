@@ -1,16 +1,17 @@
+import { getPlaybackOperation, isCurrentPlayer, MAX_PLAYBACK_ATTEMPTS, restorePlayback, waitForPlayback } from '../playback-operation'
 import { nextTrack } from './next'
+import { stopPlayback } from './play-new-track'
 
-const errorCountLimit = 10
-
-export const errorState = {
-  counter: 0
-}
-
-export const onError = async (): Promise<void> => {
-  if (errorState.counter >= errorCountLimit) {
+export const onError = async (playbackId: string): Promise<void> => {
+  if (!isCurrentPlayer(playbackId)) return
+  const operation = getPlaybackOperation() ?? restorePlayback(playbackId)
+  if (operation == null) return
+  operation.retryPending = true
+  if (operation.attempts >= MAX_PLAYBACK_ATTEMPTS) {
+    await stopPlayback(operation, 'Воспроизведение остановлено после ошибок. Выберите другой трек или повторите попытку.')
     return
   }
-  errorState.counter += 1
-  await new Promise(resolve => setTimeout(resolve, 300))
-  await nextTrack()
+  if (!await waitForPlayback(operation, 300)) return
+  operation.retryPending = false
+  await nextTrack(operation)
 }

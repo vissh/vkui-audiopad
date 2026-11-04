@@ -1,4 +1,4 @@
-import { initialState, type commonTypes } from '@vk-audiopad/common'
+import { initialState } from '@vk-audiopad/common'
 import { storageAtom, useAtomValue } from '@/shared/lib/atom'
 
 const playedAtom = storageAtom({
@@ -6,6 +6,26 @@ const playedAtom = storageAtom({
   initial: initialState.ApplicationActiveTrack.played,
   compareObjects: false
 })
+
+const playbackRequestedAtom = storageAtom<boolean | undefined>({
+  key: 'playbackRequested',
+  initial: undefined,
+  compareObjects: false
+})
+
+export const usePlaybackRequested = (): boolean => {
+  const requested = useAtomValue(playbackRequestedAtom)
+  const played = usePlayed()
+  return requested ?? played
+}
+
+const playbackErrorAtom = storageAtom({
+  key: 'playbackError',
+  initial: initialState.ApplicationActiveTrack.playbackError,
+  compareObjects: false
+})
+
+export const usePlaybackError = (): string | null => useAtomValue(playbackErrorAtom)
 
 const activeTrackAtom = storageAtom({
   key: 'activeTrack',
@@ -28,24 +48,11 @@ const durationAtom = storageAtom({
 const currentPlaylistAtom = storageAtom({
   key: 'currentPlaylist',
   initial: initialState.ApplicationActiveTrack.currentPlaylist,
-  compareObjects: (prevPlaylist, newPlaylist): boolean => {
-    return (
-      prevPlaylist != null &&
-      newPlaylist != null &&
-      prevPlaylist.id === newPlaylist.id &&
-      prevPlaylist.blockId === newPlaylist.blockId &&
-      prevPlaylist.ownerId === newPlaylist.ownerId &&
-      prevPlaylist.tracks.length === newPlaylist.tracks.length
-    )
-  }
+  compareObjects: false
 })
 
 export const usePlayed = (): boolean => {
   return useAtomValue(playedAtom)
-}
-
-export const setPlayed = (value: boolean) => {
-  playedAtom.set(value)
 }
 
 export const useActiveTrack = () => {
@@ -62,8 +69,4 @@ export const useDuration = () => {
 
 export const useCurrentPlaylist = () => {
   return useAtomValue(currentPlaylistAtom)
-}
-
-export const setCurrentPlaylist = (value: commonTypes.Playlist) => {
-  currentPlaylistAtom.set(value)
 }

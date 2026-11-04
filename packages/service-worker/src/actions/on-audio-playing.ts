@@ -2,21 +2,20 @@ import { type commonTypes } from '@vk-audiopad/common'
 import { fetchQueueParams } from '../fetchers/queue-params'
 import { fetchStartPlayback } from '../fetchers/start-playback'
 import { applicationState } from '../state'
-import { storage } from '../storage'
-import { errorState } from './on-audio-error'
+import { commitPlayback, isCurrentPlayer } from '../playback-operation'
 
 export const onPlaying = async (message: commonTypes.AudioPlayerPlayingMessage): Promise<void> => {
-  errorState.counter = 0
-
   const [duration, currentTime] = [message.duration ?? 0, Math.floor(message.currentTime)]
-  await storage.set({ played: true, duration, currentTime })
+  if (!await commitPlayback(() => isCurrentPlayer(message.playbackId), { played: true, duration, currentTime })) return
 
   const track = applicationState.activeTrack
   const deviceId = applicationState.deviceId
   setTimeout(() => {
-    if (track != null) {
+    if (track != null && isCurrentPlayer(message.playbackId)) {
       void fetchQueueParams(track).then(async () => {
-        await fetchStartPlayback(track, deviceId)
+        if (isCurrentPlayer(message.playbackId)) await fetchStartPlayback(track, deviceId)
+      }).catch(() => {
+        console.warn('Playback notification could not be delivered')
       })
     }
   }, 100)

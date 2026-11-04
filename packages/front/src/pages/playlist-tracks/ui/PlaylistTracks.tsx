@@ -20,8 +20,10 @@ export const PlaylistTracks: FC<PlaylistTracksProps> = ({ userId, playlist, from
     <InfinityContent
       display={true}
       hasMore={(fetchResult?.playlist.hasMore) ?? false}
+      paginationScope={JSON.stringify([userId, 'playlist-tracks', fetchResult?.playlist?.ownerId, fetchResult?.playlist?.id, fetchResult?.playlist?.blockId])}
+      pageKey={fetchResult?.playlist?.nextOffset ?? ''}
       loadMoreMutation={loadMoreMutation}
-      loadMoreArgs={fetchResult?.playlist}
+      loadMoreArgs={fetchResult == null ? undefined : { userId, fromId, source: playlist, playlist: fetchResult.playlist }}
       error={error}
     >
       <Group>

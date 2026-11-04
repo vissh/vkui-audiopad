@@ -1,13 +1,14 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { mergeCatalogBlocks } from '@/shared/lib/pagination'
 import { fetchGeneral, fetchMore } from '../api/fetchers'
 import { type FetchMoreArgs, type FetchResult } from './types'
 
-const queryKey = ['general']
+const queryKey = (userId: string) => ['general', userId] as const
 
 export const useGeneralData = (userId: string, enabled: boolean) => {
   return useQuery({
-    queryKey,
-    queryFn: async () => await fetchGeneral(userId),
+    queryKey: queryKey(userId),
+    queryFn: async ({ signal }) => await fetchGeneral(userId, signal),
     refetchOnMount: false,
     refetchOnWindowFocus: false,
     enabled: userId.length > 0 && enabled,
@@ -17,16 +18,15 @@ export const useGeneralData = (userId: string, enabled: boolean) => {
 
 export const useLoadMoreGeneralDataMutation = () => {
   const queryClient = useQueryClient()
-
   return useMutation({
-    mutationFn: async (args: FetchMoreArgs) => await fetchMore(args),
-    onSuccess: (fetchResult: FetchResult): void => {
-      const previousFetchResult = queryClient.getQueryData<FetchResult>(queryKey)
-      if (previousFetchResult != null) {
-        fetchResult.blocks.unshift(...previousFetchResult.blocks)
-        queryClient.setQueryData(queryKey, fetchResult)
-      }
+    networkMode: 'always',
+    mutationFn: async (args: FetchMoreArgs & { userId: string }) => await fetchMore(args),
+    onSuccess: (result: FetchResult, args): void => {
+      queryClient.setQueryData<FetchResult>(queryKey(args.userId), previous => {
+        if (previous == null || previous.sectionId !== args.sectionId || previous.nextFrom !== args.nextFrom) return previous
+        return { ...result, blocks: mergeCatalogBlocks(previous.blocks, result.blocks) }
+      })
     },
-    retry: 2
+    retry: false
   })
 }

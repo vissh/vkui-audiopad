@@ -2,6 +2,8 @@
 
 set -e
 
+node scripts/doctor.mjs --runtime-only
+
 chrome_dir="chrome_extension"
 firefox_dir="firefox_extension"
 

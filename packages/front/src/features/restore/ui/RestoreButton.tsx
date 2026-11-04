@@ -1,7 +1,7 @@
 import { type commonTypes } from '@vk-audiopad/common'
 import { Icon20Add } from '@vkontakte/icons'
 import { type FC } from 'react'
-import { TooltipIconButton } from '@/shared/ui/tooltip-icon-button'
+import { AsyncTooltipIconButton } from '@/shared/ui/tooltip-icon-button'
 import { vkApiRestore } from '../api/restore'
 import { deletedTrackForRestore } from '../model/deleted-tracks'
 
@@ -12,16 +12,16 @@ interface RestoreButtonProps {
 
 export const RestoreButton: FC<RestoreButtonProps> = ({ track, onAfterRestore }) => {
   const restore = async () => {
-    await vkApiRestore(track)
-    deletedTrackForRestore.pop(track)
+    await deletedTrackForRestore.restore(track, async () => { await vkApiRestore(track) })
     onAfterRestore()
   }
 
   return (
-    <TooltipIconButton
+    <AsyncTooltipIconButton
       text='Восстановить аудиозапись'
       icon={Icon20Add}
-      onClick={() => { void restore() }}
+      errorMessage='Не удалось восстановить аудиозапись. Проверьте библиотеку VK перед повторной попыткой.'
+      onClick={restore}
     />
   )
 }

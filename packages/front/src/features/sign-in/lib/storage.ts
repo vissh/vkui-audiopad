@@ -1,45 +1,31 @@
 import { commonUtils, type commonTypes } from '@vk-audiopad/common'
 import { v4 as uuid4 } from 'uuid'
 
-export const updateWebToken = (webToken: commonTypes.WebToken) => {
-  if (webToken.error?.type === 'unauthorized') {
-    logout()
-    return
-  }
+let writing = Promise.resolve()
 
-  chrome.storage.local.get(['userId', 'deviceId'], (items) => {
-    if (webToken.error != null) {
-      logout()
+export const updateWebToken = (webToken: commonTypes.WebToken, signal?: AbortSignal): Promise<void> => {
+  const update = writing.then(async () => {
+    signal?.throwIfAborted()
+    if (webToken.error?.type === 'exception') return
+    if (webToken.error?.type === 'unauthorized') {
+      await commonUtils.clearStorage()
       return
     }
-
-    void login(items.userId as string | undefined, items.deviceId as string | undefined, webToken)
-  })
-}
-
-const logout = () => {
-  commonUtils.clearStorage()
-}
-
-const login = async (
-  userId: string | undefined,
-  deviceId: string | undefined,
-  webToken: commonTypes.WebToken
-) => {
-  const items = {
-    userId: webToken.userId,
-    webToken,
-    deviceId: deviceId ?? uuid4()
-  }
-
-  if (userId === webToken.userId) {
+    const stored = await chrome.storage.local.get(['userId', 'deviceId'])
+    signal?.throwIfAborted()
+    const sameUser = stored.userId === webToken.userId
+    const items = {
+      userId: webToken.userId,
+      webToken,
+      deviceId: sameUser && typeof stored.deviceId === 'string' ? stored.deviceId : uuid4()
+    }
+    if (!sameUser) {
+      // Clear old account data before publishing the new account identity.
+      await commonUtils.clearStorage(Object.keys(items))
+      signal?.throwIfAborted()
+    }
     await chrome.storage.local.set(items)
-    return
-  }
-
-  items.deviceId = uuid4()
-  chrome.storage.local.set(items, () => {
-    const saveCustomKeys = Object.keys(items)
-    commonUtils.clearStorage(saveCustomKeys)
   })
+  writing = update.then(() => {}, () => {})
+  return update
 }

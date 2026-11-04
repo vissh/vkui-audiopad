@@ -1,4 +1,3 @@
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { commonTypes } from '@vk-audiopad/common'
 import {
   AdaptivityProvider,
@@ -18,15 +17,14 @@ import { AppModalRoot, themeAtom } from '@/entities/modal'
 import { useAtomValue } from '@/shared/lib/atom'
 import { Notification } from '@/shared/ui/notification'
 import { Pages } from './Pages'
+import { SessionQueryProvider } from './SessionQueryProvider'
 import './base.css'
-
-const queryClient = new QueryClient()
 
 export const Application: FC = () => {
   const theme = useAtomValue(themeAtom)
 
   return (
-    <QueryClientProvider client={queryClient}>
+    <SessionQueryProvider>
       <ConfigProvider
         platform={Platform.ANDROID}
         hasCustomPanelHeaderAfter={false}
@@ -43,8 +41,8 @@ export const Application: FC = () => {
               >
                 <View activePanel='vkaudiopad'>
                   <Panel id='vkaudiopad'>
-                    <SignIn />
                     <Player />
+                    <SignIn />
                     <Pages />
                     <Notification />
                   </Panel>
@@ -55,6 +53,6 @@ export const Application: FC = () => {
           </AppRoot>
         </AdaptivityProvider>
       </ConfigProvider>
-    </QueryClientProvider>
+    </SessionQueryProvider>
   )
 }

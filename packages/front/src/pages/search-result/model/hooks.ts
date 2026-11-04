@@ -6,7 +6,7 @@ const queryName = 'search'
 export const useSearchData = (userId: string, value: string) => {
   return useQuery({
     queryKey: [queryName, userId, value],
-    queryFn: async () => await fetchSearchTracks({ ownerId: userId, value }),
+    queryFn: async ({ signal }) => await fetchSearchTracks({ ownerId: userId, value }, signal),
     refetchOnWindowFocus: false,
     refetchOnMount: false,
     enabled: userId.length !== 0 && value.length !== 0,

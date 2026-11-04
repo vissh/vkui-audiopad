@@ -12,8 +12,10 @@ jobs:
       - uses: actions/checkout@v7
       - uses: actions/setup-node@v7
         with:
-          node-version: 24
+          node-version-file: .node-version
           cache: npm
+      - name: Install pinned npm
+        run: npm install --global "$(node -p 'require("./package.json").packageManager')"
       - name: Install dependencies
         run: npm ci
       - name: Fail fast if dependencies were not installed
@@ -23,11 +25,9 @@ jobs:
             echo 'package-lock.json contains non-public registry URLs'
             exit 1
           fi
-      - name: Dependency tree sanity
-        run: npm ls --workspaces
       - name: Audit (critical only)
         run: npm audit --audit-level=critical
-      - name: Typecheck and lint
+      - name: Typecheck, lint, documentation and shared MCP configuration
         run: npm run check
       - name: Tests
         run: npm test
@@ -35,3 +35,13 @@ jobs:
         run: ./build.sh
       - name: Verify build output
         run: node scripts/verify-build-output.mjs
+      - name: Install Firefox for runtime smoke
+        id: firefox
+        uses: browser-actions/setup-firefox@v1.7.2
+        with:
+          firefox-version: '159.0'
+      - name: Firefox extension runtime smoke
+        timeout-minutes: 5
+        env:
+          VKAP_FIREFOX_BINARY: ${{ steps.firefox.outputs.firefox-path }}
+        run: npm run smoke:firefox

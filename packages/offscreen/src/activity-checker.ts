@@ -1,25 +1,21 @@
 import { commonTypes, commonUtils } from '@vk-audiopad/common'
-import { audioElement } from './audio-element'
-import { destroyPlayer } from './handlers/play-track'
+import { listenToAudio } from './audio-element'
+import { noteActivity } from './activity'
+import { getPlayerSnapshot } from './player-snapshot'
 import { sendMessage } from './send-message'
 
-const MIN_IDLE_TIME = 5 * 60 * 1000
 const CHECK_INTERVAL = 1 * 60 * 1000
 
-let timeOfLastActivity = Date.now()
 let intervalId: ReturnType<typeof setInterval> | undefined
 
 export const startActivityChecker = (): void => {
-  audioElement.addEventListener('playing', updateActivity)
-  audioElement.addEventListener('pause', updateActivity)
-  audioElement.addEventListener('ended', updateActivity)
-  audioElement.addEventListener('error', updateActivity)
-  audioElement.addEventListener('timeupdate', updateActivity)
-  intervalId = setInterval(() => { void checkActivity() }, CHECK_INTERVAL)
-}
-
-const updateActivity = (): void => {
-  timeOfLastActivity = Date.now()
+  listenToAudio(audio => {
+    noteActivity()
+    const events = ['playing', 'pause', 'ended', 'error', 'timeupdate']
+    events.forEach(event => { audio.addEventListener(event, noteActivity) })
+    return () => { events.forEach(event => { audio.removeEventListener(event, noteActivity) }) }
+  })
+  intervalId = setInterval(() => { void checkActivity().catch(() => { console.warn('Idle cleanup request failed') }) }, CHECK_INTERVAL)
 }
 
 const checkActivity = async (): Promise<void> => {
@@ -28,15 +24,14 @@ const checkActivity = async (): Promise<void> => {
     return
   }
 
-  if (Date.now() - timeOfLastActivity > MIN_IDLE_TIME) {
-    destroyPlayer()
-    killMe()
+  const player = getPlayerSnapshot()
+  if (player.idle && player.paused && !player.requested) {
+    await sendMessage({
+      target: commonTypes.MessageTarget.SERVICE_WORKER,
+      type: commonTypes.MessageType.CLOSE_OFFSCREEN_DOCUMENT,
+      documentId: player.documentId,
+      playbackId: player.playbackId,
+      activityRevision: player.activityRevision
+    })
   }
-}
-
-const killMe = (): void => {
-  void (sendMessage({
-    target: commonTypes.MessageTarget.SERVICE_WORKER,
-    type: commonTypes.MessageType.CLOSE_OFFSCREEN_DOCUMENT
-  }))
 }

@@ -25,8 +25,10 @@ export const Explore: FC<ExploreProps> = ({ userId, active }) => {
     <InfinityContent
       display={active}
       hasMore={(fetchResult != null) ? fetchResult.nextFrom.length > 0 : false}
+      paginationScope={JSON.stringify([userId, 'explore', fetchResult?.sectionId])}
+      pageKey={fetchResult?.nextFrom ?? ''}
       loadMoreMutation={loadMoreMutation}
-      loadMoreArgs={{ nextFrom: fetchResult?.nextFrom, sectionId: fetchResult?.sectionId }}
+      loadMoreArgs={fetchResult == null ? undefined : { userId, nextFrom: fetchResult.nextFrom, sectionId: fetchResult.sectionId }}
       error={error}
     >
       <Group>

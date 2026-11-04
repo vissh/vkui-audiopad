@@ -8,8 +8,7 @@ interface ContentProps {
   loading?: boolean
   hideLoader?: boolean
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  error: any | null
+  error?: unknown
   children: ReactNode
 }
 
@@ -38,8 +37,7 @@ const Loading: FC = () => {
 }
 
 interface ErrorProps {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  error: any
+  error: unknown
 }
 
 const ErrorResult: FC<ErrorProps> = ({ error }) => {
