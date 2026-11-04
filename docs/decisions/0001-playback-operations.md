@@ -24,15 +24,19 @@ Each source load gets a random playbackId, stored in the snapshot and included i
 
 Offscreen keeps a source-local requested state and control revision: pause prevents a late HLS attachment from starting audio, and obsolete play() rejection cannot fail a later resume of the same source. See [ADR 0003](0003-offscreen-lifecycle.md) for readiness and document lifecycle.
 
-Offscreen creates a new Audio for each source load. It pauses the previous element, removes src/listeners and destroys old HLS; one element is active at a time. Event/HLS callbacks capture their playbackId, so late callbacks cannot act on a newer source. Rejected audio.play(), native errors and fatal HLS errors report ERROR once per source load. Audio.crossOrigin is not set.
+Offscreen creates a new Audio for each source load. It pauses the previous element, removes src/listeners and destroys old HLS; one element is active at a time. Event/HLS callbacks capture their playbackId, so late callbacks cannot act on a newer source. Rejected audio.play(), native errors and fatal HLS errors report ERROR once per source load. Audio.crossOrigin is deliberately unset: VK Mix CDN responses may lack CORS headers, and anonymous mode caused media error 4 in the [live comparison](../ai/testing.md#state-and-ui-diagnostics).
 
 ## Attempt limits
 
 Missing/empty URLs and media errors share one operation budget. Ordinary playlists are traversed iteratively; each candidate ID is visited at most once and duplicates are skipped. Large queues and unbounded Mix also have MAX_PLAYBACK_ATTEMPTS = 10. This bounds load on an external service; it is not a product requirement about playlist size.
 
+Each Mix recommendation consumes one attempt, including a duplicate or empty URL. Unusable IDs enter the visited set, and the next recommendation is requested after the cancellable 500 ms wait until a usable candidate arrives or the shared budget is exhausted. A repeated recommendation cannot reset the budget or replay a failed source. Network exceptions still stop the operation immediately.
+
 Delays are fixed: 500 ms between unavailable candidates, 300 ms after media errors. They are not exponential backoff. A player-level network exception ends with a safe error without a new retry layer; legacy's existing single reconnect remains. Detailed HTTP/VK error classification and timeouts belong to T09.
 
 Exhausting the queue/budget publishes played=false, playbackId=null and a safe playbackError, and stops existing media. UI shows the reason. A new explicit intent starts a fresh budget and clears the error when a track is successfully prepared. Optional queue-hydration failure does not stop valid media; it produces a generic warning without response payloads.
+
+A current preparation exception logs a fixed message and the safe VKApiError kind (unknown failures use unavailable), never the original Error/cause/response. Superseded operations stay silent. This console warning is not the bounded correlated event journal planned in T15.
 
 ## Compatibility and limits
 

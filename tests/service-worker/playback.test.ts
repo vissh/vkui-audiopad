@@ -6,6 +6,52 @@ import { type commonTypes } from '@vk-audiopad/common'
 afterEach(clearPlaybackMocks)
 
 describe('bounded playback', () => {
+  it('skips unusable Mix recommendations within the shared budget', async () => {
+    vi.useFakeTimers()
+    const player = await playbackHarness()
+    player.fetchMix.mockResolvedValueOnce({ ...track('1_100'), url: '' })
+    player.fetchMix.mockResolvedValueOnce(track('1_100'))
+    player.fetchMix.mockResolvedValueOnce(track('1_101'))
+    const mix = { ...playlist([], 'mix'), isVkMix: true }
+    const pending = player.playNewTrack(null, mix)
+    await vi.runAllTimersAsync()
+    await pending
+    expect(player.fetchMix).toHaveBeenCalledTimes(3)
+    expect(player.play.mock.calls.map(call => call[0])).toEqual([track('1_101').url])
+    expect(player.state.currentPlaylist?.tracks.map(item => item.id)).toEqual(['1_101'])
+    expect(mix.tracks).toEqual([])
+  })
+
+  it('stops Mix after the shared budget even if the server repeats an unusable recommendation', async () => {
+    vi.useFakeTimers()
+    const player = await playbackHarness()
+    const { MAX_PLAYBACK_ATTEMPTS } = await import('../../packages/service-worker/src/playback-operation')
+    player.fetchMix.mockResolvedValue({ ...track('1_100'), url: '' })
+    const pending = player.playNewTrack(null, { ...playlist([], 'mix'), isVkMix: true })
+    await vi.runAllTimersAsync()
+    await pending
+    expect(player.fetchMix).toHaveBeenCalledTimes(MAX_PLAYBACK_ATTEMPTS)
+    expect(player.play).not.toHaveBeenCalled()
+    expect(player.snapshot()).toMatchObject({ played: false, playbackRequested: false, playbackError: expect.any(String) })
+    await vi.advanceTimersByTimeAsync(60_000)
+    expect(player.fetchMix).toHaveBeenCalledTimes(MAX_PLAYBACK_ATTEMPTS)
+  })
+
+  it('cancels a Mix recommendation delay when another track is selected', async () => {
+    vi.useFakeTimers()
+    const player = await playbackHarness()
+    player.fetchMix.mockResolvedValueOnce({ ...track('1_100'), url: '' })
+    const pending = player.playNewTrack(null, { ...playlist([], 'mix'), isVkMix: true })
+    await vi.advanceTimersByTimeAsync(0)
+    expect(player.fetchMix).toHaveBeenCalledOnce()
+    await player.playNewTrack('1_2', playlist(['1_2']))
+    await vi.runAllTimersAsync()
+    await pending
+    expect(player.fetchMix).toHaveBeenCalledOnce()
+    expect(player.state.activeTrack?.id).toBe('1_2')
+    expect(player.state.playbackError).toBeNull()
+  })
+
   it.each([false, true])('stops an empty playlist with isRadio=%s without indexing an empty array', async isRadio => {
     const player = await playbackHarness()
     await expect(player.playNewTrack(null, { ...playlist([]), isRadio })).resolves.toBeUndefined()
@@ -91,6 +137,20 @@ describe('bounded playback', () => {
     expect(player.fetchTrack).toHaveBeenCalledOnce()
     expect(player.state.playbackError).not.toBeNull()
   })
+
+  it.each(['classified', 'unknown'])('logs a safe category for a %s failure without raw causes or response data', async kind => {
+    const player = await playbackHarness()
+    const { vkApiClient } = await import('@vk-audiopad/common')
+    const warning = vi.spyOn(console, 'warn').mockImplementation(() => {})
+    const secret = 'access_token=synthetic-private-value'
+    const error = kind === 'classified' ? new vkApiClient.VKApiError('network') : new Error(secret, { cause: secret })
+    Object.assign(error, { privatePayload: secret })
+    player.fetchMix.mockRejectedValueOnce(error)
+    await player.playNewTrack(null, { ...playlist([], 'mix'), isVkMix: true })
+    expect(player.fetchMix).toHaveBeenCalledOnce()
+    expect(warning.mock.calls).toEqual([['Playback preparation failed', kind === 'classified' ? 'network' : 'unavailable']])
+    expect(JSON.stringify(player.snapshot())).not.toContain(secret)
+  })
 })
 
 describe('latest playback command', () => {
@@ -109,6 +169,7 @@ describe('latest playback command', () => {
 
   it('ignores a late failure of a superseded command', async () => {
     const player = await playbackHarness()
+    const warning = vi.spyOn(console, 'warn').mockImplementation(() => {})
     const response = deferred<commonTypes.TrackItem | null>()
     player.fetchTrack.mockReturnValueOnce(response.promise)
     const old = player.playNewTrack('1_1', playlist(['1_1'], 'old')).catch(error => error)
@@ -117,6 +178,7 @@ describe('latest playback command', () => {
     response.reject(new Error('Old network failure'))
     expect(await old).toBeUndefined()
     expect(player.snapshot()).toMatchObject({ activeTrack: { id: '1_2' }, playbackError: null })
+    expect(warning).not.toHaveBeenCalled()
   })
 
   it('rejects late queue hydration from a previous playlist', async () => {

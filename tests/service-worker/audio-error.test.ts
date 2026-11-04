@@ -83,3 +83,17 @@ it('bounds automatic Mix transitions even when every response has a different tr
   expect(player.fetchMix.mock.calls.length).toBeLessThanOrEqual(MAX_PLAYBACK_ATTEMPTS)
   expect(player.state).toMatchObject({ played: false, playbackId: null, playbackError: expect.any(String) })
 })
+
+it('skips a failed Mix source returned again without resetting the shared media-error budget', async () => {
+  vi.useFakeTimers()
+  const player = await playbackHarness()
+  const { MAX_PLAYBACK_ATTEMPTS } = await import('../../packages/service-worker/src/playback-operation')
+  await player.playNewTrack(null, { ...playlist([], 'mix'), isVkMix: true })
+  const { onError } = await import('../../packages/service-worker/src/actions/on-audio-error')
+  const pending = onError(player.state.playbackId!)
+  await vi.runAllTimersAsync()
+  await pending
+  expect(player.fetchMix).toHaveBeenCalledTimes(MAX_PLAYBACK_ATTEMPTS)
+  expect(player.play).toHaveBeenCalledOnce()
+  expect(player.state).toMatchObject({ played: false, playbackId: null, playbackError: expect.any(String) })
+})

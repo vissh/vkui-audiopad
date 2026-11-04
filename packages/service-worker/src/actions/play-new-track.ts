@@ -78,8 +78,11 @@ export const playNewTrack = async (newTrackId: string | null, playlist: commonTy
     if (!isCurrent() || !needsQueue) return
 
     await hydrateQueue(operation)
-  } catch {
-    if (isCurrent()) await stopPlayback(operation, 'Не удалось загрузить или запустить трек. Повторите попытку.')
+  } catch (error) {
+    if (isCurrent()) {
+      console.warn('Playback preparation failed', error instanceof vkApiClient.VKApiError ? error.kind : 'unavailable')
+      await stopPlayback(operation, 'Не удалось загрузить или запустить трек. Повторите попытку.')
+    }
   } finally {
     if (operation.revision === revision) operation.loading = false
   }
@@ -91,8 +94,13 @@ const resolveTrack = async (operation: PlaybackOperation): Promise<[commonTypes.
     if (playlist.isVkMix && operation.trackId == null) {
       operation.attempts++
       const track = await vkApiClient.getStreamMixAudios(controller.signal)
-      if (!isRunningPlayback(operation) || operation.visited.has(track.id) || track.url.length === 0) return null
+      if (!isRunningPlayback(operation)) return null
+      const visited = operation.visited.has(track.id)
       operation.visited.add(track.id)
+      if (visited || track.url.length === 0) {
+        if (operation.attempts >= MAX_PLAYBACK_ATTEMPTS || !await waitForPlayback(operation, 500)) return null
+        continue
+      }
       if (playlist.tracks.length >= MAX_VK_MIX_HISTORY) {
         playlist.tracks = playlist.tracks.slice(1)
         playlist.id = crypto.randomUUID()
