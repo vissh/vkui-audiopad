@@ -9,6 +9,7 @@ import { SimilarButton } from '@/features/similar'
 import { useActiveTrack } from '@/entities/active-track'
 import { useSessionUserId } from '@/entities/session'
 import { atom, useAtomValue } from '@/shared/lib/atom'
+import { LyricsButton } from './LyricsButton'
 
 const initialAddedTracks: Record<string, commonTypes.TrackItem> = {}
 const latestAddedTracksAtom = atom(initialAddedTracks)
@@ -44,6 +45,7 @@ export const Buttons: FC = () => {
               />}
         </>
       )}
+      {activeTrackExists && <LyricsButton key={activeTrack.id} track={activeTrack} userId={userId} />}
       <ShuffleButton />
       <RepeatButton />
       <CastToStatusButton />

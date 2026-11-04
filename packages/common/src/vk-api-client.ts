@@ -11,6 +11,35 @@ export const VK_APP_ID = '6287487'
 export const QUERY_API_VERSION = '5.246'
 export const API_VERSION = '5.163'
 
+export const getAudioLyrics = async (track: Pick<TrackItem, 'id' | 'accessKey'>, signal?: AbortSignal): Promise<string | null> => {
+  if (!/^-?[1-9]\d*_[1-9]\d*$/.test(track.id)) throw new VKApiError('format')
+  let result: JSONObject
+  try {
+    result = await request(
+      `https://api.vk.ru/method/audio.getLyrics?v=${QUERY_API_VERSION}&client_id=${VK_APP_ID}`,
+      'POST',
+      { audio_id: track.id + (track.accessKey.length > 0 ? `_${track.accessKey}` : '') },
+      signal
+    )
+  } catch (error) {
+    if (error instanceof VKApiError && error.kind === 'vk' && error.code === 104) return null
+    throw error
+  }
+  const response = result.response
+  if (!isJSONObjectValue(response) || !isJSONObjectValue(response.lyrics)) throw new VKApiError('format')
+  let lines = response.lyrics.text
+  if (lines === undefined && Array.isArray(response.lyrics.timestamps)) {
+    lines = response.lyrics.timestamps.map(row => {
+      if (!isJSONObjectValue(row)) throw new VKApiError('format')
+      if (row.line === undefined && row.interlude === true) return ''
+      return row.line
+    })
+  }
+  if (!Array.isArray(lines) || !lines.every(line => typeof line === 'string')) throw new VKApiError('format')
+  const text = lines.join('\n').replace(/\r\n?/g, '\n').trim()
+  return text.length > 0 ? text : null
+}
+
 export const UnauthorizedWebToken: WebToken = {
   userId: '',
   accessToken: '',

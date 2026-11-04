@@ -53,6 +53,8 @@ Before queue insertion/removal/reordering/shuffle or current-playlist paging, re
 
 For query keys, account changes and pagination, read [ADR 0007](docs/decisions/0007-query-identity-and-pagination.md): per-account caches, original mutation variables, cursor guards and immutable merges.
 
+Before lyrics changes, read [the product contract](docs/product/behavior.md#track-lyrics) and [VK response observations](docs/product/vk-parity.md#lyrics-observation-november-4-2026). Both plain and timestamped responses are supported, including interlude markers. Modal/tooltip verification follows [the testing procedure](docs/ai/testing.md#modal-and-tooltip-checks).
+
 ## AI tools
 
 - **Shared MCP settings:** `.mcp.json` is the only source, read directly by Claude Code. `npm run mcp:sync` generates `.codex/config.toml` and the `mcp` section of `opencode.json` for OpenCode 1.x. Do not edit derived MCP settings manually: doctor/check and CI reject command, argument, environment or server-set drift. See [MCP setup](docs/ai/mcp.md) for trust, approval and updates. `CLAUDE.md` imports these instructions without copying them.
@@ -65,6 +67,12 @@ For query keys, account changes and pagination, read [ADR 0007](docs/decisions/0
 Configuration does not prove a server is connected in the current session. Without VKUI MCP, inspect installed `@vkontakte/vkui` declarations and existing project examples. Ordinary check/test/build do not require MCP.
 
 ## Development rules
+
+### PR history
+
+- **One PR = one commit** relative to its target branch. Include implementation, tests and documentation in that commit. Amend or squash follow-up fixes into it before pushing; do not leave extra commits in an open PR.
+- Before rewriting a published PR branch, verify its remote head and preserve unrelated work. Push only the intended PR branch with `--force-with-lease`, never plain `--force`.
+- Before handoff, verify the PR commit count and review whether the change needs new behavior, testing or debugging guidance. Update the owning documentation and link it from these instructions when a new task needs a discovery route.
 
 ### Frontend FSD
 

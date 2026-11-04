@@ -93,6 +93,23 @@ describe('toTracksItems', () => {
 })
 
 describe('toTrackItemFromAPIResponse', () => {
+  it.each([true, false, undefined])('preserves token API lyrics availability %s', hasLyrics => {
+    const raw = {
+      owner_id: 1,
+      id: 2,
+      access_key: '',
+      url: '',
+      thumb: { photo_68: '' },
+      artist: '',
+      main_artists: [],
+      title: '',
+      duration: 1,
+      track_code: '',
+      ...(hasLyrics === undefined ? {} : { has_lyrics: hasLyrics })
+    }
+    expect(toTrackItemFromAPIResponse({ response: [raw] }).flags & TrackFlagBit.HAS_LYRICS).toBe(hasLyrics === true ? TrackFlagBit.HAS_LYRICS : 0)
+  })
+
   it('converts api.vk.ru response to TrackItem', () => {
     const track = toTrackItemFromAPIResponse({
       response: [{
