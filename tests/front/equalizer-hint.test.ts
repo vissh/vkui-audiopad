@@ -56,7 +56,7 @@ it('waits for layout to settle before showing and consumes the announcement only
 it('cancels the pending hint when settings are opened before the delay expires', async () => {
   const browser = createChrome({ equalizerAnnouncementPending: true })
   await mount(1, false)
-  await act(async () => { fireEvent.click(screen.getByRole('tab', { name: 'Настройки' })) })
+  await act(async () => { fireEvent.click(screen.getByRole('button', { name: 'Настройки' })) })
   await act(async () => { await vi.advanceTimersByTimeAsync(2000) })
   expect(screen.queryByText('Доступен эквалайзер')).toBeNull()
   expect(browser.snapshot().equalizerAnnouncementPending).toBe(false)
@@ -80,7 +80,7 @@ it('can dismiss the announcement explicitly and open settings directly from its 
   expect(screen.queryByText('Доступен эквалайзер')).toBeNull()
   await act(async () => { await browser.api.storage.local.set({ equalizerAnnouncementPending: true }) })
   await act(async () => { await vi.advanceTimersByTimeAsync(1500) })
-  await act(async () => { fireEvent.click(screen.getByRole('tab', { name: 'Настройки' })) })
+  await act(async () => { fireEvent.click(screen.getByRole('button', { name: 'Настройки' })) })
   expect(screen.queryByText('Доступен эквалайзер')).toBeNull()
   expect(browser.snapshot().equalizerAnnouncementPending).toBe(false)
 })

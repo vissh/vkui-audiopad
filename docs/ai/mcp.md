@@ -38,11 +38,17 @@ Enforcing green CI before merge additionally requires required GitHub workflow s
 
 ## Chrome smoke checks
 
-chrome-devtools uses --categoryExtensions for installation, reload and extension actions. -y prevents npm from waiting for first-download confirmation; --no-usage-statistics disables MCP usage collection. First launch needs the npm registry and Chrome. Users log into VK themselves in the MCP browser; another Chrome profile's cookies may not be available.
+chrome-devtools uses --categoryExtensions for installation, reload and extension actions, and --categoryExperimentalThirdParty=true for the React tools exposed by profiling pages. -y prevents npm from waiting for first-download confirmation; --no-usage-statistics disables MCP usage collection. First launch needs the npm registry and Chrome. Users log into VK themselves in the MCP browser; another Chrome profile's cookies may not be available.
 
-If dist installation fails because the client supplied no workspace roots, MCP still permits the system temp directory. [Testing](testing.md#if-mcp-has-no-workspace-roots) describes staging a build there; upgrade checks require the same staging path.
+For automated installation, use a build path under the client's advertised workspace roots or a stable temporary copy of the unpacked extension. Upgrade checks require the same installation path. The [browser testing guide](testing.md#chrome-smoke-with-an-authenticated-account) also describes manual installation and verification.
 
-A successful build is not evidence of a browser connection. See [testing](testing.md#chrome-smoke-with-an-authenticated-account) for fresh/upgrade checks and console baseline. Environment restrictions on website access remain in effect regardless of MCP availability.
+A successful build is not evidence of a browser connection. See [testing](testing.md#chrome-smoke-with-an-authenticated-account) for fresh/upgrade checks and console baseline.
+
+## React inspection and profiling
+
+The front workspace pins react-devtools-cdt-mcp as a development dependency. Chrome MCP discovers its page-side React group when the profiling frontend is loaded. The shared server flag is enabled for Codex, Claude Code and OpenCode through the generated settings. Restart an existing client after changing this configuration. Check list_3p_developer_tools and execute_3p_developer_tool in the connected session.
+
+Use `npm run build:profile` and [the UI debugging workflow](ui-debugging.md) for safe staging, comparisons and restoring normal assets. Component trees and profiling results establish the connection. Record the actual tool/build used when current-session discovery requires the documented event fallback.
 
 ## Firefox extension checks
 

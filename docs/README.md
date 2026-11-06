@@ -24,6 +24,7 @@ A small reproducible UI defect or a pure function with a test is a useful first 
 | How do vk.ru data sources work, and how are format changes investigated? | [VK integration](ai/vkru-scraping.md) |
 | How are offline tests, browser connections and smoke checks run? | [Testing](ai/testing.md) |
 | How should safe parser/network test data be constructed and updated? | [Fixtures](ai/fixtures.md) |
+| How are React renders, startup, scrolling and dialog focus investigated? | [UI debugging and profiling](ai/ui-debugging.md) |
 | Where is MCP configured, and how is client drift prevented? | [MCP](ai/mcp.md) |
 | Which extension skills/tools were reviewed, and how should browser-specific guidance be used? | [Extension tooling](ai/extension-tooling.md) and [project runtime skill](../.agents/skills/browser-extension-development/SKILL.md) |
 | How are dependencies, tools and documentation updated? | [Maintenance](ai/maintenance.md) |

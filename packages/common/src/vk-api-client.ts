@@ -6,6 +6,7 @@ import { VKApiError } from './vk-api-error'
 import { withTimeout } from './with-timeout'
 import { getSessionToken, requestSession } from './session-client'
 import { type SessionIdentity } from './types'
+import { parseSettings, type MixSettings } from './vk-mix'
 
 export { VKApiError } from './vk-api-error'
 
@@ -53,18 +54,30 @@ export const UnauthorizedWebToken: WebToken = {
   }
 }
 
-export const getStreamMixAudios = async (signal?: AbortSignal): Promise<TrackItem> => {
+export const setRadioStationFollowed = async (userId: string, stationId: string, followed: boolean): Promise<void> => {
+  if (!/^[1-9]\d*$/.test(userId) || !/^[1-9]\d*$/.test(stationId)) throw new VKApiError('format')
+  const { response } = await request(`https://api.vk.ru/method/audio.${followed ? 'followRadioStation' : 'unfollowRadioStation'}?v=${QUERY_API_VERSION}&client_id=${VK_APP_ID}`, 'POST', { station_id: stationId }, undefined, userId)
+  if (response !== 1) throw new VKApiError('format')
+}
+
+export const getStreamMixAudios = async (signal?: AbortSignal, mixId = 'common', mixOptions = '', entityId = ''): Promise<TrackItem> => {
   const resp = await request(
     `https://api.vk.ru/method/audio.getStreamMixAudios?v=${QUERY_API_VERSION}&client_id=${VK_APP_ID}`,
     'POST',
     {
-      mix_id: 'common',
-      count: '1'
+      mix_id: mixId,
+      count: '1',
+      ...(entityId.length > 0 ? { entity_id: entityId } : {}),
+      ...(mixOptions.length > 0 ? { options: mixOptions } : {})
     },
     signal
   )
 
   return toTrackItemFromAPIResponse(resp)
+}
+
+export const getStreamMixSettings = async (userId: string, signal?: AbortSignal): Promise<MixSettings> => {
+  return parseSettings(await request(`https://api.vk.ru/method/audio.getStreamMixSettings?v=${QUERY_API_VERSION}&client_id=${VK_APP_ID}`, 'POST', { mix_id: 'common' }, signal, userId))
 }
 
 // vk.ru artist pages moved to the token-based catalog API: the page HTML
@@ -91,6 +104,11 @@ export const getArtistCatalogSectionId = async (artistId: string, pageUrl?: stri
   return firstSectionId(resp)
 }
 
+export const getArtistCatalog = async (artistId: string, signal?: AbortSignal): Promise<JSONObject> => {
+  if (!/^[\w-]+$/.test(artistId)) throw new VKApiError('format')
+  return await request(`https://api.vk.ru/method/catalog.getAudioArtist?v=${QUERY_API_VERSION}&client_id=${VK_APP_ID}`, 'POST', { artist_id: artistId, need_blocks: '1', extended: '1', fields: 'photo_50,photo_100', ref: '' }, signal)
+}
+
 // "Show all" links of general/explore/my-music blocks point to
 // /audios<ownerId>?section=<name>&block=<block> pages; their section id
 // is resolved via catalog.getAudio with the page url.
@@ -105,6 +123,25 @@ export const getAudioCatalogSectionId = async (pageUrl: string): Promise<string 
   )
 
   return firstSectionId(resp)
+}
+
+export const getAudioCatalog = async (ownerId: string, signal?: AbortSignal, section: 'general' | 'all' | 'explore' | 'radiostations' = 'general'): Promise<JSONObject> => {
+  if (!/^[1-9]\d*$/.test(ownerId)) throw new VKApiError('format')
+  return await request(`https://api.vk.ru/method/catalog.getAudio?v=${QUERY_API_VERSION}&client_id=${VK_APP_ID}`, 'POST', {
+    owner_id: ownerId, url: `https://vk.ru/audios${ownerId}?section=${section}`, need_blocks: '1', extended: '1', fields: 'photo_50,photo_100'
+  }, signal, ownerId)
+}
+
+export const getCuratorCatalog = async (curatorId: string, signal?: AbortSignal): Promise<JSONObject> => {
+  if (!/^[\w-]+$/.test(curatorId)) throw new VKApiError('format')
+  return await request(`https://api.vk.ru/method/catalog.getAudioCurator?v=${QUERY_API_VERSION}&client_id=${VK_APP_ID}`, 'POST', { curator_id: curatorId, url: `https://vk.ru/music/curator/${curatorId}`, need_blocks: '1', extended: '1', fields: 'photo_50,photo_100' }, signal)
+}
+
+export const getCatalogSection = async (sectionId: string, nextFrom = '', signal?: AbortSignal): Promise<JSONObject> => {
+  if (!/^[\w-]+$/.test(sectionId)) throw new VKApiError('format')
+  return await request(`https://api.vk.ru/method/catalog.getSection?v=${QUERY_API_VERSION}&client_id=${VK_APP_ID}`, 'POST', {
+    section_id: sectionId, need_blocks: '1', extended: '1', fields: 'photo_50,photo_100', ...(nextFrom.length > 0 ? { start_from: nextFrom } : {})
+  }, signal)
 }
 
 // A successful catalog may lack the expected section shape.
@@ -130,7 +167,7 @@ const isJSONObjectValue = (value: unknown): value is JSONObject => {
   return typeof value === 'object' && value != null && !Array.isArray(value)
 }
 
-export const request = async (url: string, method: 'GET' | 'POST', params: Record<string, string>, signal?: AbortSignal): Promise<JSONObject> => {
+export const request = async (url: string, method: 'GET' | 'POST', params: Record<string, string>, signal?: AbortSignal, expectedUserId?: string, expectedIdentity?: SessionIdentity): Promise<JSONObject> => {
   signal?.throwIfAborted()
   const controller = new AbortController()
   const cancel = (): void => { controller.abort(signal?.reason) }
@@ -145,6 +182,7 @@ export const request = async (url: string, method: 'GET' | 'POST', params: Recor
     return await withTimeout(async requestSignal => {
       let session = await getSessionToken(requestSignal)
       identity = session.identity
+      if (expectedIdentity != null && (identity.userId !== expectedIdentity.userId || identity.epoch !== expectedIdentity.epoch)) throw new VKApiError('session-changed')
       await requestSession({ kind: 'assert', identity }, requestSignal)
       for (let attempt = 0; attempt < 2; attempt++) {
         requestSignal.throwIfAborted()
@@ -152,6 +190,7 @@ export const request = async (url: string, method: 'GET' | 'POST', params: Recor
         if (token.error?.type === 'unauthorized') throw new VKApiError('unauthorized')
         if (token.error != null) throw new VKApiError('unavailable')
         if (token.accessToken.length === 0 || token.userId.length === 0) throw new VKApiError('format')
+        if (expectedUserId != null && token.userId !== expectedUserId) throw new VKApiError('unauthorized')
         const body = new URLSearchParams(params)
         body.set('access_token', token.accessToken)
         const target = new URL(url)

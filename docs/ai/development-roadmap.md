@@ -1,12 +1,12 @@
 # Roadmap for autonomous VK Audiopad development
 
-Based on the [November 3, 2026 audit](readiness-review.md). The goal is for an agent to implement a task and demonstrate correctness without a person manually checking every change. The progress table records current implementation; T01-T18 descriptions define acceptance requirements, not automatically existing capabilities.
+Based on the [November 3, 2026 audit](readiness-review.md). The goal is for an agent to implement a task and demonstrate correctness without a person manually checking every change. The progress table and T01-T18 sections separate implemented contracts from remaining acceptance work.
 
 Order: reproducible setup -> controlled test boundaries -> defect fixes -> explicit state contracts -> browser verification -> reproducible release. Clarify product behavior before changing it. Large tasks can span sequential PRs if each leaves a usable project.
 
 ## Implementation progress
 
-Updated November 7, 2026. Links refer to the current implementation; dated browser evidence identifies the specific build checked. A tag or green CI does not complete the remaining autonomy criteria.
+Updated November 9, 2026. Links refer to the current implementation; dated browser evidence identifies the specific build checked. A tag or green CI does not complete the remaining autonomy criteria.
 
 | Task | Status | Implementation and evidence |
 |---|---|---|
@@ -19,38 +19,35 @@ Updated November 7, 2026. Links refer to the current implementation; dated brows
 | T07 | Core implemented with controlled coverage and Chrome smoke | R08 owner/audio order fixed. R10 insertion/removal/index/shuffle defects now use [pure rules](../../packages/service-worker/src/queue.ts), serialized mutations and hydration/page merging; [ADR 0004](../decisions/0004-queue-mutations.md), [action regressions](../../tests/service-worker/queue-actions.test.ts), [editor tests](../../tests/front/queue-editor.test.ts). Real partial queue paging, play-next, shuffle restore, remove/apply and native drag/apply checked in Chrome. Durable queue edits and browser automation remain T11/T14. |
 | T08 | Implemented with controlled coverage and scoped live checks | Correct Map drain, delete/restore registration, navigation generations and pending-restore ordering. Named/guarded VKUI controls, source-specific restore and confirmed mutation outcomes. [ADR 0006](../decisions/0006-library-delete-restore.md), [website comparison](../product/vk-parity.md). Popup closure explicitly retains the queue. Applied queue acknowledgements remain T12. |
 | T09 | Shared session owner and bounded token methods implemented; legacy/account-wide work remains | Inconclusive verification preserves session/queue and exposes explicit retry ([ADR 0005](../decisions/0005-session-verification.md)); safe token-method errors, deadlines and one auth retry follow [ADR 0008](../decisions/0008-vk-api-errors.md). [ADR 0009](../decisions/0009-session-owner.md) centralizes background refresh/verification/persistence, shares refresh work across contexts and guards token-method completion with userId/sessionEpoch. Three initial regressions reproduced duplicate refresh, stale token overwrite and prior-account response acceptance. Add/delete/restore/follow validate confirmed results; remaining legacy mutations, account-wide cancellation and cross-window invalidation remain. |
-| T10 | Core cache/pagination implemented; broader session/browser cases remain | Bounded active-page pagination and explicit retry, per-account QueryClient retirement, complete page keys, original-variable/cursor guards and immutable ID merges. [ADR 0007](../decisions/0007-query-identity-and-pagination.md), [identity regressions](../../tests/front/query-identity.test.ts). All-catalog invalidation after library actions, full token-resolution cancellation and broader Firefox/source evidence remain. |
+| T10 | Core cache/pagination implemented; broader session/browser cases remain | Bounded active-page pagination and explicit retry, per-account QueryClient retirement, complete page keys, original-variable/cursor guards and immutable ID merges. [ADR 0007](../decisions/0007-query-identity-and-pagination.md), [identity regressions](../../tests/front/query-identity.test.ts). Playlist mutations invalidate the initiating account's library, catalog, detail and show-all queries. Cross-window propagation, full legacy/token-resolution cancellation and broader source evidence remain. |
 | T11 | Planned | No schemaVersion, migration registry or durable queue-edit recovery yet. UPDATE still clears runtime data while retaining settings. [Storage task](#t11-version-persisted-state). |
 | T12 | Partial | PLAY_TRACK/AUDIO_PLAYER carry playbackId across both transports; explicit play/pause added. Session requests validate sender/input/replies and provide correlated bounded results/cancellation ([ADR 0009](../decisions/0009-session-owner.md)). General playback/queue validation, results and sender policy remain. |
 | T13 | Partial | Doctor requires workspace scripts; --if-present removed; tooling lint/test typecheck added. All four packages now use full TypeScript strictness, explicit any is a lint error and [compiler regressions](../../scripts/type-safety.test.ts) reject weakening. TypeScript is pinned to one version across root/workspaces. Type-aware async lint and FSD composition remain. |
 | T14 | Partial: authenticated Chrome/Firefox and isolated Firefox runtime smoke | Authenticated catalog/search, playback/Mix, pause/resume, next/previous, three rapid next commands, popup closure, modals and upgrade checked through MCP. [Evidence/limits](testing.md#live-run-november-3-2026). smoke:firefox installs a temporary addon in a fresh headless Firefox via the shared Mozilla MCP and checks actual startup, snapshot transport and applied repeat commands without VK. CI runs this with Firefox 159.0 after both builds. Authenticated Firefox session verification, catalog/search, native playback/Mix/pause and UI-tab reopen now have [scoped evidence](testing.md#authenticated-firefox-follow-up-november-4-2026). Actual Firefox popup, minimum-version/HLS matrix and a full offline UI browser suite remain. |
 | T15 | Planned | Safe typed errors cover some boundaries; no bounded cross-context diagnostic journal/export with tested redaction yet. [Diagnostics task](#t15-add-safe-diagnostics). |
 | T16 | Partial: UI-driven version commit, GitHub release workflow and revision-bound packaging | [Workflow](../../.github/workflows/release.yml) accepts a new version, prepares its local commit and checks/tests/builds/smokes it. A separate write job pushes the verified commit/tag atomically and creates the release from the retained candidate. [Packaging](../../scripts/package-release.mjs), [preparation](../../scripts/prepare-release.test.ts) and [publication](../../scripts/publish-release.test.ts) tests cover ZIP/source identity, version guards, moving master, rejected tag, retries and existing releases; [runbook](../releases.md). First hosted run, full store/resource lint, minimum-version matrix, bit reproducibility and legacy Docker helper isolation remain. |
-| T17 | Partial; accessibility gaps remain | Add/follow, delete/restore and similar use named guarded VKUI buttons; busy actions preserve focus, reject duplicate activation and show safe errors. Follow Enter/Space and [similar row/header spinner placement](testing.md#similar-action-layout-and-loading-november-4-2026) checked live. Root render/lifecycle recovery covers providers, keeps storage and exposes focused UI reload; [regressions](../../tests/front/ui-recovery.test.ts) and live injected-fault recovery passed. Primary play/pause has a tested action label; several other player/icon-tab accessible names remain empty in live AX output. Popup/modals inspected; 780x600 UI tab has no whole-page horizontal overflow. Keyboard-only/a11y coverage remains. |
+| T17 | Partial; accessibility gaps remain | Add/follow, delete/restore and similar use named guarded VKUI buttons; busy actions preserve focus, reject duplicate activation and show safe errors. Follow Enter/Space and [similar row/header spinner placement](testing.md#similar-action-layout-and-loading-november-4-2026) checked live. Root render/lifecycle recovery covers providers, keeps storage and exposes focused UI reload; [regressions](../../tests/front/ui-recovery.test.ts) and live injected-fault recovery passed. Player/icon-tab names, independent controls, landmarks, inactive panels and keyboard behavior now have controlled axe and live checks. Default-palette contrast and spoken VoiceOver/NVDA verification remain open. Popup/modals inspected; 780x600 UI tab has no whole-page horizontal overflow. Full spoken-AT/browser acceptance remains open. |
 | T18 | Context, release guidance and extension-skill discovery expanded; incomplete | [Guide](../README.md), [contributing](../../CONTRIBUTING.md), [product](../product/behavior.md), [state/messages](state-and-messages.md), [fixtures](fixtures.md), [release runbook](../releases.md), workflow routes and playback ADR now exist. Project-authored docs/instructions use one English version. [docs:check](../../scripts/check-documentation.mjs) rejects broken local links/anchors, documented command entrypoints and duplicated Claude instructions, with fault-injection tests. The project-owned extension skill and tooling research route agents to browser-specific contracts; Claude aliases the canonical skills directory and OpenCode uses it directly, with drift/link regressions. Hosted release verification, rollback/storage compatibility and full scenario-to-check mapping remain. |
 
 Lyrics follow-up: the player now exposes an availability-gated VKUI reader using audio.getLyrics, with cancellation, account/track cache identity and safe retry. [Product contract](../product/behavior.md#track-lyrics), [API tests](../../tests/common/audio-lyrics.test.ts), [Player DOM tests](../../tests/front/lyrics.test.ts) and [Chrome tab/popup evidence](testing.md#lyrics-reader-november-4-2026) describe the implemented scope. Synchronized lyrics are not part of this reader; this does not close the broader T09/T10/T14/T17 items.
 
 ## Next implementation increments
 
-The core of increment 1 is implemented in ADR 0009 with controlled regressions and real Firefox cached-session transport checks. Authenticated verification through the new owner remains a live-check gap. Next extend the session result pattern to playback/queue commands (increment 2), then migrations and broader local-data browser UI checks.
+Shared session ownership, bounded token methods, catalog/playlist parity, React profiling and the core keyboard/semantic fixes are implemented. Choose the next change from the remaining acceptance work below. Preserve T/R IDs for links to the historical audit.
 
-Keep these as bounded changes rather than another cumulative PR. This order refines the remaining roadmap; it does not claim a newly reproduced defect in each area. Each change needs a regression for the affected boundary and an updated owning contract.
-
-| Order | Task | Observable result and key verification |
+| Order | Task | Remaining result and verification |
 |---|---|---|
-| 1: core implemented | T09 shared session/refresh ownership | One owner shares refresh, guards identity and serializes writes. Concurrent UI/worker refresh, logout/account change, cancellation, late responses and persistence failure have controlled regressions; [ADR 0009](../decisions/0009-session-owner.md). |
-| 2 | T12 validated command results | Invalid input has no effect and callers observe applied success/failure with bounded waits. Run shared malformed/sender/missing-receiver/late-result cases through both transports. |
-| 3 | T11 versioned storage | Fresh, legacy, malformed and repeatedly migrated snapshots have explicit outcomes; cover quota/write failure and upgrade. Decide queue-preservation semantics before changing UPDATE cleanup. |
-| 4 | T14 offline browser UI | Real extension UI/runtime in CI uses local data/media without personal VK credentials. Exercise controls, catalog/search, queue and popup lifetime; retain sanitized failure artifacts. |
-| 5 | T05/T06 lifecycle and compatibility | Verify actual Chrome worker termination/restart during playback, native media/HLS errors, actual Firefox popup and declared minimum versions. A UI reload/reinstall is not isolated worker restart. |
-| 6 | T09/T10 remaining mutations/cache | Review broadcast/remaining result contracts; synchronize library changes across windows and reject completion from retired accounts. Do not replay ambiguously completed mutations. |
-| 7 | T15 diagnostics | Bounded correlated local events identify the failing context/build without tokens, private URLs or nested personal payloads; test redaction and retention. |
-| 8 | T13/T17 async, FSD and UI rules | Handle detached Promise failures, remove remaining layer suppressions and unnamed controls; verify keyboard/focus, themes, long text and reduced motion. |
-| 9 | T16 delivery | Exercise the hosted version/asset workflow and failure recovery; complete store/resource lint, minimum-version and reproducibility checks. Review dependencies/HLS and tooling updates separately, then define enforceable merge/publication policy. |
-| Continuous | T18 maintained context | Map scenarios to checks and update contracts with code; keep the release runbook current and define tested rollback/storage transitions as their implementation lands. |
+| 1 | T12 validated command results | Extend the session request/result pattern to playback and queue commands. Validate malformed/sender/missing-receiver/late-result cases through both transports. |
+| 2 | T11 versioned storage | Define migrations for fresh, legacy and malformed snapshots, quota/write failure and queue preservation across UPDATE. |
+| 3 | T14 offline browser UI | Exercise the actual extension frontend/runtime against local data/media in CI, with sanitized failure artifacts and both browser contexts. |
+| 4 | T05/T06 lifecycle and compatibility | Verify isolated Chrome worker termination during playback, native HLS failures, Firefox toolbar-popup lifetime and declared minimum versions. |
+| 5 | T09/T10 remaining mutations/cache | Complete legacy account-wide cancellation and broadcast/result contracts. Propagate confirmed library changes across open UI windows. |
+| 6 | T15 diagnostics | Add bounded correlated local events with tested redaction, retention and export. |
+| 7 | T13/T17 async and accessibility | Add type-aware async lint and resolve remaining FSD composition. Complete spoken VoiceOver/NVDA verification and review default-palette/image contrast. |
+| 8 | T16 delivery | Exercise the hosted release workflow and failure recovery. Complete store/resource lint, browser minimum-version and reproducibility checks. |
+| Continuous | T18 maintained context | Keep contracts, evidence, [UI debugging](ui-debugging.md), release guidance and scenario-to-check routes synchronized. |
 
-Keep the [historical audit](readiness-review.md) at 5574e83. Dated [Chrome](testing.md#live-run-november-3-2026) and [Firefox](testing.md#authenticated-firefox-follow-up-november-4-2026) observations retain their original limits; later checks do not retroactively change an earlier run. MCP access must still be discovered per session.
+Implemented product scope is owned by [behavior](../product/behavior.md), including catalogs, playlist editing/covers, Mix settings and sources, friends/curators, radio, player controls and accessibility. The [dated parity](testing.md#catalog-and-playlist-parity-follow-up-november-7-2026), [performance](testing.md#startup-and-interaction-performance-november-8-2026) and [accessibility](testing.md#accessibility-and-collage-checks-november-8-2026) checkpoints retain their original build/scope limits. The audit at 5574e83 remains historical evidence.
 
 ## Stage outcomes
 
@@ -66,103 +63,51 @@ Localized independent changes can proceed separately. Protocol, storage and star
 
 ## T01 Make setup reproducible
 
-**Priority:** first. **Basis:** R14, R17, R19. **Dependencies:** none.
+Implemented. Runtime pins, doctor, workspace checks and generated MCP settings follow [maintenance](maintenance.md) and [MCP setup](mcp.md). [Configuration regressions](../../scripts/mcp-config.test.ts) cover client drift and the React discovery flag.
 
-Align root runtime metadata, .node-version, README/AGENTS/maintenance, CI and Docker. The verified reference is Node 24.22.2/npm 11.19.1. Make patch upgrades explicit and distinguish npm ci from intentional dependency installation.
-
-Add a small doctor for runtime, workspace links/dependencies and required tools/scripts. MCP diagnostics must distinguish configured from connected; missing MCP must not block ordinary TypeScript checks. Provide installed VKUI declarations/examples as fallback. Correct moduleResolution/strict/client configuration descriptions and replace -ws with explicit --workspaces. Do not upgrade every dependency alongside this work.
-
-**Acceptance:** fresh supported checkout follows setup without repairs; wrong runtime fails clearly; checks do not alter lockfile; MCP is never declared connected without evidence.
-
-**Validation:** isolated install, npm ls --workspaces, check, tests, full build and verify:build.
+Maintain these contracts during dependency/tool changes. Fresh supported checkout setup and checks must preserve the lockfile.
 
 ## T02 Add runtime test boundaries
 
-**Priority:** first. **Basis:** R01-R15. **Dependencies:** T01 preferred, not mandatory.
+Implemented for controlled Node/jsdom scenarios. [The test harness](testing.md#automated-tests-without-vk) provides storage, runtime, fetch, Audio, timers and deferred-completion adapters. Unexpected fetches fail even when product code catches them. Production consumers use common/dist, and tests resolve common/src.
 
-Extend existing Vitest to SW/offscreen/front using one DOM environment/React Testing Library for UI and Node for pure logic. Do not add another unit runner. Verify aliases/common imports on a clean build.
-
-Provide controlled storage, runtime messages, fetch, Audio, timers and deferred completions. Model storage events, runtime.lastError and async ordering, not only happy-path stubs. Check success/failure at each needed boundary. Extract production adapters only where a real boundary benefits.
-
-Replace the historical AGENTS network/Chrome-test prohibition with offline-adapter testing. Real VK/personal profiles stay out of unit/integration suites; new pure common logic still receives colocated tests.
-
-**Acceptance:** tests can delay/reorder two requests, dispatch storage/media events and fail audio. Production bundles do not contain the harness.
-
-**Validation:** new harness plus the original 35 tests, check, build for config changes. Add defect regressions with their respective fixes.
+The remaining browser/local-media suite belongs to T14. Extend existing adapters for each regression and retain their stated limits.
 
 ## T03 Bound traversal of unavailable tracks
 
-**Priority:** P1. **Basis:** R02. **Dependencies:** T02.
+Implemented under [ADR 0001](../decisions/0001-playback-operations.md). Unique traversal, cancellable delays and the shared missing/media/Mix budget terminate unavailable queues and publish safe feedback.
 
-Replace recursive unbounded play-new-track/on-audio-error transitions with a shared intent budget, visited IDs and cancellation. Coordinate missing URL and media/HLS errors; fresh commands must not accidentally inherit an old budget.
-
-**Acceptance:** empty, one-unavailable and all-unavailable queues terminate predictably; a valid later candidate starts; no requests follow budget exhaustion; a new command cancels old waits. Define exact transient delays/retry limits.
-
-**Validation:** fake timers, finite fetch counts and terminal-state assertions. Do not enshrine the historical ten-attempt number as a product requirement without rationale.
+[Playback](../../tests/service-worker/playback.test.ts) and [audio-error regressions](../../tests/service-worker/audio-error.test.ts) cover finite attempts, cancellation and explicit retry. Native HLS compatibility remains under T06.
 
 ## T04 Reject obsolete playback results
 
-**Priority:** P1. **Basis:** R01. **Dependencies:** T02; coordinate T03.
+Implemented under [ADR 0001](../decisions/0001-playback-operations.md). Operation revisions, serialized commits, post-await guards and playbackId isolate obsolete track, queue, Mix and media completions.
 
-Add operation generation/source identity and guards after track, queue, Mix and offscreen preparation awaits. Use AbortSignal where applicable. Mix changes must not mutate a playlist belonging to another snapshot.
-
-**Acceptance:** slow A/fast B ends at B; fast A/slow B ends at B once B completes; late A hydration cannot change B; rapid next/previous cannot restore an old track; cancelled-operation errors do not appear as current failures. Define rapid-command semantics before implementing them.
-
-**Validation:** relevant deferred completion permutations, storage and offscreen effects; full two-browser build for message changes.
+Preserve [deferred playback cases](../../tests/service-worker/playback.test.ts), [delivery ordering](../../tests/service-worker/offscreen-ordering.test.ts) and [source lifecycle tests](../../tests/offscreen/player-lifecycle.test.ts) when changing this path.
 
 ## T05 Define playback recovery and ownership
 
-**Priority:** P1. **Basis:** R03, R12. **Dependencies:** T02, T04; later T12 integration.
+Core implementation follows [ADR 0002](../decisions/0002-startup-recovery.md). Synchronous registration and bounded readiness reconcile an existing media snapshot without autoplay. The SW owns queue/intent, and the audio context owns actual media. Toggle commands share requested intent independently of delayed storage/media observation.
 
-Document ownership in a short ADR: SW owns queues/user intent, offscreen actual media. Register Chrome listeners synchronously and gate execution through shared readiness. Represent initialization success/failure explicitly. Remove the unconditional playback reset on SW wake-up.
-
-Move direct UI playback writes to commands incrementally. Storage is snapshot/persistence rather than a universal implicit command bus. Define closing offscreen concurrently with play.
-
-**Partial implementation:** toggle controls/hotkeys now share a synchronous SW intent via TOGGLE_PLAYBACK. playbackRequested is a separate UI snapshot; two clicks before the first media event cancel loading/retry, and a third restarts the pending selection. Already launched media resumes without replacing its source/position. Feature handlers send commands directly; atom.ts only observes playback. [Intent regressions](../../tests/service-worker/playback-intent.test.ts), [transport/hotkey cases](../../tests/service-worker/playback-command-transport.test.ts) and [actual UI controls](../../tests/front/playback-controls.test.ts) cover delayed storage/network, cancellation and cross-control intent. Startup/readiness now also has an implementation; see below.
-
-**Startup implementation:** synchronous Chrome registration plus shared readiness; storage changes during load are merged; existing media is queried by requestId over both transports without creating offscreen or autoplay. Matching source/position is restored; missing media clears stale playback identity; mismatch is paused and can be explicitly retried; storage/snapshot failure publishes failed initialization and blocks actions. [ADR 0002](../decisions/0002-startup-recovery.md), [startup tests](../../tests/service-worker/startup.test.ts) and [snapshot transport tests](../../tests/offscreen/player-snapshot.test.ts) document and verify this. Live worker termination/restart remains a separate validation gap. Close/create/play coordination and command listener readiness are now implemented under T06.
-
-**Acceptance:** a pre-load hotkey uses the restored queue; a new SW reconciles with live offscreen; absent offscreen recovers without spontaneous autoplay; init failure is observable. Moving all registration after await is not a solution.
-
-Rapid toggle offline acceptance is covered: preserve play-then-pause intent before the first playing event, cancel pending loading/retry, and share intent across controls. Repeated ACTIVE_TRACK selection before metadata commits remains selection, not toggle. Live evidence is recorded separately in [testing](testing.md).
-
-**Validation:** startup/restart/conflicting-command integration cases, then T14 browser restart.
+[Startup](../../tests/service-worker/startup.test.ts), [snapshot transport](../../tests/offscreen/player-snapshot.test.ts) and [intent tests](../../tests/service-worker/playback-intent.test.ts) cover controlled recovery and early commands. Remaining acceptance requires isolated Chrome worker termination/restart during playback. Durable operation recovery belongs to T11, and general applied-command replies to T12.
 
 ## T06 Recover offscreen after failures
 
-**Priority:** P2, suitable early localized fix. **Basis:** R07, part of R13. **Dependencies:** T02.
+Core implementation follows [ADR 0003](../decisions/0003-offscreen-lifecycle.md). Shared lifecycle serialization, bounded listener readiness, current-document idle checks and source-local revision guards handle close/create/play and late HLS/play callbacks.
 
-Reset rejected creation guards, define PLAY_TRACK readiness, handle rejected audio.play/fatal HLS and destroy old players correctly. Preserve/test the production prohibition on Audio.crossOrigin.
-
-**Implementation:** [ADR 0003](../decisions/0003-offscreen-lifecycle.md) defines a shared Chrome lifecycle queue, bounded/cancellable listener readiness probes, current document/source/activity validation for idle close, and explicit source reload if play arrives during an issued close. Idle timer no longer destroys media before approval or reclaims unpaused media. Source-local request/revision guards prevent late HLS attachment and obsolete play() rejection from undoing pause/resume. [Lifecycle races](../../tests/service-worker/offscreen-lifecycle.test.ts), [readiness ordering/timeouts](../../tests/service-worker/offscreen-ordering.test.ts), [idle checker](../../tests/offscreen/activity-checker.test.ts), [real transports](../../tests/offscreen/player-snapshot.test.ts) and [Audio/HLS cases](../../tests/offscreen/player-lifecycle.test.ts) cover these boundaries. Physical browser coverage is recorded in testing; controlled HLS is not a real decoder test.
-
-**Acceptance:** creation can retry after rejection; concurrent setup shares one attempt; commands are not lost before ready; play/HLS failures reach SW correctly; destroyed sources cannot emit current events.
-
-**Validation:** Audio/HLS/runtime adapters, then actual MP3/HLS. ERROR/ENDED separation and no crossOrigin require regressions.
+[Lifecycle races](../../tests/service-worker/offscreen-lifecycle.test.ts), [activity checks](../../tests/offscreen/activity-checker.test.ts) and [Audio/HLS tests](../../tests/offscreen/player-lifecycle.test.ts) cover controlled failures. Native Chrome idle cleanup and Firefox runtime have scoped evidence. Remaining acceptance includes real HLS decoder/network failures and minimum browser versions.
 
 ## T07 Fix and isolate queue operations
 
-**Priority:** P2. **Basis:** R08, R10, part of R12. **Dependencies:** T02.
+Core implementation follows [ADR 0004](../decisions/0004-queue-mutations.md). Pure rules and serialized mutations distinguish full IDs from loaded metadata, preserve selection/order and merge hydration edits. The UI observes worker snapshots, and current-queue editing supports dragging plus keyboard movement.
 
-Fix owner/audio order in queue_params. Put validated ID parsing near its owner; common extraction requires real shared consumers. Check related requests.
-
-Extract pure insertion/removal/reordering/shuffle/index operations. Distinguish full ID queue from loaded TrackItems. Do not disguise a missing item as index 0 or splice(-1).
-
-**Implementation:** pure queue rules plus serialized commit-time transformations, ID/anchor edits, stale snapshot guards, pending-operation synchronization and a hydration edit journal. Resumed media can retry cancelled queue hydration without replacing Audio. Front editor/metadata pagination now send commands and observe worker snapshots, including same-length reorder changes. [ADR 0004](../decisions/0004-queue-mutations.md) defines ownership and evidence; library mutation timing and durable schemas remain separate tasks.
-
-**Acceptance:** visible [A,B], full [A,B,C], active B, insert D -> D is visible after B; shuffle preserves selection and restoring order works; empty/last-item operations do not crash; no accidental duplicates.
-
-**Validation:** table-driven invariant tests. Add property-based tooling only if ordinary tables cannot cover useful combinations adequately.
+[Queue rules](../../packages/service-worker/src/queue.ts), [action regressions](../../tests/service-worker/queue-actions.test.ts) and [editor cases](../../tests/front/queue-editor.test.ts) are the owning checks. Applied acknowledgements and durable edits remain T12/T11.
 
 ## T08 Fix deletion and restoration
 
-**Priority:** P2. **Basis:** R09. **Dependencies:** T02.
+Implemented under [ADR 0006](../decisions/0006-library-delete-restore.md). VK mutation lifetime is separate from local queue cleanup. Navigation expires pending restore state, and popup closure retains the queue. Controlled and scoped live checks cover late results, restore ordering and safe failure.
 
-Fix Map iteration. Define which operation mutates VK versus local queue, when restoration expires and what popup closure means. Do not combine this localized fix with rewriting every VK mutation.
-
-**Acceptance:** pending delete plus tab change sends DELETE_TRACK; restore prevents it; repeated cleanup is idempotent; popup closure follows the selected contract.
-
-**Validation:** message/cleanup unit and integration tests; delete/restore component controls after T17.
+Preserve the [parity reference](../product/vk-parity.md) and delete/restore regressions. General applied queue-command replies remain T12.
 
 ## T09 Define VK/session error contracts
 
@@ -208,7 +153,7 @@ Introduce schemaVersion and sequential idempotent migrations, including the init
 
 **Priority:** P2. **Basis:** R13. **Dependencies:** T02, T05; coordinate T04/T11.
 
-Retain discriminated unions/exhaustive switches. Validate unknown input, add command request IDs, event playback IDs and serialized outcomes. Define reply lifetime, timeouts, missing receivers, unsupported messages and allowed senders.
+Discriminated unions, exhaustive switches and event playback IDs are implemented. Session requests already validate unknown input and return correlated bounded outcomes. Extend these guarantees to playback and queue commands with validated payloads, command request IDs, serialized results, reply lifetimes and sender policy. Cover timeouts, missing receivers and unsupported messages.
 
 Make Chrome runtime/Firefox CustomEvent adapters implement the same contract, including command completion/failure. Do not add transport versioning without a compatibility scenario; still handle old/unknown messages explicitly.
 
@@ -224,7 +169,7 @@ Implicit-any overrides are removed; command indexing was already corrected durin
 
 Resolve catalog-gallery composition by merging related slices or composing above them through props. Remove four suppressions while preserving scenarios. Adopt coherent pages-first/extraction guidance in AGENTS; do not mechanically remove widgets. Keep shared public APIs focused instead of a giant barrel.
 
-Require every workspace's typecheck/lint and all-client MCP consistency including VKUI_VERSION. Lint/check owned scripts/configs without touching vendored unmask.js. Explicitly align build targets with supported browsers.
+Workspace typecheck/lint, owned tooling checks and all-client MCP consistency including VKUI_VERSION are enforced. Keep vendored unmask.js outside formatting/type changes. Remaining build-target acceptance needs the supported-browser matrix in T14/T16.
 
 **Acceptance:** new boundary/async violations fail validation; missing scripts are detected; rules are not weakened for green CI; layers/dependencies do not grow without cause.
 
@@ -232,7 +177,7 @@ Require every workspace's typecheck/lint and all-client MCP consistency includin
 
 **Priority:** P1 for autonomy. **Basis:** R15. **Dependencies:** T02 and main scenario fixes.
 
-For Chromium, use an isolated persistent extension-capable context, such as Playwright, after proving the exact CI MV3 launch mode. Firefox needs its own supported add-on path, such as web-ext plus compatible WebDriver/BiDi; do not assume a Chromium extension API works there.
+Build on the existing Chrome extension MCP flow and official Mozilla MCP runtime probe. Add an isolated local-data frontend/media path in each browser after proving the exact CI launch and popup support.
 
 Build a test-only local source adapter and short local media fixtures. Production must not contain hidden debug modes/extra permissions. Version sanitized JSON/HTML shapes with provenance, scenario and update procedure; never real cookies/tokens/signed URLs/personal responses. [Fixture authoring guidance](fixtures.md) exists; the complete corpus/browser mode is still open.
 
@@ -268,13 +213,15 @@ CI needs minimal permissions, timeout, concurrency and diagnostic/artifact publi
 
 **Priority:** P2. **Basis:** R18 and parts of R13/R15. **Dependencies:** T02; visual cases use T14.
 
-Replace clickable SVG in TooltipIconButton with a suitable named VKUI button. Check Tab/Enter/Space, focus, disabled, tooltip and stopPropagation. SignIn permission/auth side effects now run in lifecycle effects; broader permission-state ordering still needs review. An upper React error boundary now covers Application/providers with a native safe recovery screen and UI-only reload; render/effect regressions exercise the real entrypoint. Remaining work includes broader keyboard/a11y coverage and safe handling at individual async/event boundaries.
+Named VKUI action buttons, keyboard handling, independent controls, panel/list semantics and modal focus have implementation and regression coverage. Playlist triggers suppress restored-focus hints, and row actions distinguish pointer from keyboard focus. SignIn permission/auth side effects now run in lifecycle effects; broader permission-state ordering still needs review. An upper React error boundary now covers Application/providers with a native safe recovery screen and UI-only reload; render/effect regressions exercise the real entrypoint. Remaining work includes spoken VoiceOver/NVDA verification, default-palette/image contrast review, deterministic local-data browser screenshots and safe handling at individual async/event boundaries.
 
 Exercise modals, themes, long text, empty/pending/error and keyboard-only navigation. Local-data screenshot baselines must be independent of time/randomness. Automated a11y scanning complements keyboard scenarios.
 
 Similar-track actions now retain their named button/focus while pending, reject duplicate activation and expose safe failure/retry feedback. Row action/duration slots preserve hover geometry and restore right-edge placement; embedded VKUI loading indicators keep a fixed center. Controlled regressions and scoped Firefox row/header screenshots are recorded in the testing guide; broader theme, popup and accessibility acceptance remains open.
 
-Measure popup opening/storage-read timing before splitting JS/CSS. Current production front is about 608 kB minified JS/393 kB CSS; this motivates measurement, not a proven performance defect. Compare tab latency before introducing lazy loading.
+The [startup and interaction comparison](testing.md#startup-and-interaction-performance-november-8-2026) now records before/after per-tab React costs and separate production traces. Main pages mount on first visit and retain visited state. Selective row observers, stable catalog merges, 30-second query freshness and viewport preview loading reduce measured startup/interaction work. The [November 9 audit](testing.md#additional-performance-and-design-audit-november-9-2026) prioritizes the initial full queue mount, its action/tooltip tree and forced layout. Warm five-tab returns reuse queries and have low React cost, while retained DOM growth still needs longer-session measurement. Preserve keyboard/screen-reader discovery and draft/focus lifetimes when evaluating bounded queue rendering. Measure current production artifacts and repeat comparable scenarios before further splitting JS/CSS.
+
+The [November 8 accessibility/collage follow-up](testing.md#accessibility-and-collage-checks-november-8-2026) covers named independent controls, valid list/panel structure, route focus, keyboard queue ordering, native seek input, hidden skeletons and system accessibility preferences. It preserves the normal pointer appearance. Home now uses legacy HTML only after an initial token-catalog failure, and collage parsing retains all server thumbnails even when `photo` repeats their first tile.
 
 **Acceptance:** actions are keyboard-accessible; component failures have a recoverable screen; visual changes have baseline/current screenshots; optimization claims have measurements.
 

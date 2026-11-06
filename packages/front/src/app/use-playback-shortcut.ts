@@ -2,7 +2,7 @@ import { commonTypes } from '@vk-audiopad/common'
 import { useEffect } from 'react'
 import { sendMessage } from '@/shared/lib/send-message'
 
-const spaceControls = 'input, textarea, select, button, summary, [contenteditable]:not([contenteditable="false"]), [role="button"], [role="textbox"], [role="slider"], [role="combobox"], [role="listbox"], [role="menuitem"], [role="checkbox"], [role="radio"], [role="switch"]'
+const spaceControls = 'input, textarea, select, button, summary, a[href], [contenteditable]:not([contenteditable="false"]), [role="button"], [role="tab"], [role="link"], [role="textbox"], [role="slider"], [role="combobox"], [role="listbox"], [role="menuitem"], [role="checkbox"], [role="radio"], [role="switch"]'
 
 export const usePlaybackShortcut = (): void => {
   useEffect(() => {

@@ -14,6 +14,8 @@ Closing/reloading the popup ends its in-memory restore window, leaves the queue 
 
 A delete carries its original restore-window generation. If its success arrives after navigation, remove its queue entry immediately instead of registering an undo in the new page. While a restoration request runs, temporarily take the entry out of pending cleanup. Success cancels removal; failure re-registers it in the original window, or removes it immediately if that window has ended. There is no automatic retry after an ambiguous mutation response.
 
+Capture that generation at delete dispatch, even when a retained row has survived earlier navigation without rerendering. The registry publishes generation changes through an atom. Pending restore rows subscribe to its value through useRestoreWindow, allowing memoized rows to expire immediately after navigation. Rows without pending restoration observe a stable null snapshot. [Render-isolation regressions](../../tests/front/render-isolation.test.ts) cover both ordinary and late delete completion after earlier navigation.
+
 Named native VKUI IconButtons replace clickable SVG controls. Delete/restore buttons disable duplicate requests until completion, stop click propagation and show safe failure feedback. Only a verified VK success changes the row. Muted deleted metadata does not disable its restore button. Focus reveals the row controls for keyboard users.
 
 ## VK requests and confirmation

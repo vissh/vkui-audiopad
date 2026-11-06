@@ -80,12 +80,14 @@ export const storageAtom = <T>({
   key: keyName,
   initial: initialValue,
   default: defaultValue,
-  compareObjects
+  compareObjects,
+  onReady
 }: {
   key: string
   initial: T
   default?: T
   compareObjects: ((previousValue: T | undefined, newValue: T | undefined) => boolean) | false
+  onReady?: () => void
 }
 ): StorageAtom<T> => {
   let value = initialValue
@@ -96,6 +98,7 @@ export const storageAtom = <T>({
 
   chrome.storage.local.get(keyName, (items) => {
     memorySet(items[keyName] as T | undefined, true)
+    onReady?.()
   })
 
   chrome.storage.local.onChanged.addListener((changes: Record<string, chrome.storage.StorageChange>) => {

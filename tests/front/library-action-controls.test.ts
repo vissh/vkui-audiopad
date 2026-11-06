@@ -19,10 +19,11 @@ const setup = async () => {
   const network = vi.fn(async (_input: RequestInfo | URL, _init?: RequestInit) => new Response('{"payload":[0,[{"is_followed":true}]]}'))
   vi.stubGlobal('fetch', network)
   const { ConfigProvider, AdaptivityProvider, Platform } = await import('@vkontakte/vkui')
+  const { QueryClient, QueryClientProvider } = await import('@tanstack/react-query')
   const { FollowIcon } = await import('@/features/follow-album')
   const { AddToMyMusicButton } = await import('@/features/add-to-my-music')
   const { Notification } = await import('@/shared/ui/notification')
-  const mount = (children: ReactNode) => render(createElement(ConfigProvider, { platform: Platform.ANDROID, children: createElement(AdaptivityProvider, {}, children, createElement(Notification)) }))
+  const mount = (children: ReactNode) => render(createElement(QueryClientProvider, { client: new QueryClient(), children: createElement(ConfigProvider, { platform: Platform.ANDROID, children: createElement(AdaptivityProvider, {}, children, createElement(Notification)) }) }))
   const album = (ownerId: string, id = 'same') => ({ ...playlist([], id), ownerId, followHash: 'synthetic', coverUrl: '', gridCoverUrls: [], authorLine: '', authorName: '', infoLine: '' })
   return { ...browser, network, FollowIcon, AddToMyMusicButton, mount, album }
 }

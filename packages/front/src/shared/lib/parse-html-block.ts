@@ -1,3 +1,4 @@
+import { catalogImages } from '@vk-audiopad/common'
 import { CatalogBlockDataType, type ParsedAlbumInfo, type ParsedCatalogBlock } from '../types'
 import { parseFromString } from './utils'
 
@@ -126,7 +127,8 @@ const findInfoAboutAlbums = (blockElement: Element): ParsedAlbumInfo[] => {
         title: getTextFromHtmlElements(albumElement.getElementsByClassName('BannerItem__title')),
         text: getTextFromHtmlElements(albumElement.getElementsByClassName('BannerItem__text')),
         subtext: getTextFromHtmlElements(albumElement.getElementsByClassName('BannerItem__subtext')),
-        subtitle: getTextFromHtmlElements(albumElement.getElementsByClassName('audio_pl__year_subtitle'))
+        subtitle: getTextFromHtmlElements(albumElement.getElementsByClassName('audio_pl__year_subtitle')),
+        authorAvatarUrl: catalogImages.imageUrl(albumElement.querySelector('.BannerItem__text img')?.getAttribute('src'))
       })
 
       return result

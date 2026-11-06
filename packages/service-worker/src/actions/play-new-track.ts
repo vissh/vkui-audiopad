@@ -49,7 +49,11 @@ export const playNewTrack = async (newTrackId: string | null, playlist: commonTy
 
   let dispatchFailed = false
   try {
-    if (!await commitPlayback(isCurrent, { playbackRequested: true, playbackError: null })) return
+    if (!await commitPlayback(isCurrent, {
+      playbackRequested: true,
+      playbackError: null,
+      playbackSelection: { id: playlist.id, ownerId: playlist.ownerId, blockId: playlist.blockId, isVkMix: playlist.isVkMix, mixId: playlist.mixId, mixOptions: playlist.mixOptions, mixEntityId: playlist.mixEntityId }
+    })) return
     const selected = await resolveTrack(operation)
     if (!isCurrent()) return
     if (selected == null) {
@@ -118,7 +122,7 @@ const resolveTrack = async (operation: PlaybackOperation): Promise<[commonTypes.
       if (operation.visited.size >= MAX_FAILED_TRACKS) return null
       operation.attempts++
       try {
-        const track = await vkApiClient.getStreamMixAudios(controller.signal)
+        const track = await vkApiClient.getStreamMixAudios(controller.signal, playlist.mixId, playlist.mixOptions, playlist.mixEntityId)
         if (!isRunningPlayback(operation)) return null
         if (!operation.visited.has(track.id)) {
           operation.visited.add(track.id)

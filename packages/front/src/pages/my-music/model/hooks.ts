@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { type commonTypes } from '@vk-audiopad/common'
-import { fetchMorePlaylistTracks, type FetchPlaylistResult } from '@/shared/api'
+import { catalogStaleTime, fetchMorePlaylistTracks, type FetchPlaylistResult } from '@/shared/api'
 import { canAppendPlaylist, mergePlaylistPage } from '@/shared/lib/pagination'
 import { fetchMyMusic } from '../api/fetchers'
 import { type FetchMyMusicResult } from './types'
@@ -12,6 +12,7 @@ export const useMyMusicData = (userId: string, enabled: boolean) => {
     queryKey: queryKey(userId),
     queryFn: async ({ signal }) => await fetchMyMusic(userId, signal),
     refetchOnWindowFocus: false,
+    staleTime: catalogStaleTime,
     enabled: userId.length > 0 && enabled,
     retry: 2
   })

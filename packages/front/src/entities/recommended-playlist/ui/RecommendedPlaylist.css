@@ -3,6 +3,22 @@
   overflow: hidden;
 }
 
+.vkap_recommended_playlist_open {
+  border: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  width: 100%;
+  height: 100%;
+  text-align: start;
+  background: transparent;
+}
+
+.vkap_recommended_playlist_open > span {
+  display: block;
+}
+
 .vkap_recommended_playlist_action {
   position: absolute;
   inset: 0;

@@ -1,8 +1,10 @@
 import { commonTypes } from '@vk-audiopad/common'
+import { useSyncExternalStore } from 'react'
+import { atom } from '@/shared/lib/atom'
 import { onActiveTabChanged } from '@/shared/model'
 
 const deletedTracks = new Map<string, commonTypes.TrackItem>()
-let restoreWindow = 0
+const restoreWindow = atom(0)
 
 const removeFromQueue = (track: commonTypes.TrackItem): void => {
   void chrome.runtime.sendMessage({
@@ -12,8 +14,8 @@ const removeFromQueue = (track: commonTypes.TrackItem): void => {
   }).catch(() => { console.warn('Queue removal delivery failed') })
 }
 
-const add = (track: commonTypes.TrackItem, window = restoreWindow): void => {
-  if (window !== restoreWindow) {
+const add = (track: commonTypes.TrackItem, window = restoreWindow.get()): void => {
+  if (window !== restoreWindow.get()) {
     removeFromQueue(track)
     return
   }
@@ -21,14 +23,14 @@ const add = (track: commonTypes.TrackItem, window = restoreWindow): void => {
 }
 
 export const deletedTrackForRestore = {
-  window: (): number => restoreWindow,
+  window: (): number => restoreWindow.get(),
   add,
   remove: (track: commonTypes.TrackItem): void => {
     deletedTracks.delete(track.id)
     removeFromQueue(track)
   },
   restore: async (track: commonTypes.TrackItem, action: () => Promise<void>): Promise<void> => {
-    const window = restoreWindow
+    const window = restoreWindow.get()
     const pending = deletedTracks.delete(track.id)
     try {
       await action()
@@ -40,7 +42,7 @@ export const deletedTrackForRestore = {
   clear: (): void => {
     const tracks = [...deletedTracks.values()]
     deletedTracks.clear()
-    restoreWindow++
+    restoreWindow.set(restoreWindow.get() + 1)
     tracks.forEach(removeFromQueue)
   }
 }
@@ -48,3 +50,5 @@ export const deletedTrackForRestore = {
 onActiveTabChanged(activeTab => {
   if (activeTab.tab !== commonTypes.ContentTab.UNKNOWN) deletedTrackForRestore.clear()
 })
+
+export const useRestoreWindow = (pending: boolean): number | null => useSyncExternalStore(restoreWindow.subscribe, () => pending ? restoreWindow.get() : null)

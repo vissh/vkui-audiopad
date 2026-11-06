@@ -19,10 +19,13 @@ export const ActionTabs: FC = () => {
   }, [])
 
   return (
-    <Tabs mode='accent' layoutFillMode='shrinked'>
+    <Tabs mode='accent' layoutFillMode='shrinked' role='group' aria-label='Настройки и поддержка'>
       <TabsItem
-        id='tab-like'
-        aria-controls='tab-like'
+        role='button'
+        tabIndex={0}
+        aria-selected={undefined}
+        aria-label='Поддержать проект'
+        aria-haspopup='dialog'
         style={{ padding: '0px 0px' }}
         hovered={false}
         before={likeNewVersion ? <Icon28LikeFillRed /> : <Icon24LikeOutline />}
@@ -52,9 +55,11 @@ export const ActionTabs: FC = () => {
         }
       >
         <TabsItem
-          id='tab-settings'
+          role='button'
+          tabIndex={0}
+          aria-selected={undefined}
           aria-label='Настройки'
-          aria-controls='tab-settings'
+          aria-haspopup='dialog'
           style={{ padding: '0px 0px' }}
           hovered={false}
           before={<Icon24GearOutline />}

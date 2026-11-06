@@ -15,10 +15,6 @@ const activeTabAtom = storageAtom({
   }
 })
 
-activeTabAtom.watch(() => {
-  window.scrollTo(0, 0)
-})
-
 const newHistory = (tab: commonTypes.ActiveTabs): commonTypes.ActiveTabs[] => {
   return commonUtils.isTabWithHistory(tab) ? [...(tab.history ?? []), tab] : [tab]
 }

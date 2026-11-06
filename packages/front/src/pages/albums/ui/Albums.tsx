@@ -8,11 +8,12 @@ import { InfinityContent } from '@/shared/ui/infinity-content'
 import { useAlbumsData, useLoadMoreAlbumsDataMutation } from '../model/hooks'
 
 interface AlbumsProps {
+  title?: string
   userId: string
   showAllLink: string
 }
 
-export const Albums: FC<AlbumsProps> = ({ userId, showAllLink }) => {
+export const Albums: FC<AlbumsProps> = ({ userId, showAllLink, title }) => {
   const { data: fetchResult, isPending, error } = useAlbumsData(userId, showAllLink)
   const loadMoreMutation = useLoadMoreAlbumsDataMutation()
 
@@ -26,7 +27,7 @@ export const Albums: FC<AlbumsProps> = ({ userId, showAllLink }) => {
       paginationScope={JSON.stringify([userId, 'albums', showAllLink])}
       pageKey={fetchResult?.nextFrom ?? ''}
       loadMoreMutation={loadMoreMutation}
-      loadMoreArgs={fetchResult == null ? undefined : { userId, showAllLink, nextFrom: fetchResult.nextFrom, sectionId: fetchResult.sectionId }}
+      loadMoreArgs={fetchResult == null ? undefined : { userId, showAllLink, nextFrom: fetchResult.nextFrom, sectionId: fetchResult.sectionId, tokenCatalog: fetchResult.tokenCatalog }}
       error={error}
     >
       <Group>
@@ -42,6 +43,8 @@ export const Albums: FC<AlbumsProps> = ({ userId, showAllLink }) => {
               />
             </>
           : <CatalogGallery
+              expanded
+              hideTitle={firstBlock?.dataType === 'tracks' && firstBlock.playlist.title === title}
               mode='plain'
               isPending={isPending}
               loadingBlock='albums'

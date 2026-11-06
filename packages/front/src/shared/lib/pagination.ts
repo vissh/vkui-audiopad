@@ -23,6 +23,11 @@ export const mergePlaylistPage = (previous: commonTypes.Playlist, next: commonTy
 export const mergeAlbums = (previous: readonly Album[], next: readonly Album[]): Album[] => mergeByKey(previous, next, album => JSON.stringify([album.ownerId, album.id]))
 
 export const mergeCatalogBlocks = (previous: readonly CatalogBlock[], next: readonly CatalogBlock[]): CatalogBlock[] => mergeByKey(previous, next, block => block.blockId, (previous, next) => {
+  if (previous.dataType === CatalogBlockDataType.LINKS || next.dataType === CatalogBlockDataType.LINKS) {
+    return previous.dataType === CatalogBlockDataType.LINKS && next.dataType === CatalogBlockDataType.LINKS
+      ? { ...next, links: mergeByKey(previous.links, next.links, item => item.id) }
+      : next
+  }
   if (previous.dataType === CatalogBlockDataType.TRACKS || next.dataType === CatalogBlockDataType.TRACKS) {
     return previous.dataType === CatalogBlockDataType.TRACKS && next.dataType === CatalogBlockDataType.TRACKS && samePlaylist(previous.playlist, next.playlist)
       ? { ...next, playlist: mergePlaylistPage(previous.playlist, next.playlist) }

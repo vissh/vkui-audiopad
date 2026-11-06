@@ -1,10 +1,8 @@
-import { commonTypes } from '@vk-audiopad/common'
-import { Slider } from '@vkontakte/vkui'
+import { commonTypes, commonUtils } from '@vk-audiopad/common'
 import { useState, type FC } from 'react'
 import { useCurrentTime, useDuration } from '@/entities/active-track'
 import { sendMessage } from '@/shared/lib/send-message'
-
-const arrowKeyCodes = new Set(['ArrowLeft', 'ArrowRight'])
+import { PlayerSlider } from '@/shared/ui/player-slider'
 
 export const CurrentTimeSlider: FC = () => {
   const currentTime = useCurrentTime()
@@ -22,7 +20,14 @@ export const CurrentTimeSlider: FC = () => {
     }
   }
 
-  const sliderCurrentTime = sliderValue ?? ((duration !== 0) ? (currentTime * 100) / duration : 0)
+  const sliderCurrentTime = Math.max(0, Math.min(duration, sliderValue ?? currentTime))
+  const commit = (value: number) => {
+    sendMessage({
+      target: commonTypes.MessageTarget.SERVICE_WORKER,
+      type: commonTypes.MessageType.CURRENT_TIME,
+      value
+    })
+  }
 
   const mouseDown = (e: React.PointerEvent) => {
     e.currentTarget.setPointerCapture(e.pointerId)
@@ -31,36 +36,30 @@ export const CurrentTimeSlider: FC = () => {
 
   const mouseUp = (e: React.PointerEvent) => {
     e.currentTarget.releasePointerCapture(e.pointerId)
-    sendMessage({
-      target: commonTypes.MessageTarget.SERVICE_WORKER,
-      type: commonTypes.MessageType.CURRENT_TIME,
-      value: (sliderCurrentTime * duration) / 100
-    })
+    commit(sliderCurrentTime)
     // keep the dragged position until the next playback tick overrides it
     setDragging(false)
   }
 
   return (
-    <Slider
-      size='s'
+    <PlayerSlider
+      aria-label='Позиция воспроизведения'
+      getAriaValueText={value => `${commonUtils.toHHMMSS(value)} из ${commonUtils.toHHMMSS(duration)}`}
+      formatValue={commonUtils.toHHMMSS}
       min={0}
-      max={100}
+      max={duration || 1}
+      step={1}
+      disabled={duration <= 0}
       value={sliderCurrentTime}
-      onChange={setSliderValue}
-      onPointerDown={mouseDown}
-      onPointerUp={mouseUp}
-      onKeyDown={(e) => {
-        if (!arrowKeyCodes.has(e.code)) {
-          return
-        }
-
-        let value = (sliderCurrentTime * duration) / 100
-        value += e.code === 'ArrowLeft' ? -1 : 1
-        sendMessage({
-          target: commonTypes.MessageTarget.SERVICE_WORKER,
-          type: commonTypes.MessageType.CURRENT_TIME,
-          value
-        })
+      onChange={(value, event) => {
+        setSliderValue(value)
+        if ('target' in event && event.target instanceof HTMLInputElement) commit(value)
+      }}
+      onPointerDown={duration > 0 ? mouseDown : undefined}
+      onPointerUp={duration > 0 ? mouseUp : undefined}
+      onPointerCancel={() => {
+        setDragging(false)
+        setSliderValue(null)
       }}
     />
   )

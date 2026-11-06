@@ -30,6 +30,8 @@ For a browser change, record build identity, action, observed state, console del
 
 For races or failures, add controlled tests using tests/helpers and prove that the regression distinguishes the old behavior. Follow [the agent workflow](../../../docs/ai/agent-workflow.md) for required checks and handoff. Browser-dependent checks stay separate from the default offline unit/integration suite.
 
+For frontend startup, scrolling or render cost, follow [UI debugging and profiling](../../../docs/ai/ui-debugging.md). Use the opt-in React MCP build and a separate normal production trace, then restore ordinary stage assets.
+
 ## External guidance
 
 Consult these primary sources when a changed API/version needs verification:

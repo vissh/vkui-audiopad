@@ -1,13 +1,15 @@
 import { commonTypes } from '@vk-audiopad/common'
-import { useState, type FC } from 'react'
+import { memo, useRef, useState } from 'react'
 import { AddToMyMusicButton } from '@/features/add-to-my-music'
 import { AddToQueueButton } from '@/features/add-to-queue'
 import { DeleteFromMyMusicButton, DeleteFromMyMusicWithRestoreButton } from '@/features/delete-from-my-music'
+import { AddTrackToPlaylistButton } from '@/features/manage-playlists'
 import { playOrPause } from '@/features/play-or-pause'
-import { RestoreButton, deletedTrackForRestore } from '@/features/restore'
+import { RestoreButton, deletedTrackForRestore, useRestoreWindow } from '@/features/restore'
 import { SearchArtist } from '@/features/search-artist'
 import { SimilarButton } from '@/features/similar'
-import { useActiveTrack, useCurrentPlaylist, usePlayed } from '@/entities/active-track'
+import { TrackMixButton } from '@/features/track-mix'
+import { useHasCurrentPlaylist, useTrackPlayback } from '@/entities/active-track'
 import { useSessionUserId } from '@/entities/session'
 import { TrackCell } from '@/entities/track'
 import { getActionButtons, getTrackState } from './utils'
@@ -17,26 +19,26 @@ interface TrackProps {
   track: commonTypes.TrackItem
 }
 
-export const Track: FC<TrackProps> = ({ playlist, track: originalTrack }) => {
+export const Track = memo(function Track ({ playlist, track: originalTrack }: TrackProps) {
   const userId = useSessionUserId()
-  const currentPlaylist = useCurrentPlaylist()
-  const activeTrack = useActiveTrack()
-  const played = usePlayed()
+  const currentPlaylistExists = useHasCurrentPlaylist()
 
   const [track, setTrack] = useState(originalTrack)
   const [addedToMyMusic, setAddedToMyMusic] = useState(false)
   const [deletedInWindow, setDeletedInWindow] = useState<number | null>(null)
   const deletedFromMyMusic = deletedInWindow != null
+  const playback = useTrackPlayback(track.id)
 
-  const restoreWindow = deletedTrackForRestore.window()
-  const trackState = getTrackState(track, activeTrack, played)
+  const restoreWindow = useRestoreWindow(deletedFromMyMusic)
+  const deleteWindow = useRef(deletedTrackForRestore.window())
+  const trackState = getTrackState(track, playback == null ? null : track, playback === 'played')
 
   const actionButtons = getActionButtons({
     userId,
     track,
     trackState,
-    activeTrack,
-    currentPlaylistExists: currentPlaylist != null,
+    activeTrack: playback == null ? null : track,
+    currentPlaylistExists,
     addedToMyMusic,
     deletedFromMyMusic
   })
@@ -54,6 +56,8 @@ export const Track: FC<TrackProps> = ({ playlist, track: originalTrack }) => {
       onClick={() => { playOrPause(trackState, track.id, playlist) }}
       actions={
         <>
+          {actionButtons.has('addToQueue') && <AddToQueueButton track={track} />}
+          {!deletedFromMyMusic && !playlist.isRadio && <TrackMixButton track={track} size='s' />}
           {actionButtons.has('similar') && (
             <SimilarButton
               size='s'
@@ -62,9 +66,7 @@ export const Track: FC<TrackProps> = ({ playlist, track: originalTrack }) => {
             />
           )}
 
-          {actionButtons.has('addToQueue') && (
-            <AddToQueueButton track={track} />
-          )}
+          {!deletedFromMyMusic && <AddTrackToPlaylistButton track={track} size='s' />}
 
           {actionButtons.has('add') && (
             <AddToMyMusicButton
@@ -92,10 +94,11 @@ export const Track: FC<TrackProps> = ({ playlist, track: originalTrack }) => {
           {actionButtons.has('deleteWithRestore') && (
             <DeleteFromMyMusicWithRestoreButton
               track={track}
+              onBeforeDelete={() => { deleteWindow.current = deletedTrackForRestore.window() }}
               onAfterDelete={() => {
-                deletedTrackForRestore.add(track, restoreWindow)
+                deletedTrackForRestore.add(track, deleteWindow.current)
                 setTrack({ ...track, flags: track.flags | commonTypes.TrackFlagBit.CLAIMED })
-                setDeletedInWindow(restoreWindow)
+                setDeletedInWindow(deleteWindow.current)
               }}
             />
           )}
@@ -113,4 +116,4 @@ export const Track: FC<TrackProps> = ({ playlist, track: originalTrack }) => {
       }
     />
   )
-}
+})

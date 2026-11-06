@@ -33,7 +33,9 @@ const startup = async ({ offscreen = true, exists = true, paused = false, mediaI
 
 it.each([true, false])('reconciles surviving playing media without replacing or replaying it with offscreen=%s', async offscreen => {
   const player = await startup({ offscreen })
+  await player.api.storage.local.set({ playbackSelection: { id: 'unfinished-mix', ownerId: '1', blockId: '', isVkMix: true, mixId: 'common' } })
   expect(await player.gate.start()).toBe(true)
+  expect(player.snapshot().playbackSelection).toBeNull()
   expect(player.snapshot()).toMatchObject({ playbackInitialization: 'ready', played: true, playbackRequested: true, playbackId: 'media', currentTime: 12, duration: 30 })
   expect(player.audio.play).not.toHaveBeenCalled()
   expect(player.fetchTrack).not.toHaveBeenCalled()

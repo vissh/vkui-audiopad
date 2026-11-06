@@ -16,6 +16,7 @@ import {
 
 export const ApplicationControls: ApplicationControlsState = {
   volume: 0.5,
+  volumeBeforeMute: 0.5,
   shuffle: false,
   repeat: RepeatMode.NONE,
   durationMode: DurationMode.TIME_PASSED,
@@ -27,7 +28,8 @@ export const ApplicationSettings: ApplicationSettingsState = {
   theme: Theme.SYSTEM,
   likeVersion: 0,
   settingsVersion: 0,
-  equalizerAnnouncementPending: false
+  equalizerAnnouncementPending: false,
+  vkMixPreferences: {}
 }
 
 export const ApplicationActiveTrack: ApplicationActiveTrackState = {
@@ -38,7 +40,8 @@ export const ApplicationActiveTrack: ApplicationActiveTrackState = {
   playbackError: null,
   activeTrack: null,
   duration: 0,
-  currentPlaylist: null
+  currentPlaylist: null,
+  playbackSelection: null
 }
 
 export const CurrentTime: ApplicationCurrentTimeState = {

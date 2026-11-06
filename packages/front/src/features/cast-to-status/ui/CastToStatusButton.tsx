@@ -14,6 +14,8 @@ export const CastToStatusButton: FC = () => {
   return (
     <TooltipIconButton
       accent={castToStatus}
+      className='vkap_broadcast_button'
+      pressed={castToStatus}
       padding
       text='Транслировать музыку в статус'
       icon={Icon28RadiowavesLeftAndRightOutline}

@@ -5,7 +5,8 @@ export enum CatalogBlockDataType {
   ALBUMS = 'albums',
   RECOMMENDATIONS = 'recommendations',
   VIBES = 'vibes',
-  BANNERS = 'banners'
+  BANNERS = 'banners',
+  LINKS = 'links'
 }
 
 export type Album = commonTypes.Playlist & {
@@ -13,6 +14,9 @@ export type Album = commonTypes.Playlist & {
   gridCoverUrls: string[]
   authorLine: string
   authorName: string
+  trackCount?: number
+  playCount?: number
+  authorAvatarUrl?: string
   infoLine: string
 }
 
@@ -28,6 +32,7 @@ export interface AlbumsCatalogBlock {
   title: string
   albums: Album[]
   showAllLink: string
+  library?: boolean
 }
 
 export interface RecommendationsCatalogBlock {
@@ -36,6 +41,7 @@ export interface RecommendationsCatalogBlock {
   title: string
   albums: Album[]
   showAllLink: string
+  library?: boolean
 }
 
 export interface VibesCatalogBlock {
@@ -44,6 +50,7 @@ export interface VibesCatalogBlock {
   title: string
   albums: Album[]
   showAllLink: string
+  library?: boolean
 }
 
 export interface BannersCatalogBlock {
@@ -52,9 +59,36 @@ export interface BannersCatalogBlock {
   title: string
   albums: Album[]
   showAllLink: string
+  library?: boolean
 }
 
-export type CatalogBlock = TracksCatalogBlock | AlbumsCatalogBlock | RecommendationsCatalogBlock | VibesCatalogBlock | BannersCatalogBlock
+export interface CatalogLinkItem {
+  id: string
+  title: string
+  subtitle: string
+  href: string
+  image: string
+  colors: string[]
+  foreground: boolean
+  foregroundImage?: string
+  mixId?: string
+  mixOptions?: string
+  mixEntityId?: string
+  artist?: commonTypes.TrackArtist
+  friendOwnerId?: string
+  playlist?: commonTypes.Playlist
+}
+
+export interface LinksCatalogBlock {
+  blockId: string
+  dataType: CatalogBlockDataType.LINKS
+  title: string
+  links: CatalogLinkItem[]
+  showAllLink: string
+  layout: 'categories' | 'banners' | 'friends' | 'mixes' | 'artists'
+}
+
+export type CatalogBlock = TracksCatalogBlock | AlbumsCatalogBlock | RecommendationsCatalogBlock | VibesCatalogBlock | BannersCatalogBlock | LinksCatalogBlock
 
 export interface ParsedAlbumInfo {
   id: string
@@ -63,6 +97,7 @@ export interface ParsedAlbumInfo {
   subtitle: string
   text: string
   subtext: string
+  authorAvatarUrl?: string
 }
 
 export interface ParsedCatalogBlock {

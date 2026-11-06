@@ -2,10 +2,11 @@ import { expect, it } from 'vitest'
 import { createChrome } from '../helpers/chrome'
 
 it('awaits cleanup and preserves settings and explicitly retained session fields', async () => {
-  const browser = createChrome({ volume: 0.4, shuffle: true, userId: '1', webToken: 'synthetic', currentPlaylist: {}, playbackId: 'media' })
+  const vkMixPreferences = { 1: { options: '{"vibes":["calm"]}', title: 'Спокойно' } }
+  const browser = createChrome({ volume: 0.4, volumeBeforeMute: 0.7, shuffle: true, userId: '1', webToken: 'synthetic', currentPlaylist: {}, playbackId: 'media', vkMixPreferences })
   const { commonUtils } = await import('@vk-audiopad/common')
   await commonUtils.clearStorage(['userId', 'webToken'])
-  expect(browser.snapshot()).toEqual({ volume: 0.4, shuffle: true, userId: '1', webToken: 'synthetic' })
+  expect(browser.snapshot()).toEqual({ volume: 0.4, volumeBeforeMute: 0.7, shuffle: true, userId: '1', webToken: 'synthetic', vkMixPreferences })
 })
 
 it('does not remove data after a failed read and surfaces the failure', async () => {

@@ -1,0 +1,62 @@
+.vkap_mix_settings_trigger {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 16px;
+}
+
+.vkap_mix_settings_configured {
+  width: fit-content;
+  max-width: calc(100% - 32px);
+  margin-inline: auto;
+  border-radius: 10px;
+  overflow: hidden;
+  background: var(--vkui--color_background_secondary_alpha);
+}
+
+.vkap_mix_settings_configured > button:first-child {
+  border-radius: 10px 0 0 10px;
+  background: transparent;
+  min-width: 0;
+}
+
+.vkap_mix_settings_configured > button:last-child {
+  border-radius: 0 10px 10px 0;
+  min-width: 32px;
+  padding-inline: 4px 8px;
+}
+
+.vkap_mix_settings {
+  width: 420px;
+  max-width: calc(100vw - 32px);
+}
+
+.vkap_mix_settings_form {
+  text-align: left;
+  padding-top: 8px;
+}
+
+.vkap_mix_settings_form section {
+  margin: 20px -16px 28px;
+}
+
+.vkap_mix_settings_label {
+  display: block;
+  margin: 0 16px 16px;
+  color: var(--vkui--color_text_secondary);
+}
+
+.vkap_mix_settings_actions {
+  padding-top: 12px;
+}
+
+.vkap_mix_settings_loading {
+  display: grid;
+  gap: 32px;
+  padding: 32px 0;
+}
+
+.vkap_mix_settings_loading > div {
+  display: grid;
+  gap: 16px;
+}

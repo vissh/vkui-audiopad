@@ -1,5 +1,5 @@
 import { useColorScheme } from '@vkontakte/vkui'
-import { useEffect, useRef, type FC } from 'react'
+import { useEffect, useRef, useState, type FC } from 'react'
 import { useCurrentPlaylist, usePlayed } from '@/entities/active-track'
 
 interface Ball {
@@ -26,11 +26,20 @@ const balls: Ball[] = [
 interface VKMixBallsProps {
   width: number
   height: number
+  active?: boolean
 }
 
-export const VKMixBalls: FC<VKMixBallsProps> = ({ width, height }) => {
+export const VKMixBalls: FC<VKMixBallsProps> = ({ width, height, active = true }) => {
   const canvasRef = useRef(null)
   const animationFrameId = useRef<number | null>(null)
+
+  const [reducedMotion, setReducedMotion] = useState(() => window.matchMedia('(prefers-reduced-motion: reduce)').matches)
+  useEffect(() => {
+    const media = window.matchMedia('(prefers-reduced-motion: reduce)')
+    const update = () => { setReducedMotion(media.matches) }
+    media.addEventListener('change', update)
+    return () => { media.removeEventListener('change', update) }
+  }, [])
 
   const colorScheme = useColorScheme()
   const currentPlaylist = useCurrentPlaylist()
@@ -41,63 +50,26 @@ export const VKMixBalls: FC<VKMixBallsProps> = ({ width, height }) => {
     : AnimatedState.INITIAL
 
   useEffect(() => {
-    const startAnimation = (initial: boolean): void => {
-      stopAnimation()
-
-      const canvas = canvasRef.current as (HTMLCanvasElement | null)
-      if (canvas == null) {
-        return
-      }
-
-      const ctx = canvas.getContext('2d')
-      if (ctx == null) {
-        return
-      }
-
-      const render = () => {
-        draw(canvas, ctx, balls)
-        if (!initial) {
-          animationFrameId.current = requestAnimationFrame(render)
-        }
-      }
-      render()
+    const canvas = canvasRef.current as HTMLCanvasElement | null
+    const ctx = canvas?.getContext('2d')
+    if (canvas == null || ctx == null || !active) return
+    const render = () => {
+      draw(canvas, ctx, balls)
+      if (animated === AnimatedState.START && !reducedMotion) animationFrameId.current = requestAnimationFrame(render)
     }
-
-    const stopAnimation = () => {
-      if (animationFrameId.current !== null) {
-        cancelAnimationFrame(animationFrameId.current)
-      }
-    }
-
-    switch (animated) {
-      case AnimatedState.INITIAL:
-        startAnimation(true)
-        stopAnimation()
-        break
-      case AnimatedState.START:
-        startAnimation(false)
-        break
-      case AnimatedState.PAUSE:
-        startAnimation(false)
-        stopAnimation()
-        break
-    }
-  }, [animated, colorScheme])
-
-  useEffect(() => {
+    animationFrameId.current = requestAnimationFrame(render)
     return () => {
-      if (animationFrameId.current !== null) {
-        cancelAnimationFrame(animationFrameId.current)
-      }
+      if (animationFrameId.current != null) cancelAnimationFrame(animationFrameId.current)
     }
-  }, [])
+  }, [active, animated, colorScheme, reducedMotion])
 
   return (
     <canvas
       ref={canvasRef}
+      aria-hidden='true'
       width={width}
       height={height}
-      style={{ display: 'inline-block;' }}
+      style={{ display: 'inline-block', maxWidth: '100%' }}
     />
   )
 }
@@ -113,7 +85,7 @@ export const draw = (canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2D, b
     ball.phase += ball.speed
     const offsetY = Math.sin(ball.phase) * 25
     const scale = 1 + Math.sin(ball.phase) * 0.15
-    drawBall(ctx, ball.x, ball.baseY - offsetY, scale, ball.color)
+    drawBall(ctx, ball.x, canvas.height / 2 + ball.baseY - 87 - offsetY, scale, ball.color)
   })
 }
 

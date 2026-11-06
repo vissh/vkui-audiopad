@@ -9,7 +9,7 @@ const fixtures: string[] = []
 const source = () => ({
   mcpServers: {
     vkui: { command: 'npx', args: ['-y', '@vkontakte/vkui-mcp@1.1.0'], env: { VKUI_VERSION: '8.4.3' } },
-    'chrome-devtools': { command: 'npx', args: ['-y', 'chrome-devtools-mcp@1.12.0', '--categoryExtensions', '--no-usage-statistics'] },
+    'chrome-devtools': { command: 'npx', args: ['-y', 'chrome-devtools-mcp@1.12.0', '--categoryExtensions', '--categoryExperimentalThirdParty=true', '--no-usage-statistics'] },
     'firefox-devtools': { command: 'npx', args: ['-y', '@mozilla/firefox-devtools-mcp-moz@0.10.7', '--tools', 'pages', 'snapshot', 'input', 'network', 'console', 'screenshot', 'utilities', 'management', 'webextension', 'script', 'privileged', '--auto-profile', '--viewport', '780x600'], env: { MOZ_REMOTE_ALLOW_SYSTEM_ACCESS: '1' } }
   }
 })
@@ -32,7 +32,7 @@ describe('shared MCP settings', () => {
     const result = renderMcpConfigs(source())
     expect(result.opencode).toEqual({
       vkui: { type: 'local', command: ['npx', '-y', '@vkontakte/vkui-mcp@1.1.0'], enabled: true, environment: { VKUI_VERSION: '8.4.3' } },
-      'chrome-devtools': { type: 'local', command: ['npx', '-y', 'chrome-devtools-mcp@1.12.0', '--categoryExtensions', '--no-usage-statistics'], enabled: true },
+      'chrome-devtools': { type: 'local', command: ['npx', '-y', 'chrome-devtools-mcp@1.12.0', '--categoryExtensions', '--categoryExperimentalThirdParty=true', '--no-usage-statistics'], enabled: true },
       'firefox-devtools': { type: 'local', command: ['npx', '-y', '@mozilla/firefox-devtools-mcp-moz@0.10.7', '--tools', 'pages', 'snapshot', 'input', 'network', 'console', 'screenshot', 'utilities', 'management', 'webextension', 'script', 'privileged', '--auto-profile', '--viewport', '780x600'], enabled: true, environment: { MOZ_REMOTE_ALLOW_SYSTEM_ACCESS: '1' } }
     })
     expect(result.codex).toBe(`# Generated from .mcp.json by npm run mcp:sync. Do not edit by hand.
@@ -48,7 +48,7 @@ args = ["-y","@vkontakte/vkui-mcp@1.1.0"]
 [mcp_servers."chrome-devtools"]
 enabled = true
 command = "npx"
-args = ["-y","chrome-devtools-mcp@1.12.0","--categoryExtensions","--no-usage-statistics"]
+args = ["-y","chrome-devtools-mcp@1.12.0","--categoryExtensions","--categoryExperimentalThirdParty=true","--no-usage-statistics"]
 
 [mcp_servers."firefox-devtools"]
 enabled = true

@@ -1,20 +1,22 @@
 import { type commonTypes } from '@vk-audiopad/common'
 import { Icon16ChevronOutline } from '@vkontakte/icons'
-import { Div, Spacing, Title } from '@vkontakte/vkui'
-import { Fragment, type FC } from 'react'
+import { Div, Link, Spacing, Title } from '@vkontakte/vkui'
+import { Fragment, type FC, type ReactNode } from 'react'
 import { setActiveTab } from '@/shared/model'
 import { getTabName } from '../lib/utils'
 
 interface HistoryNavigationProps {
   activeTab: commonTypes.TabWithHistory
+  after?: ReactNode
 }
 
-export const History: FC<HistoryNavigationProps> = ({ activeTab }) => {
+export const History: FC<HistoryNavigationProps> = ({ activeTab, after }) => {
   return (
     <Div
       style={{
         display: 'flex',
         flexDirection: 'row',
+        alignItems: 'center',
         justifyContent: 'flex-start',
         paddingTop: '10px',
         paddingLeft: '10px'
@@ -26,11 +28,10 @@ export const History: FC<HistoryNavigationProps> = ({ activeTab }) => {
             level='3'
             weight='3'
             className='vkap_link vkap_hidden_overflow'
-            onClick={() => { setActiveTab(tab) }}
-            Component='h3'
+            Component='span'
             useAccentWeight
           >
-            {getTabName(tab)}
+            <Link Component='button' type='button' className='vkap_link' onClick={() => { setActiveTab(tab) }}>{getTabName(tab)}</Link>
           </Title>
           &#8194;
           <Spacing style={{ padding: '4px 0' }}> {/* TODO: VKUI fix https://github.com/VKCOM/VKUI/pull/7035 */}
@@ -43,11 +44,14 @@ export const History: FC<HistoryNavigationProps> = ({ activeTab }) => {
         level='3'
         weight='3'
         className='vkap_hidden_overflow'
-        Component='h3'
+        Component='h1'
+        tabIndex={-1}
+        data-route-heading
         useAccentWeight
       >
         {getTabName(activeTab)}
       </Title>
+      {after}
     </Div>
   )
 }

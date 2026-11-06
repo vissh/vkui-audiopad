@@ -11,7 +11,7 @@ args = ["-y","@vkontakte/vkui-mcp@1.1.0"]
 [mcp_servers."chrome-devtools"]
 enabled = true
 command = "npx"
-args = ["-y","chrome-devtools-mcp@1.12.0","--categoryExtensions","--no-usage-statistics"]
+args = ["-y","chrome-devtools-mcp@1.12.0","--categoryExtensions","--categoryExperimentalThirdParty=true","--no-usage-statistics"]
 
 [mcp_servers."firefox-devtools"]
 enabled = true

@@ -12,7 +12,7 @@ export const Duration: FC<DurationProps> = ({ value, className }) => {
       className={className}
       level='1'
       style={{ color: 'var(--vkui--color_text_secondary)' }}
-      Component='h4'
+      Component='span'
     >
       {value}
     </Headline>

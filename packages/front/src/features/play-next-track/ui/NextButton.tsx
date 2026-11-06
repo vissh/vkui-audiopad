@@ -7,6 +7,7 @@ import { sendMessage } from '@/shared/lib/send-message'
 export const NextButton: FC = () => {
   return (
     <IconButton
+      label='Следующий трек'
       hasHover={false}
       onClick={() => {
         sendMessage({

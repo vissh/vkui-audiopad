@@ -1,5 +1,5 @@
 import { IconButton, Spinner, Tooltip, type IconButtonProps, type TooltipOnShownChange } from '@vkontakte/vkui'
-import { type FC } from 'react'
+import { useRef, useState, type FC } from 'react'
 import './TooltipIconButton.css'
 
 export interface TooltipIconButtonProps {
@@ -10,14 +10,19 @@ export interface TooltipIconButtonProps {
   padding?: boolean
   disabled?: boolean
   busy?: boolean
+  pressed?: boolean
+  description?: string
   hoverMode?: IconButtonProps['hoverMode']
   activeMode?: IconButtonProps['activeMode']
   tooltipShown?: boolean
   onTooltipShownChange?: TooltipOnShownChange
+  suppressTooltipOnClick?: boolean
   onClick?: () => void
 }
 
 export const TooltipIconButton: FC<TooltipIconButtonProps> = (props) => {
+  const [shown, setShown] = useState(false)
+  const suppressRestoredFocus = useRef(false)
   const paddingClassName = (props.padding ?? false) ? 'vkap_tooltip_icon_button_padding' : ''
   const accentClassName = (props.accent ?? false) ? '' : 'vkap_tooltip_icon_button'
 
@@ -26,20 +31,35 @@ export const TooltipIconButton: FC<TooltipIconButtonProps> = (props) => {
       description={props.text}
       hideWhenReferenceHidden={true}
       usePortal={true}
-      shown={props.tooltipShown}
-      onShownChange={props.onTooltipShownChange}
+      shown={props.tooltipShown ?? (props.suppressTooltipOnClick ? shown : undefined)}
+      onShownChange={props.suppressTooltipOnClick
+        ? (shown, reason) => {
+            if (shown && reason === 'focus' && suppressRestoredFocus.current) {
+              suppressRestoredFocus.current = false
+              return
+            }
+            setShown(shown)
+            props.onTooltipShownChange?.(shown, reason)
+          }
+        : props.onTooltipShownChange}
     >
       <IconButton
         label={props.text}
         disabled={props.disabled}
-        hoverMode={props.hoverMode}
-        activeMode={props.activeMode}
+        hoverMode={props.hoverMode ?? 'none'}
+        activeMode={props.activeMode ?? 'none'}
         aria-disabled={props.disabled || props.busy || undefined}
         aria-busy={props.busy || undefined}
+        aria-pressed={props.pressed}
+        aria-description={props.description}
         className={`vkap_icon_action ${accentClassName} ${paddingClassName} ${props.className ?? ''}`}
         onClick={(e: React.MouseEvent) => {
           e.stopPropagation()
           if (!props.disabled && !props.busy && props.onClick != null) {
+            if (props.suppressTooltipOnClick) {
+              suppressRestoredFocus.current = true
+              setShown(false)
+            }
             props.onClick()
           }
         }}

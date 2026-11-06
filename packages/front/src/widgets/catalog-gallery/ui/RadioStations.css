@@ -1,0 +1,77 @@
+.vkap_radio_grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 10px;
+  padding: 8px 16px 20px;
+}
+
+.vkap_radio_station {
+  display: flex;
+  width: 100%;
+  min-height: 166px;
+  height: 100%;
+  box-sizing: border-box;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 24px 12px 18px;
+  border: 0;
+  border-radius: 10px;
+  text-align: center;
+  color: var(--vkui--color_text_primary);
+  background: transparent;
+  font: inherit;
+  font-size: 14px;
+  line-height: 18px;
+}
+
+.vkap_radio_playing {
+  color: var(--vkui--color_text_accent);
+  font-size: 12px;
+}
+
+.vkap_radio_card {
+  position: relative;
+  overflow: hidden;
+}
+
+.vkap_radio_card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: rgb(0 0 0 / 60%);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.vkap_radio_card:hover::after,
+.vkap_radio_card:focus-within::after {
+  opacity: 1;
+}
+
+.vkap_radio_card .vkap_radio_follow {
+  position: absolute;
+  z-index: 1;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 40px;
+  height: 40px;
+  min-width: 40px;
+  padding: 0;
+  color: #fff;
+  background: transparent;
+  opacity: 0;
+}
+
+.vkap_radio_card:hover .vkap_radio_follow,
+.vkap_radio_card:focus-within .vkap_radio_follow {
+  opacity: 1;
+}
+
+.vkap_radio_card .vkap_radio_follow:hover {
+  color: #fff;
+  opacity: 0.8;
+}

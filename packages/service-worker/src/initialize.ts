@@ -25,6 +25,7 @@ export const initializePlayback = async (offscreen: boolean, acceptMedia: () => 
     await commitPlayback(() => true, {
       played: usable && player.playing,
       playbackRequested: requested,
+      playbackSelection: null,
       playbackId: usable ? player.playbackId : null,
       playbackError: player?.hasSource === true && !usable ? 'Состояние плеера изменилось. Запустите трек повторно' : applicationState.playbackError,
       ...(usable ? { currentTime: player.currentTime, duration: player.duration, playbackError: null } : {}),
@@ -35,6 +36,7 @@ export const initializePlayback = async (offscreen: boolean, acceptMedia: () => 
     const failure = {
       playbackInitialization: 'failed' as const,
       playbackRequested: false,
+      playbackSelection: null,
       playbackError: 'Не удалось восстановить состояние плеера. Перезапустите расширение'
     }
     Object.assign(applicationState, failure)

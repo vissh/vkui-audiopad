@@ -1,4 +1,5 @@
 import { initialState } from '@vk-audiopad/common'
+import { useSyncExternalStore } from 'react'
 import { storageAtom, useAtomValue } from '@/shared/lib/atom'
 
 const playedAtom = storageAtom({
@@ -59,6 +60,19 @@ const currentPlaylistAtom = storageAtom({
   compareObjects: false
 })
 
+const playbackSelectionAtom = storageAtom({
+  key: 'playbackSelection',
+  initial: initialState.ApplicationActiveTrack.playbackSelection,
+  compareObjects: false
+})
+
+export const usePlaybackSelection = () => {
+  const selection = useAtomValue(playbackSelectionAtom)
+  const current = useCurrentPlaylist()
+  const requested = usePlaybackRequested()
+  return requested ? selection ?? current : current
+}
+
 export const usePlayed = (): boolean => {
   return useAtomValue(playedAtom)
 }
@@ -78,3 +92,22 @@ export const useDuration = () => {
 export const useCurrentPlaylist = () => {
   return useAtomValue(currentPlaylistAtom)
 }
+
+const subscribeTrackPlayback = (listener: () => void) => {
+  const stopTrack = activeTrackAtom.subscribe(listener)
+  const stopPlayed = playedAtom.subscribe(listener)
+  return () => {
+    stopTrack()
+    stopPlayed()
+  }
+}
+
+export const useTrackPlayback = (trackId: string): 'played' | 'paused' | null => useSyncExternalStore(
+  subscribeTrackPlayback,
+  () => {
+    if (activeTrackAtom.get()?.id !== trackId) return null
+    return playedAtom.get() ? 'played' : 'paused'
+  }
+)
+
+export const useHasCurrentPlaylist = (): boolean => useSyncExternalStore(currentPlaylistAtom.subscribe, () => currentPlaylistAtom.get() != null)

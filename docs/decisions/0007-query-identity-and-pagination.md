@@ -12,6 +12,8 @@ App's SessionQueryProvider mounts a fresh QueryClient and child tree for each st
 
 Keep key factories by their page owner. Personal queries include userId. Playlist queries also include ownerId, id, blockId and fromId; album catalog keys include the actual show-all link. Do not put access tokens, action/access hashes or signed media URLs in keys. Artist/search keys already include their user/input and retain that identity.
 
+Token catalog sections, the My music legacy query and owned/library playlist queries share a 30-second staleTime. Quick activation reuses fresh successful data. Activation after expiry refreshes with cached content retained. Explicit mutation invalidation bypasses freshness and marks inactive queries for their next activation. A new popup/account still creates a fresh client. [Catalog regressions](../../tests/front/home-catalog.test.ts) cover quick return, inactive invalidation and expired-data refresh.
+
 Pagination variables capture the original account, source and request cursor. onSuccess derives its key from those variables, not the hook's latest render. Apply only if the cached source/section and cursor still match. Playlist response ownership must also match. A missing/retired cache is not recreated; an obsolete result leaves the newer snapshot intact.
 
 Build a new result without mutating cached or response arrays. Merge tracks by composite track ID, albums by owner/id, catalog blocks by blockId. Repeated IDs retain their original position and receive updated metadata. Repeated track blocks combine only when their playlist ownership matches. The single-album-block view retains its existing continuation behavior even if a page uses a new container block ID.

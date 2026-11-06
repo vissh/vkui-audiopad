@@ -9,7 +9,7 @@ const queryKey = (userId: string, source: commonTypes.Playlist, fromId: string) 
 export const useBlockPlaylistData = (userId: string, playlist: commonTypes.Playlist, fromId: string) => {
   return useQuery({
     queryKey: queryKey(userId, playlist, fromId),
-    queryFn: async ({ signal }) => playlist.tracks.length > 0 ? { playlist } : await fetchPlaylist({ fromId, playlist }, signal),
+    queryFn: async ({ signal }) => playlist.tracks.length > 0 && (playlist.blockId === playlist.id || playlist.isRadio || playlist.isVkMix) ? { playlist } : await fetchPlaylist({ fromId, playlist }, signal),
     refetchOnWindowFocus: false,
     enabled: userId.length > 0,
     retry: 2

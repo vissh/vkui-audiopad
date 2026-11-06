@@ -1,11 +1,10 @@
 import { commonTypes } from '@vk-audiopad/common'
 import { type FC } from 'react'
 import { AddToMyMusicButton } from '@/features/add-to-my-music'
-import { CastToStatusButton } from '@/features/cast-to-status'
 import { DeleteFromMyMusicButton } from '@/features/delete-from-my-music'
-import { RepeatButton } from '@/features/repeat'
-import { ShuffleButton } from '@/features/shuffle'
+import { AddTrackToPlaylistButton } from '@/features/manage-playlists'
 import { SimilarButton } from '@/features/similar'
+import { TrackMixButton } from '@/features/track-mix'
 import { useActiveTrack } from '@/entities/active-track'
 import { useSessionUserId } from '@/entities/session'
 import { atom, useAtomValue } from '@/shared/lib/atom'
@@ -27,34 +26,34 @@ export const Buttons: FC = () => {
 
   return (
     <>
-      {canAdd && someoneElsesTrack && (
-        <>
-          {latestAddedTracks[libraryKey] != null
-            ? <DeleteFromMyMusicButton
-                track={latestAddedTracks[libraryKey]}
-                onAfterDelete={() => {
-                  const { [libraryKey]: _deleted, ...rest } = latestAddedTracksAtom.get()
-                  latestAddedTracksAtom.set(rest)
-                }}
-              />
-            : <AddToMyMusicButton
-                track={activeTrack}
-                onAfterAdd={(addedTrack) => {
-                  latestAddedTracksAtom.set({ ...latestAddedTracksAtom.get(), [libraryKey]: addedTrack })
-                }}
-              />}
-        </>
+      {activeTrackExists && (
+        <div className='vkap_player_action_group' role='group' aria-label='Сохранение трека'>
+          {canAdd && someoneElsesTrack && (
+            latestAddedTracks[libraryKey] != null
+              ? <DeleteFromMyMusicButton
+                  track={latestAddedTracks[libraryKey]}
+                  onAfterDelete={() => {
+                    const { [libraryKey]: _deleted, ...rest } = latestAddedTracksAtom.get()
+                    latestAddedTracksAtom.set(rest)
+                  }}
+                />
+              : <AddToMyMusicButton
+                  track={activeTrack}
+                  onAfterAdd={(addedTrack) => {
+                    latestAddedTracksAtom.set({ ...latestAddedTracksAtom.get(), [libraryKey]: addedTrack })
+                  }}
+                />
+          )}
+          <AddTrackToPlaylistButton track={activeTrack} />
+        </div>
       )}
-      {activeTrackExists && <LyricsButton key={activeTrack.id} track={activeTrack} userId={userId} />}
-      <ShuffleButton />
-      <RepeatButton />
-      <CastToStatusButton />
-      {activeTrackExists &&
-        <SimilarButton
-          padding
-          userId={userId}
-          track={activeTrack}
-        />}
+      {activeTrackExists && (
+        <div className='vkap_player_action_group' role='group' aria-label='Рекомендации и текст'>
+          <TrackMixButton track={activeTrack} />
+          <SimilarButton userId={userId} track={activeTrack} />
+          <LyricsButton key={activeTrack.id} track={activeTrack} userId={userId} />
+        </div>
+      )}
     </>
   )
 }

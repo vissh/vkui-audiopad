@@ -1,9 +1,10 @@
 import { commonTypes } from '@vk-audiopad/common'
 import { Icon20Cancel, Icon20Check, Icon20ListPenOutline } from '@vkontakte/icons'
-import { Button, Group, Header, List } from '@vkontakte/vkui'
-import { Fragment, useState, type FC } from 'react'
+import { Button, ButtonGroup, Group, Header, List } from '@vkontakte/vkui'
+import { Fragment, memo, useState } from 'react'
 import { Navigation } from '@/widgets/navigation'
 import { Track } from '@/widgets/track-list'
+import { SaveQueueButton } from '@/features/manage-playlists'
 import { useCurrentPlaylist } from '@/entities/active-track'
 import { sendMessage } from '@/shared/lib/send-message'
 import { InfinityContent } from '@/shared/ui/infinity-content'
@@ -14,7 +15,7 @@ interface CurrentPlaylistProps {
   active: boolean
 }
 
-export const CurrentPlaylist: FC<CurrentPlaylistProps> = ({ active }) => {
+export const CurrentPlaylist = memo(function CurrentPlaylist ({ active }: CurrentPlaylistProps) {
   const currentPlaylist = useCurrentPlaylist()
 
   const [editMode, setEditMode] = useState(false)
@@ -99,7 +100,7 @@ export const CurrentPlaylist: FC<CurrentPlaylistProps> = ({ active }) => {
             <Header
               after={
                 editMode
-                  ? <>
+                  ? <ButtonGroup align='center' gap='s'>
                       <Button
                         key='acceptButton'
                         mode='tertiary'
@@ -119,16 +120,19 @@ export const CurrentPlaylist: FC<CurrentPlaylistProps> = ({ active }) => {
                       >
                         Отмена
                       </Button>
-                    </>
-                  : <Button
-                      key='editButton'
-                      mode='tertiary'
-                      before={<Icon20ListPenOutline />}
-                      style={{ marginBottom: '0px' }}
-                      onClick={openEditMode}
-                    >
-                    Режим редактирования
-                    </Button>
+                    </ButtonGroup>
+                  : <ButtonGroup align='center' gap='s'>
+                      {currentPlaylist != null && !currentPlaylist.isRadio && <SaveQueueButton />}
+                      <Button
+                        key='editButton'
+                        mode='tertiary'
+                        before={<Icon20ListPenOutline />}
+                        style={{ marginBottom: '0px' }}
+                        onClick={openEditMode}
+                      >
+                        Режим редактирования
+                      </Button>
+                    </ButtonGroup>
               }
             >
               {currentPlaylist?.title}
@@ -142,6 +146,7 @@ export const CurrentPlaylist: FC<CurrentPlaylistProps> = ({ active }) => {
                   ? <EditableTrack
                       track={track}
                       trackIndex={index}
+                      trackCount={(playlist ?? currentPlaylist).tracks.length}
                       onDragFinish={moveTrack}
                       onRemove={removeTrack}
                     />
@@ -156,4 +161,4 @@ export const CurrentPlaylist: FC<CurrentPlaylistProps> = ({ active }) => {
       </Group>
     </InfinityContent>
   )
-}
+})

@@ -13,7 +13,7 @@ export const useAlbumsData = (userId: string, showAllLink: string) => {
     queryFn: async ({ signal }) => await fetchAlbums(showAllLink, signal),
     enabled: userId.length > 0,
     refetchOnWindowFocus: false,
-    refetchOnMount: false,
+    refetchOnMount: true,
     retry: 2
   })
 }

@@ -1,3 +1,9 @@
+.vkap_icon_action {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 .vkap_tooltip_icon_button {
   color: var(--vkui--color_icon_secondary);
   cursor: pointer;
@@ -9,7 +15,7 @@
 }
 
 .vkap_tooltip_icon_button:hover {
-  color: var(--vkui--color_icon_tertiary);
+  color: var(--vkui--color_icon_primary);
 }
 
 .vkap_icon_action[aria-busy='true'] {
