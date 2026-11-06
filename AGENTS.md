@@ -18,6 +18,7 @@ npm run mcp:sync     # generate Codex/OpenCode settings after editing .mcp.json
 npm run mcp:check    # check MCP settings without writes; included in doctor/check
 npm run smoke:firefox # opt-in real Firefox runtime smoke after a full build; no VK login
 npm run docs:check   # local Markdown links/headings, runnable examples and shared instructions
+npm run release:package # package a checked, fully built clean Git revision -> dist/release
 npm run check        # required fast check: common build, typecheck and lint
 npm test             # Vitest: common and offline runtime/React/tooling tests
 ./build.sh           # full extension build -> dist/chrome_extension and dist/firefox_extension
@@ -29,6 +30,7 @@ npm run eslint:fix   # fix workspace lint violations
 - `npm run check` is the required minimum before reporting completion. It does not run behavioral tests.
 - Use `npm install` only for intentional dependency changes. Do not update the lockfile during ordinary verification.
 - Run `./build.sh` for Vite, manifest or public asset changes, or to verify the full build. Follow it with `npm run verify:build`.
+- Release assets and version tags: use the manual GitHub workflow; see [release runbook](docs/releases.md). Store submission remains manual.
 - Chrome: `chrome://extensions` -> Developer mode -> Load unpacked -> `dist/chrome_extension`. Firefox: `about:debugging` -> This Firefox -> Load Temporary Add-on -> the manifest in `dist/firefox_extension`.
 - Open the repository root in your editor, not an individual package.
 

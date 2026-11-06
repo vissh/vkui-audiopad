@@ -1,0 +1,121 @@
+name: Release extension
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'New extension version, for example 3.3.10 (must increase)'
+        type: string
+        required: true
+      draft:
+        description: Keep the GitHub Release as a draft for review
+        type: boolean
+        default: true
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-extension
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    outputs:
+      tag: ${{ steps.package.outputs.tag }}
+      version: ${{ steps.package.outputs.version }}
+      commit: ${{ steps.package.outputs.commit }}
+    steps:
+      - name: Require the release branch
+        run: test "$GITHUB_REF" = refs/heads/master
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .node-version
+          cache: npm
+      - name: Install pinned npm
+        run: npm install --global "$(node -p 'require("./package.json").packageManager')"
+      - name: Prepare version commit locally
+        env:
+          RELEASE_VERSION: ${{ inputs.version }}
+        run: node scripts/prepare-release.mjs
+      - name: Install dependencies
+        run: npm ci
+      - name: Audit (critical only)
+        run: npm audit --audit-level=critical
+      - name: Typecheck, lint, documentation and shared MCP configuration
+        run: npm run check
+      - name: Tests
+        run: npm test
+      - name: Build extension
+        run: ./build.sh
+      - name: Verify build output
+        run: npm run verify:build
+      - name: Install Firefox for runtime smoke
+        id: firefox
+        uses: browser-actions/setup-firefox@v1.7.2
+        with:
+          firefox-version: '159.0'
+      - name: Firefox extension runtime smoke
+        timeout-minutes: 5
+        env:
+          VKAP_FIREFOX_BINARY: ${{ steps.firefox.outputs.firefox-path }}
+        run: npm run smoke:firefox
+      - name: Package verified revision
+        id: package
+        run: |
+          npm run release:package
+          node -e 'const r = require("./dist/release/release.json"); console.log(`tag=${r.tag}\nversion=${r.version}\ncommit=${r.commit}`)' >> "$GITHUB_OUTPUT"
+          git bundle create "$RUNNER_TEMP/release.bundle" HEAD "^$GITHUB_SHA"
+      - name: Retain release candidate
+        uses: actions/upload-artifact@v7.0.2
+        with:
+          name: release-candidate
+          path: dist/release/
+          if-no-files-found: error
+          retention-days: 30
+      - name: Retain prepared version commit
+        uses: actions/upload-artifact@v7.0.2
+        with:
+          name: release-commit
+          path: ${{ runner.temp }}/release.bundle
+          if-no-files-found: error
+          retention-days: 30
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/download-artifact@v8.0.2
+        with:
+          name: release-candidate
+          path: release
+      - uses: actions/download-artifact@v8.0.2
+        with:
+          name: release-commit
+          path: ${{ runner.temp }}
+      - name: Verify downloaded candidate
+        working-directory: release
+        env:
+          RELEASE_COMMIT: ${{ needs.build.outputs.commit }}
+        run: |
+          sha256sum --check SHA256SUMS
+          test "$(jq -r .commit release.json)" = "$RELEASE_COMMIT"
+      - name: Push version commit, tag and GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          RELEASE_TAG: ${{ needs.build.outputs.tag }}
+          RELEASE_VERSION: ${{ needs.build.outputs.version }}
+          RELEASE_DRAFT: ${{ inputs.draft }}
+          RELEASE_COMMIT: ${{ needs.build.outputs.commit }}
+        run: bash scripts/publish-release.sh

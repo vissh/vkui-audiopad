@@ -27,6 +27,7 @@ A small reproducible UI defect or a pure function with a test is a useful first 
 | Where is MCP configured, and how is client drift prevented? | [MCP](ai/mcp.md) |
 | Which extension skills/tools were reviewed, and how should browser-specific guidance be used? | [Extension tooling](ai/extension-tooling.md) and [project runtime skill](../.agents/skills/browser-extension-development/SKILL.md) |
 | How are dependencies, tools and documentation updated? | [Maintenance](ai/maintenance.md) |
+| How do I create versioned Chrome/Firefox and source ZIPs for store submission? | [Release runbook](releases.md) |
 | What is complete, and what comes next? | [Development roadmap](ai/development-roadmap.md) |
 
 Startup and recovery changes also require [ADR 0002](decisions/0002-startup-recovery.md): listener readiness, existing-media ownership and failure behavior. Offscreen tasks also require [ADR 0003](decisions/0003-offscreen-lifecycle.md) for listener readiness, idle cleanup and HLS source intent. Queue tasks require [ADR 0004](decisions/0004-queue-mutations.md), including loaded metadata and late hydration/page responses.

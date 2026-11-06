@@ -17,6 +17,7 @@ Builds are deterministic and do not check whether prose is up to date. Update de
 | .mcp.json -> .codex/config.toml + opencode.json mcp | One source for pinned VKUI/Chrome/Firefox DevTools MCP settings. Edit source, run mcp:sync and commit outputs. Doctor/check/tests reject drift. See [MCP](mcp.md). |
 | CLAUDE.md | Imports @AGENTS.md; do not duplicate the rules. |
 | npm dependencies / GitHub Actions | Dependabot opens monthly dependency/action PRs. |
+| releases.md / .github/workflows/release.yml / scripts/*release* | Release version preparation, checks, atomic commit/tag push, assets and retry policy. Update together when delivery changes. |
 
 ## Language and avoiding drift
 
@@ -29,6 +30,8 @@ Maintain one owning document per contract. Other documents should give a short r
 CI runs on master pushes and PRs: Node from .node-version -> npm from packageManager -> npm ci -> npm run check -> npm test -> full build -> verify:build -> isolated Firefox runtime smoke (Firefox 159.0 installed by setup-firefox). The browser smoke uses a fresh headless profile and a probe-only build copy, without VK login; npm test remains the offline suite. It also checks public registry URLs and audits critical advisories. Update the explicit Firefox pin in ci.yml when changing the tested browser baseline and repeat the smoke; this is not the extension minimum-version declaration. Blocking merges on red CI requires required statuses configured in GitHub; the workflow does not set that policy.
 
 Update agent skills runs on the first day of each month and workflow_dispatch, opening a PR if the vendored skill changed. Dependabot handles npm/action updates monthly. An update PR still needs compatibility review and green checks.
+
+Release extension runs only through workflow_dispatch on master, with a new version supplied through the form. Its read-only build job prepares a local version commit, repeats the check/test/build/Firefox-smoke sequence and retains the candidate plus a Git bundle. A separate contents-write job verifies the downloaded checksums/commit identity, pushes the same version commit and tag atomically without force, then attaches the candidate to a draft or published GitHub Release. A moving master, conflicting tag or server-side branch restriction stops publication. See the [release runbook](../releases.md). Store submission and server-side protection policies remain manual.
 
 ## Runtime and preflight
 
