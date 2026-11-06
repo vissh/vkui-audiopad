@@ -1,16 +1,7 @@
 import { commonTypes } from '@vk-audiopad/common'
 import { type ActionButton, type TrackState } from '@/entities/track'
 
-export const getTrackState = (
-  track: commonTypes.TrackItem,
-  activeTrack: commonTypes.TrackItem | null,
-  played: boolean
-): TrackState => {
-  const isActive = (activeTrack != null) && activeTrack.id === track.id
-  const isPlayed = isActive && played
-  const isClaimed = (track.flags & commonTypes.TrackFlagBit.CLAIMED) !== 0
-  return isClaimed ? 'disabled' : isActive ? (isPlayed ? 'played' : 'paused') : 'normal'
-}
+export { getTrackState } from '@/entities/track'
 
 interface ActionButtonArgs {
   userId: string

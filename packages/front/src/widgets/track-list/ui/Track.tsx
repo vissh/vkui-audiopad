@@ -3,6 +3,7 @@ import { useState, type FC } from 'react'
 import { AddToMyMusicButton } from '@/features/add-to-my-music'
 import { AddToQueueButton } from '@/features/add-to-queue'
 import { DeleteFromMyMusicButton, DeleteFromMyMusicWithRestoreButton } from '@/features/delete-from-my-music'
+import { AddTrackToPlaylistButton } from '@/features/manage-playlists'
 import { playOrPause } from '@/features/play-or-pause'
 import { RestoreButton, deletedTrackForRestore } from '@/features/restore'
 import { SearchArtist } from '@/features/search-artist'
@@ -54,6 +55,7 @@ export const Track: FC<TrackProps> = ({ playlist, track: originalTrack }) => {
       onClick={() => { playOrPause(trackState, track.id, playlist) }}
       actions={
         <>
+          {!deletedFromMyMusic && <AddTrackToPlaylistButton track={track} size='s' />}
           {actionButtons.has('similar') && (
             <SimilarButton
               size='s'

@@ -12,6 +12,7 @@ import {
 import '@vkontakte/vkui/dist/vkui.css'
 import { type FC } from 'react'
 import { Player } from '@/widgets/player'
+import { PlaylistDialogs } from '@/features/manage-playlists'
 import { SignIn } from '@/features/sign-in'
 import { AppModalRoot, themeAtom } from '@/entities/modal'
 import { useAtomValue } from '@/shared/lib/atom'
@@ -49,6 +50,7 @@ export const Application: FC = () => {
                 </View>
               </SplitCol>
               <AppModalRoot />
+              <PlaylistDialogs />
             </SplitLayout>
           </AppRoot>
         </AdaptivityProvider>

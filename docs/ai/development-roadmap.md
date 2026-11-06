@@ -52,6 +52,12 @@ Keep these as bounded changes rather than another cumulative PR. This order refi
 
 Keep the [historical audit](readiness-review.md) at 5574e83. Dated [Chrome](testing.md#live-run-november-3-2026) and [Firefox](testing.md#authenticated-firefox-follow-up-november-4-2026) observations retain their original limits; later checks do not retroactively change an earlier run. MCP access must still be discovered per session.
 
+November 7, 2026 product addition: server-backed playlist creation, queue snapshot saving and track-to-playlist selection are implemented with controlled adapter/UI coverage. [Behavior](../product/behavior.md#server-playlists) and [evidence](testing.md#server-playlist-implementation-november-7-2026) distinguish this implementation from the still-required authenticated vk.ru comparison and server read-back. Playlist methods now use the shared session owner and epoch checks from ADR 0009; cross-window cache propagation under T10 remains separate.
+
+Home discovery follow-up: supported token-catalog categories, mood/activity links, personalized groups and exclusive banners now render through VKUI, with cover tiles for owned playlists. [Behavior](../product/behavior.md#home-discovery-tiles) and [catalog verification](testing.md#home-tiles-and-playlist-covers-november-7-2026) record the implemented scope. Acceptance includes current website requests/layout and authenticated compatibility. The broader T10/T14 work remains open.
+
+The screenshot-driven refinement adds compact two-row category rails, independent category play/open controls, listening cards with optional server match/author metadata and three track previews, and a first creation tile in the owned-playlist rail. The same behavior and evidence links above describe dynamic data handling and the remaining live category-radio comparison.
+
 ## Stage outcomes
 
 | Stage | Tasks | Exit condition |

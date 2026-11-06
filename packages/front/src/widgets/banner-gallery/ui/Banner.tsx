@@ -1,16 +1,8 @@
-import { HorizontalCell } from '@vkontakte/vkui'
-import { type CSSProperties, type FC } from 'react'
+import { Icon36PlaylistOutline } from '@vkontakte/icons'
+import { HorizontalCell, Image } from '@vkontakte/vkui'
+import { type FC } from 'react'
 import { openPlaylistPage } from '@/shared/model'
 import { type Album as AlbumType } from '@/shared/types'
-
-const largeImageStyles: CSSProperties = {
-  width: 350,
-  height: 175,
-  borderRadius: 4,
-  boxSizing: 'border-box',
-  border: 'var(--vkui--size_border--regular) solid var(--vkui--color_image_border_alpha)',
-  objectFit: 'cover'
-}
 
 interface BannerProps {
   userId: string
@@ -30,7 +22,7 @@ export const Banner: FC<BannerProps> = ({ userId, album }) => {
       extraSubtitle={album.infoLine}
       onClick={openAlbum}
     >
-      <img style={largeImageStyles} src={album.coverUrl} />
+      <Image widthSize={350} heightSize={175} size={175} src={album.coverUrl} loading='lazy' alt='' fallbackIcon={<Icon36PlaylistOutline />} />
     </HorizontalCell>
   )
 }
