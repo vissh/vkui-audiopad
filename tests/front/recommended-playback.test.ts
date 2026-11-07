@@ -108,7 +108,7 @@ it.each(['failed', 'empty'] as const)('shows safe feedback for a %s load and all
     if (outcome === 'failed') page.response.reject(new Error('synthetic-private-value'))
     else page.response.resolve({ playlist: page.album })
   })
-  await screen.findByText('Не удалось запустить подборку. Повторите попытку.')
+  await screen.findByText('Не удалось запустить подборку. Повторите попытку')
   expect(screen.queryByText(/synthetic-private-value/)).toBeNull()
   expect(button.getAttribute('aria-busy')).toBeNull()
   expect(page.api.runtime.sendMessage).not.toHaveBeenCalled()

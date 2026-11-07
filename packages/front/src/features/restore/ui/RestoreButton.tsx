@@ -20,7 +20,7 @@ export const RestoreButton: FC<RestoreButtonProps> = ({ track, onAfterRestore })
     <AsyncTooltipIconButton
       text='Восстановить аудиозапись'
       icon={Icon20Add}
-      errorMessage='Не удалось восстановить аудиозапись. Проверьте библиотеку VK перед повторной попыткой.'
+      errorMessage='Не удалось восстановить аудиозапись. Проверьте библиотеку VK перед повторной попыткой'
       onClick={restore}
     />
   )

@@ -51,7 +51,7 @@ export const PlayPlaylistButton: FC<{ userId: string, album: Album }> = ({ userI
       hoverMode='none'
       activeMode='none'
       onClick={play}
-      errorMessage='Не удалось запустить подборку. Повторите попытку.'
+      errorMessage='Не удалось запустить подборку. Повторите попытку'
     />
   )
 }

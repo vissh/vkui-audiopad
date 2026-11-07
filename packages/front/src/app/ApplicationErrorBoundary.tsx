@@ -15,7 +15,7 @@ export class ApplicationErrorBoundary extends Component<{ children: ReactNode },
     return (
       <main className='vkap_ui_recovery' role='alert'>
         <h1>Не удалось открыть плеер</h1>
-        <p>Перезагрузите интерфейс и попробуйте снова.</p>
+        <p>Перезагрузите интерфейс и попробуйте снова</p>
         <button autoFocus type='button' onClick={() => { location.reload() }}>
           Перезагрузить интерфейс
         </button>

@@ -25,7 +25,7 @@ export const SignIn: FC = () => {
       <Banner
         role='status'
         title='Не удалось проверить подключение к VK'
-        subtitle='Проверьте соединение и повторите попытку.'
+        subtitle='Проверьте соединение и повторите попытку'
         actions={
           <Button
             mode='secondary'

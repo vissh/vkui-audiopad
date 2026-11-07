@@ -1,6 +1,9 @@
 const { argv, stdout } = require('node:process');
 
+const optionalAudioHosts = ["https://*.okcdn.ru/*"];
+
 const chromeValues = {
+  "optional_host_permissions": optionalAudioHosts,
   "background": {
     "service_worker": "service-worker.js",
     "type": "module"
@@ -13,6 +16,7 @@ const chromeValues = {
 }
 
 const firefoxValues = {
+  "optional_permissions": optionalAudioHosts,
   "browser_specific_settings": {
     "gecko": {
       "id": "{a489e182-af99-4bd3-bbef-d5325702bbcd}",

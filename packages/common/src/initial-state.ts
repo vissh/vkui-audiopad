@@ -1,3 +1,4 @@
+import { defaults as equalizerDefaults } from './equalizer'
 import {
   ContentTab,
   DurationMode,
@@ -22,9 +23,11 @@ export const ApplicationControls: ApplicationControlsState = {
 }
 
 export const ApplicationSettings: ApplicationSettingsState = {
+  equalizer: equalizerDefaults,
   theme: Theme.SYSTEM,
   likeVersion: 0,
-  settingsVersion: 0
+  settingsVersion: 0,
+  equalizerAnnouncementPending: false
 }
 
 export const ApplicationActiveTrack: ApplicationActiveTrackState = {

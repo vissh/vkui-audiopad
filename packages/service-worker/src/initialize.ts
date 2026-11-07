@@ -26,7 +26,7 @@ export const initializePlayback = async (offscreen: boolean, acceptMedia: () => 
       played: usable && player.playing,
       playbackRequested: requested,
       playbackId: usable ? player.playbackId : null,
-      playbackError: player?.hasSource === true && !usable ? 'Состояние плеера изменилось. Запустите трек повторно.' : applicationState.playbackError,
+      playbackError: player?.hasSource === true && !usable ? 'Состояние плеера изменилось. Запустите трек повторно' : applicationState.playbackError,
       ...(usable ? { currentTime: player.currentTime, duration: player.duration, playbackError: null } : {}),
       playbackInitialization: 'ready'
     })
@@ -35,7 +35,7 @@ export const initializePlayback = async (offscreen: boolean, acceptMedia: () => 
     const failure = {
       playbackInitialization: 'failed' as const,
       playbackRequested: false,
-      playbackError: 'Не удалось восстановить состояние плеера. Перезапустите расширение.'
+      playbackError: 'Не удалось восстановить состояние плеера. Перезапустите расширение'
     }
     Object.assign(applicationState, failure)
     try {

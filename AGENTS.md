@@ -53,6 +53,8 @@ Before scraping or adding vk.ru data, read [the VK integration guide](docs/ai/vk
 
 Before queue insertion/removal/reordering/shuffle or current-playlist paging, read [ADR 0004](docs/decisions/0004-queue-mutations.md): complete IDs versus loaded metadata, serialized mutations and hydration edits.
 
+Before equalizer changes, read [ADR 0010](docs/decisions/0010-equalizer.md) for ten-band/Preamp settings, five-band compatibility, cross-origin audio and bypass. [The design study](docs/product/equalizer-design.md) records the settings layout and primary references.
+
 Before session/token changes, read [ADR 0009](docs/decisions/0009-session-owner.md): the background session owner is the credential writer; UI and token-method clients use its bounded, validated request/reply contract. Do not add per-popup refresh writers or replay a request after its account/epoch changes.
 
 For query keys, account changes and pagination, read [ADR 0007](docs/decisions/0007-query-identity-and-pagination.md): per-account caches, original mutation variables, cursor guards and immutable merges.
@@ -83,6 +85,7 @@ Configuration does not prove a server is connected in the current session. Witho
 - Layers: `app` -> `pages` -> `widgets` -> `features` -> `entities` -> `shared`. Imports go downward; same-layer cross-imports are forbidden. Do not disable `@conarti/eslint-plugin-feature-sliced` to pass lint.
 - Use public APIs through `index.ts`.
 - Prefer VKUI components and `@vkontakte/icons` for UI.
+- Do not end user-facing UI messages, hints, statuses, notices or helper text with a full stop. Keep punctuation between sentences and dots inside domain names/URLs; preserve user-provided content.
 - State uses [custom atoms](packages/front/src/shared/lib/atom.ts): `atom` for memory, `lsAtom` for localStorage, `storageAtom` for Chrome storage/events. Server data uses react-query.
 
 ### Messages

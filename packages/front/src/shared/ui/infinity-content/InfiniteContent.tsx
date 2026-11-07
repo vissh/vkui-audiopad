@@ -62,7 +62,7 @@ export const InfinityContent = <Args,>({
         <Banner
           role='status'
           title={failed ? 'Не удалось загрузить продолжение списка' : 'Список не продолжился'}
-          subtitle='Уже загруженные записи сохранены. Можно повторить попытку.'
+          subtitle='Уже загруженные записи сохранены. Можно повторить попытку'
           actions={<Button mode='secondary' onClick={() => { request(true) }}>Повторить</Button>}
         />
       )}

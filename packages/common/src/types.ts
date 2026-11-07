@@ -1,4 +1,5 @@
 import { type ErrorObject } from 'serialize-error'
+import { type Settings as EqualizerSettings, type Status as EqualizerStatus } from './equalizer'
 
 export type JSONValue = null | number | string | boolean | { [x: string]: JSONValue } | JSONValue[]
 
@@ -231,9 +232,11 @@ export interface ApplicationControlsState {
 }
 
 export interface ApplicationSettingsState {
+  equalizer: EqualizerSettings
   theme: Theme
   likeVersion: number
   settingsVersion: number
+  equalizerAnnouncementPending: boolean
 }
 
 export interface ApplicationActiveTrackState {
@@ -277,7 +280,7 @@ export type ApplicationState =
   ApplicationPlaylistSystemState &
   ApplicationUserState &
   ApplicationActiveTabState &
-  Record<string, string | WebToken | Playlist | TrackItem | number | boolean | AudioTuple[] | ActiveTabs | null | undefined>
+  Record<string, string | WebToken | Playlist | TrackItem | number | boolean | AudioTuple[] | ActiveTabs | EqualizerSettings | null | undefined>
 
 export enum MessageTarget {
   SERVICE_WORKER = 'service-worker',
@@ -309,6 +312,9 @@ export enum MessageType {
   GET_PLAYER_SNAPSHOT = 'get-player-snapshot',
   PLAYER_SNAPSHOT = 'player-snapshot',
   CHANGE_VOLUME = 'change-volume',
+  CHANGE_EQUALIZER = 'change-equalizer',
+  RETRY_EQUALIZER = 'retry-equalizer',
+  EQUALIZER_STATUS = 'equalizer-status',
   CHANGE_CURRENT_TIME = 'change-current-time'
 }
 
@@ -455,8 +461,20 @@ export interface AudioPlayerTimeupdateMessage extends AudioPlayerMessage {
   currentTime: number
 }
 
+export interface EqualizerStatusMessage extends IServiceWorkerMessage {
+  type: MessageType.EQUALIZER_STATUS
+  playbackId: string | null
+  status: EqualizerStatus
+}
+
+export interface RetryEqualizerMessage extends IServiceWorkerMessage {
+  type: MessageType.RETRY_EQUALIZER
+}
+
 export type ServiceWorkerMessage = (
-  RepeatMessage
+  EqualizerStatusMessage
+  | RetryEqualizerMessage
+  | RepeatMessage
   | SessionRequestMessage
   | SessionCancelMessage
   | PlaybackControlMessage
@@ -484,6 +502,15 @@ export interface OffscreenPlayTrackMessage extends IOffscreenMessage {
   playbackId: string
   url: string
   volume: number
+  equalizer?: EqualizerSettings
+  equalizerMixAccess?: boolean
+}
+
+export interface OffscreenChangeEqualizerMessage extends IOffscreenMessage {
+  type: MessageType.CHANGE_EQUALIZER
+  value: EqualizerSettings
+  equalizerMixAccess?: boolean
+  retry?: boolean
 }
 
 export interface OffscreenPlayOrPauseMessage extends IOffscreenMessage {
@@ -503,6 +530,7 @@ export interface OffscreenChangeCurrentTimeMessage extends IOffscreenMessage {
 
 export type OffscreenMessage = (
   OffscreenPlayTrackMessage
+  | OffscreenChangeEqualizerMessage
   | GetPlayerSnapshotMessage
   | OffscreenPlayOrPauseMessage
   | OffscreenChangeVolumeMessage

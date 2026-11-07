@@ -15,6 +15,9 @@ chrome.storage.local uses flat keys. Common's ApplicationControls, ApplicationSe
 | currentTime, duration | Chrome storage. SW publishes media time/duration; UI seeking uses an explicit command. |
 | volume, shuffle, durationMode, castToStatus | Chrome storage. UI/hotkeys change controls; SW [storage listeners](../../packages/service-worker/src/listeners/storage.ts) trigger side effects. This historical mixed model is not a pattern for new playback commands. |
 | repeat | Chrome storage. An SW action cycles modes on REPEAT; playback reads the mode at track end. |
+| equalizer | Chrome storage. Settings UI writes enabled/ten gains/manual Preamp/boost compensation, named userPresets/presetId and optional Mix refusal state. SW forwards DSP configuration and its current optional host-permission check (equalizerMixAccess) to the offscreen Audio owner through CHANGE_EQUALIZER and each PLAY_TRACK. Missing/failed permission checks prevent okcdn.ru processing downloads while preserving native playback. RETRY_EQUALIZER explicitly forwards retry=true with current configuration after a permission grant without changing playback ownership or the queue. Default disabled/neutral; the whole key survives UPDATE/account switching. [ADR 0010](../decisions/0010-equalizer.md) defines validation and media constraints. |
+| equalizerAnnouncementPending | Chrome storage, preserved as an application setting. UPDATE crossing 3.3.10 from below marks it; navigation consumes it on first presentation. Later updates preserve an unseen announcement and do not recreate a consumed one. No announcement on fresh install. |
+| equalizerStatus | Transient Chrome storage. Audio document reports off/waiting/loading/active/unavailable with playbackId; SW persists matching-source reports and UI observes. Removed with runtime data, republished by a new audio document. |
 | likeVersion, settingsVersion | Chrome storage. Navigation UI records acknowledgement of informational windows/badges. |
 | UI theme | localStorage.theme and [themeAtom](../../packages/front/src/entities/modal/model/atom.ts). A theme field in common defaults/the preservation list does not mean the UI reads it from Chrome storage. |
 | activeTab | Chrome storage. [active-tab-atom](../../packages/front/src/shared/model/active-tab-atom.ts) owns the selected page and parameters. |
@@ -51,8 +54,8 @@ Pause cancels pending resolution/retry and invalidates older media events. A sub
 |---|---|
 | Front -> SW | ACTIVE_TRACK, TOGGLE_PLAYBACK, PLAY_OR_PAUSE, NEXT_TRACK, PREVIOUS_TRACK, CURRENT_TIME, REPEAT, ADD_TO_QUEUE, EDIT_CURRENT_PLAYLIST, APPEND_CURRENT_PLAYLIST |
 | UI token/session client -> background owner | SESSION_REQUEST / SESSION_CANCEL, correlated validated replies and per-caller cancellation. Background callers use the same owner locally. |
-| SW -> offscreen | GET_PLAYER_SNAPSHOT, PLAY_TRACK, PLAY_OR_PAUSE, CHANGE_VOLUME, CHANGE_CURRENT_TIME |
-| Offscreen -> SW | PLAYER_SNAPSHOT, AUDIO_PLAYER_* and CLOSE_OFFSCREEN_DOCUMENT |
+| SW -> offscreen | GET_PLAYER_SNAPSHOT, PLAY_TRACK, PLAY_OR_PAUSE, CHANGE_VOLUME, CHANGE_CURRENT_TIME, CHANGE_EQUALIZER |
+| Offscreen -> SW | PLAYER_SNAPSHOT, AUDIO_PLAYER_*, EQUALIZER_STATUS and CLOSE_OFFSCREEN_DOCUMENT |
 | SW/session/UI -> observing UI | Individual Chrome storage changes; not another playback command channel |
 
 The front wrapper does not await action completion. SW listeners schedule actions through shared readiness, catching failures with a generic warning; this is not a command response/acknowledgement contract. Successful sendMessage delivery/Promise completion does not prove playback started. Tests should await an observable transition instead of an arbitrary delay. Useful playback evidence is the expected selection, played=true, increasing currentTime and no playbackError; pause requires played=false and a stable position.

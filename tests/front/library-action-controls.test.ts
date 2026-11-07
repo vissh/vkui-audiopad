@@ -71,7 +71,7 @@ it('keeps a failed follow unchanged and shows safe feedback', async () => {
   page.network.mockResolvedValueOnce(new Response('{"payload":[0,[{"unexpected":"synthetic-private-value"}]]}'))
   page.mount(createElement(page.FollowIcon, { album: page.album('1') }))
   fireEvent.click(await screen.findByRole('button', { name: 'Добавить плейлист в мою музыку' }))
-  await screen.findByText('Не удалось изменить плейлист. Проверьте библиотеку VK перед повторной попыткой.')
+  await screen.findByText('Не удалось изменить плейлист. Проверьте библиотеку VK перед повторной попыткой')
   expect(screen.queryByText(/synthetic-private/)).toBeNull()
   expect(screen.queryByRole('button', { name: 'Удалить плейлист из моей музыки' })).toBeNull()
 })
@@ -92,7 +92,7 @@ it('disables duplicate add requests, preserves the successful ID/metadata and in
   page.network.mockResolvedValueOnce(new Response('{"error":{"error_code":15,"error_msg":"synthetic-private-value"}}'))
   await waitFor(() => { expect(button.getAttribute('aria-busy')).toBeNull() })
   fireEvent.click(button)
-  await screen.findByText('Не удалось добавить аудиозапись. Проверьте библиотеку VK перед повторной попыткой.')
+  await screen.findByText('Не удалось добавить аудиозапись. Проверьте библиотеку VK перед повторной попыткой')
   expect(added).toHaveBeenCalledOnce()
 })
 

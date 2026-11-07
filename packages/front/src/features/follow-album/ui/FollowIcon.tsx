@@ -42,7 +42,7 @@ export const FollowIcon: FC<FollowIconProps> = ({ album }) => {
       icon={followed ? Icon36Done : Icon36Add}
       disabled={pendingAlbums.has(key)}
       onClick={follow}
-      errorMessage='Не удалось изменить плейлист. Проверьте библиотеку VK перед повторной попыткой.'
+      errorMessage='Не удалось изменить плейлист. Проверьте библиотеку VK перед повторной попыткой'
     />
   )
 }
