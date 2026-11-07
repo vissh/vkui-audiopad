@@ -136,6 +136,7 @@ export const createChrome = (initial: StorageItems = {}) => {
 
   const api = {
     runtime,
+    tabs: { getCurrent: vi.fn(async (): Promise<{ id: number } | undefined> => undefined) },
     commands: { onCommand: commands },
     permissions: {
       contains: vi.fn((_permissions: unknown, onResult?: (allowed: boolean) => void) => {

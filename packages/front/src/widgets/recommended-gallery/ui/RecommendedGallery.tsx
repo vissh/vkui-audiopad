@@ -1,5 +1,6 @@
 import { CardScroll, Group, Header, Skeleton } from '@vkontakte/vkui'
 import { type FC } from 'react'
+import { PlayPlaylistButton } from '@/features/play-or-pause-album'
 import { RecommendedPlaylist, RecommendedPlaylistSkeleton } from '@/entities/recommended-playlist'
 import { openPlaylistPage } from '@/shared/model'
 import { type Album } from '@/shared/types'
@@ -25,6 +26,7 @@ export const RecommendedGallery: FC<RecommendedGalleryProps> = ({ isPending, tit
               <RecommendedPlaylist
                 key={cardIndex}
                 album={album}
+                action={<PlayPlaylistButton userId={userId} album={album} />}
                 onClick={() => { openPlaylistPage(userId, album) }}
               />
             ))}
