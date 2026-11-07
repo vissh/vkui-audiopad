@@ -27,14 +27,14 @@ A small reproducible UI defect or a pure function with a test is a useful first 
 | Where is MCP configured, and how is client drift prevented? | [MCP](ai/mcp.md) |
 | Which extension skills/tools were reviewed, and how should browser-specific guidance be used? | [Extension tooling](ai/extension-tooling.md) and [project runtime skill](../.agents/skills/browser-extension-development/SKILL.md) |
 | How are dependencies, tools and documentation updated? | [Maintenance](ai/maintenance.md) |
-| How do I create versioned Chrome/Firefox and source ZIPs for store submission? | [Release runbook](releases.md) |
+| How are versions, tags and verified Chrome/Firefox/source packages prepared? | [Release runbook](releases.md) |
 | What is complete, and what comes next? | [Development roadmap](ai/development-roadmap.md) |
 
 Startup and recovery changes also require [ADR 0002](decisions/0002-startup-recovery.md): listener readiness, existing-media ownership and failure behavior. Offscreen tasks also require [ADR 0003](decisions/0003-offscreen-lifecycle.md) for listener readiness, idle cleanup and HLS source intent. Queue tasks require [ADR 0004](decisions/0004-queue-mutations.md), including loaded metadata and late hydration/page responses.
 
 ## Understand the evidence
 
-`check` validates runtime, MCP consistency, maintained documentation references/commands, types and lint; it does not run behavioral tests. `npm test` exercises isolated scenarios through adapters, not real networking or audio decoding. Build and `verify:build` validate artifacts, not browser playback. The live Chrome smoke on November 3, 2026 confirmed [the listed scenarios](ai/testing.md#live-run-november-3-2026); it does not automatically cover Firefox, SW restart or later changes.
+`check` validates runtime, MCP consistency, maintained documentation references/commands, types and lint; it does not run behavioral tests. `npm test` exercises isolated scenarios through adapters, not real networking or audio decoding. Build and `verify:build` validate parts of the artifacts, not browser playback or complete release identity. Dated [Chrome evidence](ai/testing.md#live-run-november-3-2026) and [authenticated Firefox evidence](ai/testing.md#authenticated-firefox-follow-up-november-4-2026) cover their listed scenarios. The isolated Firefox CI probe checks runtime startup/transport without VK; actual popups, worker termination, minimum browser versions and later changes need their own evidence.
 
 At handoff, explain the user-visible change, implementation location, scenarios verified and remaining limitations. If a tool or VK session is unavailable, continue independent local checks and name the unavailable scenario precisely.
 

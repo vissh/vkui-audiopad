@@ -103,6 +103,8 @@ A green build/offline suite is partial evidence. Acceptance is complete only whe
 
 Update roadmap status with implementation/check links; keep the historical audit intact. English is the maintained documentation language; retain exact Russian UI labels in examples where they help reproduce a scenario.
 
+For an authorized release, follow [the release runbook](../releases.md). The GitHub workflow prepares and validates the final version commit before pushing it with its tag. Personal Git credentials, signing setup and troubleshooting belong to the developer's environment rather than project onboarding.
+
 When multiple agents are explicitly used, assign one owner per change. Shared contracts, lockfile and generated files need sequential coordination. Independent review checks behavior/invariants, not agreement with the author's narrative. Several agreeing agents do not replace executable validation.
 
 Merge, store publication, credentials and server-rule changes require an established policy and technical access. This workflow does not itself grant permissions or enable automation. T16 covers delivery controls separately.

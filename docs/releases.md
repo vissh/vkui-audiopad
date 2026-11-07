@@ -37,6 +37,12 @@ Failed checks or packaging stop before any remote version commit or tag. The `re
 
 If the atomic push succeeded but release creation failed, use **Re-run failed jobs**, which reuses the already verified commit and artifacts. Do not rerun all jobs: preparation expects an increasing version, and a newly generated commit must not replace the original tag. The publish job can reuse an existing tag only when it points directly to the same prepared commit and no release exists. If a draft or published release already exists, open that release. Do not move release tags to different code. Branch/tag rules must allow the workflow's release identity.
 
+Amending or re-signing a commit changes its ID even when every file is identical. Finalize commit identity before preparing release assets or creating a tag: an existing tag does not follow a rewritten branch. Published tags and retained candidates stay on the revision that was actually verified; corrections use a new version. The workflow's bot commit is unsigned and its tag is lightweight; personal signing credentials are not required for contributions. A policy requiring signed release commits needs a separately configured signing identity/workflow before publication.
+
+## Rollback and compatibility
+
+The release workflow packages verified files; it does not establish storage compatibility with an older extension. UPDATE currently clears runtime data while retaining settings. Versioned migrations and tested downgrade/recovery scenarios remain [T11](ai/development-roadmap.md#t11-version-persisted-state). Prefer a corrective release with a higher version after validating its state transition; do not move a published tag or assume reinstalling restores the previous queue.
+
 ## Build from the source archive
 
 Extract the source ZIP and open its top-level directory. Use macOS/Linux or a Linux environment on Windows, Git, `zip`/`unzip`, Node from `.node-version` and npm from `packageManager` in package.json. The ordinary build does not require GitHub access, Docker, VK login or store credentials.

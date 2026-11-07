@@ -101,6 +101,7 @@ Configuration does not prove a server is connected in the current session. Witho
 - Do not edit or format `service-worker/src/fetchers/unmask.js`: vendored minified audio URL decoding.
 - Treat `common/src/vk-client.ts` carefully: legacy FormData and windows-1251 decoding are easy to break with cosmetic changes.
 - Edit `public/manifest.js`, not generated manifest.json. Extension versions are set there, not in package.json.
+- Releases follow [the release runbook](docs/releases.md): use the GitHub workflow for version preparation, verified assets and atomic commit/tag publication. Personal Git signing/transport setup is not a contributor prerequisite.
 - `public/rules/vkcom.json` contains declarativeNetRequest rules for vk.ru ads.
 - TypeScript uses strict mode in all four packages, including implicit-any, nullability and function-variance checks. Explicit any is an ESLint error. Do not weaken compiler/lint settings; executable negative compiler cases in scripts/type-safety.test.ts guard the strictness contract. The vendored unmask.js remains outside lint/type-checking changes.
 - ESLint flat configs use neostandard: two spaces, no semicolons, single quotes. Keep code comments minimal and in English.
