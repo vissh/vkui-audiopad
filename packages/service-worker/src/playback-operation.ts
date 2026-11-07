@@ -2,7 +2,9 @@ import { type commonTypes } from '@vk-audiopad/common'
 import { applicationState } from './state'
 import { sameQueue, type QueueEdit } from './queue'
 
-export const MAX_PLAYBACK_ATTEMPTS = 10
+export const MAX_FAILED_TRACKS = 5
+export const MAX_TRACK_ATTEMPTS = 3
+export const MAX_PLAYBACK_ATTEMPTS = MAX_FAILED_TRACKS * MAX_TRACK_ATTEMPTS
 
 export interface PlaybackOperation {
   controller: AbortController
@@ -11,6 +13,7 @@ export interface PlaybackOperation {
   trackId: string | null
   visited: Set<string>
   attempts: number
+  trackAttempts: Map<string, number>
   playbackId: string | null
   retryPending: boolean
   failed: boolean
@@ -52,6 +55,7 @@ export const beginPlayback = (trackId: string | null, playlist: commonTypes.Play
     trackId,
     visited: new Set(),
     attempts: 0,
+    trackAttempts: new Map(),
     playbackId: null,
     retryPending: false,
     failed: false,
@@ -111,6 +115,9 @@ export const restorePlayback = (playbackId: string): PlaybackOperation | null =>
   operation.loading = false
   operation.launched = true
   operation.attempts = 1
-  if (operation.trackId != null) operation.visited.add(operation.trackId)
+  if (operation.trackId != null) {
+    operation.visited.add(operation.trackId)
+    operation.trackAttempts.set(operation.trackId, 1)
+  }
   return operation
 }

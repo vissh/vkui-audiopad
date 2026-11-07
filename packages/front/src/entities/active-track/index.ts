@@ -5,5 +5,6 @@ export {
   useDuration,
   usePlayed,
   usePlaybackRequested,
+  usePlaybackInitialization,
   usePlaybackError
 } from './model/atom'

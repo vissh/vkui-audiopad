@@ -6,139 +6,120 @@ import { type commonTypes } from '@vk-audiopad/common'
 afterEach(clearPlaybackMocks)
 
 describe('bounded playback', () => {
-  it('skips unusable Mix recommendations within the shared budget', async () => {
-    vi.useFakeTimers()
+  it('does not retry a storage failure without consuming an attempt', async () => {
     const player = await playbackHarness()
-    player.fetchMix.mockResolvedValueOnce({ ...track('1_100'), url: '' })
-    player.fetchMix.mockResolvedValueOnce(track('1_100'))
-    player.fetchMix.mockResolvedValueOnce(track('1_101'))
-    const mix = { ...playlist([], 'mix'), isVkMix: true }
-    const pending = player.playNewTrack(null, mix)
-    await vi.runAllTimersAsync()
-    await pending
-    expect(player.fetchMix).toHaveBeenCalledTimes(3)
-    expect(player.play.mock.calls.map(call => call[0])).toEqual([track('1_101').url])
-    expect(player.state.currentPlaylist?.tracks.map(item => item.id)).toEqual(['1_101'])
-    expect(mix.tracks).toEqual([])
+    player.api.storage.local.set.mockRejectedValueOnce(new Error('Storage unavailable'))
+    await player.playNewTrack('1_1', playlist(['1_1']))
+    expect(player.fetchTrack).not.toHaveBeenCalled()
+    expect(player.state.playbackRequested).toBe(false)
+    expect(player.state.playbackError).not.toBeNull()
   })
 
-  it('stops Mix after the shared budget even if the server repeats an unusable recommendation', async () => {
+  it.each(['session-changed', 'unauthorized'] as const)('does not replay a %s Mix request across an invalid session', async kind => {
+    const player = await playbackHarness()
+    const { vkApiClient } = await import('@vk-audiopad/common')
+    player.fetchMix.mockRejectedValueOnce(new vkApiClient.VKApiError(kind))
+    await player.playNewTrack(null, { ...playlist([], 'mix'), isVkMix: true })
+    expect(player.fetchMix).toHaveBeenCalledOnce()
+    expect(player.state.playbackRequested).toBe(false)
+  })
+
+  it('recovers the same track after a transient request failure without skipping it', async () => {
     vi.useFakeTimers()
     const player = await playbackHarness()
-    const { MAX_PLAYBACK_ATTEMPTS } = await import('../../packages/service-worker/src/playback-operation')
+    player.fetchTrack.mockRejectedValueOnce(new Error('Offline'))
+    const pending = player.playNewTrack('1_1', playlist(['1_1', '1_2']))
+    await vi.advanceTimersByTimeAsync(499)
+    expect(player.fetchTrack).toHaveBeenCalledOnce()
+    expect(player.state.playbackError).toBeNull()
+    await vi.runAllTimersAsync()
+    await pending
+    expect(player.fetchTrack.mock.calls.map(call => call[1])).toEqual(['1_1', '1_1'])
+    expect(player.state.activeTrack?.id).toBe('1_1')
+    expect(player.play).toHaveBeenCalledOnce()
+  })
+
+  it.each(['missing', 'empty-url', 'network', 'launch'] as const)('stops after three attempts on each of five tracks for %s failures', async failure => {
+    vi.useFakeTimers()
+    const player = await playbackHarness()
+    if (failure === 'missing') player.fetchTrack.mockResolvedValue(null)
+    if (failure === 'empty-url') player.fetchTrack.mockImplementation(async (_owner, id) => ({ ...track(id), url: '' }))
+    if (failure === 'network') player.fetchTrack.mockRejectedValue(new Error('Offline'))
+    if (failure === 'launch') player.play.mockRejectedValue(new Error('No receiver'))
+    const pending = player.playNewTrack('1_1', playlist(['1_1', '1_2', '1_3', '1_4', '1_5', '1_6']))
+    await vi.runAllTimersAsync()
+    await pending
+    expect(player.fetchTrack.mock.calls.map(call => call[1])).toEqual([
+      '1_1', '1_1', '1_1', '1_2', '1_2', '1_2', '1_3', '1_3', '1_3',
+      '1_4', '1_4', '1_4', '1_5', '1_5', '1_5'
+    ])
+    expect(player.snapshot()).toMatchObject({ played: false, playbackRequested: false, playbackId: null })
+    expect(player.state.playbackError).toContain('5 треков подряд')
+    await vi.advanceTimersByTimeAsync(60_000)
+    expect(player.fetchTrack).toHaveBeenCalledTimes(15)
+  })
+
+  it('stops a short queue after its unique ids are exhausted, without wrapping or inventing five failures', async () => {
+    vi.useFakeTimers()
+    const player = await playbackHarness()
+    player.fetchTrack.mockResolvedValue(null)
+    const pending = player.playNewTrack('1_1', playlist(['1_1', '1_1', '1_2']))
+    await vi.runAllTimersAsync()
+    await pending
+    expect(player.fetchTrack.mock.calls.map(call => call[1])).toEqual(['1_1', '1_1', '1_1', '1_2', '1_2', '1_2'])
+    expect(player.state.playbackError).toContain('Доступные треки')
+  })
+
+  it('advances only after the same track exhausts its attempts', async () => {
+    vi.useFakeTimers()
+    const player = await playbackHarness()
+    player.fetchTrack.mockImplementation(async (_owner, id) => id === '1_1' ? null : track(id))
+    const pending = player.playNewTrack('1_1', playlist(['1_1', '1_2']))
+    await vi.runAllTimersAsync()
+    await pending
+    expect(player.fetchTrack.mock.calls.map(call => call[1])).toEqual(['1_1', '1_1', '1_1', '1_2'])
+    expect(player.state.activeTrack?.id).toBe('1_2')
+    expect(player.state.playbackError).toBeNull()
+  })
+
+  it('bounds repeated unusable Mix recommendations including same-track retries', async () => {
+    vi.useFakeTimers()
+    const player = await playbackHarness()
     player.fetchMix.mockResolvedValue({ ...track('1_100'), url: '' })
+    player.fetchTrack.mockResolvedValue(null)
     const pending = player.playNewTrack(null, { ...playlist([], 'mix'), isVkMix: true })
     await vi.runAllTimersAsync()
     await pending
-    expect(player.fetchMix).toHaveBeenCalledTimes(MAX_PLAYBACK_ATTEMPTS)
+    expect(player.fetchMix.mock.calls.length + player.fetchTrack.mock.calls.length).toBe(15)
     expect(player.play).not.toHaveBeenCalled()
-    expect(player.snapshot()).toMatchObject({ played: false, playbackRequested: false, playbackError: expect.any(String) })
+    expect(player.state).toMatchObject({ playbackRequested: false, playbackId: null, playbackError: expect.any(String) })
     await vi.advanceTimersByTimeAsync(60_000)
-    expect(player.fetchMix).toHaveBeenCalledTimes(MAX_PLAYBACK_ATTEMPTS)
+    expect(player.fetchMix.mock.calls.length + player.fetchTrack.mock.calls.length).toBe(15)
   })
 
   it('cancels a Mix recommendation delay when another track is selected', async () => {
     vi.useFakeTimers()
     const player = await playbackHarness()
-    player.fetchMix.mockResolvedValueOnce({ ...track('1_100'), url: '' })
+    player.fetchMix.mockRejectedValueOnce(new Error('Offline'))
     const pending = player.playNewTrack(null, { ...playlist([], 'mix'), isVkMix: true })
     await vi.advanceTimersByTimeAsync(0)
-    expect(player.fetchMix).toHaveBeenCalledOnce()
     await player.playNewTrack('1_2', playlist(['1_2']))
     await vi.runAllTimersAsync()
     await pending
     expect(player.fetchMix).toHaveBeenCalledOnce()
     expect(player.state.activeTrack?.id).toBe('1_2')
-    expect(player.state.playbackError).toBeNull()
   })
 
   it.each([false, true])('stops an empty playlist with isRadio=%s without indexing an empty array', async isRadio => {
     const player = await playbackHarness()
-    await expect(player.playNewTrack(null, { ...playlist([]), isRadio })).resolves.toBeUndefined()
+    await player.playNewTrack(null, { ...playlist([]), isRadio })
     expect(player.fetchTrack).not.toHaveBeenCalled()
     expect(player.play).not.toHaveBeenCalled()
-    expect(player.snapshot()).toMatchObject({ played: false, playbackError: expect.any(String) })
-  })
-
-  it('visits an unavailable track only once and stops without more timers or requests', async () => {
-    vi.useFakeTimers()
-    const player = await playbackHarness()
-    player.fetchTrack.mockImplementation(async () => {
-      if (player.fetchTrack.mock.calls.length > 2) throw new Error('Test guard stops the old infinite loop')
-      return null
-    })
-    const pending = player.playNewTrack('1_1', playlist(['1_1'])).catch(error => error)
-    await vi.runAllTimersAsync()
-    expect(await pending).toBeUndefined()
-    expect(player.fetchTrack).toHaveBeenCalledTimes(1)
-    expect(player.snapshot()).toMatchObject({ played: false, playbackError: expect.any(String) })
-    await vi.advanceTimersByTimeAsync(60_000)
-    expect(player.fetchTrack).toHaveBeenCalledTimes(1)
-  })
-
-  it('skips unavailable candidates and starts the first working track', async () => {
-    vi.useFakeTimers()
-    const player = await playbackHarness()
-    player.fetchTrack.mockResolvedValueOnce(null)
-    const pending = player.playNewTrack('1_1', playlist(['1_1', '1_2']))
-    await vi.runAllTimersAsync()
-    await pending
-    expect(player.fetchTrack.mock.calls.map(call => call[1])).toEqual(['1_1', '1_2'])
-    expect(player.state.activeTrack?.id).toBe('1_2')
-    expect(player.play).toHaveBeenCalledOnce()
-  })
-
-  it('skips duplicate ids without hiding an unvisited working track', async () => {
-    vi.useFakeTimers()
-    const player = await playbackHarness()
-    player.fetchTrack.mockResolvedValueOnce(null)
-    const pending = player.playNewTrack('1_1', playlist(['1_1', '1_1', '1_2']))
-    await vi.runAllTimersAsync()
-    await pending
-    expect(player.fetchTrack.mock.calls.map(call => call[1])).toEqual(['1_1', '1_2'])
-    expect(player.state.activeTrack?.id).toBe('1_2')
-  })
-
-  it('cancels the old retry delay when a new command arrives', async () => {
-    vi.useFakeTimers()
-    const player = await playbackHarness()
-    player.fetchTrack.mockResolvedValueOnce(null)
-    const old = player.playNewTrack('1_1', playlist(['1_1', '1_2'], 'old')).catch(error => error)
-    await vi.advanceTimersByTimeAsync(0)
-    await player.playNewTrack('1_3', playlist(['1_3'], 'new'))
-    await vi.runAllTimersAsync()
-    await old
-    expect(player.fetchTrack.mock.calls.map(call => call[1])).toEqual(['1_1', '1_3'])
-    expect(player.state.activeTrack?.id).toBe('1_3')
-  })
-
-  it('stops at the safety budget in a large playlist', async () => {
-    vi.useFakeTimers()
-    const player = await playbackHarness()
-    const { MAX_PLAYBACK_ATTEMPTS } = await import('../../packages/service-worker/src/playback-operation')
-    player.fetchTrack.mockResolvedValue(null)
-    const ids = Array.from({ length: MAX_PLAYBACK_ATTEMPTS * 2 }, (_, index) => `1_${index}`)
-    const pending = player.playNewTrack(ids[0], playlist(ids))
-    await vi.runAllTimersAsync()
-    await pending
-    expect(player.fetchTrack.mock.calls.length).toBeLessThanOrEqual(MAX_PLAYBACK_ATTEMPTS)
-    expect(player.fetchTrack.mock.calls.length).toBeGreaterThan(0)
-    expect(new Set(player.fetchTrack.mock.calls.map(call => call[1])).size).toBe(player.fetchTrack.mock.calls.length)
-    expect(player.state.played).toBe(false)
-    expect(player.state.playbackError).not.toBeNull()
-  })
-
-  it('reports a current network failure without automatically retrying the request', async () => {
-    vi.useFakeTimers()
-    const player = await playbackHarness()
-    player.fetchTrack.mockRejectedValueOnce(new Error('Offline'))
-    await expect(player.playNewTrack('1_1', playlist(['1_1']))).resolves.toBeUndefined()
-    await vi.runAllTimersAsync()
-    expect(player.fetchTrack).toHaveBeenCalledOnce()
     expect(player.state.playbackError).not.toBeNull()
   })
 
   it.each(['classified', 'unknown'])('logs a safe category for a %s failure without raw causes or response data', async kind => {
+    vi.useFakeTimers()
     const player = await playbackHarness()
     const { vkApiClient } = await import('@vk-audiopad/common')
     const warning = vi.spyOn(console, 'warn').mockImplementation(() => {})
@@ -146,8 +127,10 @@ describe('bounded playback', () => {
     const error = kind === 'classified' ? new vkApiClient.VKApiError('network') : new Error(secret, { cause: secret })
     Object.assign(error, { privatePayload: secret })
     player.fetchMix.mockRejectedValueOnce(error)
-    await player.playNewTrack(null, { ...playlist([], 'mix'), isVkMix: true })
-    expect(player.fetchMix).toHaveBeenCalledOnce()
+    const pending = player.playNewTrack(null, { ...playlist([], 'mix'), isVkMix: true })
+    await vi.runAllTimersAsync()
+    await pending
+    expect(player.fetchMix).toHaveBeenCalledTimes(2)
     expect(warning.mock.calls).toEqual([['Playback preparation failed', kind === 'classified' ? 'network' : 'unavailable']])
     expect(JSON.stringify(player.snapshot())).not.toContain(secret)
   })
