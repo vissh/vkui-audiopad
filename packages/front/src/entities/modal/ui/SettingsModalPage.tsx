@@ -99,6 +99,7 @@ const ShortcutInfo = () => {
       hasActive={false}
       multiline
     >
+      <Text>Пробел ставит музыку на паузу и продолжает воспроизведение.</Text>
       {description}
     </SimpleCell>
   )

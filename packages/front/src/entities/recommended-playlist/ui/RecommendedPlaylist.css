@@ -1,0 +1,47 @@
+.vkap_recommended_playlist {
+  position: relative;
+  overflow: hidden;
+}
+
+.vkap_recommended_playlist_action {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background: rgb(0 0 0 / 40%);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 120ms ease;
+}
+
+.vkap_recommended_playlist:hover .vkap_recommended_playlist_action,
+.vkap_recommended_playlist_keyboard_focus .vkap_recommended_playlist_action {
+  opacity: 1;
+}
+
+.vkap_recommended_playlist_action .vkap_icon_action {
+  width: 56px;
+  height: 56px;
+  border-radius: 4px;
+  color: #fff;
+  background: transparent;
+  pointer-events: none;
+  transition: color 120ms ease;
+}
+
+.vkap_recommended_playlist:hover .vkap_icon_action,
+.vkap_recommended_playlist_keyboard_focus .vkap_icon_action {
+  pointer-events: auto;
+}
+
+.vkap_recommended_playlist_action .vkap_icon_action:hover {
+  color: var(--vkui--color_text_secondary);
+  background: transparent;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .vkap_recommended_playlist_action,
+  .vkap_recommended_playlist_action .vkap_icon_action {
+    transition: none;
+  }
+}

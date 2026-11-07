@@ -1,6 +1,7 @@
 import { Card, Skeleton, Text, Title } from '@vkontakte/vkui'
-import { type FC } from 'react'
+import { useState, type FC, type ReactNode } from 'react'
 import { type Album } from '@/shared/types'
+import './RecommendedPlaylist.css'
 
 const width = '165px'
 const height = '200px'
@@ -8,11 +9,17 @@ const height = '200px'
 interface RecommendedPlaylistProps {
   album: Album
   onClick: () => void
+  action: ReactNode
 }
 
-export const RecommendedPlaylist: FC<RecommendedPlaylistProps> = ({ album, onClick }) => {
+export const RecommendedPlaylist: FC<RecommendedPlaylistProps> = ({ album, onClick, action }) => {
+  const [keyboardFocus, setKeyboardFocus] = useState(false)
   return (
     <Card
+      className={`vkap_recommended_playlist${keyboardFocus ? ' vkap_recommended_playlist_keyboard_focus' : ''}`}
+      onFocusCapture={event => { setKeyboardFocus(event.target.matches(':focus-visible')) }}
+      onBlurCapture={() => { setKeyboardFocus(false) }}
+      onPointerDownCapture={() => { setKeyboardFocus(false) }}
       style={{
         backgroundImage: 'url(' + album.coverUrl + ')',
         backgroundSize: `${width} ${height}`,
@@ -45,6 +52,7 @@ export const RecommendedPlaylist: FC<RecommendedPlaylistProps> = ({ album, onCli
       >
         {album.authorLine}
       </Text>
+      <div className='vkap_recommended_playlist_action'>{action}</div>
     </Card>
   )
 }

@@ -18,9 +18,11 @@ import { useAtomValue } from '@/shared/lib/atom'
 import { Notification } from '@/shared/ui/notification'
 import { Pages } from './Pages'
 import { SessionQueryProvider } from './SessionQueryProvider'
+import { usePlaybackShortcut } from './use-playback-shortcut'
 import './base.css'
 
 export const Application: FC = () => {
+  usePlaybackShortcut()
   const theme = useAtomValue(themeAtom)
 
   return (

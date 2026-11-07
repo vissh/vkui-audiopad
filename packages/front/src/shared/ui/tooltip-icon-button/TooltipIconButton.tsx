@@ -1,4 +1,4 @@
-import { IconButton, Spinner, Tooltip, type TooltipOnShownChange } from '@vkontakte/vkui'
+import { IconButton, Spinner, Tooltip, type IconButtonProps, type TooltipOnShownChange } from '@vkontakte/vkui'
 import { type FC } from 'react'
 import './TooltipIconButton.css'
 
@@ -10,6 +10,8 @@ export interface TooltipIconButtonProps {
   padding?: boolean
   disabled?: boolean
   busy?: boolean
+  hoverMode?: IconButtonProps['hoverMode']
+  activeMode?: IconButtonProps['activeMode']
   tooltipShown?: boolean
   onTooltipShownChange?: TooltipOnShownChange
   onClick?: () => void
@@ -30,6 +32,8 @@ export const TooltipIconButton: FC<TooltipIconButtonProps> = (props) => {
       <IconButton
         label={props.text}
         disabled={props.disabled}
+        hoverMode={props.hoverMode}
+        activeMode={props.activeMode}
         aria-disabled={props.disabled || props.busy || undefined}
         aria-busy={props.busy || undefined}
         className={`vkap_icon_action ${accentClassName} ${paddingClassName} ${props.className ?? ''}`}
