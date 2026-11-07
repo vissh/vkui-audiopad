@@ -13,7 +13,9 @@ beforeEach(() => {
 afterEach(cleanup)
 
 const setup = async () => {
-  const browser = createChrome({ userId: '1', webToken: { userId: '1', accessToken: 'synthetic', expires: Number.MAX_SAFE_INTEGER, error: null } })
+  const browser = createChrome({ userId: '1', webToken: { userId: '1', accessToken: 'synthetic', expires: Number.MAX_SAFE_INTEGER, logoutHash: '', error: null } })
+  const { startSessionService } = await import('../../packages/service-worker/src/session')
+  startSessionService()
   const network = vi.fn(async (_input: RequestInfo | URL, _init?: RequestInit) => new Response('{"payload":[0,[{"is_followed":true}]]}'))
   vi.stubGlobal('fetch', network)
   const { ConfigProvider, AdaptivityProvider, Platform } = await import('@vkontakte/vkui')

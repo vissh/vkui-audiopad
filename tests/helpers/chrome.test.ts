@@ -35,3 +35,13 @@ it('rejects failed promise operations and exposes lastError only inside a failed
   expect(browser.api.runtime.lastError).toBeUndefined()
   expect(await browser.api.storage.local.get('volume')).toEqual({ volume: 0.5 })
 })
+
+it('ignores unrelated listeners and retains an asynchronous callback response channel', async () => {
+  const browser = createChrome()
+  browser.api.runtime.onMessage.addListener(() => undefined)
+  browser.api.runtime.onMessage.addListener((_message, sender, sendResponse) => {
+    queueMicrotask(() => { sendResponse({ id: sender.id }) })
+    return true
+  })
+  expect(await browser.api.runtime.sendMessage({ synthetic: true })).toEqual({ id: 'test-extension' })
+})

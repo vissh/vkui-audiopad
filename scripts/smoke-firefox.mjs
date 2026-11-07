@@ -69,8 +69,8 @@ try {
     await delay(50)
   } while (Date.now() < deadline)
   const expectedModes = [commonTypes.RepeatMode.REPEAT, commonTypes.RepeatMode.REPEAT_ONE, commonTypes.RepeatMode.NONE]
-  if (result?.ready !== true || result?.snapshotRoundTrip !== true || JSON.stringify(result.repeatModes) !== JSON.stringify(expectedModes)) throw new Error('Firefox runtime smoke did not finish')
-  console.log(`OK: Firefox temporary addon startup, empty Audio snapshot and applied repeat commands ${JSON.stringify(result)}`)
+  if (result?.ready !== true || result?.snapshotRoundTrip !== true || result?.sessionRoundTrip !== true || result?.sessionRejectsStale !== true || result?.sessionRejectsMalformed !== true || JSON.stringify(result.repeatModes) !== JSON.stringify(expectedModes)) throw new Error('Firefox runtime smoke did not finish')
+  console.log(`OK: Firefox temporary addon startup, Audio snapshot, applied repeat and validated session replies ${JSON.stringify(result)}`)
 } finally {
   try {
     if (connected && browserStarted) await call('close_firefox_session')

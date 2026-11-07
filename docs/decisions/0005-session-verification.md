@@ -1,6 +1,6 @@
 # ADR 0005: inconclusive session checks preserve local data
 
-Status: accepted for popup session verification; general VK request/refresh and cross-context account isolation remain T09/T10/T11.
+Status: accepted verification outcomes; background ownership and token-method epochs are defined in [ADR 0009](0009-session-owner.md). Broader legacy/account isolation remains T09/T10/T11.
 
 ## Problem
 
@@ -8,21 +8,21 @@ Opening the UI verifies the VK session. Previously both an explicit authorizatio
 
 ## Decision
 
-The sign-in feature owns verification, persistence and the retry UI. Its check returns a verified token, confirmed unauthorized, or an inconclusive exception. Caller cancellation rejects and must not persist a result.
+The background session owner performs verification/persistence; the sign-in feature requests it through the common session client and owns retry UI. Its check returns a verified token, confirmed unauthorized, or an inconclusive exception. Caller cancellation detaches its wait; shared work may persist only while another caller still needs it.
 
 - Token acquisition requires successful HTTP before interpreting its payload. HTTP errors, including HTTP 401 at this endpoint, are inconclusive; only a successful-HTTP explicit `type=error, error_info=unauthorized` confirms logout there.
 - The existing profile probe confirms unauthorized on HTTP 401 or successful-HTTP VK error 5. Other HTTP/VK errors, malformed JSON and missing/non-object profile response are inconclusive.
 - Token acquisition and the profile probe share a 15-second deadline. Forward cancellation to fetch and race the deadline so an adapter ignoring abort cannot keep the query pending. Recheck cancellation after asynchronous boundaries.
 - Inconclusive checks make no session/queue writes. Show a safe status below the player and an explicit “Повторить” action. Disable it during the request. There is no automatic session-query retry; retries are read-only verification, not replay of VK mutations.
 - Verified same-account refresh awaits persistence and keeps deviceId and associated data. A different account clears old associated data before publishing the new identity, retains settings and generates a deviceId. Confirmed logout retains the existing settings-preserving cleanup policy.
-- Await cleanup and persistence, propagate their failures to the retry UI, and serialize session writes within one frontend context. An aborted queued write does not begin; an already-issued storage mutation cannot be cancelled or rolled back.
+- Await cleanup and persistence, propagate their failures to the retry UI, and serialize session writes in the shared background owner. An aborted queued write does not begin; an already-issued storage mutation cannot be cancelled or rolled back.
 - Session UI errors and token-parser errors contain no upstream response payload or credentials. Preserve legacy FormData, windows-1251 decoding and the one reconnect attempt. HTTP status enforcement is opt-in for the token endpoint; it does not change all legacy scraping calls.
 
 ## Limits
 
-This is not a global session epoch, transaction or refresh single-flight. Different popup contexts, common-client refreshes, SW writes and cached personal queries can still race account changes. Cache cancellation/identity, cross-context ownership and storage migrations remain T09/T10/T11. Existing UPDATE cleanup still removes runtime/session data while retaining settings; this change does not introduce a queue migration policy.
+Shared session writes, refresh single-flight, per-caller cancellation and userId/sessionEpoch checks for token methods now follow ADR 0009. This is not a transaction across legacy requests, every playback/storage writer or all cached personal data. Broader invalidation and storage migrations remain T09/T10/T11. Existing UPDATE cleanup still removes runtime/session data while retaining settings; no queue migration policy is introduced.
 
-Token-method safe failures and bounded auth refresh are now implemented in [ADR 0008](0008-vk-api-errors.md); delete/restore result validation and app-ID consistency are covered by [ADR 0006](0006-library-delete-restore.md), whose live A/B accepted both client_id values. Shared refresh/account epochs, other legacy mutations and safe errors in other parsers remain open. The banner reports session verification/persistence failure, not the state of every catalog query. A successful retry does not refresh unrelated failed queries.
+Token-method safe failures and bounded auth refresh are implemented in [ADR 0008](0008-vk-api-errors.md); delete/restore result validation and app-ID consistency are covered by [ADR 0006](0006-library-delete-restore.md), whose live A/B accepted both client_id values. Other legacy mutations and safe errors in other parsers remain open. The banner reports session verification/persistence failure, not the state of every catalog query. A successful retry does not refresh unrelated failed queries.
 
 ## Evidence
 

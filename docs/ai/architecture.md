@@ -18,7 +18,7 @@ front (popup or tab) -- commands --> service-worker -- commands --> offscreen
 - **Offscreen** owns Audio and hls.js. Its source-local requested state prevents late HLS startup after pause. One Audio is active at a time; changing sources replaces the element and destroys old HLS/listeners. Media events return to the SW as AUDIO_PLAYER_* messages.
 - **Common** contains domain/protocol types, VK clients, converters and utilities. It has no independent runtime process.
 
-Catalog and session queries can run directly from front through common clients. The SW is the playback/queue orchestrator, not a proxy for every VK request.
+Catalog queries can run directly from front through common clients. Session verification/refresh and persistence have one background owner; [ADR 0009](../decisions/0009-session-owner.md) defines its validated request/reply contract. The SW is not a proxy for every VK method or catalog request.
 
 ### Firefox runtime
 
@@ -60,9 +60,9 @@ The entrypoint wraps Application (including its providers) in app/ApplicationErr
 
 Both clients live in common:
 
-- vk-api-client.ts uses token-based api.vk.ru/method/* endpoints (app ID 6287487), typed safe errors and a shared 15-second request budget with one auth refresh/retry; [ADR 0008](../decisions/0008-vk-api-errors.md). Shared refresh/account ownership remains T09.
+- vk-api-client.ts uses token-based api.vk.ru/method/* endpoints (app ID 6287487), typed safe errors and a shared 15-second request budget with one auth refresh/retry; [ADR 0008](../decisions/0008-vk-api-errors.md). Credentials come from the background session owner. Token methods capture/check userId plus sessionEpoch and reject retired-account completion; legacy/account-wide invalidation remains T09/T10.
 - vk-client.ts scrapes internal vk.ru endpoints, preserving FormData and windows-1251 -> UTF-8 handling. Its legacy reconnect refreshes cookies via vk.ru before retrying a 401.
-- Front features/sign-in obtains and persists session data through common; the token client can refresh it. Popup verification preserves stored session/queue on inconclusive network/format failures and offers manual retry; confirmed unauthorized still clears associated data. [ADR 0005](../decisions/0005-session-verification.md) defines the 15-second verification deadline and remaining refresh/cache/account limits (T09/T10/T11).
+- Front features/sign-in requests verification through common/session-client.ts and renders safe retry/sign-in outcomes. service-worker/session.ts owns token/profile checks, shared refresh, session epochs and serialized cleanup/persistence. [ADR 0005](../decisions/0005-session-verification.md) preserves transient/confirmed outcomes; [ADR 0009](../decisions/0009-session-owner.md) defines cross-context ownership and remaining account/cache limits.
 - service-worker/src/fetchers/unmask.js is vendored minified audio_api_unavailable URL decoding. Do not edit/format it.
 
 Playback: SW track-info resolves the URL (including unmask; Mix uses token API) -> PLAY_TRACK with playbackId -> new offscreen Audio with HLS/direct source -> media events with that ID -> guarded SW storage snapshot -> observing UI. start-playback.ts notifies VK of playback; it does not resolve media URLs.

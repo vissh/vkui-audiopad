@@ -1,6 +1,6 @@
 # State, commands and playback outcomes
 
-This map describes current code. Complete types/messages live in [common/types.ts](../../packages/common/src/types.ts); defaults live in [initial-state.ts](../../packages/common/src/initial-state.ts). Concurrent playback rules belong to [the ADR](../decisions/0001-playback-operations.md). General runtime message validation, a storage schema version and a unified command request/response protocol are not implemented yet. The startup snapshot exchange validates its own payload.
+This map describes current code. Complete types/messages live in [common/types.ts](../../packages/common/src/types.ts); defaults live in [initial-state.ts](../../packages/common/src/initial-state.ts). Concurrent playback rules belong to [the ADR](../decisions/0001-playback-operations.md). General runtime message validation, a storage schema version and a unified command request/response protocol are not implemented yet. Startup snapshots and [session requests](../decisions/0009-session-owner.md) validate their own boundaries.
 
 ## Storage and responsibility
 
@@ -18,7 +18,7 @@ chrome.storage.local uses flat keys. Common's ApplicationControls, ApplicationSe
 | likeVersion, settingsVersion | Chrome storage. Navigation UI records acknowledgement of informational windows/badges. |
 | UI theme | localStorage.theme and [themeAtom](../../packages/front/src/entities/modal/model/atom.ts). A theme field in common defaults/the preservation list does not mean the UI reads it from Chrome storage. |
 | activeTab | Chrome storage. [active-tab-atom](../../packages/front/src/shared/model/active-tab-atom.ts) owns the selected page and parameters. |
-| userId, webToken, deviceId | Chrome storage. Sign-in updates the session; the token client reads/refreshes its token. entities/session exposes userId to UI; acquisition/cleanup live in [sign-in storage](../../packages/front/src/features/sign-in/lib/storage.ts) and the common client. |
+| userId, webToken, deviceId, sessionEpoch | Chrome storage. [The background session owner](../../packages/service-worker/src/session.ts) coordinates verification, shared refresh and serialized writes/cleanup. UI observes userId and calls the common session client; it does not write credentials. sessionEpoch changes on account transition/logout and defaults to legacy for existing data; [ADR 0009](../decisions/0009-session-owner.md) defines identity and limits. |
 | Query cache / temporary modals | Open UI memory: a QueryClient per stored userId (retired on account change) and a modal atom. Not playback's source of truth. |
 | AbortController, budget, pending selection, revision | SW memory in [playback-operation](../../packages/service-worker/src/playback-operation.ts). Lost on worker restart. |
 | Audio, HLS, active media playbackId | Offscreen/background-page memory. Actual media can survive Chrome SW termination. |
@@ -50,6 +50,7 @@ Pause cancels pending resolution/retry and invalidates older media events. A sub
 | Direction | Current protocol examples |
 |---|---|
 | Front -> SW | ACTIVE_TRACK, TOGGLE_PLAYBACK, PLAY_OR_PAUSE, NEXT_TRACK, PREVIOUS_TRACK, CURRENT_TIME, REPEAT, ADD_TO_QUEUE, EDIT_CURRENT_PLAYLIST, APPEND_CURRENT_PLAYLIST |
+| UI token/session client -> background owner | SESSION_REQUEST / SESSION_CANCEL, correlated validated replies and per-caller cancellation. Background callers use the same owner locally. |
 | SW -> offscreen | GET_PLAYER_SNAPSHOT, PLAY_TRACK, PLAY_OR_PAUSE, CHANGE_VOLUME, CHANGE_CURRENT_TIME |
 | Offscreen -> SW | PLAYER_SNAPSHOT, AUDIO_PLAYER_* and CLOSE_OFFSCREEN_DOCUMENT |
 | SW/session/UI -> observing UI | Individual Chrome storage changes; not another playback command channel |
@@ -72,7 +73,7 @@ Media events received before the snapshot reply are superseded by the snapshot. 
 
 Playback request/readiness recovery is implemented with offline coverage. This does not persist operation retry budgets across worker loss, guarantee runtime message-port lifetime (T12), or acknowledge successful media start (T12). [ADR 0003](../decisions/0003-offscreen-lifecycle.md) defines close/create/send coordination. Live SW termination/restart must be reported separately from popup closure or extension reload.
 
-On UPDATE, [the install listener](../../packages/service-worker/src/listeners/install.ts) calls clearStorage: fields from ApplicationControls/ApplicationSettings survive; other Chrome storage fields are removed. Account switching awaits removal of old associated data before publishing the new identity; verified same-account refresh keeps it. Inconclusive session checks preserve stored data and expose explicit retry; confirmed unauthorized retains settings-preserving cleanup. [ADR 0005](../decisions/0005-session-verification.md) defines the outcomes, deadline and limits. There is no schemaVersion migration or cross-context session epoch (T09/T11). Theme localStorage is not cleared by this function.
+On UPDATE, [the install listener](../../packages/service-worker/src/listeners/install.ts) calls clearStorage: fields from ApplicationControls/ApplicationSettings survive; other Chrome storage fields are removed. Account switching awaits removal of old associated data before publishing the new identity; verified same-account refresh keeps it. Inconclusive session checks preserve stored data and expose explicit retry; confirmed unauthorized retains settings-preserving cleanup. [ADR 0005](../decisions/0005-session-verification.md) defines verification outcomes; [ADR 0009](../decisions/0009-session-owner.md) owns shared session writes/epochs. There is still no schemaVersion migration or transaction across every runtime writer (T11). Theme localStorage is not cleared by this function.
 
 playbackRequested defaults to false, is reconciled from existing media at startup, and is removed on UPDATE/account switching with the other runtime keys. playbackInitialization defaults to loading, is republished on startup and has the same removal lifetime. An absent UI snapshot falls back to played until SW publishes intent. It is not a durable resume request.
 

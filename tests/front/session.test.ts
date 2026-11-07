@@ -7,7 +7,7 @@ import { deferred } from '../helpers/deferred'
 afterEach(() => { vi.doUnmock('@vk-audiopad/common') })
 
 const token: commonTypes.WebToken = { userId: '1', accessToken: 'synthetic-token', expires: Number.MAX_SAFE_INTEGER, logoutHash: 'synthetic-hash', error: null }
-const saved = () => ({ userId: '1', webToken: token, deviceId: 'device', currentPlaylist: playlist(['1_1']), audiosIds: [['1_1', '']], played: false, volume: 0.4 })
+const saved = () => ({ userId: '1', sessionEpoch: 'epoch-one', webToken: token, deviceId: 'device', currentPlaylist: playlist(['1_1']), audiosIds: [['1_1', '']], played: false, volume: 0.4 })
 
 const session = async () => {
   const browser = createChrome(saved())
@@ -16,16 +16,16 @@ const session = async () => {
     const original = await importOriginal<typeof import('@vk-audiopad/common')>()
     return { ...original, vkApiClient: { ...original.vkApiClient, fetchAppWebToken: fetchToken } }
   })
+  const { startSessionService } = await import('../../packages/service-worker/src/session')
+  startSessionService()
   const { fetchWebToken } = await import('../../packages/front/src/features/sign-in/lib/api')
-  const { updateWebToken } = await import('../../packages/front/src/features/sign-in/lib/storage')
-  return { ...browser, fetchToken, fetchWebToken, updateWebToken }
+  return { ...browser, fetchToken, fetchWebToken }
 }
 
 it('retains the session and queue when a token check fails with a network exception', async () => {
   const browser = await session()
   browser.fetchToken.mockRejectedValueOnce(new Error('synthetic network failure'))
   const result = await browser.fetchWebToken()
-  await browser.updateWebToken(result)
   await browser.api.storage.local.get()
   expect(result.error?.type).toBe('exception')
   expect(browser.snapshot()).toEqual(saved())
@@ -44,7 +44,6 @@ it.each([
   vi.stubGlobal('fetch', vi.fn(async () => new Response(JSON.stringify(payload), { status })))
   const result = await browser.fetchWebToken()
   expect(result.error?.type).toBe('exception')
-  await browser.updateWebToken(result)
   await browser.api.storage.local.get()
   expect(browser.snapshot()).toEqual(saved())
 })
@@ -73,8 +72,8 @@ it.each([
   vi.stubGlobal('fetch', vi.fn(async () => new Response(JSON.stringify(payload), { status })))
   const result = await browser.fetchWebToken()
   expect(result.error?.type).toBe('unauthorized')
-  await browser.updateWebToken(result)
-  expect(browser.snapshot()).toEqual({ volume: 0.4 })
+  expect(browser.snapshot()).toEqual({ volume: 0.4, sessionEpoch: expect.any(String) })
+  expect(browser.snapshot().sessionEpoch).not.toBe('epoch-one')
 })
 
 it('persists a verified same-account token without clearing associated data', async () => {
@@ -82,8 +81,7 @@ it('persists a verified same-account token without clearing associated data', as
   const next = { ...token, accessToken: 'fresh-synthetic-token' }
   browser.fetchToken.mockResolvedValueOnce(next)
   vi.stubGlobal('fetch', vi.fn(async () => new Response('{"response":{}}')))
-  const result = await browser.fetchWebToken()
-  await browser.updateWebToken(result)
+  await browser.fetchWebToken()
   expect(browser.snapshot()).toEqual({ ...saved(), webToken: next })
   expect(browser.api.storage.local.remove).not.toHaveBeenCalled()
 })
@@ -104,7 +102,6 @@ it('bounds a stalled token read even if its adapter ignores cancellation', async
   await vi.advanceTimersByTimeAsync(15_000)
   const result = await pending
   expect(result.error?.type).toBe('exception')
-  await browser.updateWebToken(result)
   expect(browser.snapshot()).toEqual(saved())
   response.resolve(token)
   await vi.advanceTimersByTimeAsync(0)
@@ -129,13 +126,15 @@ it('propagates caller cancellation without converting it to logout or a retry re
 it('does not publish a new account identity until old account data has been removed', async () => {
   const browser = await session()
   const next = { ...token, userId: '2' }
+  browser.fetchToken.mockResolvedValueOnce(next)
+  vi.stubGlobal('fetch', vi.fn(async () => new Response('{"response":{}}')))
   const release = deferred<void>()
   const remove = browser.api.storage.local.remove.getMockImplementation()!
   browser.api.storage.local.remove.mockImplementationOnce(async (keys, callback) => {
     await release.promise
     await remove(keys, callback)
   })
-  const pending = browser.updateWebToken(next)
+  const pending = browser.fetchWebToken()
   await vi.waitFor(() => { expect(browser.api.storage.local.remove).toHaveBeenCalledOnce() })
   expect(browser.snapshot().userId).toBe('1')
   release.resolve()
@@ -148,10 +147,12 @@ it('does not publish a new account identity until old account data has been remo
 it('surfaces a cleanup failure before publishing another account and can retry', async () => {
   const browser = await session()
   const next = { ...token, userId: '2' }
+  browser.fetchToken.mockResolvedValue(next)
+  vi.stubGlobal('fetch', vi.fn(async () => new Response('{"response":{}}')))
   browser.api.storage.local.remove.mockRejectedValueOnce(new Error('Cleanup failed'))
-  await expect(browser.updateWebToken(next)).rejects.toThrow('Cleanup failed')
+  expect((await browser.fetchWebToken()).error?.type).toBe('exception')
   expect(browser.snapshot()).toEqual(saved())
-  await browser.updateWebToken(next)
+  await browser.fetchWebToken()
   expect(browser.snapshot().userId).toBe('2')
 })
 
@@ -186,7 +187,7 @@ it('cancels a session write while its storage read is pending', async () => {
     return await read(keys, callback)
   })
   const controller = new AbortController()
-  const pending = expect(browser.updateWebToken(token, controller.signal)).rejects.toMatchObject({ name: 'AbortError' })
+  const pending = expect(browser.fetchWebToken(controller.signal)).rejects.toMatchObject({ name: 'AbortError' })
   await vi.waitFor(() => { expect(browser.api.storage.local.get).toHaveBeenCalledOnce() })
   controller.abort()
   release.resolve()

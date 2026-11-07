@@ -6,7 +6,7 @@ import { answerSnapshots, snapshot } from '../helpers/offscreen'
 it('checks command ownership again after offscreen creation completes', async () => {
   const browser = createChrome()
   const received = vi.fn()
-  browser.api.runtime.onMessage.addListener(received)
+  browser.api.runtime.onMessage.addListener(message => received(message))
   answerSnapshots(browser)
   vi.stubGlobal('fetch', vi.fn(async () => new Response('{"offscreen-document-support":true}')))
   const ready = deferred<void>()

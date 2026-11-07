@@ -11,7 +11,7 @@ it('registers the actual Chrome entrypoint listeners while storage initializatio
     return await read(keys, callback)
   })
   await import('../../packages/service-worker/src/index')
-  expect(browser.api.runtime.onMessage.addListener).toHaveBeenCalledOnce()
+  expect(browser.api.runtime.onMessage.addListener).toHaveBeenCalledTimes(2)
   expect(browser.api.commands.onCommand.addListener).toHaveBeenCalledOnce()
   expect(browser.api.runtime.onInstalled.addListener).toHaveBeenCalledOnce()
   expect(browser.snapshot()).toMatchObject({ playbackInitialization: 'loading', played: true })

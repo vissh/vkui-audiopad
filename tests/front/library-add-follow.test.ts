@@ -3,7 +3,9 @@ import { createChrome } from '../helpers/chrome'
 import { playlist, track } from '../helpers/playback'
 
 it('preserves visible track metadata when a token API addition returns a new library ID', async () => {
-  createChrome({ webToken: { userId: '1', accessToken: 'synthetic', expires: Number.MAX_SAFE_INTEGER, error: null } })
+  createChrome({ userId: '1', webToken: { userId: '1', accessToken: 'synthetic', expires: Number.MAX_SAFE_INTEGER, logoutHash: '', error: null } })
+  const { startSessionService } = await import('../../packages/service-worker/src/session')
+  startSessionService()
   vi.stubGlobal('fetch', vi.fn(async () => new Response('{"response":{"items_count":1,"errors_count":0,"items":[{"new_owner_id":1,"new_audio_id":100}],"errors":[]}}')))
   const { vkApiAdd } = await import('../../packages/front/src/features/add-to-my-music/api/add')
   const source = { ...track('-2_10'), title: 'Original title', artist: 'Original artist', fromAct: false }
@@ -16,7 +18,9 @@ it('preserves visible track metadata when a token API addition returns a new lib
 })
 
 it('rejects a partial add error instead of marking the row successful', async () => {
-  createChrome({ webToken: { userId: '1', accessToken: 'synthetic', expires: Number.MAX_SAFE_INTEGER, error: null } })
+  createChrome({ userId: '1', webToken: { userId: '1', accessToken: 'synthetic', expires: Number.MAX_SAFE_INTEGER, logoutHash: '', error: null } })
+  const { startSessionService } = await import('../../packages/service-worker/src/session')
+  startSessionService()
   vi.stubGlobal('fetch', vi.fn(async () => new Response('{"response":{"items_count":1,"errors_count":1,"items":[{"new_owner_id":1,"new_audio_id":100}],"errors":[{"message":"synthetic-private-value"}]}}')))
   const { vkApiAdd } = await import('../../packages/front/src/features/add-to-my-music/api/add')
   await expect(vkApiAdd({ ...track('-2_10'), fromAct: false })).rejects.toThrow()

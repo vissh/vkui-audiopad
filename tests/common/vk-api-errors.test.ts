@@ -6,6 +6,8 @@ const token = { accessToken: 'synthetic', userId: '1', expires: Number.MAX_SAFE_
 const setup = async () => {
   const browser = createChrome({ userId: '1', webToken: token, currentPlaylist: { synthetic: true } })
   const api = await import('../../packages/common/src/vk-api-client')
+  const { startSessionService } = await import('../../packages/service-worker/src/session')
+  startSessionService()
   return { ...browser, ...api }
 }
 

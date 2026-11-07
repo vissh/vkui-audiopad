@@ -8,7 +8,7 @@ afterEach(() => { vi.doUnmock('hls.js') })
 const setup = async () => {
   const browser = createChrome()
   const received = vi.fn()
-  browser.api.runtime.onMessage.addListener(received)
+  browser.api.runtime.onMessage.addListener(message => received(message))
   vi.stubGlobal('fetch', vi.fn(async () => new Response('{"offscreen-document-support":true}')))
   const { startListeningPlayerEvents } = await import('../../packages/offscreen/src/listeners/player-events')
   startListeningPlayerEvents()

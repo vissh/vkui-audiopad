@@ -20,13 +20,15 @@ afterEach(() => {
 
 const setup = async () => {
   const token: commonTypes.WebToken = { userId: '1', accessToken: 'synthetic', expires: Number.MAX_SAFE_INTEGER, logoutHash: '', error: null }
-  const browser = createChrome({ userId: '1', webToken: token, deviceId: 'device', currentPlaylist: playlist(['1_1']), volume: 0.4 })
+  const browser = createChrome({ userId: '1', sessionEpoch: 'epoch-one', webToken: token, deviceId: 'device', currentPlaylist: playlist(['1_1']), volume: 0.4 })
   const before = browser.snapshot()
   const fetchToken = vi.fn(async (_signal?: AbortSignal) => token)
   vi.doMock('@vk-audiopad/common', async importOriginal => {
     const original = await importOriginal<typeof import('@vk-audiopad/common')>()
     return { ...original, vkApiClient: { ...original.vkApiClient, fetchAppWebToken: fetchToken } }
   })
+  const { startSessionService } = await import('../../packages/service-worker/src/session')
+  startSessionService()
   const signInModal = vi.fn()
   const permissionModal = vi.fn()
   vi.doMock('@/entities/modal', () => ({ setSignInModal: signInModal, setRequestPermissionModal: permissionModal }))
@@ -77,7 +79,7 @@ it('requests sign-in only for a confirmed unauthorized token', async () => {
   session.mount()
   await waitFor(() => { expect(session.signInModal).toHaveBeenCalledOnce() })
   expect(screen.queryByRole('status')).toBeNull()
-  expect(session.snapshot()).toEqual({ volume: 0.4 })
+  expect(session.snapshot()).toEqual({ volume: 0.4, sessionEpoch: expect.any(String) })
   expect(fetch).not.toHaveBeenCalled()
 })
 

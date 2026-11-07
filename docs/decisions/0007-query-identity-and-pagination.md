@@ -22,7 +22,7 @@ Initial legacy query fetchers receive the query AbortSignal. Artist/album token-
 
 ## Limits
 
-A query-client boundary isolates rendered caches, not browser cookies or shared token storage. It does not create a global account epoch, cancel/roll back VK mutations, stop old SW requests, reset all module-level atoms or implement cross-window cache invalidation. Those remain T09/T11/T12. Library actions are not yet propagated to every cached catalog in every window. Access/permission changes within the same userId also need an explicit invalidation policy.
+A query-client boundary isolates rendered caches, not browser cookies. [ADR 0009](0009-session-owner.md) separately centralizes shared token storage and checks session epochs in token methods. Neither boundary rolls back VK mutations, stops every old legacy/SW request, resets all module-level atoms or implements cross-window cache invalidation. Those remain T09/T11/T12. Library actions are not yet propagated to every cached catalog in every window. Access/permission changes within the same userId also need an explicit invalidation policy.
 
 A mounted list's attempt history is transient; remount starts it again. Cursor/source guards are not a durable server snapshot or pagination guarantee. General initial-query error UI/manual retry, broader live source combinations and Firefox remain separate validation work.
 

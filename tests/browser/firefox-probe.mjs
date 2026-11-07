@@ -36,6 +36,22 @@ export const runFirefoxSmoke = async ({ targets, types, repeatModes }) => {
     await waitFor(() => extension.storage.local.get('repeat'), state => state.repeat === mode)
     modes.push(mode)
   }
+  const identity = { userId: '1', epoch: 'synthetic-smoke-epoch' }
+  const token = { userId: identity.userId, accessToken: 'synthetic-smoke-token', expires: Number.MAX_SAFE_INTEGER, logoutHash: '', error: null }
+  await extension.storage.local.set({ userId: identity.userId, sessionEpoch: identity.epoch, webToken: token })
+  const sessionRequest = async operation => {
+    const requestId = crypto.randomUUID()
+    const reply = await extension.runtime.sendMessage({ target: targets.SERVICE_WORKER, type: types.SESSION_REQUEST, requestId, operation })
+    if (reply?.requestId !== requestId) throw new Error('Firefox session reply correlation failed')
+    return reply
+  }
+  const session = await sessionRequest({ kind: 'token', identity })
+  if (session.ok !== true || session.snapshot?.identity.epoch !== identity.epoch || session.snapshot?.token.accessToken !== token.accessToken) throw new Error('Firefox cached session round trip failed')
+  const stale = await sessionRequest({ kind: 'assert', identity: { ...identity, epoch: 'retired-smoke-epoch' } })
+  if (stale.ok !== false || stale.error?.kind !== 'session-changed') throw new Error('Firefox session accepted a retired identity')
+  const malformed = await sessionRequest({ kind: 'refresh' })
+  if (malformed.ok !== false || malformed.error?.kind !== 'format') throw new Error('Firefox session accepted malformed input')
+  await extension.storage.local.remove(['userId', 'sessionEpoch', 'webToken'])
   return {
     firefoxVersion: /Firefox\/([\d.]+)/.exec(navigator.userAgent)?.[1] ?? 'unknown',
     ready: true,
@@ -43,6 +59,9 @@ export const runFirefoxSmoke = async ({ targets, types, repeatModes }) => {
     emptyAudio: true,
     snapshotRoundTrip: true,
     repeatModes: modes,
+    sessionRoundTrip: true,
+    sessionRejectsStale: true,
+    sessionRejectsMalformed: true,
     backgroundScripts: [...background.document.scripts].map(script => script.src.split('/').pop())
   }
 }

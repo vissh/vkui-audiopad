@@ -19,6 +19,26 @@ export interface WebToken {
   error: WebTokenError | null
 }
 
+export interface SessionIdentity {
+  epoch: string
+  userId: string
+}
+
+export interface SessionSnapshot {
+  identity: SessionIdentity
+  token: WebToken
+}
+
+export type SessionOperation =
+  | { kind: 'verify' }
+  | { kind: 'token', identity: SessionIdentity }
+  | { kind: 'refresh', identity: SessionIdentity, rejectedToken: string }
+  | { kind: 'assert', identity: SessionIdentity }
+
+export type SessionReply =
+  | { requestId: string, ok: true, snapshot: SessionSnapshot }
+  | { requestId: string, ok: false, error: ErrorObject }
+
 export interface TrackArtist {
   id: string
   name: string
@@ -240,6 +260,7 @@ export interface ApplicationPlaylistSystemState {
 
 export interface ApplicationUserState {
   userId: string
+  sessionEpoch: string
   webToken: WebToken | null
   deviceId: string
 }
@@ -264,6 +285,8 @@ export enum MessageTarget {
 }
 
 export enum MessageType {
+  SESSION_REQUEST = 'session-request',
+  SESSION_CANCEL = 'session-cancel',
   REPEAT = 'repeat',
   ADD_TO_QUEUE = 'add-to-queue',
   CURRENT_TIME = 'current-time',
@@ -295,6 +318,17 @@ interface IServiceWorkerMessage {
 
 interface IOffscreenMessage {
   target: MessageTarget.OFFSCREEN
+}
+
+export interface SessionRequestMessage extends IServiceWorkerMessage {
+  type: MessageType.SESSION_REQUEST
+  requestId: string
+  operation: SessionOperation
+}
+
+export interface SessionCancelMessage extends IServiceWorkerMessage {
+  type: MessageType.SESSION_CANCEL
+  requestId: string
 }
 
 export interface RepeatMessage extends IServiceWorkerMessage {
@@ -423,6 +457,8 @@ export interface AudioPlayerTimeupdateMessage extends AudioPlayerMessage {
 
 export type ServiceWorkerMessage = (
   RepeatMessage
+  | SessionRequestMessage
+  | SessionCancelMessage
   | PlaybackControlMessage
   | TogglePlaybackMessage
   | AddToQueueMessage

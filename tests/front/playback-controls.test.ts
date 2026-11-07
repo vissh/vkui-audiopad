@@ -35,7 +35,7 @@ const renderWithVKUI = async (children: ReactNode) => {
 it('sends toggles without deriving intent from delayed media state', async () => {
   const browser = createChrome({ played: false, playbackError: null })
   const commands = vi.fn()
-  browser.api.runtime.onMessage.addListener(commands)
+  browser.api.runtime.onMessage.addListener(message => commands(message))
   const { usePlayed, usePlaybackError } = await import('@/entities/active-track')
   const { PlayPauseButton } = await import('@/features/play-or-pause')
   const { commonTypes } = await import('@vk-audiopad/common')
@@ -116,7 +116,7 @@ it('cancels a delayed header play from the album control before media starts', a
 it.each(['played', 'paused'] as const)('sends an explicit command for a %s track row', async trackState => {
   const browser = createChrome()
   const commands = vi.fn()
-  browser.api.runtime.onMessage.addListener(commands)
+  browser.api.runtime.onMessage.addListener(message => commands(message))
   const { playOrPause } = await import('@/features/play-or-pause')
   const { commonTypes } = await import('@vk-audiopad/common')
   playOrPause(trackState, '1_1', playlist(['1_1']))
@@ -130,7 +130,7 @@ it.each(['played', 'paused'] as const)('sends an explicit command for a %s track
 it('keeps selecting a different track as an ACTIVE_TRACK command', async () => {
   const browser = createChrome()
   const commands = vi.fn()
-  browser.api.runtime.onMessage.addListener(commands)
+  browser.api.runtime.onMessage.addListener(message => commands(message))
   const { playOrPause } = await import('@/features/play-or-pause')
   const { commonTypes } = await import('@vk-audiopad/common')
   const queue = playlist(['1_1'])
@@ -147,7 +147,7 @@ it('sends pause from the active album without triggering the parent card', async
   const queue = playlist(['1_1'])
   const browser = createChrome({ played: true, currentPlaylist: queue })
   const commands = vi.fn()
-  browser.api.runtime.onMessage.addListener(commands)
+  browser.api.runtime.onMessage.addListener(message => commands(message))
   const { PlayPauseIcon } = await import('@/features/play-or-pause-album')
   const { commonTypes } = await import('@vk-audiopad/common')
   const onParentClick = vi.fn()
@@ -173,7 +173,7 @@ it('sends pause from the active album without triggering the parent card', async
 it('pauses the active VK Mix through the playback feature', async () => {
   const browser = createChrome({ played: true, currentPlaylist: { ...playlist(['1_1']), isVkMix: true } })
   const commands = vi.fn()
-  browser.api.runtime.onMessage.addListener(commands)
+  browser.api.runtime.onMessage.addListener(message => commands(message))
   const { VKMixButton } = await import('../../packages/front/src/widgets/vk-mix/ui/VKMixButton')
   const { commonTypes } = await import('@vk-audiopad/common')
   await renderWithVKUI(createElement(VKMixButton))
