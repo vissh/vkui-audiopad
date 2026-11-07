@@ -1,5 +1,6 @@
 const createAudio = (): HTMLAudioElement => {
   const audio = new Audio()
+  // Leave crossOrigin unset: VK Mix CDN responses may lack CORS headers (ADR 0001).
   audio.preload = 'auto'
   return audio
 }

@@ -8,6 +8,8 @@ A token API method returns its original successful JSON envelope, preserving res
 
 VKApiError contains a safe kind (unauthorized, rate-limit, http, network, format, timeout, unavailable or vk), optional HTTP status and numeric VK code. It never includes upstream messages, request parameters, response payloads, cookies or tokens. Use the existing serialized error transport across contexts. Cancellation belongs to the caller and rejects with its reason instead of becoming an authorization failure.
 
+The request boundary preserves classified VKApiError instances and maps only unclassified failures to unavailable (or timeout for the deadline). Omitting raw cause is intentional: serialization and logging must not reintroduce private payloads. More detailed acquisition-stage categories and a bounded diagnostic journal remain T09/T15 work.
+
 One 15-second deadline covers stored-token acquisition, the method call, any authorization refresh and its retry. commonUtils.withTimeout forwards abort and races it even if an adapter ignores cancellation, removes timers/listeners and is also used by popup session verification. Code still checks cancellation after asynchronous boundaries; a timeout cannot roll back an already-issued network/storage mutation.
 
 Only HTTP 401 or VK error 5 allow one token refresh and one method retry. A second authorization failure rejects. HTTP 429/5xx, rate-limit errors, network/format failures and timeouts are not automatically repeated. Non-success HTTP is classified before inspecting an error-looking body, so a 503 containing error 5 cannot trigger an auth refresh/replay. Retrying an explicitly rejected authentication request is distinct from blindly repeating a mutation whose completion is unknown.

@@ -22,7 +22,7 @@ npm run release:package # package a checked, fully built clean Git revision -> d
 npm run check        # required fast check: common build, typecheck and lint
 npm test             # Vitest: common and offline runtime/React/tooling tests
 ./build.sh           # full extension build -> dist/chrome_extension and dist/firefox_extension
-./build.sh front     # rebuild one package: front|offscreen|service-worker
+./build.sh front     # rebuild common + one consumer: front|offscreen|service-worker
 npm run eslint:fix   # fix workspace lint violations
 ```
 

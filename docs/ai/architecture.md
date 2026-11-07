@@ -44,6 +44,8 @@ Serialize errors across message boundaries with serialize-error. Static types ar
 
 Important UI state: entities/active-track, entities/session (userId), entities/modal and shared/model/active-tab-atom.ts. Theme uses localStorage rather than the similarly named Chrome storage default. SW state.ts/storage.ts hold the in-memory snapshot and persistence wrappers; listeners/storage.ts still turns several control changes into side effects. Current-queue edits and metadata page merging now go through SW commands and the serialized writer; [ADR 0004](../decisions/0004-queue-mutations.md) separates loaded metadata, full IDs, restore order and transient hydration edits. Full field responsibilities are documented once in [state/messages](state-and-messages.md).
 
+Changing stored userId intentionally remounts the query-provider subtree, retiring both its private cache and transient React state ([ADR 0007](../decisions/0007-query-identity-and-pagination.md)). AppModalRoot consumes modal requests with saveHistory=false and lets VKUI allocate a fresh instance ID. Reusing the modal kind as its ID can swallow a reopen while the old instance is still animating out; [modal regressions](../../tests/front/modal-reopen.test.ts) cover repeated opening and reopening during close with the real VKUI manager.
+
 React 19 runs only in front, but root devDependencies also contain @types/react and @types/react-dom for UI dependency resolution. Removing them requires clean-install/typechecking evidence. All packages currently use moduleResolution: bundler; the historical explanation based on node resolution is obsolete.
 
 The shared InfinityContent is a typed pagination boundary: active page, explicit list scope/cursor, one automatic attempt per cursor and manual retry after failure/stall. It does not own query keys or merge responses. Page-owned account/source keys, retirement and immutable cursor-guarded merges follow [ADR 0007](../decisions/0007-query-identity-and-pagination.md). Broader token/session invalidation remains T09/T10.
@@ -69,7 +71,7 @@ The November 2026 catalog uses opaque tokens. Server HTML for /music/catalog/* a
 
 ## Builds and distribution
 
-Vite builds each package. ./build.sh builds common first and assembles Chrome/Firefox distributions. Node is pinned in .node-version; npm in root packageManager. Doctor checks local setup without networking. A partial build reuses other package outputs; if common changed and its dist already exists, do not assume ./build.sh front rebuilt it. Use check/full build as appropriate.
+Vite builds each package. Every ./build.sh invocation rebuilds common first, even when its dist already exists, then builds the requested consumers and assembles Chrome/Firefox distributions. A partial build reuses other consumer outputs; use a full build after cross-package changes. [Build-script regressions](../../scripts/build.test.ts) verify ordering, fresh common output and failure propagation. Node is pinned in .node-version; npm in root packageManager. Doctor checks local setup without networking.
 
 public/manifest.js generates manifests with browser differences, extension version, permissions, commands and CSP. public/rules/vkcom.json contains declarativeNetRequest rules. dist/ is generated and untracked.
 

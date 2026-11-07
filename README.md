@@ -35,7 +35,7 @@ Run all commands from the repository root. `npm ci` installs the committed lockf
 
 The extension is built into `dist/chrome_extension` and `dist/firefox_extension`. In Chrome, open `chrome://extensions`, enable Developer mode and load the unpacked Chrome directory. In Firefox, open `about:debugging`, choose This Firefox and load the Firefox manifest as a temporary add-on. Live VK checks require an authenticated VK session; see [testing instructions](./docs/ai/testing.md).
 
-`./build.sh front` rebuilds only the popup after a full build. Build `common` first when invoking workspace commands manually; `check` and a full build do this automatically.
+`./build.sh front` rebuilds common and the popup after a full build; `offscreen` and `service-worker` work the same way. Other package outputs are reused. Use a full build after cross-package changes. Build `common` first when invoking workspace commands manually; `check` and every `build.sh` invocation do this automatically.
 
 ## Release packaging
 

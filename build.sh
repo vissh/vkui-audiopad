@@ -12,11 +12,9 @@ if [ ! -x node_modules/.bin/tsc ]; then
   npm ci
 fi
 
-if [ "$#" -eq 0 ] || [ ! -d packages/common/dist ]; then
-  echo 'Building common lib...'
-  npm run build -w @vk-audiopad/common
-  echo '`common-lib` builded.'
-fi
+echo 'Building common lib...'
+npm run build -w @vk-audiopad/common
+echo '`common-lib` builded.'
 
 if [ "$#" -eq 0 ] || [ "$1" = "offscreen" ]; then
   echo -e '\nBuilding offscreen...'

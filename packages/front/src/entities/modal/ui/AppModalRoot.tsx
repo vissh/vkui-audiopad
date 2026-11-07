@@ -35,7 +35,7 @@ export const AppModalRoot: FC = () => {
     const modal = MODALS[activeModal]
     if (modal != null) {
       modalApi.openCustomModalPage({
-        id: activeModal,
+        // Each request needs a fresh ID while the previous instance animates out.
         component: modal.component,
         baseProps: { dynamicContentHeight: true }
       })

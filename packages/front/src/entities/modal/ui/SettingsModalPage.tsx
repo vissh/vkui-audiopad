@@ -20,6 +20,7 @@ import {
   type CustomModalProps,
   type OpenModalPageProps
 } from '@vkontakte/vkui'
+import { type MouseEvent } from 'react'
 import { useAtom } from '@/shared/lib/atom'
 import { themeAtom } from '../model/atom'
 
@@ -122,7 +123,6 @@ const isFirefoxExtension = (): boolean => {
   return location.href.startsWith('moz-extension://')
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const autoSelect = (e: any): void => {
-  e.target.select()
+const autoSelect = (e: MouseEvent<HTMLTextAreaElement>): void => {
+  e.currentTarget.select()
 }
