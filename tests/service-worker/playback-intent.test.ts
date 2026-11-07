@@ -94,9 +94,13 @@ it('stops retrying unavailable sources when toggled off during the retry delay',
 })
 
 it('clears requested playback after terminal failure and retries on the next toggle', async () => {
+  vi.useFakeTimers()
   const player = await playbackHarness()
-  player.fetchTrack.mockResolvedValueOnce(null)
-  await player.playNewTrack('1_1', playlist(['1_1']))
+  player.fetchTrack.mockResolvedValue(null)
+  const pending = player.playNewTrack('1_1', playlist(['1_1']))
+  await vi.runAllTimersAsync()
+  await pending
+  player.fetchTrack.mockResolvedValue(track('1_1'))
   expect(player.snapshot()).toMatchObject({ playbackRequested: false, played: false, playbackError: expect.any(String) })
   const { togglePlayback } = await import('../../packages/service-worker/src/actions/play-or-pause')
   await togglePlayback()

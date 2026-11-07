@@ -19,6 +19,14 @@ export const usePlaybackRequested = (): boolean => {
   return requested ?? played
 }
 
+const playbackInitializationAtom = storageAtom({
+  key: 'playbackInitialization',
+  initial: initialState.ApplicationActiveTrack.playbackInitialization,
+  compareObjects: false
+})
+
+export const usePlaybackInitialization = () => useAtomValue(playbackInitializationAtom)
+
 const playbackErrorAtom = storageAtom({
   key: 'playbackError',
   initial: initialState.ApplicationActiveTrack.playbackError,
