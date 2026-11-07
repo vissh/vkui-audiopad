@@ -4,6 +4,9 @@ import { controlledFetch } from '../helpers/fetch'
 
 const setup = async () => {
   createChrome({ userId: '1', webToken: { accessToken: 'synthetic', userId: '1', expires: Number.MAX_SAFE_INTEGER, logoutHash: '', error: null } })
+  const { startSessionService } = await import('../../packages/service-worker/src/session')
+  startSessionService()
+  vi.resetModules()
   return await import('../../packages/common/src/vk-api-client')
 }
 
@@ -104,4 +107,17 @@ it('propagates cancellation without refresh or retry', async () => {
 it('rejects an invalid track identity before networking', async () => {
   const api = await setup()
   await expect(api.getAudioLyrics({ id: 'invalid', accessKey: '' })).rejects.toMatchObject({ kind: 'format' })
+})
+
+it.each([{ userId: '2' }, { sessionEpoch: 'next-synthetic-session' }])('rejects lyrics from a retired session without replay: %j', async change => {
+  const api = await setup()
+  const network = controlledFetch()
+  const pending = expect(api.getAudioLyrics({ id: '1_2', accessKey: '' })).rejects.toMatchObject({ kind: 'session-changed' })
+  await vi.waitFor(() => { expect(network.requests).toHaveLength(1) })
+  await chrome.storage.local.set<{ userId: string, sessionEpoch: string }>(change)
+  await pending
+  expect(network.requests[0].init?.signal?.aborted).toBe(true)
+  network.requests[0].resolve(new Response('{"response":{"lyrics":{"text":["Retired session text"]}}}'))
+  await Promise.resolve()
+  expect(network.requests).toHaveLength(1)
 })

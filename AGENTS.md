@@ -53,6 +53,8 @@ Before scraping or adding vk.ru data, read [the VK integration guide](docs/ai/vk
 
 Before queue insertion/removal/reordering/shuffle or current-playlist paging, read [ADR 0004](docs/decisions/0004-queue-mutations.md): complete IDs versus loaded metadata, serialized mutations and hydration edits.
 
+Before session/token changes, read [ADR 0009](docs/decisions/0009-session-owner.md): the background session owner is the credential writer; UI and token-method clients use its bounded, validated request/reply contract. Do not add per-popup refresh writers or replay a request after its account/epoch changes.
+
 For query keys, account changes and pagination, read [ADR 0007](docs/decisions/0007-query-identity-and-pagination.md): per-account caches, original mutation variables, cursor guards and immutable merges.
 
 Before lyrics changes, read [the product contract](docs/product/behavior.md#track-lyrics) and [VK response observations](docs/product/vk-parity.md#lyrics-observation-november-4-2026). Both plain and timestamped responses are supported, including interlude markers. Modal/tooltip verification follows [the testing procedure](docs/ai/testing.md#modal-and-tooltip-checks).

@@ -6,7 +6,7 @@ const setup = async (offscreen: boolean) => {
   vi.useFakeTimers()
   const browser = createChrome()
   const received = vi.fn()
-  browser.api.runtime.onMessage.addListener(received)
+  browser.api.runtime.onMessage.addListener(message => received(message))
   vi.stubGlobal('fetch', vi.fn(async () => new Response(JSON.stringify({ 'offscreen-document-support': offscreen }))))
   const audios = installAudio()
   const { startActivityChecker } = await import('../../packages/offscreen/src/activity-checker')

@@ -4,7 +4,7 @@ type StorageItems = Record<string, unknown>
 type Changes = Record<string, chrome.storage.StorageChange>
 type StorageKeys = string | string[] | StorageItems | null
 type StorageCallback = (items: StorageItems) => void
-type MessageListener = (message: unknown) => unknown
+type MessageListener = (message: unknown, sender: chrome.runtime.MessageSender, sendResponse: (response: unknown) => void) => unknown
 
 const event = <T extends (...args: never[]) => unknown>() => {
   const listeners = new Set<T>()
@@ -23,6 +23,28 @@ export const createChrome = (initial: StorageItems = {}) => {
   const changed = event<(changes: Changes, area: string) => void>()
   const messages = event<MessageListener>()
   const commands = event<(command: string) => void>()
+  const sendMessageFrom = async (message: unknown, sender: chrome.runtime.MessageSender): Promise<unknown> => {
+    return await new Promise((resolve, reject) => {
+      let responded = false
+      const respond = (value: unknown): void => {
+        if (!responded) {
+          responded = true
+          resolve(structuredClone(value))
+        }
+      }
+      const results = messages.emit(structuredClone(message), sender, respond)
+      if (results.length === 0) return reject(new Error('Could not establish connection. Receiving end does not exist.'))
+      let pending = false
+      for (const result of results) {
+        if (result === true) pending = true
+        else if (result instanceof Promise) {
+          pending = true
+          result.then(respond, reject)
+        } else if (result !== undefined && result !== false) respond(result)
+      }
+      if (!pending && !responded) resolve(undefined)
+    })
+  }
   const runtime = {
     id: 'test-extension',
     lastError: undefined as { message: string } | undefined,
@@ -33,11 +55,7 @@ export const createChrome = (initial: StorageItems = {}) => {
     onInstalled: event<(details: chrome.runtime.InstalledDetails) => void>(),
     OnInstalledReason: { UPDATE: 'update' },
     setUninstallURL: vi.fn(async (_url: string) => {}),
-    sendMessage: vi.fn(async (message: unknown) => {
-      const results = messages.emit(structuredClone(message))
-      if (results.length === 0) throw new Error('Could not establish connection. Receiving end does not exist.')
-      return await results[0]
-    })
+    sendMessage: vi.fn(async (message: unknown) => await sendMessageFrom(message, { id: 'test-extension', url: 'chrome-extension://test-extension/index.html', documentId: 'test-document' }))
   }
 
   const operation = <T>(action: () => T, callback?: (result: T) => void): Promise<T> => {
@@ -137,6 +155,7 @@ export const createChrome = (initial: StorageItems = {}) => {
   return {
     api,
     snapshot: () => structuredClone(items),
+    sendMessageFrom,
     failNextStorageOperation: (message: string) => { nextStorageError = message }
   }
 }

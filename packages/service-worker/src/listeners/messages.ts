@@ -28,7 +28,8 @@ const mediaMessages = new Set([
 
 export const startListeningMessages = async (readiness: Readiness, offscreen: boolean): Promise<void> => {
   const receive = (message: commonTypes.Message): void => {
-    if (message.target !== commonTypes.MessageTarget.SERVICE_WORKER || message.type === commonTypes.MessageType.PLAYER_SNAPSHOT) return
+    if (message == null || typeof message !== 'object') return
+    if (message.target !== commonTypes.MessageTarget.SERVICE_WORKER || message.type === commonTypes.MessageType.PLAYER_SNAPSHOT || message.type === commonTypes.MessageType.SESSION_REQUEST || message.type === commonTypes.MessageType.SESSION_CANCEL) return
     if (mediaMessages.has(message.type) && !readiness.acceptsMedia()) return
     readiness.run(async () => { await messageHandler(message) })
   }
@@ -96,6 +97,8 @@ const messageHandler = async (message: commonTypes.Message): Promise<void> => {
       if (isCurrentPlayer(message.playbackId)) await onTimeUpdate(message)
       break
     case commonTypes.MessageType.PLAYER_SNAPSHOT:
+    case commonTypes.MessageType.SESSION_REQUEST:
+    case commonTypes.MessageType.SESSION_CANCEL:
       break
     case commonTypes.MessageType.CLOSE_OFFSCREEN_DOCUMENT:
       await closeOffscreenDocument(message)

@@ -21,9 +21,9 @@ Token methods:
 
 The common pattern is page url + need_blocks=1 -> response.catalog.sections[0].id. The api.vk.ru/web.api.vk.ru hosts worked interchangeably in the investigated flows; app ID is VK_APP_ID (6287487) from vk-api-client.ts. These are observations about a changing upstream, not permanent guarantees.
 
-Tokens are obtained from cookies through POST login.vk.ru/?act=web_token with version=1&app_id=6287487, returning data.access_token/expires/user_id. Existing vkApiClient infrastructure owns this; do not build a second token mechanism in a page.
+Tokens are obtained from cookies through POST login.vk.ru/?act=web_token with version=1&app_id=6287487, returning data.access_token/expires/user_id. The background session owner uses the existing raw client, coordinates refresh and persists credentials. Pages use the common session client; do not create another token writer.
 
-Token methods follow [ADR 0008](../decisions/0008-vk-api-errors.md): errors reject, one 15-second budget, at most one HTTP 401/error-5 refresh/retry, no GET body and no blind replay on network/429/5xx/format/timeout. Validate each mutation's successful payload too. Shared refresh/session epochs remain T09.
+Token methods follow [ADR 0008](../decisions/0008-vk-api-errors.md): errors reject, one 15-second budget, at most one HTTP 401/error-5 refresh/retry, no GET body and no blind replay on network/429/5xx/format/timeout. Validate each mutation's successful payload too. [ADR 0009](../decisions/0009-session-owner.md) owns shared refresh and token-method session epochs; legacy/account-wide isolation remains separate work.
 
 ## Opaque catalog tokens
 

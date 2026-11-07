@@ -4,6 +4,8 @@ import { type JSONObject, type TrackItem, type WebToken } from './types'
 import { request as vkClientRequest } from './vk-client'
 import { VKApiError } from './vk-api-error'
 import { withTimeout } from './with-timeout'
+import { getSessionToken, requestSession } from './session-client'
+import { type SessionIdentity } from './types'
 
 export { VKApiError } from './vk-api-error'
 
@@ -129,11 +131,24 @@ const isJSONObjectValue = (value: unknown): value is JSONObject => {
 }
 
 export const request = async (url: string, method: 'GET' | 'POST', params: Record<string, string>, signal?: AbortSignal): Promise<JSONObject> => {
+  signal?.throwIfAborted()
+  const controller = new AbortController()
+  const cancel = (): void => { controller.abort(signal?.reason) }
+  let identity: SessionIdentity | undefined
+  const changed = (changes: Record<string, chrome.storage.StorageChange>, area: string): void => {
+    if (area !== 'local' || identity == null) return
+    if (('userId' in changes && (changes.userId.newValue ?? '') !== identity.userId) || ('sessionEpoch' in changes && (changes.sessionEpoch.newValue ?? 'legacy') !== identity.epoch)) controller.abort(new VKApiError('session-changed'))
+  }
+  signal?.addEventListener('abort', cancel, { once: true })
+  chrome.storage.onChanged.addListener(changed)
   try {
     return await withTimeout(async requestSignal => {
-      let token = await getOrUpdateAccessToken(requestSignal)
+      let session = await getSessionToken(requestSignal)
+      identity = session.identity
+      await requestSession({ kind: 'assert', identity }, requestSignal)
       for (let attempt = 0; attempt < 2; attempt++) {
         requestSignal.throwIfAborted()
+        const token = session.token
         if (token.error?.type === 'unauthorized') throw new VKApiError('unauthorized')
         if (token.error != null) throw new VKApiError('unavailable')
         if (token.accessToken.length === 0 || token.userId.length === 0) throw new VKApiError('format')
@@ -144,20 +159,25 @@ export const request = async (url: string, method: 'GET' | 'POST', params: Recor
         if (method === 'GET') body.forEach((value, key) => { target.searchParams.set(key, value) })
         else options.body = body
         try {
-          return await performRequest(target.toString(), options, requestSignal)
+          const result = await performRequest(target.toString(), options, requestSignal)
+          await requestSession({ kind: 'assert', identity }, requestSignal)
+          return result
         } catch (error) {
           requestSignal.throwIfAborted()
           if (!(error instanceof VKApiError) || error.kind !== 'unauthorized' || attempt !== 0) throw error
-          token = await updateWebToken(requestSignal)
+          session = await requestSession({ kind: 'refresh', identity, rejectedToken: token.accessToken }, requestSignal)
         }
       }
       throw new VKApiError('unauthorized')
-    }, 15_000, signal)
+    }, 15_000, controller.signal)
   } catch (error) {
     signal?.throwIfAborted()
     if (error instanceof VKApiError) throw error
     if (error instanceof DOMException && error.name === 'TimeoutError') throw new VKApiError('timeout')
     throw new VKApiError('unavailable')
+  } finally {
+    signal?.removeEventListener('abort', cancel)
+    chrome.storage.onChanged.removeListener(changed)
   }
 }
 
@@ -189,24 +209,6 @@ const performRequest = async (url: string, options: RequestInit, signal: AbortSi
   return payload
 }
 
-export const getOrUpdateAccessToken = async (signal?: AbortSignal): Promise<WebToken> => {
-  const webToken = await getWebTokenFromStorage()
-  signal?.throwIfAborted()
-
-  if (webToken != null && (webToken.expires > Math.round((+new Date()) / 1000) + 10)) {
-    return webToken
-  }
-
-  return await updateWebToken(signal)
-}
-
-export const updateWebToken = async (signal?: AbortSignal): Promise<WebToken> => {
-  const newWebToken = await fetchAppWebToken(signal)
-  signal?.throwIfAborted()
-  if (newWebToken.error == null) await setWebTokenToStorage(newWebToken)
-  return newWebToken
-}
-
 export const fetchAppWebToken = async (signal?: AbortSignal): Promise<WebToken> => {
   const resp = await vkClientRequest('https://login.vk.ru/?act=web_token', {
     version: '1',
@@ -235,21 +237,6 @@ export const fetchAppWebToken = async (signal?: AbortSignal): Promise<WebToken> 
   } catch {
     throw new Error('Invalid VK web token response')
   }
-}
-
-const getWebTokenFromStorage = async (): Promise<WebToken | undefined> => {
-  const { webToken: stored } = await chrome.storage.local.get('webToken')
-  const value: unknown = stored
-  if (typeof value !== 'object' || value == null) return undefined
-  if (!('accessToken' in value) || typeof value.accessToken !== 'string' || value.accessToken.length === 0) return undefined
-  if (!('userId' in value) || typeof value.userId !== 'string' || value.userId.length === 0) return undefined
-  if (!('expires' in value) || typeof value.expires !== 'number' || !Number.isFinite(value.expires)) return undefined
-  if (!('error' in value) || value.error !== null) return undefined
-  return { accessToken: value.accessToken, userId: value.userId, expires: value.expires, logoutHash: 'logoutHash' in value && typeof value.logoutHash === 'string' ? value.logoutHash : '', error: null }
-}
-
-const setWebTokenToStorage = async (webToken: WebToken): Promise<void> => {
-  await chrome.storage.local.set({ webToken })
 }
 
 export const setBroadcast = async (ownerId?: string, audioId?: string): Promise<JSONObject> => {

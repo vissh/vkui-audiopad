@@ -51,6 +51,7 @@ export const PlaylistSystem: ApplicationPlaylistSystemState = {
 
 export const User: ApplicationUserState = {
   userId: '',
+  sessionEpoch: 'legacy',
   webToken: null,
   deviceId: ''
 }

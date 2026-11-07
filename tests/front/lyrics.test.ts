@@ -21,6 +21,9 @@ const timestampedResponse = (lines: string[]) => new Response(JSON.stringify({ r
 const setup = async (activeTrack: commonTypes.TrackItem | null = lyricalTrack()) => {
   const browser = createChrome({ userId: '1', activeTrack, played: false, webToken: { userId: '1', accessToken: 'synthetic', expires: Number.MAX_SAFE_INTEGER, logoutHash: '', error: null } })
   const network = controlledFetch()
+  const { startSessionService } = await import('../../packages/service-worker/src/session')
+  startSessionService()
+  vi.resetModules()
   const { ConfigProvider, AdaptivityProvider, Platform } = await import('@vkontakte/vkui')
   const { SessionQueryProvider } = await import('@/app/SessionQueryProvider')
   const { Player } = await import('@/widgets/player')
@@ -58,7 +61,10 @@ it('loads on open once, renders plain text with stanza breaks, and reuses cached
   await screen.findByText(/First stanza/)
   expect(page.network.requests).toHaveLength(1)
   expect(page.api.storage.local.set).not.toHaveBeenCalled()
-  expect(page.api.runtime.sendMessage).not.toHaveBeenCalled()
+  expect(page.api.runtime.sendMessage).toHaveBeenCalled()
+  for (const [message] of page.api.runtime.sendMessage.mock.calls) {
+    expect(message).toMatchObject({ target: commonTypes.MessageTarget.SERVICE_WORKER, type: commonTypes.MessageType.SESSION_REQUEST })
+  }
 })
 
 it.each(['button', 'escape'])('restores focus without reopening the tooltip after closing via %s', async method => {
@@ -91,10 +97,17 @@ it('retires lyrics with the account and does not reuse the old account cache for
   await waitFor(() => { expect(page.network.requests).toHaveLength(1) })
   await act(async () => { page.network.requests[0].resolve(response(['Account one'])) })
   await screen.findByText('Account one')
-  await act(async () => { await page.api.storage.local.set({ userId: '2' }) })
+  await act(async () => {
+    await page.api.storage.local.set({
+      userId: '2',
+      sessionEpoch: 'account-two-session',
+      webToken: { userId: '2', accessToken: 'synthetic-two', expires: Number.MAX_SAFE_INTEGER, logoutHash: '', error: null }
+    })
+  })
   await waitFor(() => { expect(screen.queryByRole('dialog')).toBeNull() })
   fireEvent.click(screen.getByRole('button', { name: 'Показать текст' }))
   await waitFor(() => { expect(page.network.requests).toHaveLength(2) })
+  expect((page.network.requests[1].init?.body as URLSearchParams).get('access_token')).toBe('synthetic-two')
   expect(screen.queryByText('Account one')).toBeNull()
   await act(async () => { page.network.requests[1].resolve(response(['Account two'])) })
   await screen.findByText('Account two')

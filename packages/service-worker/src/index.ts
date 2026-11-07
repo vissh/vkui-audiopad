@@ -6,8 +6,10 @@ import { startListeningStorageEvents } from './listeners/storage'
 import { startListeningOnUninstalled } from './listeners/uninstall'
 import { initializePlayback } from './initialize'
 import { createReadiness } from './readiness'
+import { startSessionService } from './session'
 
 const startListeners = (offscreen: boolean): void => {
+  startSessionService()
   const readiness = createReadiness(async acceptMedia => { await initializePlayback(offscreen, acceptMedia) })
   startListeningCommandEvents(readiness)
   startListeningOnInstalled()

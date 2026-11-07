@@ -1,4 +1,4 @@
-export type VKApiFailureKind = 'unauthorized' | 'rate-limit' | 'http' | 'network' | 'format' | 'timeout' | 'unavailable' | 'vk'
+export type VKApiFailureKind = 'unauthorized' | 'rate-limit' | 'http' | 'network' | 'format' | 'timeout' | 'unavailable' | 'vk' | 'session-changed'
 
 export class VKApiError extends Error {
   readonly kind: VKApiFailureKind

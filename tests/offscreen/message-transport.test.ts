@@ -10,7 +10,7 @@ it.each([true, false])('delivers the same event with offscreen-document-support=
   const { sendMessage } = await import('../../packages/offscreen/src/send-message')
   const received = vi.fn()
   if (offscreenSupport) {
-    browser.api.runtime.onMessage.addListener(received)
+    browser.api.runtime.onMessage.addListener(message => received(message))
   } else {
     commonUtils.addBackgroundMessageListener(received)
   }
