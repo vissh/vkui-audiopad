@@ -23,7 +23,18 @@ A similar icon is not evidence of matching behavior. For each changed function c
 | Shuffle, repeat, seek and volume | Queue tests and scoped extension smoke | Website boundary/keyboard comparison, explicit accepted end-of-queue behavior |
 | Playlist follow/unfollow | November 4: website token follow/deletePlaylist and extension legacy toggle round trips; keyboard activation/focus verified | Cross-window invalidation, wider source/error matrix |
 | Similar tracks, broadcast | Existing features | Paired request/result/error observations and regressions |
+| Show lyrics | November 4: website PREY FOR ME/3 has lyrics; Δnthem Of Haze does not. Legacy flag and token has_lyrics checked; audio.getLyrics format verified at 5.246/5.289. | Wider catalog/language/source matrix; synchronized lyrics are outside this reader |
 | Themes, dialogs, empty/pending/error states | Scoped screenshots/modal observations | Keyboard/a11y and stable local-data browser baselines (T14/T17) |
+
+## Lyrics observation: November 4, 2026
+
+On Home, selecting PREY FOR ME/3 exposes “Показать текст”. Opening it sends POST audio.getLyrics with audio_id (owner/audio ID plus optional access key) and access_token. The website uses API 5.289; read-only probes confirmed the same response shape at the extension's 5.246 on api.vk.ru and web.api.vk.ru. response.lyrics.text is an array of plain strings, including empty lines; response also contains md5/credits. The observed song returned 101 lines. No lyric content or live credentials are retained here.
+
+The website's reloaded legacy tuples distinguish PREY FOR ME/3 (lyrics marker 1, HAS_LYRICS set) from Δnthem Of Haze (marker 0, HAS_LYRICS clear). Token audio.getById also reports has_lyrics=true for the first track. A lyrics read for the second returned VK error 104. The extension avoids that read when availability is absent; a stale positive flag can still lead to its unavailable state. Other errors remain failures. Token conversion now retains the advertised availability instead of discarding it.
+
+A same-day follow-up with Daft Punk's One More Time (Radio Edit) found a second valid response: lyrics.timestamps contains 90 objects with numeric begin/end, with no lyrics.text. Of these, 87 have a string line and three are interlude=true markers without a line. The original reader incorrectly rejected this successful response as a format failure. It now reads each line in returned order and maps explicit interludes to blank lines, preserving repeats/stanzas, and still renders a static reader. Text arrays take precedence if both forms exist. Empty arrays yield unavailable text; malformed lines remain format failures. The action now uses Icon24TextTtOutline to match the website's text icon.
+
+The extension intentionally uses a dedicated scrollable VKUI text reader rather than the website's player inside its lyrics modal. It preserves stanza breaks, supports selection, and has no seek/autoscroll/synchronized highlight behavior. Text loading is local UI work; background playback ownership is unchanged. Track/account changes close the reader and retire unfinished results. [Product behavior](behavior.md#track-lyrics) owns the user contract; [API regressions](../../tests/common/audio-lyrics.test.ts) and [actual Player DOM tests](../../tests/front/lyrics.test.ts) cover controlled outcomes. Browser evidence is recorded in testing.md.
 
 ## Delete/restore observation: November 4, 2026
 

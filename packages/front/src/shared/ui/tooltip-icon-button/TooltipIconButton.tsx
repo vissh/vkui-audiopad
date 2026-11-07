@@ -1,4 +1,4 @@
-import { IconButton, Spinner, Tooltip } from '@vkontakte/vkui'
+import { IconButton, Spinner, Tooltip, type TooltipOnShownChange } from '@vkontakte/vkui'
 import { type FC } from 'react'
 import './TooltipIconButton.css'
 
@@ -10,6 +10,8 @@ export interface TooltipIconButtonProps {
   padding?: boolean
   disabled?: boolean
   busy?: boolean
+  tooltipShown?: boolean
+  onTooltipShownChange?: TooltipOnShownChange
   onClick?: () => void
 }
 
@@ -22,6 +24,8 @@ export const TooltipIconButton: FC<TooltipIconButtonProps> = (props) => {
       description={props.text}
       hideWhenReferenceHidden={true}
       usePortal={true}
+      shown={props.tooltipShown}
+      onShownChange={props.onTooltipShownChange}
     >
       <IconButton
         label={props.text}

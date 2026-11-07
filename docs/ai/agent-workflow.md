@@ -89,6 +89,7 @@ A live check requires the appropriate tool/session/access. Report an unavailable
 
 ## Before handoff
 
+- Follow [the PR history rule](../../AGENTS.md#pr-history): exactly one commit per PR, including follow-up fixes and documentation. Verify the count against the target branch; use a branch-scoped force-with-lease when updating an already published commit.
 - Review the final diff, including unintended lockfile, vendor and generated-output changes.
 - Ensure a regression test distinguishes the faulty behavior from the fix and asserts an outcome.
 - Inspect failure, cancellation and invalid/empty input at changed boundaries.

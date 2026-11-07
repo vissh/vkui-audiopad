@@ -1,0 +1,17 @@
+.vkap_lyrics_heading {
+  overflow-wrap: anywhere;
+}
+
+.vkap_lyrics_artist {
+  margin-top: 8px;
+  color: var(--vkui--color_text_secondary);
+}
+
+.vkap_lyrics_text {
+  margin: 0;
+  font-size: 20px;
+  line-height: 1.65;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  user-select: text;
+}

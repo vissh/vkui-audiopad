@@ -74,7 +74,7 @@ export const toTrackItemFromAPIResponse = (response: JSONObject): TrackItem => {
     title: castToString(data.title),
     duration: castToNumber(data.duration),
     context: '',
-    flags: TrackFlagBit.CAN_ADD,
+    flags: TrackFlagBit.CAN_ADD | (data.has_lyrics === true ? TrackFlagBit.HAS_LYRICS : 0),
     trackCode: castToString(data.track_code),
     addHash: '',
     editHash: '',
