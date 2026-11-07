@@ -5,6 +5,7 @@ import { Navigation } from '@/widgets/navigation'
 import { VKMix } from '@/widgets/vk-mix'
 import { InfinityContent } from '@/shared/ui/infinity-content'
 import { useGeneralData, useLoadMoreGeneralDataMutation } from '../model/hooks'
+import { HomeHighlights } from './HomeHighlights'
 
 interface GeneralProps {
   userId: string
@@ -37,15 +38,19 @@ export const General: FC<GeneralProps> = ({ userId, active }) => {
         <VKMix isPending={isPending} />
       </Group>
 
-      <Group>
-        <CatalogGallery
-          mode='plain'
-          isPending={isPending}
-          loadingBlock='tracks'
-          userId={userId}
-          catalogBlock={firstBlock}
-        />
-      </Group>
+      {(isPending || firstBlock != null) && (
+        <Group>
+          <CatalogGallery
+            mode='plain'
+            isPending={isPending}
+            loadingBlock='tracks'
+            userId={userId}
+            catalogBlock={firstBlock}
+          />
+        </Group>
+      )}
+
+      <HomeHighlights userId={userId} active={active} existing={fetchResult?.blocks ?? []} />
 
       {otherBlocks.map((catalogBlock) => (
         <CatalogGallery

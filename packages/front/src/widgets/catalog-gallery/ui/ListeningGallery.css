@@ -1,0 +1,142 @@
+.vkap_listening_brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--vkui--color_text_secondary);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.vkap_listening_logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  width: 28px;
+  height: 28px;
+  color: #fff;
+  background: linear-gradient(150deg, #07f 15%, #a357ff 50%, #f45cff 80%);
+  border-radius: 7px;
+}
+
+.vkap_listening_logo > span {
+  width: 3px;
+  border-radius: 3px;
+  background: currentColor;
+}
+
+.vkap_listening_cards {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 8px 16px 16px;
+}
+
+.vkap_listening_card {
+  flex: 0 0 316px;
+  overflow: hidden;
+  border-radius: 14px;
+  background: var(--vkui--color_background_secondary);
+}
+
+.vkap_listening_cover {
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  width: 100%;
+  height: 144px;
+  padding: 16px 14px;
+  box-sizing: border-box;
+  border: 0;
+  border-radius: 14px;
+  text-align: left;
+  color: var(--vkui--color_text_primary);
+  background: var(--vkui--color_background_tertiary);
+  isolation: isolate;
+}
+
+.vkap_listening_cover_with_image {
+  color: #fff;
+}
+
+.vkap_listening_cover > img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: -1;
+}
+
+.vkap_listening_cover_with_image::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(180deg, rgb(0 0 0 / 8%), rgb(0 0 0 / 20%));
+}
+
+.vkap_listening_match {
+  position: absolute;
+  inset: 16px 14px auto;
+  font-size: 14px;
+  line-height: 20px;
+}
+
+.vkap_listening_match strong,
+.vkap_listening_title {
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.vkap_listening_details {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.vkap_listening_title,
+.vkap_listening_author > span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.vkap_listening_author {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+  line-height: 20px;
+}
+
+.vkap_listening_tracks {
+  min-height: 180px;
+  padding: 6px 0;
+}
+
+.vkap_listening_track {
+  width: 100%;
+  border: 0;
+  text-align: left;
+  color: inherit;
+  background: transparent;
+}
+
+.vkap_listening_duration {
+  color: var(--vkui--color_text_secondary);
+}
+
+.vkap_listening_cover:focus-visible {
+  outline: 2px solid var(--vkui--color_stroke_accent);
+  outline-offset: -3px;
+}
+
+@media (max-width: 380px) {
+  .vkap_listening_card {
+    flex-basis: 280px;
+  }
+}

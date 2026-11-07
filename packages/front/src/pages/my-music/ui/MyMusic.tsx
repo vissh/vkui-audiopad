@@ -3,6 +3,7 @@ import { type FC } from 'react'
 import { CatalogGallery } from '@/widgets/catalog-gallery'
 import { Navigation } from '@/widgets/navigation'
 import { TrackList } from '@/widgets/track-list'
+import { MyPlaylists } from '@/features/manage-playlists'
 import { InfinityContent } from '@/shared/ui/infinity-content'
 import { useLoadMoreMyMusicTracksMutation, useMyMusicData } from '../model/hooks'
 
@@ -38,6 +39,8 @@ export const MyMusic: FC<MyMusicProps> = ({ userId, active }) => {
           catalogBlock={fetchResult?.firstBlock}
         />
       </Group>
+
+      <MyPlaylists userId={userId} active={active} />
 
       {otherBlocks
         .map((catalogBlock, blockIndex) => (

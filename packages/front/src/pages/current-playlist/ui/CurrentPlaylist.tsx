@@ -4,6 +4,7 @@ import { Button, Group, Header, List } from '@vkontakte/vkui'
 import { Fragment, useState, type FC } from 'react'
 import { Navigation } from '@/widgets/navigation'
 import { Track } from '@/widgets/track-list'
+import { SaveQueueButton } from '@/features/manage-playlists'
 import { useCurrentPlaylist } from '@/entities/active-track'
 import { sendMessage } from '@/shared/lib/send-message'
 import { InfinityContent } from '@/shared/ui/infinity-content'
@@ -120,15 +121,18 @@ export const CurrentPlaylist: FC<CurrentPlaylistProps> = ({ active }) => {
                         Отмена
                       </Button>
                     </>
-                  : <Button
-                      key='editButton'
-                      mode='tertiary'
-                      before={<Icon20ListPenOutline />}
-                      style={{ marginBottom: '0px' }}
-                      onClick={openEditMode}
-                    >
-                    Режим редактирования
-                    </Button>
+                  : <>
+                      {currentPlaylist != null && <SaveQueueButton />}
+                      <Button
+                        key='editButton'
+                        mode='tertiary'
+                        before={<Icon20ListPenOutline />}
+                        style={{ marginBottom: '0px' }}
+                        onClick={openEditMode}
+                      >
+                        Режим редактирования
+                      </Button>
+                    </>
               }
             >
               {currentPlaylist?.title}

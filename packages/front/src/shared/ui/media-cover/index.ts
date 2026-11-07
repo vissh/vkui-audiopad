@@ -1,0 +1,1 @@
+export { MediaCover } from './MediaCover'

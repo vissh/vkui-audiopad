@@ -3,6 +3,7 @@ import { type FC } from 'react'
 import { AddToMyMusicButton } from '@/features/add-to-my-music'
 import { CastToStatusButton } from '@/features/cast-to-status'
 import { DeleteFromMyMusicButton } from '@/features/delete-from-my-music'
+import { AddTrackToPlaylistButton } from '@/features/manage-playlists'
 import { RepeatButton } from '@/features/repeat'
 import { ShuffleButton } from '@/features/shuffle'
 import { SimilarButton } from '@/features/similar'
@@ -27,6 +28,7 @@ export const Buttons: FC = () => {
 
   return (
     <>
+      {activeTrackExists && <AddTrackToPlaylistButton track={activeTrack} />}
       {canAdd && someoneElsesTrack && (
         <>
           {latestAddedTracks[libraryKey] != null

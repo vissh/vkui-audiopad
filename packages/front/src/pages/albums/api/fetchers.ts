@@ -1,8 +1,13 @@
 import { cast, catalogLink, vkApiClient, vkClient } from '@vk-audiopad/common'
+import { fetchCatalogSection } from '@/shared/api'
 import { getCatalogBlocks } from '@/shared/lib/catalog-block'
 import { type FetchAlbumsResult, type FetchNextSectionArgs } from '../model/types'
 
 export const fetchAlbums = async (showAllLink: string, signal?: AbortSignal): Promise<FetchAlbumsResult> => {
+  const token = catalogLink.sectionIdFromShowAllLink(showAllLink)
+  if (token != null && new URL(showAllLink, 'https://vk.ru').pathname.startsWith('/music/catalog/')) {
+    return { ...await fetchCatalogSection(token, '', signal), tokenCatalog: true }
+  }
   const sectionId = await resolveSectionId(showAllLink)
   signal?.throwIfAborted()
   if (sectionId == null) {
@@ -32,6 +37,7 @@ const resolveSectionId = async (showAllLink: string): Promise<string | null> => 
 }
 
 export const fetchMoreAlbums = async (args: FetchNextSectionArgs, signal?: AbortSignal): Promise<FetchAlbumsResult> => {
+  if (args.tokenCatalog === true) return { ...await fetchCatalogSection(args.sectionId, args.nextFrom, signal), tokenCatalog: true }
   const resp = await vkClient.request('https://vk.ru/al_audio.php?act=load_catalog_section', {
     al: '1',
     section_id: args.sectionId,

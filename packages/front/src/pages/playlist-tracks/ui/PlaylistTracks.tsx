@@ -1,5 +1,5 @@
 import { type commonTypes } from '@vk-audiopad/common'
-import { Group, Spacing } from '@vkontakte/vkui'
+import { Group, Placeholder, Spacing } from '@vkontakte/vkui'
 import { type FC } from 'react'
 import { Navigation } from '@/widgets/navigation'
 import { TrackList } from '@/widgets/track-list'
@@ -33,7 +33,10 @@ export const PlaylistTracks: FC<PlaylistTracksProps> = ({ userId, playlist, from
         <TrackList
           isPending={isPending}
           playlist={fetchResult?.playlist}
+          header={fetchResult?.playlist.title ?? playlist.title}
         />
+        {!isPending && fetchResult?.playlist.tracks.length === 0 && !fetchResult.playlist.hasMore &&
+          <Placeholder>В плейлисте пока нет треков. Добавьте их через «Добавить в плейлист» у нужной записи</Placeholder>}
       </Group>
     </InfinityContent>
   )

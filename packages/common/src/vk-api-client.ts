@@ -107,6 +107,20 @@ export const getAudioCatalogSectionId = async (pageUrl: string): Promise<string 
   return firstSectionId(resp)
 }
 
+export const getAudioCatalog = async (ownerId: string, signal?: AbortSignal): Promise<JSONObject> => {
+  if (!/^[1-9]\d*$/.test(ownerId)) throw new VKApiError('format')
+  return await request(`https://api.vk.ru/method/catalog.getAudio?v=${QUERY_API_VERSION}&client_id=${VK_APP_ID}`, 'POST', {
+    owner_id: ownerId, url: `https://vk.ru/audios${ownerId}?section=general`, need_blocks: '1', extended: '1'
+  }, signal, ownerId)
+}
+
+export const getCatalogSection = async (sectionId: string, nextFrom = '', signal?: AbortSignal): Promise<JSONObject> => {
+  if (!/^[\w-]+$/.test(sectionId)) throw new VKApiError('format')
+  return await request(`https://api.vk.ru/method/catalog.getSection?v=${QUERY_API_VERSION}&client_id=${VK_APP_ID}`, 'POST', {
+    section_id: sectionId, need_blocks: '1', extended: '1', ...(nextFrom.length > 0 ? { start_from: nextFrom } : {})
+  }, signal)
+}
+
 // A successful catalog may lack the expected section shape.
 // Transport/VK errors reject in request; missing sections return null here.
 const firstSectionId = (resp: JSONObject): string | null => {
@@ -130,7 +144,7 @@ const isJSONObjectValue = (value: unknown): value is JSONObject => {
   return typeof value === 'object' && value != null && !Array.isArray(value)
 }
 
-export const request = async (url: string, method: 'GET' | 'POST', params: Record<string, string>, signal?: AbortSignal): Promise<JSONObject> => {
+export const request = async (url: string, method: 'GET' | 'POST', params: Record<string, string>, signal?: AbortSignal, expectedUserId?: string): Promise<JSONObject> => {
   signal?.throwIfAborted()
   const controller = new AbortController()
   const cancel = (): void => { controller.abort(signal?.reason) }
@@ -152,6 +166,7 @@ export const request = async (url: string, method: 'GET' | 'POST', params: Recor
         if (token.error?.type === 'unauthorized') throw new VKApiError('unauthorized')
         if (token.error != null) throw new VKApiError('unavailable')
         if (token.accessToken.length === 0 || token.userId.length === 0) throw new VKApiError('format')
+        if (expectedUserId != null && token.userId !== expectedUserId) throw new VKApiError('unauthorized')
         const body = new URLSearchParams(params)
         body.set('access_token', token.accessToken)
         const target = new URL(url)

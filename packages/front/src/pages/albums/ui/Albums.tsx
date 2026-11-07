@@ -26,7 +26,7 @@ export const Albums: FC<AlbumsProps> = ({ userId, showAllLink }) => {
       paginationScope={JSON.stringify([userId, 'albums', showAllLink])}
       pageKey={fetchResult?.nextFrom ?? ''}
       loadMoreMutation={loadMoreMutation}
-      loadMoreArgs={fetchResult == null ? undefined : { userId, showAllLink, nextFrom: fetchResult.nextFrom, sectionId: fetchResult.sectionId }}
+      loadMoreArgs={fetchResult == null ? undefined : { userId, showAllLink, nextFrom: fetchResult.nextFrom, sectionId: fetchResult.sectionId, tokenCatalog: fetchResult.tokenCatalog }}
       error={error}
     >
       <Group>

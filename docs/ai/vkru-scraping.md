@@ -64,10 +64,20 @@ The website renders SPA vkit-* components. Legacy audio_page_block__show_all_lin
 
 Do not copy tokens, action hashes or signed media URLs into reports/fixtures. [Fixture rules](fixtures.md) explain how to preserve format evidence without personal data.
 
+## Home catalog tiles
+
+The legacy Home request remains the source for its existing track/catalog blocks. An independent, account-scoped read through common's getAudioCatalog requests catalog.getAudio with owner_id, the general-page url, extended=1 and need_blocks=1. An empty root-section pointer is resolved once through catalog.getSection. Its extra blocks render after Home's first track block; duplicate legacy IDs/titles are omitted. Errors retain the legacy content and offer explicit retry. “Ещё подборки” follows the section's opaque next_from through getSection/start_from, stopping a repeated cursor.
+
+The token parser resolves references from playlists_ids, audios_ids and links_ids against their root packages. It preserves server titles/order, including personalized recommendation titles; it does not create fixed genre/mood lists or hard-code a particular song. Supported additions include links, open_section/open_url actions, music_recommended_playlists and music_exclusive_slider playlist layouts. Separate header blocks contribute titles to the following block. Unsupported types are skipped; malformed roots fail safely. Category destinations remain inside supported VK catalog routes; unrelated/executable URLs are rejected.
+
+Internal /music/catalog/<token> navigation now reads token sections and carries their source/cursor through pagination. Existing search/artist/audio-block link routes retain their legacy flow. Playlist images use photo or up to four thumbs; image metadata remains optional and never becomes a query key.
+
+Schema references include the public [MusiMuX response reference](https://github.com/MuXolotl/MusiMuX/blob/main/docs/RESPONSE.md) and [Fenrir block model](https://github.com/umerov1999/Fenrir-for-VK/blob/main/app_fenrir/src/main/kotlin/dev/ragnarok/fenrir/api/model/catalog_v2_audio/VKApiCatalogV2Block.kt). MusiMuX documents a different API version, while this project retains 5.246. Validate compatibility with current authenticated responses using the [catalog acceptance scenarios](testing.md#home-tiles-and-playlist-covers-november-7-2026).
+
 ## Add a VK data feature
 
 1. Identify its source on live vk.ru, usually batch.call or al_audio.php.
 2. Prefer an existing legacy endpoint where appropriate, then token API through vkApiClient.request. Add shared fields/methods to common, not a parallel client in front.
 3. Extend common clients/types -> front page/feature with its query fetcher and UI state. Follow the installed FSD skill for structure.
-4. Run check and relevant format tests, full build and verify:build. Install from an MCP-permitted path according to [testing](testing.md), open the extension, reproduce the scenario and compare console categories with the narrow baseline.
+4. Run check and relevant format tests, full build and verify:build. Load the built extension in a dedicated browser profile according to [testing](testing.md), reproduce the scenario and compare console categories with the narrow baseline.
 5. Verify real format assumptions before changing fragile parsing. Preserve legacy FormData/encoding; a refactor requires fixture and behavioral evidence.

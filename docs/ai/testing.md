@@ -41,35 +41,15 @@ Session verification regressions live in tests/front/session.test.ts and session
 
 [Playback shortcut regressions](../../tests/front/playback-shortcut.test.ts) cover the first Space in both popup/tab contexts without clicking or awaiting tab detection, scroll prevention with navigation/link focus, missing physical key codes, held Space, focused/editable controls, dialogs, modified/composing/handled events and listener cleanup. [Recommendation card regressions](../../tests/front/recommended-playback.test.ts) cover first-track selection without navigation, duplicate-load suppression/focus, shared pause/resume intent, owner identity, empty/failed reads with retry, cancelled late completion and accessible names without tooltips. These are controlled DOM tests. In a real toolbar popup and extension tab, press Space immediately after opening without clicking: playback must toggle without scrolling. Then start a generated Home card, verify selection/native playback and unchanged page, click a navigation tab or link and press Space twice, check typing and focused-button Space, and repeat with a dialog open. Inspect idle/hover/keyboard-focus cards in both themes: the full cover darkens and the icon appears centered; mouse activation followed by pointer exit must hide it again. Hovering the icon must change its color without showing a tooltip. Check pending/failure feedback and leave playback paused.
 
-Check actual chrome-devtools connectivity using [MCP setup](mcp.md). Codex needs its project config.toml; it does not read .mcp.json alone. Doctor proves consistency of generated settings, not live tool availability.
+Use a dedicated Chrome profile with an authenticated VK account for relevant catalog and playback checks. Browser checks can be performed manually or with an automation tool. Optional automation setup is documented in [MCP setup](mcp.md).
 
-An unauthenticated run misses playback, search, scraping and related failures. For relevant behavior changes:
+1. Run ./build.sh and npm run verify:build.
+2. Open chrome://extensions, enable Developer mode and load dist/chrome_extension as an unpacked extension. Reuse the same directory for upgrade checks.
+3. Sign into VK in that browser profile and open the extension from the toolbar.
+4. Verify data, navigation, playback/progress, search results, settings/support dialogs and closing/Escape. Inspect the popup and service-worker consoles through browser developer tools.
+5. Inspect screenshots for layout/spacing and measure geometry when needed. Record viewport dimensions, browser version and the loaded build.
 
-1. Run ./build.sh and npm run verify:build. The extension path must be inside client-supplied MCP workspace roots or system temp. If project roots were not supplied and installation returns Access denied, stage a copy as described below.
-2. install_extension -> new_page at https://vk.ru/ -> **the user logs in themselves**. Cookies must belong to the extension's browser profile.
-3. trigger_extension_action -> find the popup in list_pages.
-4. Verify data, tabs, playback/progress, switching from search, result sections, settings/support dialogs and closing/Escape. Inspect popup and service-worker consoles.
-5. View screenshots for layout/spacing; use geometry scripts as additional evidence. Image-viewing availability depends on the agent environment.
-
-### If MCP has no workspace roots
-
-Chrome DevTools MCP 1.12.0 permits os.tmpdir() even without client roots support. Copy only the built public extension into it, using regular files rather than symlinks:
-
-```bash
-node --input-type=module <<'JS'
-import { cpSync, mkdtempSync } from 'node:fs'
-import { tmpdir } from 'node:os'
-import { join } from 'node:path'
-const root = mkdtempSync(join(tmpdir(), 'vk-audiopad-smoke-'))
-const target = join(root, 'chrome_extension')
-cpSync('dist/chrome_extension', target, { recursive: true })
-console.log(target)
-JS
-```
-
-Pass the printed path to install_extension. Reuse that exact directory for upgrade: another path changes the unpacked extension ID and tests a different installation. Keep the directory while Chrome needs the test extension; remove the test extension and directory after they are no longer needed. No MCP access-policy change is needed for this procedure.
-
-Popup focus loss closes the page and invalidates its pageId. Trigger the action and list pages again; the page can appear on the next list call. For longer checks, open the observed chrome-extension://<id>/index.html in a tab and resize it to 780x600. Distinguish this same-UI tab check from an actual popup check. evaluate_script with serviceWorkerId can observe ongoing playback even with the popup closed.
+Popup focus loss closes its document. Reopen it from the toolbar before continuing. For longer checks, open the installed extension's chrome-extension://<id>/index.html page in a tab at 780x600. Verify the real toolbar popup separately. Inspect background playback through the extension's service-worker developer tools.
 
 ### Reproducing playback failures and layout stability
 
@@ -97,7 +77,9 @@ Build-tooling changes need bundle identity. Storage schema/atom/protocol or migr
 
 ## Firefox smoke through MCP
 
-Use [the shared Mozilla moz-build configuration](mcp.md#firefox-extension-checks), then discover the actual tools/schemas after restarting MCP. The visible persistent automation profile is separate from Chrome and the user's ordinary Firefox profile. Login must happen there; do not copy Chrome cookies or commit a profile.
+For manual Firefox checks, open about:debugging, select This Firefox and load dist/firefox_extension/manifest.json as a temporary add-on. Use a dedicated profile, sign into VK there and inspect its extension page, toolbar popup and background console.
+
+The optional automation sequence below uses [the shared Mozilla moz-build configuration](mcp.md#firefox-extension-checks) and a dedicated profile. Discover the available tools before starting. Keep authentication in the test profile.
 
 1. Build both distributions and verify them. Call install_extension with type=path, an absolute dist/firefox_extension path and temporary installation (permanent defaults to false; permanent installs need signing).
 2. Call list_extensions filtered to the Gecko ID in the built manifest. Read that installation's UUID; the manifest ID is not the moz-extension URL host.
@@ -168,7 +150,7 @@ In React tests, dispatch Escape on the focused element or dialog so it bubbles t
 | Common imports/types cannot resolve | Run doctor, then build common or use check. Production consumers require common/dist even though source-alias tests can pass without it. |
 | Tests see the change but the browser does not | Rebuild affected production packages, verify the loaded bundle against dist, then reinstall/reload the correct extension. A manifest version match is insufficient. |
 | Installed extension has no page in list_pages | Trigger its action and list again. A popup exists only while open; do not reuse a closed pageId. |
-| Catalog is empty or sign-in appears | Verify the actual MCP browser profile's VK session and host permission. A logged-in ordinary Chrome window may be another profile. Do not clear user data to diagnose a temporary network failure. |
+| Catalog is empty or sign-in appears | Verify the test browser profile's VK session and the extension's host permission. A logged-in window in another profile has a separate session. Do not clear user data to diagnose a temporary network failure. |
 | Tracks switch immediately without playing | Inspect sanitized playback state/error and media/CORS behavior; use the bounded-budget scenarios to distinguish missing URLs from stale-event or media failures. |
 | A unit test attempts a real request | Add the intended controlled fetch response/failure. Do not disable the default unexpected-fetch rejection or add personal credentials. |
 | Playback stops after SW wake-up | Inspect playbackInitialization/playbackError and compare existing Audio snapshot ownership/time with storage. Startup must not create offscreen or replay persisted intent. Popup closure/extension reload does not prove live SW restart recovery. |
@@ -228,7 +210,7 @@ Chrome DevTools MCP 1.12.0, Chrome/156.0.0.0, local working tree, extension 3.3.
 
 No SW error/warn messages were found after tested actions. Popup inline-handler CSP volume grew with requests. The separate UI tab recorded 794 such messages plus `Manifest: property 'icons' ignored, type array expected`. The warning's source remains uninvestigated; do not automatically add it to ignored errors.
 
-Not checked: Firefox, volume (MCP slider click timed out), seek, shuffle/repeat, hotkeys, natural end, SW restart with live audio, offline/media failure and attempt-budget exhaustion. These remain T05/T14/T17 scenarios and offline coverage where implemented. System theme was restored and music paused afterward. Screenshots do not replace keyboard/accessibility validation.
+Not checked: Firefox, volume, seek, shuffle/repeat, hotkeys, natural end, SW restart with live audio, offline/media failure and attempt-budget exhaustion. These remain T05/T14/T17 scenarios and offline coverage where implemented. System theme was restored and music paused afterward. Screenshots do not replace keyboard/accessibility validation.
 
 ## Live toggle follow-up: November 3, 2026
 
@@ -440,7 +422,7 @@ The tab shortcut and generated recommendation-card controls have controlled DOM 
 
 An isolated headless Chrome profile loaded the actual extension origin with the built frontend (assets/index-CJdmozTf.js and assets/index-DLxQD5x4.css). A temporary staged bootstrap supplied synthetic session/catalog/empty-playlist responses; production source, permissions and runtime bundles had no fixture hooks. Inspected card screenshots in light/dark themes at 1000x700 and 780x600: play buttons remained visible at 44x44 px with no whole-page horizontal overflow. A real Space key in the tab dispatched one TOGGLE_PLAYBACK without scrolling; Space in the search field inserted a space without another command. A card click retained Home/focus and displayed safe empty-playlist feedback. Space with the real settings dialog open dispatched no playback command. The actual action popup reported a POPUP runtime context and tabs.getCurrent() returned undefined; Space on its page sent no global toggle. The test extension was uninstalled afterward. The final card-load supersession guard and settings hint ordering have offline coverage; the screenshots precede those non-card-layout changes.
 
-This is controlled Chromium UI evidence, not authenticated VK catalog/media playback, live Firefox frontend coverage or minimum-browser verification. The connected Chrome profile was busy and Firefox MCP startup failed; an independent isolated Firefox runtime smoke succeeded. No personal credentials, VK payloads or library mutations were used.
+This is controlled Chromium UI evidence, not authenticated VK catalog/media playback, live Firefox frontend coverage or minimum-browser verification. An isolated Firefox runtime smoke also passed. No personal credentials, VK payloads or library mutations were used.
 
 ### Issue 11 hover and navigation-focus follow-up
 
@@ -448,7 +430,7 @@ The first shortcut implementation ignored anchors and ARIA tabs even though they
 
 The isolated Chromium extension-origin UI used assets/index-Dc0QSekJ.js and assets/index-BM32JQnk.css with the same synthetic session/catalog fixture boundary described above. On a deliberately scrollable page, clicking the real Home tab and pressing Space twice dispatched two toggles while scrollY remained 0 and focus stayed on tab-general. Overlay opacity was 0 at rest and 1 on hover, its bounds matched the full 165x200 card, and the 48x48 button's center offset was exactly 0 on both axes. Clicking the button then moving the pointer out restored opacity 0 despite retained button focus. Three real Tab presses reached the first card action and revealed it with visible focus; Space activated that button without another global toggle. Light/dark screenshots were inspected at 1000x700 and 780x600. All 513 offline tests passed; both builds and verify:build passed.
 
-Live comparison with the authenticated VK website was unavailable: the connected Chrome profile was busy, Firefox MCP failed to start, and Computer Use rejected the current browser URL. The full-cover hover treatment follows the requested visual behavior; this checkpoint does not claim pixel-identical website parity or authenticated media playback.
+The full-cover hover treatment follows the requested visual behavior. Compare it with the current website in an authenticated browser and verify media playback as separate acceptance checks.
 
 ### Immediate popup Space and album glyph follow-up
 
@@ -461,6 +443,21 @@ An isolated actual Chrome toolbar popup reported POPUP context, tabs.getCurrent(
 The previous hover screenshot still showed a circle: setting the IconButton background transparent did not remove VKUI's separate Tappable state layer. Existing album controls use a bare glyph with color-only feedback. Recommendation controls now explicitly pass hoverMode=none and activeMode=none through the shared wrapper, removing that layer and press ripple while retaining accessible button semantics, pending/error guards and color feedback. Other controls retain their default VKUI modes. The focus outline is rectangular rather than circular.
 
 A controlled hover/press regression first failed on the actual vkuiTappable__stateLayer node; it now passes for both play and pause. All 515 tests and check passed, as did both builds and verify:build. An isolated Chromium extension tab at 780x600 loaded assets/index-Bncxnerx.js and assets/index-DOe8fCtz.css with synthetic catalog/session data. With the pointer directly over the glyph, its state-layer count was 0, its background was transparent, and its color was rgb(118,120,122). The count remained 0 after a real click; the header play button retained its ordinary state layer. Full-page and cropped hovered-card screenshots were inspected, showing no circle or tooltip. This is local controlled UI evidence; no new authenticated VK comparison was performed.
+## Server playlist implementation: November 7, 2026
+
+[Server playlist UI tests](../../tests/front/server-playlists.test.ts) and [VK adapter tests](../../tests/common/vk-playlists.test.ts) cover the complete queue with unloaded IDs/access keys, empty creation, creation with initial tracks, existing-playlist addition, repeated submit, cancel/reopen, empty playlist navigation, ambiguous failures, list retry, account-scoped invalidation, retired UI completion, malformed/partial responses, raw-offset pagination/filtering and token/account mismatches. Separate owner and frontend module instances exercise the session request/reply contract from ADR 0009, including rejection of late create/add results after an epoch change.
+
+Controlled Chrome UI checks at 780x600 verified title-field focus, creation and return focus, owned-playlist selection, track addition and queue saving with unloaded IDs. Screenshots showed no horizontal document overflow.
+
+For authenticated acceptance, create an empty playlist, save a queue with unloaded tracks, add a track to an existing playlist and confirm each result on VK after reloading. Compare the website and extension dialogs, requests and errors in Chrome and Firefox, including actual toolbar popups. These server and website comparisons remain to be completed. [The parity reference](../product/vk-parity.md#server-playlist-implementation-november-7-2026) records API sources and response-validation rules.
+
+## Home tiles and playlist covers: November 7, 2026
+
+[Catalog interaction tests](../../tests/front/home-catalog.test.ts) cover server order/titles, optional metadata, category navigation, root-pointer resolution, exact cursors, safe URLs/colors, section identity, immutable page merging, retry and owned-playlist artwork/navigation. [Image tests](../../packages/common/src/catalog-images.test.ts) cover photo priority, image sizes, four-cover limits and missing/unsafe metadata. [Listening/category tests](../../tests/front/listening-catalog.test.ts) cover separate navigation/playback, duplicate activation, cancellation and late replies, empty-category retry, varied match values, optional profiles, failed artwork, full-source track selection, legacy metadata and missing-preview retry.
+
+Controlled UI checks in both themes at 780×600 and at 360 px width verified compact category rails, listening cards and playlist covers. Category tiles measured 238×56 px, listening cards 316×336 px, narrow-screen cards 280 px wide and owned-playlist covers 160×160 px. Keyboard Tab reached the separate category play button. The first playlist tile opened creation and returned on cancellation. Neither page had document horizontal overflow. Response fixtures varied titles, match values and artwork, and missing listening images used a neutral VKUI surface.
+
+Check, all 665 tests in 72 files, both browser builds and verify:build passed. Authenticated acceptance must compare current catalog payloads, category playback, playlist persistence and website layout with the extension. Category play currently selects the first supported track collection or playlist from its section, so its behavior requires comparison with VK's radio action.
 
 ## VK layout reference
 
@@ -502,7 +499,7 @@ The screenshots have since been replaced by the ten-band follow-up below; this s
 
 Integrated master `6c6b5d7`, resolving the shared protocol, settings/modal and documentation conflicts while retaining session-owner and lyrics behavior. The equalizer ADR is now [0010](../decisions/0010-equalizer.md), distinct from master's session ADR 0009. The runtime mock now supplies sender/sendResponse arguments; EQ transport assertions inspect the message payload in both runtime modes.
 
-The final production front asset is `index-CLfeTmIk.js`; check, all 513 tests in 62 files, both browser builds, verify:build and the isolated Firefox 159.0 runtime smoke passed. New regressions cover ten filter frequencies, manual gain at the actual Audio gain node, optional conservative auto-level, neutral bypass, saved Preamp recall/reset, five-band named/custom conversion, malformed/sparse storage and idempotent normalization. The first sandboxed standalone Firefox MCP startup timed out; the normal isolated run with browser-launch access passed, including Audio snapshots, repeat and session replies.
+The final production front asset is `index-CLfeTmIk.js`; check, all 513 tests in 62 files, both browser builds, verify:build and the isolated Firefox 159.0 runtime smoke passed. New regressions cover ten filter frequencies, manual gain at the actual Audio gain node, optional conservative auto-level, neutral bypass, saved Preamp recall/reset, five-band named/custom conversion, malformed/sparse storage and idempotent normalization.
 
 Chrome's final extension-origin UI tab used the verified staged bytes at 780×600/DPR 2. The 680×560 settings frame stayed at (50, 20), with eleven vertical controls and generous band hit areas. Inspected dark and light appearances, presets, -3 dB manual Preamp, explicit auto-level, personal save/recall, bypass and reopening. The Sound content remains internally scrollable if its last pixel or a shorter viewport needs space; navigation stays in the header. Reinstalling over seeded legacy five-band active/personal settings retained those stored values; the final UI mapped the built-in Bass curve to ten bands without writing storage. A manual edit/save then wrote ten bands, preamp/autoGain and the saved manual level.
 
@@ -530,9 +527,9 @@ Direct EQ playback can add download latency (15-second / 32 MiB bounds); turning
 
 The next follow-up uses front `index-Q2x1B-_p.js` and offscreen `app-DuIG9DCd.js`. Check, all 563 tests in 65 files, full Chrome/Firefox build and verify:build passed. The isolated Firefox 159.0 runtime smoke passed with the final offscreen asset. Focused cases cover default-off compensation while retaining explicit true, numeric release-threshold crossings (including skipped minor/major/four-component versions), UPDATE-only announcement persistence/consumption, edited personal-preset overwrite/copy/delete, same-ID URL hydration, duplicate navigation roots, five-second hint expiry and permission-change dismissal. A controlled native-to-local retry verifies that position 42 is restored and play is held until both metadata and DSP readiness complete.
 
-The connected Chrome profile was busy, so it was left untouched. Firefox 159.0.1 loaded the final front asset at its actual installed extension origin and retained authenticated catalog/settings data. Its DOM confirmed the palette icon and label/input at x=118 with a 6 px gap. The automation browser's selected document was initially inactive and screenshots lagged its DOM, so those frames were not accepted as final visual evidence. No personal Firefox profile was used and no cookies were copied.
+Firefox 159.0.1 loaded the final front asset at its actual installed extension origin and retained authenticated catalog/settings data. Its DOM confirmed the palette icon and label/input at x=118 with a 6 px gap. Visual checks used the isolated Chromium run described below.
 
-An independent headless Chrome profile loaded a system-temp copy of the actual extension via Extensions.loadUnpacked. A staged bootstrap supplied only a synthetic session reply; HTTPS requests were stubbed with empty responses. No fixture hooks entered production source, no real credentials/catalog data were used, and this is not authenticated playback evidence. A synthetic full track/settings snapshot exercised the notification UI. An incomplete initial track fixture caused a frontend render failure; supplying the complete TrackItem shape corrected the harness. Empty catalog fixtures also produced an expected parser diagnostic; console emptiness is not claimed.
+An independent headless Chrome profile loaded a system-temp copy of the actual extension via Extensions.loadUnpacked. A staged bootstrap supplied a synthetic session reply, full track/settings snapshot and controlled catalog responses for the notification UI checks. The fixture setup stayed outside production source.
 
 In the 780x600 actual extension-origin UI, ArrowUp changed the selected Наушники curve without losing its name or delete action. Save Changes updated its existing stable ID to +7 dB at 32 Hz while retaining one saved entry. The compensation checkbox was off. Screenshot inspection confirmed the Save Changes/rename/delete row, hidden visual preset heading, returned palette icon, compact theme field, and a subdued current-track strip above the EQ group with no trailing period. Theme label/input both measured x=118.
 
@@ -557,7 +554,7 @@ The project UI-copy rule now omits terminal full stops in messages/helper text, 
 
 ## Deterministic reset and ungranted Mix downloads — November 7, 2026
 
-The follow-up uses front `index-Dd8IerlA.js` and offscreen `app-pLg7pkjf.js`. Check, all 612 tests in 67 files, full Chrome/Firefox builds, verify:build and the isolated Firefox 159.0 runtime smoke passed. The first sandboxed Firefox MCP launch timed out; the isolated launch outside that sandbox completed startup, Audio snapshot, repeat and validated session checks.
+The follow-up uses front `index-Dd8IerlA.js` and offscreen `app-pLg7pkjf.js`. Check, all 612 tests in 67 files, full Chrome/Firefox builds, verify:build and the isolated Firefox 159.0 runtime smoke passed.
 
 UI regressions cover Reset from an edited personal curve, a neutral personal curve and a personal curve identical to a built-in: the selector always becomes “Ровный звук”, pending naming closes, the collection and compensation/refusal choices remain intact, and the original personal curve can be recalled immediately. Matching built-ins no longer resolve back to a personal entry without an explicit personal selection.
 
