@@ -6,6 +6,8 @@ This document describes existing VK Audiopad behavior for contributors and AI ag
 
 Users open a compact player, find music in their VK catalog or search, and listen independently of the popup. The same index.html can run in an extension tab; settings show its address. VK login must happen in the browser profile where the extension is installed. Sessions from another browser or profile are not automatically shared.
 
+The player column fills the available width between 780 and 1216 px. In wider browser tabs it stays centered with equal space on both sides; the popup keeps its 780 px minimum width. The player header shares the column's width and alignment.
+
 | UI area | Purpose and code |
 |---|---|
 | Persistent player header | Active track, play/pause, next/previous, position, volume and modes. [Player](../../packages/front/src/widgets/player/ui/Player.tsx), actions under features/ |

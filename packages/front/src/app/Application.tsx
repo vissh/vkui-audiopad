@@ -32,9 +32,7 @@ export const Application: FC = () => {
       >
         <AdaptivityProvider>
           <AppRoot>
-            <SplitLayout
-              style={{ justifyContent: 'center' }}
-            >
+            <SplitLayout center>
               <SplitCol
                 maxWidth={1216}
                 minWidth={780}
