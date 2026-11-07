@@ -23,6 +23,7 @@
     "test": "vitest run",
     "eslint:fix": "npm run --workspaces eslint:fix",
     "verify:build": "node scripts/verify-build-output.mjs",
+    "release:package": "node scripts/package-release.mjs",
     "docs:check": "node scripts/check-documentation.mjs",
     "smoke:firefox": "node scripts/smoke-firefox.mjs"
   },

@@ -39,7 +39,9 @@ The extension is built into `dist/chrome_extension` and `dist/firefox_extension`
 
 ## Release packaging
 
-`./to-publish.sh` builds with Docker and produces ZIP files in `dist`. The container reads the Node pin and bootstraps the pinned npm if needed. This script currently cleans local build artifacts and dependencies; isolated release packaging is planned in [T16](./docs/ai/development-roadmap.md#t16-build-a-release-from-one-verified-revision). Use `./build.sh` for normal development.
+Use **Actions → Release extension → Run workflow** on GitHub and enter the next version. The workflow prepares the version commit, checks/tests and builds it, then pushes the verified commit to master together with its tag and attaches Chrome, Firefox and matching source ZIPs, metadata and checksums to a GitHub Release (draft by default). Store uploads remain manual. See the [release runbook](./docs/releases.md) for one-time setup, branch policy, downloads and retries.
+
+For a clean Git checkout after checks/tests and a full build, `npm run release:package` writes the same asset set to `dist/release` without publishing. The older `./to-publish.sh` Docker helper cleans local dependencies/build output; prefer the workflow for release candidates and `./build.sh` for normal development.
 
 ## Architectural methodology
 
