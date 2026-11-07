@@ -1,0 +1,206 @@
+.vkap_equalizer_panel {
+  box-sizing: border-box;
+  padding: 0 24px 16px;
+  color: var(--vkui--color_text_primary);
+  text-align: left;
+}
+
+.vkap_equalizer_secondary {
+  color: var(--vkui--color_text_secondary);
+}
+
+.vkap_equalizer_preset_row {
+  display: flex;
+  align-items: flex-end;
+  gap: 12px;
+}
+
+.vkap_equalizer_plot {
+  position: relative;
+  display: grid;
+  grid-template-columns: 56px 32px repeat(10, minmax(24px, 1fr));
+  padding: 12px 8px;
+  margin-top: 12px;
+  border-radius: 12px;
+  background: var(--vkui--color_background_secondary);
+}
+
+.vkap_equalizer_grid,
+.vkap_equalizer_scale {
+  position: absolute;
+  top: 50px;
+  bottom: 46px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  pointer-events: none;
+}
+
+.vkap_equalizer_grid {
+  left: 20px;
+  right: 20px;
+}
+
+.vkap_equalizer_grid span {
+  border-top: 1px solid var(--vkui--color_separator_primary);
+}
+
+.vkap_equalizer_grid span:nth-child(3) {
+  border-top-style: dashed;
+}
+
+.vkap_equalizer_scale {
+  left: 64px;
+  width: 32px;
+  font-size: 10px;
+  line-height: 0;
+  text-align: right;
+  color: var(--vkui--color_text_secondary);
+}
+
+.vkap_equalizer_band {
+  min-width: 0;
+  grid-row: 1;
+  z-index: 1;
+  text-align: center;
+}
+
+.vkap_equalizer_value {
+  display: block;
+  height: 28px;
+  line-height: 28px;
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+
+.vkap_equalizer_control {
+  position: relative;
+  height: 128px;
+  display: grid;
+  place-items: center;
+  touch-action: none;
+  cursor: pointer;
+}
+
+.vkap_equalizer_rail {
+  position: absolute;
+  height: 108px;
+  width: 4px;
+  border-radius: 4px;
+  background: var(--vkui--color_separator_primary);
+  pointer-events: none;
+}
+
+.vkap_equalizer_fill {
+  position: absolute;
+  inset-inline: 0;
+  background: var(--vkui--color_icon_accent);
+}
+
+.vkap_equalizer_control:focus-visible {
+  outline: 2px solid var(--vkui--color_stroke_accent);
+  outline-offset: -2px;
+  border-radius: 8px;
+}
+
+.vkap_equalizer_control[aria-disabled='true'] {
+  cursor: default;
+}
+
+.vkap_equalizer_thumb {
+  position: absolute;
+  left: 50%;
+  width: 18px;
+  height: 18px;
+  box-sizing: border-box;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  border: 2px solid var(--vkui--color_background_content);
+  background: var(--vkui--color_icon_accent);
+}
+
+.vkap_equalizer_frequency {
+  display: block;
+  height: 24px;
+  line-height: 24px;
+  font-size: 12px;
+}
+
+.vkap_equalizer_spectrum {
+  display: flex;
+  justify-content: space-between;
+  margin: 6px 16px 12px 0;
+  font-size: 11px;
+  color: var(--vkui--color_text_secondary);
+}
+
+.vkap_equalizer_footer {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 4px;
+}
+
+.vkap_equalizer_status {
+  flex: 1;
+}
+
+.vkap_equalizer_preamp {
+  border-right: 1px solid var(--vkui--color_separator_primary);
+  padding-right: 8px;
+}
+
+.vkap_equalizer_scale {
+  background: var(--vkui--color_background_secondary);
+  z-index: 1;
+}
+
+.vkap_equalizer_preset_actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.vkap_equalizer_naming {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.vkap_equalizer_naming > :first-child {
+  flex: 1;
+  min-width: 0;
+}
+
+.vkap_equalizer_footer {
+  justify-content: space-between;
+  margin-top: 8px;
+}
+
+.vkap_equalizer_mix_access {
+  display: grid;
+  grid-template-columns: 24px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+  margin: 8px 24px 16px;
+  padding: 10px 16px;
+  border-inline-start: 3px solid var(--vkui--color_icon_warning);
+  border-radius: 12px;
+  background: var(--vkui--color_background_warning);
+}
+
+.vkap_equalizer_mix_access_icon {
+  color: var(--vkui--color_icon_warning);
+}
+
+.vkap_equalizer_track_status {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 24px;
+  color: var(--vkui--color_text_secondary);
+  border-bottom: 1px solid var(--vkui--color_separator_primary);
+}

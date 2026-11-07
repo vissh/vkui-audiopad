@@ -1,10 +1,16 @@
-import { commonUtils } from '@vk-audiopad/common'
+import { commonUtils, equalizer } from '@vk-audiopad/common'
 
 export const startListeningOnInstalled = (): void => {
-  // Действия при установке/обновлении расширения.
   chrome.runtime.onInstalled.addListener((details: chrome.runtime.InstalledDetails) => {
     if (details.reason === chrome.runtime.OnInstalledReason.UPDATE) {
-      void commonUtils.clearStorage().catch(() => { console.warn('Update cleanup failed') })
+      void update(details.previousVersion).catch(() => { console.warn('Update cleanup failed') })
     }
   })
+}
+
+const update = async (previousVersion: string | undefined): Promise<void> => {
+  await commonUtils.clearStorage()
+  if (equalizer.shouldAnnounceUpgrade(previousVersion, chrome.runtime.getManifest().version)) {
+    await chrome.storage.local.set({ equalizerAnnouncementPending: true })
+  }
 }

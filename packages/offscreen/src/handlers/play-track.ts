@@ -1,6 +1,7 @@
 import Hls from 'hls.js'
 import { audioElement, audioPlaybackId, audioPlaybackRequested, audioRequestRevision, invalidateAudio, replaceAudio } from '../audio-element'
 import { reportPlayerError } from '../listeners/player-events'
+import { clearEqualizerSource, resumeEqualizer, setEqualizerSource } from '../equalizer'
 
 const hlsWorkers: Hls[] = []
 
@@ -11,11 +12,15 @@ export const playTrack = async (url: string, volume: number, playbackId: string)
   const play = (): void => {
     if (audioPlaybackId !== playbackId || !audioPlaybackRequested) return
     const revision = audioRequestRevision
+    resumeEqualizer()
     void audio.play().catch(() => { if (revision === audioRequestRevision) reportPlayerError(playbackId) })
   }
 
-  if (!url.includes('index.m3u8')) {
-    audio.src = url
+  const isHls = url.includes('index.m3u8')
+  await setEqualizerSource(audio, url, isHls, play)
+  if (audioPlaybackId !== playbackId) return
+  if (!isHls) {
+    if (audio.src.length === 0) audio.src = url
     play()
     return
   }
@@ -35,6 +40,7 @@ export const playTrack = async (url: string, volume: number, playbackId: string)
 }
 
 export const destroyPlayer = (): void => {
+  clearEqualizerSource()
   invalidateAudio()
   audioElement.pause()
   while (hlsWorkers.length > 0) {

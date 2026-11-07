@@ -1,4 +1,5 @@
 export * as cast from './cast'
+export * as equalizer from './equalizer'
 export * as catalogLink from './catalog-link'
 export * as converter from './converter'
 export * as initialState from './initial-state'

@@ -54,6 +54,7 @@ export const storage = {
   currentPlaylist: new State<commonTypes.Playlist>('currentPlaylist'),
   audiosIds: new State<commonTypes.AudioTuple[]>('audiosIds'),
   volume: new State<number>('volume'),
+  equalizer: new State<commonTypes.ApplicationSettingsState['equalizer']>('equalizer'),
   shuffle: new State<boolean>('shuffle'),
   repeat: new State<commonTypes.RepeatMode>('repeat'),
   durationMode: new State<commonTypes.DurationMode>('durationMode'),

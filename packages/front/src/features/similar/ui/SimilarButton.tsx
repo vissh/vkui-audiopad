@@ -31,7 +31,7 @@ export const SimilarButton: FC<SimilarButtonProps> = ({ userId, track, size = 'm
       text='Показать похожие'
       icon={{ s: Icon20Stars, m: Icon24StarsOutline }[size]}
       onClick={findSimilar}
-      errorMessage='Не удалось найти похожие треки. Повторите попытку.'
+      errorMessage='Не удалось найти похожие треки. Повторите попытку'
     />
   )
 }

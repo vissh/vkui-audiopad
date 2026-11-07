@@ -31,7 +31,7 @@ export const DeleteFromMyMusicButton: FC<DeleteFromMyMusicButtonProps> = ({ trac
       padding={padding}
       text='Удалить из моей музыки'
       icon={Icon}
-      errorMessage='Не удалось удалить аудиозапись. Проверьте библиотеку VK перед повторной попыткой.'
+      errorMessage='Не удалось удалить аудиозапись. Проверьте библиотеку VK перед повторной попыткой'
       onClick={deleteFromMyMusic}
     />
   )

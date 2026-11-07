@@ -1,0 +1,18 @@
+.vkap_settings_hint {
+  position: relative;
+  box-sizing: border-box;
+  width: 280px;
+  max-width: calc(100vw - 24px);
+  padding: 14px 36px 14px 16px;
+}
+
+.vkap_settings_hint_description {
+  margin-top: 4px;
+  color: var(--vkui--color_text_secondary);
+}
+
+.vkap_settings_hint_close {
+  position: absolute;
+  right: 2px;
+  top: 2px;
+}

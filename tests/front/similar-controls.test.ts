@@ -50,7 +50,7 @@ it('ends loading and exposes safe feedback after request failure so the action c
   const button = screen.getByRole('button', { name: 'Показать похожие' })
   fireEvent.click(button)
   await act(async () => { page.response.reject(new Error('synthetic-private-value')) })
-  await screen.findByText('Не удалось найти похожие треки. Повторите попытку.')
+  await screen.findByText('Не удалось найти похожие треки. Повторите попытку')
   expect(button.getAttribute('aria-busy')).toBeNull()
   expect(screen.queryByText(/synthetic-private-value/)).toBeNull()
   page.network.mockResolvedValueOnce(new Response('<html></html>'))

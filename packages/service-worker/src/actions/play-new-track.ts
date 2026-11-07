@@ -101,8 +101,8 @@ export const playNewTrack = async (newTrackId: string | null, playlist: commonTy
 export const playbackFailureMessage = (operation: PlaybackOperation): string => {
   const count = operation.visited.size
   return count >= MAX_FAILED_TRACKS
-    ? 'Не удалось запустить 5 треков подряд. Проверьте соединение или выберите другую музыку.'
-    : 'Доступные треки не удалось запустить. Проверьте соединение или выберите другую музыку.'
+    ? 'Не удалось запустить 5 треков подряд. Проверьте соединение или выберите другую музыку'
+    : 'Доступные треки не удалось запустить. Проверьте соединение или выберите другую музыку'
 }
 
 const resolveTrack = async (operation: PlaybackOperation): Promise<[commonTypes.TrackItem, number] | null> => {

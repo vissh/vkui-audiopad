@@ -31,7 +31,7 @@ export const AddToMyMusicButton: FC<AddToMyMusicButtonProps> = ({ track, size = 
       padding={padding}
       text='Добавить в мою музыку'
       icon={Icon}
-      errorMessage='Не удалось добавить аудиозапись. Проверьте библиотеку VK перед повторной попыткой.'
+      errorMessage='Не удалось добавить аудиозапись. Проверьте библиотеку VK перед повторной попыткой'
       onClick={addToMyMusic}
     />
   )

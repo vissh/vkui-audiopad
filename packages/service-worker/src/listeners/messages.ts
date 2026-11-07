@@ -13,10 +13,12 @@ import { playNewTrack } from '../actions/play-new-track'
 import { reloadTrack } from '../actions/reload-track'
 import { repeat } from '../actions/repeat'
 import { closeOffscreenDocument } from '../offscreen/setup'
+import { updateEqualizer } from '../offscreen/update-equalizer'
 import { updateCurrentTime } from '../offscreen/update-current-time'
 import { isCurrentPlayer } from '../playback-operation'
 import { onPlayed, togglePlayback } from '../actions/play-or-pause'
 import { type Readiness } from '../readiness'
+import { applicationState } from '../state'
 
 const mediaMessages = new Set([
   commonTypes.MessageType.AUDIO_PLAYER_PLAYING,
@@ -99,6 +101,14 @@ const messageHandler = async (message: commonTypes.Message): Promise<void> => {
     case commonTypes.MessageType.PLAYER_SNAPSHOT:
     case commonTypes.MessageType.SESSION_REQUEST:
     case commonTypes.MessageType.SESSION_CANCEL:
+      break
+    case commonTypes.MessageType.RETRY_EQUALIZER:
+      await updateEqualizer(applicationState.equalizer, true)
+      break
+    case commonTypes.MessageType.EQUALIZER_STATUS:
+      if (message.playbackId === applicationState.playbackId) {
+        await chrome.storage.local.set({ equalizerStatus: message.status })
+      }
       break
     case commonTypes.MessageType.CLOSE_OFFSCREEN_DOCUMENT:
       await closeOffscreenDocument(message)

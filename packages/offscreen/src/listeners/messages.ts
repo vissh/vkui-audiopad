@@ -6,6 +6,7 @@ import { playTrack } from '../handlers/play-track'
 import { getPlayerSnapshot } from '../player-snapshot'
 import { sendMessage } from '../send-message'
 import { noteActivity } from '../activity'
+import { changeEqualizer } from '../equalizer'
 
 export const startListeningMessages = (): void => {
   chrome.runtime.onMessage.addListener(messageHandler)
@@ -29,7 +30,11 @@ const messageHandler = (message: commonTypes.Message): void => {
       }).catch(() => { console.warn('Player snapshot could not be delivered') })
       break
     case commonTypes.MessageType.PLAY_TRACK:
+      changeEqualizer(message.equalizer, false, message.equalizerMixAccess === true)
       void playTrack(message.url, message.volume, message.playbackId)
+      break
+    case commonTypes.MessageType.CHANGE_EQUALIZER:
+      changeEqualizer(message.value, message.retry === true, message.equalizerMixAccess === true)
       break
     case commonTypes.MessageType.PLAY_OR_PAUSE:
       playOrPause(message.played)

@@ -22,7 +22,7 @@ export const DeleteFromMyMusicWithRestoreButton: FC<DeleteFromMyMusicWithRestore
     <AsyncTooltipIconButton
       text='Удалить из моей музыки'
       icon={Icon20Cancel}
-      errorMessage='Не удалось удалить аудиозапись. Проверьте библиотеку VK перед повторной попыткой.'
+      errorMessage='Не удалось удалить аудиозапись. Проверьте библиотеку VK перед повторной попыткой'
       onClick={deleteFromMyMusic}
     />
   )

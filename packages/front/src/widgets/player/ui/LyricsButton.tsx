@@ -73,7 +73,7 @@ const LyricsContent: FC<{ track: commonTypes.TrackItem, userId: string }> = ({ t
   })
 
   if (lyrics.isPending || lyrics.isFetching) return <Placeholder><Spinner size='m' aria-label='Загрузка текста' /></Placeholder>
-  if (lyrics.isError) return <Placeholder title='Не удалось загрузить текст' action={<Button onClick={() => { void lyrics.refetch() }}>Повторить</Button>}>Проверьте соединение и попробуйте ещё раз.</Placeholder>
-  if (lyrics.data == null) return <Placeholder title='Текст пока недоступен'>Возможно, он появится позже.</Placeholder>
+  if (lyrics.isError) return <Placeholder title='Не удалось загрузить текст' action={<Button onClick={() => { void lyrics.refetch() }}>Повторить</Button>}>Проверьте соединение и попробуйте ещё раз</Placeholder>
+  if (lyrics.data == null) return <Placeholder title='Текст пока недоступен'>Возможно, он появится позже</Placeholder>
   return <Box padding='2xl'><Text Component='p' className='vkap_lyrics_text'>{lyrics.data}</Text></Box>
 }

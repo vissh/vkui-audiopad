@@ -139,6 +139,8 @@ export const createChrome = (initial: StorageItems = {}) => {
     tabs: { getCurrent: vi.fn(async (): Promise<{ id: number } | undefined> => undefined) },
     commands: { onCommand: commands },
     permissions: {
+      onAdded: event<(permissions: chrome.permissions.Permissions) => void>(),
+      onRemoved: event<(permissions: chrome.permissions.Permissions) => void>(),
       contains: vi.fn((_permissions: unknown, onResult?: (allowed: boolean) => void) => {
         onResult?.(true)
         return Promise.resolve(true)
