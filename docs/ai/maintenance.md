@@ -1,6 +1,6 @@
 # Maintaining project and agent documentation
 
-Builds are deterministic and do not check whether prose is up to date. Update descriptions with the behavior they describe; scheduled CI handles dependency/skill refreshes, not factual review of every document.
+Builds and static checks do not establish that prose is up to date or that release ZIPs are reproducible. Update descriptions with the behavior they describe; scheduled CI handles dependency/skill refreshes, not factual review of every document.
 
 ## Ownership
 

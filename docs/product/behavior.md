@@ -65,7 +65,7 @@ The handled error is not displayed or logged with its original message/stack; th
 
 ## Current quality boundaries
 
-Minimum browser versions are declared in [the manifest generator](../../public/manifest.js); declarations are not a verified browser matrix. Chrome and Firefox share source but have materially different runtimes. The latest live run and its unverified scenarios are recorded in [testing](../ai/testing.md#live-run-november-3-2026).
+Minimum browser versions are declared in [the manifest generator](../../public/manifest.js); declarations are not a verified browser matrix. Chrome and Firefox share source but have materially different runtimes. Dated [Chrome evidence](../ai/testing.md#live-run-november-3-2026) and [authenticated Firefox evidence](../ai/testing.md#authenticated-firefox-follow-up-november-4-2026) record their own scenarios and limits; neither automatically covers another runtime, release or later change.
 
 Startup reconciles a matching existing Audio source/position without autoplay; absent media leaves the player paused. Initialization failure shows a safe error and requires extension reload before commands run. Offline startup/transport tests cover these cases; live worker termination/restart evidence remains T05.
 
