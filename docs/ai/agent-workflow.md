@@ -48,6 +48,7 @@ Update implementation and contract in the same PR. Documentation must distinguis
 
 | Task | Start here | Evidence to add |
 |---|---|---|
+| UI startup, scrolling or interaction performance | [UI debugging](ui-debugging.md), profile frontend and Chrome React tools, then normal production build | Comparable React recordings, component/commit report and separate production trace. Restore normal stage assets. |
 | Popup UI or a page query | app/Pages.tsx, the relevant pages/*/{ui,model,api}, VKUI docs/types | Loading/empty/error and interaction behavior; screenshots for visible changes. Keep query identity tied to actual inputs/session. |
 | New player command | common/types.ts -> SW router/action -> offscreen router/handler if needed; existing PLAY_OR_PAUSE flow | Both transports, failure/obsolete events and observed state. Do not report command success merely because sendMessage resolved. |
 | New playback field | common defaults/types, SW operation/state, front observer | Missing/legacy value, ownership, restart/update behavior. A default is not a migration. |

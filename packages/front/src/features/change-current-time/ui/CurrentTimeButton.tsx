@@ -31,6 +31,7 @@ export const CurrentTimeButton: FC = () => {
       loading={((currentPlaylist?.isRadio) ?? false) ? (currentTime === 0) : (duration === 0) && played}
     >
       <Duration
+        className='vkap_current_time_value'
         value={
           (duration !== 0) && currentPlaylist != null && !currentPlaylist.isRadio
             ? timeLeft

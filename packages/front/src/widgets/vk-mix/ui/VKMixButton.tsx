@@ -1,13 +1,17 @@
+import { commonTypes } from '@vk-audiopad/common'
 import { Icon24Pause, Icon24Play } from '@vkontakte/icons'
 import { Button, useColorScheme } from '@vkontakte/vkui'
 import { useState, type CSSProperties, type FC } from 'react'
-import { playOrPause } from '@/features/play-or-pause'
-import { useCurrentPlaylist, usePlaybackRequested } from '@/entities/active-track'
+import { usePlaybackSelection, usePlaybackRequested } from '@/entities/active-track'
+import { useMixPreferences } from '@/entities/vk-mix'
+import { sendMessage } from '@/shared/lib/send-message'
+import { playMix } from '../model/play-mix'
 
-export const VKMixButton: FC = () => {
-  const currentPlaylist = useCurrentPlaylist()
+export const VKMixButton: FC<{ userId: string }> = ({ userId }) => {
+  const selected = usePlaybackSelection()
   const played = usePlaybackRequested()
-  const vkMixPlayed = currentPlaylist != null && currentPlaylist.isVkMix && played
+  const preferences = useMixPreferences(userId)
+  const vkMixPlayed = selected?.isVkMix === true && (selected.mixId ?? 'common') === 'common' && played
 
   const colorScheme = useColorScheme()
   const [hovered, setHovered] = useState(false)
@@ -19,30 +23,17 @@ export const VKMixButton: FC = () => {
   return (
     <Button
       after={vkMixPlayed ? <Icon24Pause /> : <Icon24Play />}
+      aria-label={vkMixPlayed ? 'Приостановить VK Микс' : 'Воспроизвести VK Микс'}
       rounded={true}
       size='l'
       style={styles}
       onPointerEnter={() => { setHovered(true) }}
       onPointerLeave={() => { setHovered(false) }}
       onClick={() => {
-        if (currentPlaylist != null && currentPlaylist.isVkMix) {
-          playOrPause(played ? 'played' : 'paused', null, currentPlaylist)
+        if (selected?.isVkMix === true && (selected.mixId ?? 'common') === 'common') {
+          sendMessage({ target: commonTypes.MessageTarget.SERVICE_WORKER, type: commonTypes.MessageType.TOGGLE_PLAYBACK })
         } else {
-          const vkMixPlaylist = {
-            id: (+new Date().getTime()).toString(),
-            blockId: '',
-            title: '',
-            tracks: [],
-            isRadio: false,
-            isVkMix: true,
-            accessHash: '',
-            ownerId: '',
-            nextOffset: '',
-            hasMore: false,
-            followHash: '',
-            isFollowed: false
-          }
-          playOrPause('normal', null, vkMixPlaylist)
+          playMix(userId, preferences?.options, preferences?.title)
         }
       }}
     />

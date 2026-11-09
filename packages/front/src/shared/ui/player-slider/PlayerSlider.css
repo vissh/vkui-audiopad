@@ -1,0 +1,26 @@
+.vkap_player_slider {
+  min-width: 0;
+  border-radius: 2px;
+}
+
+.vkap_player_slider_control .vkuiSliderThumb__host {
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+  outline: none;
+}
+
+.vkap_player_slider_control .vkuiSlider__thumbs {
+  margin-inline: 0;
+}
+
+.vkap_player_slider_focus {
+  outline: 2px solid var(--vkui--color_stroke_accent);
+  outline-offset: 2px;
+}
+
+@media (forced-colors: active) {
+  .vkap_player_slider_focus {
+    outline-color: Highlight;
+  }
+}

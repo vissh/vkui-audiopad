@@ -1,0 +1,326 @@
+.vkap_catalog_tiles {
+  display: grid;
+  width: max-content;
+  gap: 12px;
+  padding: 8px 16px 16px;
+}
+
+.vkap_catalog_tiles_categories {
+  grid-auto-flow: column;
+  grid-template-rows: repeat(2, 48px);
+  grid-auto-columns: 198px;
+}
+
+.vkap_catalog_tiles_banners {
+  grid-auto-flow: column;
+  grid-auto-columns: 316px;
+}
+
+.vkap_catalog_tile {
+  position: relative;
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  min-height: 48px;
+  overflow: hidden;
+  border-radius: 12px;
+  border: 0;
+  padding: 0;
+  text-align: left;
+  color: #fff;
+  background: var(--vkui--color_background_accent_themed);
+  cursor: pointer;
+  isolation: isolate;
+}
+
+.vkap_catalog_tile_open {
+  position: relative;
+  align-self: stretch;
+  flex: 1;
+  min-width: 0;
+  min-height: inherit;
+  border: 0;
+  padding: 0;
+  text-align: left;
+  color: inherit;
+  background: transparent;
+  border-radius: inherit;
+}
+
+.vkap_catalog_tiles_banners .vkap_catalog_tile {
+  min-height: 168px;
+}
+
+.vkap_catalog_tile .vkap_catalog_tile_play {
+  flex: 0 0 30px;
+  width: 30px;
+  height: 30px;
+  min-width: 30px;
+  min-height: 30px;
+  margin: 0 14px 0 0;
+  border-radius: 50%;
+  color: #111;
+  background: #fff;
+}
+
+.vkap_catalog_tile .vkap_catalog_tile_play .vkap_icon_action_glyph {
+  width: 18px;
+  height: 18px;
+  color: #111;
+}
+
+.vkap_catalog_tile > img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 160ms ease;
+}
+
+.vkap_catalog_tile_foreground > img {
+  inset: auto 0 0 auto;
+  width: 60%;
+  height: 100%;
+  object-fit: contain;
+  object-position: right bottom;
+}
+
+.vkap_catalog_tile_shade {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(100deg, rgb(0 0 0 / 38%), rgb(0 0 0 / 6%));
+  pointer-events: none;
+  transition: background 160ms ease;
+}
+
+.vkap_catalog_tile > img,
+.vkap_catalog_mix_avatar {
+  pointer-events: none;
+}
+
+.vkap_catalog_tiles_categories .vkap_catalog_tile:hover .vkap_catalog_tile_shade,
+.vkap_catalog_tiles_categories .vkap_catalog_tile:focus-within .vkap_catalog_tile_shade {
+  background: rgb(255 255 255 / 18%);
+}
+
+.vkap_catalog_tiles_categories .vkap_catalog_tile_shade {
+  background: linear-gradient(100deg, rgb(0 0 0 / 4%), transparent);
+}
+
+.vkap_catalog_tile_label {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: inherit;
+  box-sizing: border-box;
+  padding: 12px;
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 22px;
+  overflow-wrap: anywhere;
+}
+
+.vkap_catalog_tiles_banners .vkap_catalog_tile_label {
+  min-height: 168px;
+  justify-content: flex-end;
+}
+
+.vkap_catalog_tiles_categories .vkap_catalog_tile_label > span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.vkap_catalog_tiles_categories .vkap_catalog_tile_label small,
+.vkap_catalog_tiles_categories .vkap_catalog_tile_icon {
+  display: none;
+}
+
+.vkap_catalog_tile_label small {
+  margin-top: 5px;
+  font-size: 13px;
+  line-height: 18px;
+  font-weight: 400;
+  opacity: 0.9;
+}
+
+.vkap_catalog_tile_icon {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  opacity: 0.5;
+}
+
+.vkap_catalog_tile:hover > img {
+  transform: scale(1.025);
+}
+
+.vkap_catalog_tile_open:focus-visible {
+  outline: 2px solid var(--vkui--color_stroke_accent);
+  outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .vkap_catalog_tile > img {
+    transition: none;
+  }
+}
+
+.vkap_catalog_tiles_mixes {
+  grid-auto-flow: column;
+  grid-auto-columns: 198px;
+}
+
+.vkap_catalog_tiles_mixes .vkap_catalog_tile {
+  min-height: 240px;
+}
+
+.vkap_catalog_tiles_mixes .vkap_catalog_tile_label {
+  min-height: 240px;
+  padding: 16px;
+  padding-bottom: 148px;
+  justify-content: flex-start;
+}
+
+.vkap_catalog_mix_action {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.vkap_catalog_mix_icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 30px;
+  height: 30px;
+  margin: 0 14px 0 0;
+  border-radius: 50%;
+  color: #111;
+  background: #fff;
+}
+
+.vkap_catalog_tiles_mixes .vkap_catalog_mix_icon {
+  position: absolute;
+  right: 0;
+  bottom: 14px;
+}
+
+.vkap_friend_rail,
+.vkap_artist_rail {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 225px;
+  width: max-content;
+  padding: 8px 12px 16px;
+  gap: 0;
+}
+
+.vkap_person_cell {
+  min-width: 0;
+  min-height: 48px;
+  padding-block: 0;
+  padding-inline: 0 16px;
+  text-align: left;
+  border-radius: 8px;
+}
+
+.vkap_person_cell .vkuiSimpleCell__children {
+  font-size: 14px;
+  line-height: 18px;
+}
+
+.vkap_friend_cell {
+  color: var(--vkui--color_text_link);
+}
+
+.vkap_friend_grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(225px, 1fr));
+  gap: 8px;
+  padding: 12px 16px 20px;
+}
+
+.vkap_catalog_banner {
+  display: block;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  border-radius: 10px;
+  text-align: left;
+  color: var(--vkui--color_text_primary);
+  background: transparent;
+}
+
+.vkap_catalog_banner > img,
+.vkap_catalog_banner_placeholder {
+  display: block;
+  width: 100%;
+  height: 174px;
+  object-fit: cover;
+  border-radius: 10px;
+}
+
+.vkap_catalog_banner_placeholder {
+  display: grid;
+  place-items: center;
+  background: var(--vkui--color_background_secondary);
+}
+
+.vkap_catalog_banner_label {
+  display: block;
+  padding: 10px 0;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 20px;
+}
+
+.vkap_catalog_banner_label small {
+  display: block;
+  margin-top: 4px;
+  color: var(--vkui--color_text_secondary);
+  font-size: 13px;
+  font-weight: 400;
+}
+
+.vkap_catalog_tiles_mixes .vkap_catalog_tile_label > span {
+  font-size: 28px;
+  line-height: 32px;
+}
+
+.vkap_catalog_tiles_mixes .vkap_catalog_tile_label small {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.vkap_catalog_mix_avatar {
+  position: absolute;
+  bottom: -20px;
+  left: 30px;
+}
+
+.vkap_catalog_tiles_mixes .vkap_catalog_tile_shade {
+  background: transparent;
+}
+
+.vkap_catalog_tiles_mixes .vkap_catalog_tile_label {
+  min-width: 0;
+  width: 100%;
+}
+
+.vkap_catalog_tiles_mixes .vkap_catalog_mix_icon {
+  width: 48px;
+  height: 48px;
+  opacity: 0;
+  transition: opacity 160ms ease;
+}
+
+.vkap_catalog_tiles_mixes .vkap_catalog_tile:hover .vkap_catalog_mix_icon,
+.vkap_catalog_tiles_mixes .vkap_catalog_tile:focus-within .vkap_catalog_mix_icon,
+.vkap_catalog_tiles_mixes .vkap_catalog_mix_action[aria-pressed='true'] .vkap_catalog_mix_icon {
+  opacity: 1;
+}

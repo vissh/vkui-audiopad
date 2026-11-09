@@ -15,6 +15,7 @@ export const RepeatButton: FC = () => {
         <TooltipIconButton
           padding
           text='Повторять'
+          description='Повтор выключен'
           icon={Icon24RepeatOutline}
           onClick={setRepeat}
         />
@@ -24,6 +25,7 @@ export const RepeatButton: FC = () => {
           accent
           padding
           text='Повторять композицию'
+          description='Повтор плейлиста включён'
           icon={Icon24RepeatOutline}
           onClick={setRepeat}
         />
@@ -33,6 +35,7 @@ export const RepeatButton: FC = () => {
           accent
           padding
           text='Не повторять композицию'
+          description='Повтор одного трека включён'
           icon={Icon24Repeat1Outline}
           onClick={setRepeat}
         />

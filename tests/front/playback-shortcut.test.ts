@@ -57,13 +57,13 @@ it.each([
   '<a href="#"><span>Artist</span></a>',
   '<div role="link" tabindex="0"><span>Playlist</span></div>',
   '<div role="tab" tabindex="0"><span>Главная</span></div>'
-])('toggles instead of scrolling when navigation retains focus: %s', async html => {
+])('preserves native keyboard activation when navigation retains focus: %s', async html => {
   const page = await setup()
   document.body.innerHTML = html
   const navigation = document.body.firstElementChild as HTMLElement
   navigation.focus()
-  expect(space(navigation.querySelector('span')!).defaultPrevented).toBe(true)
-  expect(page.api.runtime.sendMessage).toHaveBeenCalledExactlyOnceWith({ target: 'service-worker', type: 'toggle-playback' })
+  expect(space(navigation.querySelector('span')!).defaultPrevented).toBe(false)
+  expect(page.api.runtime.sendMessage).not.toHaveBeenCalled()
   expect(document.activeElement).toBe(navigation)
 })
 

@@ -2,7 +2,6 @@ import { Icon56LogoVk } from '@vkontakte/icons'
 import {
   Button,
   Group,
-  Link,
   ModalPage,
   Placeholder,
   type CustomModalProps,
@@ -13,6 +12,7 @@ export const SignInModalPage = ({ modalProps }: CustomModalProps<OpenModalPagePr
   return (
     <ModalPage
       {...modalProps}
+      aria-label='Вход ВКонтакте'
       hideCloseButton={true}
       preventClose={true}
     >
@@ -21,12 +21,13 @@ export const SignInModalPage = ({ modalProps }: CustomModalProps<OpenModalPagePr
           icon={<Icon56LogoVk />}
           title='Вход ВКонтакте'
           action={
-            <Link
+            <Button
+              size='m'
               href='https://vk.ru/'
               target='_blank'
             >
-              <Button size='m'>Перейти на сайт</Button>
-            </Link>
+              Перейти на сайт
+            </Button>
           }
         >
           Авторизуйтесь на сайте vk.ru для использования расширения

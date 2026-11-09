@@ -6,6 +6,37 @@ import { type commonTypes } from '@vk-audiopad/common'
 afterEach(clearPlaybackMocks)
 
 describe('bounded playback', () => {
+  it('publishes the newly requested Mix before its audio resolves and ignores a superseded selection', async () => {
+    const old = { ...playlist(['1_1'], 'rock'), isVkMix: true, mixId: 'common', mixOptions: '{"additionals":["rock"]}' }
+    const player = await playbackHarness({ currentPlaylist: old })
+    const delayed = deferred<commonTypes.TrackItem>()
+    player.fetchMix.mockReturnValueOnce(delayed.promise).mockResolvedValueOnce(track('1_2'))
+    const artist = { ...playlist([], 'artist'), isVkMix: true, mixId: 'artist_mix', mixEntityId: '42' }
+    const first = player.playNewTrack(null, artist)
+    await vi.waitFor(() => { expect(player.state.playbackSelection).toMatchObject({ id: 'artist', mixEntityId: '42' }) })
+    expect(player.state.currentPlaylist?.id).toBe('rock')
+    const pop = { ...old, id: 'pop', tracks: [], mixOptions: '{"additionals":["pop"]}' }
+    await player.playNewTrack(null, pop)
+    delayed.resolve(track('1_3'))
+    await first
+    expect(player.state.playbackSelection).toMatchObject({ id: 'pop', mixOptions: pop.mixOptions })
+    expect(player.state.currentPlaylist?.id).toBe('pop')
+    expect(player.state.activeTrack?.id).toBe('1_2')
+    expect(player.fetchMix).toHaveBeenNthCalledWith(1, expect.any(AbortSignal), 'artist_mix', undefined, '42')
+  })
+
+  it('retains the selected genre and settings when requesting the next Mix track', async () => {
+    const player = await playbackHarness()
+    const options = JSON.stringify({ additionals: ['rock'], vibes: ['calm'], langs: ['ru'] })
+    player.fetchMix.mockResolvedValueOnce(track('1_100')).mockResolvedValueOnce(track('1_101'))
+    await player.playNewTrack(null, { ...playlist([], 'mix'), isVkMix: true, mixId: 'common', mixOptions: options })
+    await player.nextTrack()
+    expect(player.fetchMix).toHaveBeenCalledTimes(2)
+    expect(player.fetchMix).toHaveBeenNthCalledWith(1, expect.any(AbortSignal), 'common', options, undefined)
+    expect(player.fetchMix).toHaveBeenNthCalledWith(2, expect.any(AbortSignal), 'common', options, undefined)
+    expect(player.state.currentPlaylist?.mixOptions).toBe(options)
+  })
+
   it('does not retry a storage failure without consuming an attempt', async () => {
     const player = await playbackHarness()
     player.api.storage.local.set.mockRejectedValueOnce(new Error('Storage unavailable'))

@@ -1,6 +1,6 @@
 import { commonUtils } from '@vk-audiopad/common'
-import { Cell, Separator } from '@vkontakte/vkui'
-import { type FC } from 'react'
+import { Cell, Separator, Tappable } from '@vkontakte/vkui'
+import { useMemo, useState, type FC } from 'react'
 import { getText } from '@/shared/lib/cast-to-types'
 import { Duration } from '@/shared/ui/duration'
 import { type TrackState } from '../model/types'
@@ -35,18 +35,24 @@ export const TrackCell: FC<TrackCellProps> = ({
   onRemove,
   onDragFinish
 }) => {
+  const titleText = useMemo(() => getText(title), [title])
+  const [keyboardFocus, setKeyboardFocus] = useState(false)
   const disabled = trackState === 'disabled'
   const showOverlay = !editMode || trackState !== 'normal'
 
   return (
     <Cell
-      className={removed ? 'vkap_track_cell vkap_track_cell_removed' : 'vkap_track_cell'}
+      Component='div'
+      getRootRef={element => { element?.setAttribute('role', 'listitem') }}
+      className={`vkap_track_cell${removed ? ' vkap_track_cell_removed' : ''}${keyboardFocus ? ' vkap_track_cell_keyboard_focus' : ''}`}
+      onFocusCapture={event => { setKeyboardFocus(event.target.matches(':focus-visible')) }}
+      onBlurCapture={() => { setKeyboardFocus(false) }}
+      onPointerDownCapture={() => { setKeyboardFocus(false) }}
       draggable={editMode}
       mode={editMode ? 'removable' : undefined}
       onDragFinish={onDragFinish}
       onRemove={onRemove}
-      disabled={disabled && !removed}
-      onClick={disabled ? undefined : onClick}
+      onClick={disabled || removed ? undefined : onClick}
       before={
         <span className={removed ? 'vkap_track_cell_muted' : undefined}>
           <TrackImage
@@ -72,7 +78,19 @@ export const TrackCell: FC<TrackCellProps> = ({
       }
       subtitle={<span inert={removed} className={removed ? 'vkap_track_cell_muted' : undefined}>{artist}</span>}
     >
-      {removed ? <span className='vkap_track_cell_muted'>{getText(title)}</span> : disabled ? <span className='vkap_secondary_color'>{getText(title)}</span> : getText(title)}
+      {removed || onClick == null
+        ? <span className={removed ? 'vkap_track_cell_muted' : undefined}>{titleText}</span>
+        : <Tappable
+            Component='button'
+            type='button'
+            className='vkap_track_title_button'
+            hoverMode='none'
+            activeMode='none'
+            disabled={disabled}
+            aria-label={`${trackState === 'played' ? 'Приостановить' : 'Воспроизвести'} ${titleText}`}
+            onClick={event => { event.stopPropagation(); onClick() }}
+          >{titleText}
+          </Tappable>}
     </Cell>
   )
 }

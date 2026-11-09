@@ -1,6 +1,7 @@
 // @vitest-environment jsdom
-import { act, cleanup, fireEvent, render, renderHook, screen } from '@testing-library/react'
+import { act, cleanup, fireEvent, render, renderHook, screen, within } from '@testing-library/react'
 import { createElement, type ReactNode } from 'react'
+import { readFileSync } from 'node:fs'
 import { afterEach, beforeEach, expect, it, vi } from 'vitest'
 import { createChrome } from '../helpers/chrome'
 import { clearPlaybackMocks, playbackHarness, playlist, track } from '../helpers/playback'
@@ -223,4 +224,64 @@ it('keeps initialization restart guidance without an ineffective playback retry'
   await act(async () => { await browser.api.storage.local.get() })
   expect(screen.getByRole('status').textContent).toContain('Перезапустите расширение.')
   expect(screen.queryByRole('button', { name: 'Попробовать снова' })).toBeNull()
+})
+
+it('starts a fresh track Mix from either button size with the original track identity', async () => {
+  const browser = createChrome({ userId: '1' })
+  const commands = vi.fn()
+  browser.api.runtime.onMessage.addListener(message => commands(message))
+  const { TrackMixButton } = await import('@/features/track-mix')
+  const source = track('-2_20')
+  await renderWithVKUI(createElement('div', {}, createElement(TrackMixButton, { track: source, size: 's' }), createElement(TrackMixButton, { track: source })))
+  await act(async () => { await browser.api.storage.local.get() })
+  for (const button of screen.getAllByRole('button', { name: 'Микс по треку' })) fireEvent.click(button)
+  expect(commands).toHaveBeenCalledTimes(2)
+  expect(commands).toHaveBeenLastCalledWith(expect.objectContaining({ type: 'active-track', trackId: null, playlist: expect.objectContaining({ mixId: 'track_mix', mixEntityId: '-2_20', isVkMix: true, tracks: [] }) }))
+  expect(browser.api.storage.local.set).not.toHaveBeenCalled()
+})
+
+it('groups player actions in reading order and labels transport and sliders', async () => {
+  const { commonTypes } = await import('@vk-audiopad/common')
+  const source = { ...track('-2_20'), flags: commonTypes.TrackFlagBit.CAN_ADD | commonTypes.TrackFlagBit.HAS_LYRICS }
+  const browser = createChrome({ userId: '1', activeTrack: source, currentPlaylist: playlist([source.id]) })
+  browser.api.runtime.onMessage.addListener(() => {})
+  const { Player } = await import('@/widgets/player')
+  const view = await renderWithVKUI(createElement(Player))
+  await act(async () => { await browser.api.storage.local.get() })
+  const names = (name: string) => within(screen.getByRole('group', { name })).getAllByRole('button').map(button => button.getAttribute('aria-label') ?? button.textContent)
+  expect(names('Воспроизведение')).toEqual(['Предыдущий трек', 'Воспроизвести', 'Следующий трек'])
+  expect(names('Рекомендации и текст')).toEqual(['Микс по треку', 'Показать похожие', 'Показать текст'])
+  expect(names('Сохранение трека')).toEqual(['Добавить в мою музыку', 'Добавить в плейлист'])
+  expect(names('Режимы воспроизведения')).toEqual(['Перемешать', 'Повторять'])
+  expect([...view.container.querySelectorAll('.vkap_player_leading button')].map(button => button.getAttribute('aria-label') ?? button.textContent)).toEqual(['Предыдущий трек', 'Воспроизвести', 'Следующий трек', 'Перемешать', 'Повторять'])
+  expect(view.container.querySelector('.vkap_player_track_row .vkap_player_track_info')).not.toBeNull()
+  expect(view.container.querySelector('.vkap_player_track_row .vkap_player_track_actions')).not.toBeNull()
+  expect(view.container.querySelector('.vkap_player_time button')).not.toBeNull()
+  const style = document.createElement('style')
+  style.textContent = readFileSync('packages/front/src/widgets/player/ui/Player.css', 'utf8')
+  document.head.append(style)
+  try {
+    const time = within(screen.getByRole('button', { name: '0:00' })).getByText('0:00')
+    expect(getComputedStyle(time).fontSize).toBe('11px')
+    expect(getComputedStyle(time).lineHeight).toBe('14px')
+  } finally {
+    style.remove()
+  }
+  expect(screen.getByRole('button', { name: 'Выключить звук' })).toBeTruthy()
+  expect(screen.getByRole('slider', { name: 'Громкость' })).toBeTruthy()
+  expect(screen.getByRole('slider', { name: 'Позиция воспроизведения' })).toBeTruthy()
+  expect([...view.container.querySelectorAll('button')].every(button => Boolean(button.getAttribute('aria-label') || button.textContent))).toBe(true)
+  fireEvent.click(screen.getByRole('button', { name: 'Предыдущий трек' }))
+  fireEvent.click(screen.getByRole('button', { name: 'Следующий трек' }))
+  expect(browser.api.runtime.sendMessage).toHaveBeenNthCalledWith(1, expect.objectContaining({ type: commonTypes.MessageType.PREVIOUS_TRACK }))
+  expect(browser.api.runtime.sendMessage).toHaveBeenNthCalledWith(2, expect.objectContaining({ type: commonTypes.MessageType.NEXT_TRACK }))
+})
+
+it.each(['1_1', '-2_20'])('keeps queue, discovery and saving actions ordered on track %s', async id => {
+  const browser = createChrome({ userId: '1', activeTrack: track('1_99'), currentPlaylist: playlist([id]) })
+  const { Track } = await import('@/widgets/track-list')
+  const view = await renderWithVKUI(createElement(Track, { playlist: playlist([id]), track: track(id) }))
+  await act(async () => { await browser.api.storage.local.get() })
+  const actions = [...view.container.querySelectorAll('.vkap_track_cell_actions button')].map(button => button.getAttribute('aria-label') ?? button.textContent)
+  expect(actions).toEqual(['Воспроизвести следующей', 'Микс по треку', 'Показать похожие', 'Добавить в плейлист', id === '1_1' ? 'Удалить из моей музыки' : 'Добавить в мою музыку'])
 })

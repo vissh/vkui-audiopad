@@ -1,0 +1,108 @@
+.vkap_playlist_tiles {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 160px;
+  width: max-content;
+  gap: 16px;
+  padding: 8px 16px 20px;
+}
+
+.vkap_playlist_tile {
+  min-width: 0;
+  align-self: start;
+  text-align: left;
+  border: 0;
+  background: transparent;
+  color: var(--vkui--color_text_primary);
+  border-radius: 10px;
+  padding: 0;
+  cursor: pointer;
+}
+
+.vkap_playlist_tile_cover {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 10px;
+  aspect-ratio: 1;
+}
+
+.vkap_playlist_tile_create {
+  align-items: center;
+  box-sizing: border-box;
+  border: 1px solid var(--vkui--color_image_border_alpha);
+  border-radius: 10px;
+  color: var(--vkui--color_text_tertiary);
+  background: var(--vkui--color_background_secondary);
+}
+
+.vkap_playlist_tile_cover > div {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 1;
+}
+
+.vkap_playlist_tile_title {
+  display: block;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  line-height: 20px;
+  min-height: 20px;
+  font-weight: 500;
+}
+
+.vkap_playlist_tile_count {
+  display: block;
+  margin-top: 4px;
+  color: var(--vkui--color_text_secondary);
+}
+
+.vkap_playlist_tile:focus-visible {
+  outline: 2px solid var(--vkui--color_stroke_accent);
+  outline-offset: 5px;
+}
+
+.vkap_playlist_tile_item {
+  min-width: 0;
+}
+
+.vkap_playlist_tile_item > .vkap_playlist_tile {
+  display: block;
+  width: 100%;
+}
+
+.vkap_playlist_tile_item {
+  position: relative;
+}
+
+.vkap_playlist_tile_play {
+  position: absolute;
+  inset: 0 0 auto;
+  height: 160px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+  background: rgb(0 0 0 / 35%);
+}
+
+.vkap_playlist_tile_play button {
+  pointer-events: auto;
+  color: #fff;
+}
+
+.vkap_playlist_tile_item:hover .vkap_playlist_tile_play,
+.vkap_playlist_tile_item:focus-within .vkap_playlist_tile_play {
+  opacity: 1;
+}
+
+.vkap_playlist_edit {
+  order: -1;
+}
+
+.vkap_playlist_tile_play button:hover,
+.vkap_playlist_tile_play button:focus-visible {
+  color: var(--vkui--color_text_secondary);
+}

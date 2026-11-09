@@ -105,14 +105,15 @@ const toAlbumsCatalogBlock = (parsedCatalogBlocks: ParsedCatalogBlock, albums: R
     albums: parsedCatalogBlocks.parsedAlbums.map((pl) => {
       if (isBanner) {
         const [ownerId, playlistId, accessHash] = pl.id.split('_')
+        const existing = albums[`${ownerId}_${playlistId}`]
         return {
           id: playlistId,
           blockId,
-          title: pl.title,
-          tracks: [],
+          title: pl.title || existing?.title || '',
+          tracks: existing?.tracks ?? [],
           isRadio: false,
           isVkMix: false,
-          accessHash,
+          accessHash: accessHash || existing?.accessHash || '',
           ownerId,
           nextOffset: '',
           hasMore: false,
@@ -120,9 +121,10 @@ const toAlbumsCatalogBlock = (parsedCatalogBlocks: ParsedCatalogBlock, albums: R
           isFollowed: false,
           coverUrl: pl.img,
           gridCoverUrls: [pl.img],
-          authorLine: pl.title,
-          authorName: pl.text,
-          infoLine: pl.subtext
+          authorLine: existing?.authorLine || pl.subtitle,
+          authorName: pl.text || existing?.authorName || '',
+          authorAvatarUrl: pl.authorAvatarUrl,
+          infoLine: pl.subtext || existing?.infoLine || ''
         }
       } else {
         const album = albums[pl.id]

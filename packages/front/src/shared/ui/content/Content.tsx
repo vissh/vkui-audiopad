@@ -20,11 +20,11 @@ export const Content: FC<ContentProps> = ({
   children
 }) => {
   return (
-    <span style={{ display: display ? 'block' : 'none' }}>
+    <div hidden={!display} inert={!display}>
       {children}
       {loading && !hideLoader && <Loading />}
       {error != null && <ErrorResult error={error} />}
-    </span>
+    </div>
   )
 }
 

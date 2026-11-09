@@ -2,7 +2,6 @@ import { Icon56LogoVk } from '@vkontakte/icons'
 import {
   Button,
   Group,
-  Link,
   ModalPage,
   Placeholder,
   type CustomModalProps,
@@ -13,6 +12,7 @@ export const RequestPermissionModalPage = ({ modalProps }: CustomModalProps<Open
   return (
     <ModalPage
       {...modalProps}
+      aria-label='Разрешение доступа к VK'
       hideCloseButton={true}
       preventClose={true}
     >
@@ -20,15 +20,16 @@ export const RequestPermissionModalPage = ({ modalProps }: CustomModalProps<Open
         <Placeholder
           icon={<Icon56LogoVk />}
           action={
-            <Link
+            <Button
+              size='m'
               onClick={() => {
                 chrome.permissions.request({ origins: ['*://*.vk.ru/*'] }, () => {
                   location.reload()
                 })
               }}
             >
-              <Button size='m'>Открыть окно предоставления доступа</Button>
-            </Link>
+              Открыть окно предоставления доступа
+            </Button>
           }
         >
           Для работы необходимо разрешить запросы к vk.ru

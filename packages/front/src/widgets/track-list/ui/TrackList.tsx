@@ -23,13 +23,15 @@ export const TrackList: FC<TrackListProps> = ({ isPending, playlist, header }) =
             mode='plain'
             header={header != null && header.length > 0 && <Header>{header}</Header>}
           >
-            {playlist.tracks.map((track) => (
-              <Track
-                key={track.id}
-                playlist={playlist}
-                track={track}
-              />
-            ))}
+            <div role='list'>
+              {playlist.tracks.map((track) => (
+                <Track
+                  key={track.id}
+                  playlist={playlist}
+                  track={track}
+                />
+              ))}
+            </div>
           </Group>}
       </SkeletonWrapper>
     </>

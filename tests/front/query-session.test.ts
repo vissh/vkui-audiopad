@@ -33,6 +33,7 @@ it('cancels and clears the retired account client; late uncancellable data canno
   }
   render(createElement(SessionQueryProvider, { children: createElement(Probe) }))
   await waitFor(() => { expect(signals.has('1')).toBe(true) })
+  expect(clients.has('')).toBe(false)
   const original = clients.get('1')!
   await act(async () => { await browser.api.storage.local.set({ userId: '2' }) })
   await waitFor(() => { expect(signals.has('2')).toBe(true) })

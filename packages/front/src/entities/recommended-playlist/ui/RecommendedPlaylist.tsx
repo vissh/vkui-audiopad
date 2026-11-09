@@ -1,10 +1,10 @@
-import { Card, Skeleton, Text, Title } from '@vkontakte/vkui'
+import { Card, Skeleton, Tappable, Text, Title } from '@vkontakte/vkui'
 import { useState, type FC, type ReactNode } from 'react'
 import { type Album } from '@/shared/types'
 import './RecommendedPlaylist.css'
 
-const width = '165px'
-const height = '200px'
+const width = '198px'
+const height = '240px'
 
 interface RecommendedPlaylistProps {
   album: Album
@@ -29,29 +29,34 @@ export const RecommendedPlaylist: FC<RecommendedPlaylistProps> = ({ album, onCli
       }}
       onClick={onClick}
     >
-      <Title
-        style={{
-          marginBottom: 12,
-          marginTop: 20,
-          textAlign: 'center',
-          color: 'white'
-        }}
-        level='1'
-        weight='1'
-        Component='h1'
-        useAccentWeight
-      >
-        {album.title}
-      </Title>
-      <Text
-        style={{
-          marginBottom: 48,
-          textAlign: 'center',
-          color: 'white'
-        }}
-      >
-        {album.authorLine}
-      </Text>
+      <Tappable Component='button' type='button' className='vkap_recommended_playlist_open' hoverMode='none' activeMode='none' onClick={event => { event.stopPropagation(); onClick() }}>
+        <Title
+          style={{
+            margin: '16px 16px 12px',
+            textAlign: 'left',
+            fontSize: 28,
+            lineHeight: '32px',
+            color: 'white'
+          }}
+          level='1'
+          weight='1'
+          Component='span'
+          useAccentWeight
+        >
+          {album.title}
+        </Title>
+        <Text
+          style={{
+            margin: '0 16px 48px',
+            textAlign: 'left',
+            fontSize: 14,
+            lineHeight: '20px',
+            color: 'white'
+          }}
+        >
+          {album.authorLine}
+        </Text>
+      </Tappable>
       <div className='vkap_recommended_playlist_action'>{action}</div>
     </Card>
   )

@@ -8,6 +8,8 @@
 
 .vkap_artist {
   color: var(--vkui--color_text_secondary);
+  font: inherit;
+  vertical-align: baseline;
 }
 
 .vkap_artist:hover {

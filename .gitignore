@@ -4,6 +4,7 @@
 /packages/*/node_modules
 /packages/*/build
 /packages/*/dist
+/packages/*/dist-profile
 /packages/*/package-lock.json
 /coverage/
 .npm-cache/

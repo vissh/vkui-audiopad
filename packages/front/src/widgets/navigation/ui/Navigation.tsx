@@ -1,23 +1,26 @@
 import { commonUtils } from '@vk-audiopad/common'
-import { Div, Flex } from '@vkontakte/vkui'
-import { memo, type FC } from 'react'
+import { Div, Flex, VisuallyHidden } from '@vkontakte/vkui'
+import { memo, type FC, type ReactNode } from 'react'
 import { SearchInput } from '@/features/search'
 import { useActiveTab } from '@/shared/model'
+import { getTabName } from '../lib/utils'
 import { ActionTabs } from './ActionTabs'
 import { ContentTabs } from './ContentTabs'
 import { History } from './History'
 
 interface NavigationProps {
   children?: React.ReactNode
+  after?: ReactNode
   noPaddingBottom?: boolean
 }
 
-export const Navigation: FC<NavigationProps> = ({ children, noPaddingBottom = false }) => {
+export const Navigation: FC<NavigationProps> = ({ children, after, noPaddingBottom = false }) => {
   const activeTab = useActiveTab()
 
   return (
-    <>
-      {commonUtils.isTabWithHistory(activeTab) ? <History activeTab={activeTab} /> : <ApplicationTabs />}
+    <nav aria-label='Навигация по музыке'>
+      {!commonUtils.isTabWithHistory(activeTab) && <VisuallyHidden Component='h1'>{getTabName(activeTab)}</VisuallyHidden>}
+      {commonUtils.isTabWithHistory(activeTab) ? <History activeTab={activeTab} after={after} /> : <ApplicationTabs />}
       {children != null && children}
       {children == null && (
         <Div
@@ -29,7 +32,7 @@ export const Navigation: FC<NavigationProps> = ({ children, noPaddingBottom = fa
           <SearchInput />
         </Div>
       )}
-    </>
+    </nav>
   )
 }
 

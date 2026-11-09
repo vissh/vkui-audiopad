@@ -1,7 +1,6 @@
 import { commonTypes } from '@vk-audiopad/common'
 import {
   AdaptivityProvider,
-  AppRoot,
   ConfigProvider,
   Panel,
   Platform,
@@ -12,10 +11,12 @@ import {
 import '@vkontakte/vkui/dist/vkui.css'
 import { type FC } from 'react'
 import { Player } from '@/widgets/player'
+import { PlaylistDialogs } from '@/features/manage-playlists'
 import { SignIn } from '@/features/sign-in'
 import { AppModalRoot, themeAtom } from '@/entities/modal'
 import { useAtomValue } from '@/shared/lib/atom'
 import { Notification } from '@/shared/ui/notification'
+import { ApplicationViewport } from './ApplicationViewport'
 import { Pages } from './Pages'
 import { SessionQueryProvider } from './SessionQueryProvider'
 import { usePlaybackShortcut } from './use-playback-shortcut'
@@ -33,7 +34,7 @@ export const Application: FC = () => {
         colorScheme={theme === commonTypes.Theme.SYSTEM ? undefined : theme}
       >
         <AdaptivityProvider>
-          <AppRoot>
+          <ApplicationViewport>
             <SplitLayout center>
               <SplitCol
                 maxWidth={1216}
@@ -41,6 +42,8 @@ export const Application: FC = () => {
               >
                 <View activePanel='vkaudiopad'>
                   <Panel id='vkaudiopad'>
+                    <a className='vkap_skip_link' href='#vkap-content'>Перейти к содержимому</a>
+                    <a className='vkap_skip_link' href='#vkap-player'>Перейти к плееру</a>
                     <Player />
                     <SignIn />
                     <Pages />
@@ -49,8 +52,9 @@ export const Application: FC = () => {
                 </View>
               </SplitCol>
               <AppModalRoot />
+              <PlaylistDialogs />
             </SplitLayout>
-          </AppRoot>
+          </ApplicationViewport>
         </AdaptivityProvider>
       </ConfigProvider>
     </SessionQueryProvider>

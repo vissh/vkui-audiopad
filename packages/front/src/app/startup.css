@@ -1,0 +1,109 @@
+html,
+body {
+  min-width: 780px;
+  min-height: 600px;
+  margin: 0;
+}
+
+.vkap_startup {
+  box-sizing: border-box;
+  min-height: 600px;
+  padding: 16px 24px;
+  overflow: hidden;
+  background: #fff;
+  --vkap-startup-placeholder: #e7e8ec;
+}
+
+@media (prefers-color-scheme: dark) {
+  .vkap_startup {
+    background: #191919;
+    --vkap-startup-placeholder: #2c2d2e;
+  }
+}
+
+.vkap_startup i,
+.vkap_startup_search {
+  display: block;
+  border-radius: 8px;
+  background: var(--vkap-startup-placeholder);
+}
+
+.vkap_startup_player,
+.vkap_startup_nav,
+.vkap_startup_covers {
+  display: flex;
+  gap: 16px;
+}
+
+.vkap_startup_player {
+  align-items: center;
+  height: 64px;
+}
+
+.vkap_startup_player i:first-child {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+}
+
+.vkap_startup_player i:nth-child(2) {
+  width: 48px;
+  height: 48px;
+}
+
+.vkap_startup_player i:last-child {
+  width: 50%;
+  height: 20px;
+}
+
+.vkap_startup_nav {
+  margin-top: 28px;
+}
+
+.vkap_startup_nav i {
+  width: 90px;
+  height: 24px;
+}
+
+.vkap_startup_search {
+  height: 32px;
+  margin-block: 24px;
+}
+
+.vkap_startup_tracks {
+  display: grid;
+  gap: 12px;
+  margin-bottom: 28px;
+}
+
+.vkap_startup_tracks > div {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.vkap_startup_tracks > div > i {
+  width: 40px;
+  height: 40px;
+}
+
+.vkap_startup_tracks span {
+  display: grid;
+  gap: 8px;
+  width: 40%;
+}
+
+.vkap_startup_tracks span i {
+  width: 100%;
+  height: 12px;
+}
+
+.vkap_startup_tracks span i:last-child {
+  width: 70%;
+}
+
+.vkap_startup_covers > i {
+  width: 144px;
+  height: 144px;
+  flex-shrink: 0;
+}

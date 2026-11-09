@@ -66,7 +66,8 @@ export const InfinityContent = <Args,>({
           actions={<Button mode='secondary' onClick={() => { request(true) }}>Повторить</Button>}
         />
       )}
-      {display && hasMore && <div ref={ref}></div>}
+      {display && hasMore && <div ref={ref} aria-hidden='true' />}
+      {display && hasMore && !isPending && !failed && !stalled && <div className='vkap_keyboard_load_more'><Button mode='tertiary' onClick={() => { request(true) }}>Показать ещё</Button></div>}
     </Content>
   )
 }

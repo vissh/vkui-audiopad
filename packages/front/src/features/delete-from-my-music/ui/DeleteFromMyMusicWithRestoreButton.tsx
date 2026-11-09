@@ -6,14 +6,17 @@ import { vkApiDeleteWithRestore } from '../api/delete'
 
 interface DeleteFromMyMusicWithRestoreButtonProps {
   track: commonTypes.TrackItem
+  onBeforeDelete?: () => void
   onAfterDelete: () => void
 }
 
 export const DeleteFromMyMusicWithRestoreButton: FC<DeleteFromMyMusicWithRestoreButtonProps> = ({
   track,
+  onBeforeDelete,
   onAfterDelete
 }) => {
   const deleteFromMyMusic = async () => {
+    onBeforeDelete?.()
     await vkApiDeleteWithRestore(track)
     onAfterDelete()
   }

@@ -1,10 +1,9 @@
-import { Image, Separator } from '@vkontakte/vkui'
+import { Image } from '@vkontakte/vkui'
 import { type FC } from 'react'
 import { FollowIcon } from '@/features/follow-album'
-import { playOrPause } from '@/features/play-or-pause'
-import { PlayPauseIcon } from '@/features/play-or-pause-album'
-import { AlbumCell } from '@/entities/album'
-import { fetchPlaylist } from '@/shared/api'
+import { EditPlaylistButton } from '@/features/manage-playlists'
+import { PlayPlaylistButton } from '@/features/play-or-pause-album'
+import { AlbumCell, AlbumStats } from '@/entities/album'
 import { openPlaylistPage } from '@/shared/model'
 import { type Album as AlbumType } from '@/shared/types'
 import './Album.css'
@@ -15,11 +14,6 @@ interface AlbumProps {
 }
 
 export const Album: FC<AlbumProps> = ({ userId, album }) => {
-  const playNewAlbum = async () => {
-    const playlistFetchResult = await fetchPlaylist({ fromId: userId, playlist: album })
-    playOrPause('normal', null, playlistFetchResult.playlist)
-  }
-
   const openAlbum = () => {
     openPlaylistPage(userId, album)
   }
@@ -29,16 +23,15 @@ export const Album: FC<AlbumProps> = ({ userId, album }) => {
       album={album}
       overlay={
         <Image.Overlay
+          className='vkap_album_actions'
           theme='dark'
           visibility='on-hover'
         >
           <>
             <FollowIcon album={album} />
-            <Separator />
-            <PlayPauseIcon
-              album={album}
-              onPlayNewAlbum={() => { void playNewAlbum() }}
-            />
+            <EditPlaylistButton userId={userId} playlist={album} />
+            <PlayPlaylistButton userId={userId} album={album} />
+            <AlbumStats tracks={album.trackCount} plays={album.playCount} />
           </>
         </Image.Overlay>
       }

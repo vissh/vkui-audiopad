@@ -11,9 +11,11 @@ chrome.storage.local uses flat keys. Common's ApplicationControls, ApplicationSe
 | activeTrack, currentPlaylist, activeTrackIndex, audiosIds, originalAudiosIds | Chrome storage. SW actions choose tracks and transform queues; UI observes snapshots and sends intents. |
 | played, playbackId, playbackError | Chrome storage. SW publishes playback state after operation/event ownership checks. UI must not use a played write as a command. |
 | playbackRequested | Chrome storage snapshot of SW-owned intent. Updated before media confirmation; header/album/Mix actions can show pause while loading. Writing it is not a command. |
+| playbackSelection | SW-owned transient request identity, published atomically with playbackRequested before resolving a selected source. Includes Mix options and artist entity. UI uses it while playback is requested and falls back to currentPlaylist for older storage. Startup clears it before adopting actual media. Update/account cleanup removes it with active-track runtime state. |
 | playbackInitialization | SW startup status: loading, ready or failed. Default loading is not evidence of a running worker. Startup publishes a safe playbackError on failure; blocked commands do not run against defaults. |
 | currentTime, duration | Chrome storage. SW publishes media time/duration; UI seeking uses an explicit command. |
 | volume, shuffle, durationMode, castToStatus | Chrome storage. UI/hotkeys change controls; SW [storage listeners](../../packages/service-worker/src/listeners/storage.ts) trigger side effects. This historical mixed model is not a pattern for new playback commands. |
+| volumeBeforeMute | Chrome storage, retained with ApplicationControls during update/account cleanup. VolumeControl writes it atomically with volume and remembers the most recent positive level, including an uncommitted slider draft when mute is pressed. Default 0.5 for missing/invalid legacy data. The remembered value has no media side effect by itself. The existing volume observer still delivers CHANGE_VOLUME through SW to Audio. |
 | repeat | Chrome storage. An SW action cycles modes on REPEAT; playback reads the mode at track end. |
 | equalizer | Chrome storage. Settings UI writes enabled/ten gains/manual Preamp/boost compensation, named userPresets/presetId and optional Mix refusal state. SW forwards DSP configuration and its current optional host-permission check (equalizerMixAccess) to the offscreen Audio owner through CHANGE_EQUALIZER and each PLAY_TRACK. Missing/failed permission checks prevent okcdn.ru processing downloads while preserving native playback. RETRY_EQUALIZER explicitly forwards retry=true with current configuration after a permission grant without changing playback ownership or the queue. Default disabled/neutral; the whole key survives UPDATE/account switching. [ADR 0010](../decisions/0010-equalizer.md) defines validation and media constraints. |
 | equalizerAnnouncementPending | Chrome storage, preserved as an application setting. UPDATE crossing 3.3.10 from below marks it; navigation consumes it on first presentation. Later updates preserve an unseen announcement and do not recreate a consumed one. No announcement on fresh install. |
@@ -29,6 +31,8 @@ chrome.storage.local uses flat keys. Common's ApplicationControls, ApplicationSe
 hlsDebug is an existing internal Chrome storage flag, not a complete safe diagnostics facility. TrackItem, Playlist and AudioTuple may contain access/action hashes and signed URLs. Do not dump them into logs, reports or fixtures.
 
 UI atoms are defined in [shared/lib/atom.ts](../../packages/front/src/shared/lib/atom.ts): atom uses memory, lsAtom stores a localStorage string, storageAtom asynchronously loads initial data and subscribes to Chrome storage events. lsAtom does not currently subscribe to events from other windows; do not assume live theme synchronization between UI windows.
+
+Track rows use useTrackPlayback(trackId) to observe only played/paused/inactive for their current local ID, including a new ID returned after adding a track to the library. useHasCurrentPlaylist observes queue existence independently of loaded queue metadata. Both hooks derive snapshots from the existing storage atoms. Pending restore rows separately observe their restore-window generation, so navigation expiry remains reactive under memoization.
 
 Frontend cache identity and page application follow [ADR 0007](../decisions/0007-query-identity-and-pagination.md): per-account client retirement, owner/context-aware page keys, original pagination variables, cursor guards and immutable ID merges. This boundary does not version shared token storage or cancel external mutations.
 
@@ -121,3 +125,7 @@ async () => {
 ```
 
 Do not use chrome.storage.local.get(null) as a diagnostic dump: it includes tokens and personal data. Sanitize new error text before publishing playbackError; the current safe string does not make an arbitrary Error or VK response suitable for UI output.
+
+## VK Mix preferences
+
+The front owns vkMixPreferences, an account-keyed map of the last common-Mix options and display title. It contains no session credentials and is independent of the active playback queue. Genre/activity selection and the Home settings dialog share the entities/vk-mix owner. Applying/resetting a selection sends the existing ACTIVE_TRACK command with a fresh playlist identity, mixId and mixOptions. The SW retains these options for subsequent recommendations. Pause/resume uses TOGGLE_PLAYBACK and never writes observed playback fields from the UI.

@@ -18,10 +18,10 @@ export const AlbumList: FC<AlbumListProps> = ({ isPending, userId, albums }) => 
       skeleton={<AlbumListSkeleton />}
     >
       {(albums != null) && albums.length > 0 && (
-        <Flex>
+        <Flex gap={[16, 8]} margin='none'>
           {albums.map((album) => (
             <Album
-              key={album.id}
+              key={`${album.ownerId}_${album.id}`}
               userId={userId}
               album={album}
             />
@@ -34,7 +34,7 @@ export const AlbumList: FC<AlbumListProps> = ({ isPending, userId, albums }) => 
 
 const AlbumListSkeleton: FC = () => {
   return (
-    <Flex>
+    <Flex gap={[16, 8]} margin='none'>
       {Array.from(Array(8).keys()).map((index) => (
         <AlbumSkeleton key={index} />
       ))}

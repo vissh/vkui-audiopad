@@ -106,3 +106,25 @@ it('does not recreate a retired cache when its old page mutation finishes', asyn
   await act(async () => { response.resolve({ sectionId: 'section', nextFrom: 'B', blocks: [] }); await pending })
   expect(client.getQueryCache().getAll()).toHaveLength(0)
 })
+
+it('refreshes a cached show-all collection when it is reopened after a playlist mutation', async () => {
+  const { CatalogBlockDataType } = await import('@/shared/types')
+  const album = { ...playlist([], '10'), ownerId: '1', title: 'Old playlist', coverUrl: '', gridCoverUrls: [], authorLine: '', authorName: '', infoLine: '' }
+  let created = false
+  const fetchAlbums = vi.fn(async () => ({ sectionId: 'library', nextFrom: '', blocks: [{ blockId: 'playlists', dataType: CatalogBlockDataType.ALBUMS, title: 'Плейлисты', showAllLink: '', albums: created ? [album, { ...album, id: '11', title: 'New playlist' }] : [album] }] }))
+  vi.doMock('../../packages/front/src/pages/albums/api/fetchers', () => ({ fetchAlbums }))
+  const { useAlbumsData } = await import('../../packages/front/src/pages/albums/model/hooks')
+  const { useRefreshPlaylists } = await import('../../packages/front/src/features/manage-playlists/api/playlists')
+  const { client, wrapper } = await queryWrapper()
+  client.setQueryDefaults(['albums'], { gcTime: Infinity })
+  const first = renderHook(() => useAlbumsData('1', '/music/catalog/library'), { wrapper })
+  await waitFor(() => { expect(first.result.current.data?.blocks).toHaveLength(1) })
+  first.unmount()
+  created = true
+  const refresh = renderHook(() => useRefreshPlaylists('1'), { wrapper })
+  await act(async () => { refresh.result.current() })
+  const reopened = renderHook(() => useAlbumsData('1', '/music/catalog/library'), { wrapper })
+  await waitFor(() => { expect(fetchAlbums).toHaveBeenCalledTimes(2) })
+  await waitFor(() => { expect(reopened.result.current.data?.blocks[0]).toMatchObject({ albums: [{ title: 'Old playlist' }, { title: 'New playlist' }] }) })
+  await act(async () => { client.clear() })
+})

@@ -14,6 +14,7 @@ export const TrackImage: FC<TrackImageProps> = ({ imageSrc, trackState, showOver
     <Image
       src={imageSrc}
       loading='lazy'
+      alt=''
     >
       {showOverlay &&
         <>

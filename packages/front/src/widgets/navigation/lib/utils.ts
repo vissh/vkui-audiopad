@@ -12,6 +12,8 @@ export const getTabName = (tab: commonTypes.ActiveTabs) => {
       return 'Моя музыка'
     case commonTypes.ContentTab.EXPLORE:
       return 'Обзор'
+    case commonTypes.ContentTab.RADIO:
+      return 'Радио'
     case commonTypes.ContentTab.SEARCH:
       return 'Результаты поиска'
     case commonTypes.ContentTab.PLAYLIST:

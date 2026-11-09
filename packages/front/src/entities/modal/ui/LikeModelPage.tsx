@@ -57,6 +57,7 @@ export const LikeModalPage = ({ modalProps, close }: CustomModalProps<OpenModalP
           </Text>
           <List>
             <Cell
+              role='listitem'
               multiline
               before={<Icon16LikeOutline />}
               subtitle='Буду признателен за пять звезд'
@@ -64,6 +65,7 @@ export const LikeModalPage = ({ modalProps, close }: CustomModalProps<OpenModalP
               Оценить в магазине {storeLink()} и написать отзыв
             </Cell>
             <Cell
+              role='listitem'
               multiline
               before={<Icon16SubscriptionsOutline />}
               subtitle='Следите за обновлениями, участвуйте в обсуждениях, создавайте темы'
@@ -71,6 +73,7 @@ export const LikeModalPage = ({ modalProps, close }: CustomModalProps<OpenModalP
               Подписаться на сообщество <Link href='https://vk.ru/vkaudiopad' target='_blank'>https://vk.ru/vkaudiopad</Link>
             </Cell>
             <Cell
+              role='listitem'
               multiline
               before={<Icon16ShareOutline />}
               subtitle={<>Расскажите друзьям — это лучшая помощь</>}
@@ -85,6 +88,7 @@ export const LikeModalPage = ({ modalProps, close }: CustomModalProps<OpenModalP
           <Text>Вы можете проявить активность и по части продвижения open source:</Text>
           <List>
             <Cell
+              role='listitem'
               multiline
               before={<Icon16StarAlt />}
               subtitle='Поставьте звездочку — чтобы проект стал заметнее'
@@ -92,6 +96,7 @@ export const LikeModalPage = ({ modalProps, close }: CustomModalProps<OpenModalP
               Поставить звезду
             </Cell>
             <Cell
+              role='listitem'
               multiline
               before={<Icon16BugOutline />}
               subtitle='Создайте Issue — если нашли баг или есть идеи'
@@ -99,6 +104,7 @@ export const LikeModalPage = ({ modalProps, close }: CustomModalProps<OpenModalP
               Сообщить о проблеме
             </Cell>
             <Cell
+              role='listitem'
               multiline
               before={<Icon16WorkOutline />}
               subtitle='Создайте Pull Request — если хотите помочь с кодом'

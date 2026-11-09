@@ -27,5 +27,16 @@ export const batched = <T>(arr: T[], size: number, limit?: number): T[][] => {
 const parser = new DOMParser()
 
 export const parseFromString = (str: string): Document => {
-  return parser.parseFromString(str, 'text/html')
+  // Chrome checks legacy handlers even in detached documents under extension CSP.
+  const inert = str.replace(
+    /<[a-z][^>"']*(?:(?:"[^"]*"|'[^']*')[^>"']*)*>/gi,
+    tag => tag.replace(
+      /(\s+)([^\s"'=<>`]+)(\s*=\s*(?:"[^"]*"|'[^']*'|[^\s"'=<>`]+))?/g,
+      (attribute: string, space: string, name: string, value: string | undefined) => {
+        if (!name.toLowerCase().startsWith('on')) return attribute
+        return `${space}data-vkap-inert-${name}${value ?? ''}`
+      }
+    )
+  )
+  return parser.parseFromString(inert, 'text/html')
 }

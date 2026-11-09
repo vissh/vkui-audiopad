@@ -2,15 +2,22 @@
 
 Chrome and Firefox extension for [VK Music](https://music.vk.ru/)
 
-|              dark               |               light               |
-| :-----------------------------: | :-------------------------------: |
-| ![dark](./screenshots/dark.png) | ![light](./screenshots/light.png) |
+## Features
+
+- Home, My music, Explore and Radio with VK's catalog groups, show-all pages and scroll loading
+- A mixed playlist library with creation, editing, covers, track selection and queue saving
+- VK Mix settings, genre/mood mixes, artist mixes and track mixes
+- Friends' music, related artists, curator collections and direct-stream radio
+- Playback independent of the popup, queue editing, shuffle/repeat, seek, volume and mute
+- Ten-band equalizer with Preamp and named presets, plus an availability-gated lyrics reader
+- Dark/light themes, keyboard navigation and labelled player controls
+
+VK supplies the music catalog and requires an authenticated browser session. [Product behavior](./docs/product/behavior.md) records implemented scenarios and current limitations. [The roadmap](./docs/ai/development-roadmap.md) lists remaining work.
 
 ## Try it
 
-[Chrome Web Store](https://chrome.google.com/webstore/detail/plclpmphdjmdgmdpfkcmdkmohgpfecip)  
-[Add-ons for Firefox](https://addons.mozilla.org/ru/firefox/addon/vkaudiopad/)  
-[~~Opera Addons~~](https://addons.opera.com/ru/extensions/details/vk-audiopad/)
+- [Chrome Web Store](https://chromewebstore.google.com/detail/plclpmphdjmdgmdpfkcmdkmohgpfecip)
+- [Add-ons for Firefox](https://addons.mozilla.org/ru/firefox/addon/vkaudiopad/)
 
 ## Development
 
@@ -43,6 +50,10 @@ Use **Actions → Release extension → Run workflow** on GitHub and enter the n
 
 For a clean Git checkout after checks/tests and a full build, `npm run release:package` writes the same asset set to `dist/release` without publishing. The older `./to-publish.sh` Docker helper cleans local dependencies/build output; prefer the workflow for release candidates and `./build.sh` for normal development.
 
+## UI debugging and performance
+
+`npm run build:profile` builds the React MCP frontend into packages/front/dist-profile after building common. The shared Chrome MCP configuration enables React tool discovery. Profile startup, tab returns, scrolling and affected interactions when changing these paths, then verify production timings separately. Follow [the UI debugging workflow](./docs/ai/ui-debugging.md) for staging, modal focus, data handling and returning to the ordinary build.
+
 ## Architectural methodology
 
 Project based on [Feature-Sliced Design](https://feature-sliced.design/)
@@ -53,7 +64,7 @@ New contributors and agents: start with [the project guide](./docs/README.md) an
 
 Instructions for AI agents: [AGENTS.md](./AGENTS.md), architecture details: [docs/ai/architecture.md](./docs/ai/architecture.md). Claude Code imports the same instructions through `CLAUDE.md`.
 
-MCP servers (VKUI docs, Chrome and Firefox extension debugging) have one source: [`.mcp.json`](./.mcp.json), read directly by Claude Code. The committed [`.codex/config.toml`](./.codex/config.toml) and `mcp` section in [`opencode.json`](./opencode.json) are generated for Codex and OpenCode 1.x. After changing the source, run `npm run mcp:sync`; `npm run mcp:check`, doctor and CI reject configuration drift. Open the repository root, trust the project in Codex, approve project servers if Claude Code asks, and restart the client after config changes. See [MCP setup and maintenance](./docs/ai/mcp.md) for commands and supported formats.
+MCP tools (VKUI docs, Chrome/Firefox extension debugging and opt-in React inspection/profiling) have one source: [`.mcp.json`](./.mcp.json), read directly by Claude Code. The committed [`.codex/config.toml`](./.codex/config.toml) and `mcp` section in [`opencode.json`](./opencode.json) are generated for Codex and OpenCode 1.x. After changing the source, run `npm run mcp:sync`; `npm run mcp:check`, doctor and CI reject configuration drift. Open the repository root, trust the project in Codex, approve project servers if Claude Code asks, and restart the client after config changes. See [MCP setup and maintenance](./docs/ai/mcp.md) for commands and supported formats.
 
 Check the actual connection in your agent session. Without VKUI MCP, use the installed `@vkontakte/vkui` type declarations and existing components as API references; a missing MCP connection does not block local checks.
 

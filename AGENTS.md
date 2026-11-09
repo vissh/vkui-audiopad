@@ -59,12 +59,15 @@ Before session/token changes, read [ADR 0009](docs/decisions/0009-session-owner.
 
 For query keys, account changes and pagination, read [ADR 0007](docs/decisions/0007-query-identity-and-pagination.md): per-account caches, original mutation variables, cursor guards and immutable merges.
 
+Before server-playlist, catalog-group, friend-library or radio changes, read [the product contracts](docs/product/behavior.md#home-discovery-tiles), [current VK formats](docs/ai/vkru-scraping.md#home-catalog-tiles) and [the parity follow-up](docs/ai/testing.md#catalog-and-playlist-parity-follow-up-november-7-2026). Creation and edit order differ, cover persistence has multiple stages, and editable playlists must exclude followed copies and albums.
+
 Before lyrics changes, read [the product contract](docs/product/behavior.md#track-lyrics) and [VK response observations](docs/product/vk-parity.md#lyrics-observation-november-4-2026). Both plain and timestamped responses are supported, including interlude markers. Modal/tooltip verification follows [the testing procedure](docs/ai/testing.md#modal-and-tooltip-checks).
 
 ## AI tools
 
 - **Shared MCP settings:** `.mcp.json` is the only source, read directly by Claude Code. `npm run mcp:sync` generates `.codex/config.toml` and the `mcp` section of `opencode.json` for OpenCode 1.x. Do not edit derived MCP settings manually: doctor/check and CI reject command, argument, environment or server-set drift. See [MCP setup](docs/ai/mcp.md) for trust, approval and updates. `CLAUDE.md` imports these instructions without copying them.
 - **`vkui` MCP:** component documentation, props, examples and migrations. Use it instead of guessing APIs. Keep `VKUI_VERSION` in `.mcp.json` equal to `@vkontakte/vkui` in `packages/front/package.json`, then run `mcp:sync`.
+- **React MCP and profiling:** the pinned front-only integration and Chrome `--categoryExperimentalThirdParty=true` expose component/render tools in the opt-in profile build. For startup, mounting, scroll loading and interaction-performance changes, follow [UI debugging](docs/ai/ui-debugging.md), capture comparable React recordings and verify normal production traces separately. Restore ordinary staged assets afterward.
 - **`chrome-devtools` MCP**, with `--categoryExtensions`: install/reload unpacked extensions and inspect consoles. Workflow: full build -> `install_extension` -> `trigger_extension_action` -> `list_console_messages`. Read [testing](docs/ai/testing.md) before live checks: VK login, console baseline, popup lifetime and permitted staging paths.
 - **`firefox-devtools` MCP:** official Mozilla moz build for addon installation and browser-context inspection; dedicated visible profile and pinned tools. Read [MCP setup](docs/ai/mcp.md#firefox-extension-checks) and [Firefox testing](docs/ai/testing.md#firefox-smoke-through-mcp). A public-package connection is insufficient to inspect the tested extension origin.
 - **Extension runtime skill:** [.agents/skills/browser-extension-development/SKILL.md](.agents/skills/browser-extension-development/SKILL.md) routes manifest, messaging, lifecycle, storage and browser tasks to the owning contracts. Skills have one source under .agents/skills; .claude/skills is a symlink and OpenCode points to the same directory. docs:check rejects discovery drift and broken project-skill routes.
@@ -87,6 +90,8 @@ Configuration does not prove a server is connected in the current session. Witho
 - Prefer VKUI components and `@vkontakte/icons` for UI.
 - Do not end user-facing UI messages, hints, statuses, notices or helper text with a full stop. Keep punctuation between sentences and dots inside domain names/URLs; preserve user-provided content.
 - State uses [custom atoms](packages/front/src/shared/lib/atom.ts): `atom` for memory, `lsAtom` for localStorage, `storageAtom` for Chrome storage/events. Server data uses react-query.
+
+For accessibility changes, follow [the browser and keyboard procedure](docs/ai/testing.md#accessibility-and-collage-checks-november-8-2026). Preserve the normal pointer appearance while fixing semantics, focus and system accessibility preferences.
 
 ### Messages
 

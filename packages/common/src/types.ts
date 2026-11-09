@@ -1,5 +1,6 @@
 import { type ErrorObject } from 'serialize-error'
 import { type Settings as EqualizerSettings, type Status as EqualizerStatus } from './equalizer'
+import { type MixPreferences } from './vk-mix'
 
 export type JSONValue = null | number | string | boolean | { [x: string]: JSONValue } | JSONValue[]
 
@@ -58,7 +59,8 @@ export enum TrackFlagBit {
 }
 
 export type TrackFlagMask = (
-  typeof TrackFlagBit.HAS_LYRICS
+  0
+  | typeof TrackFlagBit.HAS_LYRICS
   | typeof TrackFlagBit.CAN_ADD
   | typeof TrackFlagBit.CLAIMED
   | typeof TrackFlagBit.QUEUE
@@ -80,6 +82,8 @@ export interface TrackItem {
   title: string
   duration: number
   context: string
+  radioFollowed?: boolean
+  radioBackground?: string
   flags: TrackFlagMask
   trackCode: string
   addHash: string
@@ -98,12 +102,19 @@ export interface Playlist {
   tracks: TrackItem[]
   isRadio: boolean
   isVkMix: boolean
+  mixId?: string
+  mixOptions?: string
+  mixEntityId?: string
+  catalogLink?: string
+  catalogLayout?: string
   accessHash: string
   ownerId: string
   nextOffset: string
   hasMore: boolean
   followHash: string
   isFollowed: boolean
+  canFollow?: boolean
+  followedPlaylist?: { ownerId: string, id: string }
 }
 
 export type AudioTuple = [audioRawId: string, accessKey: string]
@@ -114,6 +125,7 @@ export enum ContentTab {
   GENERAL = 'general',
   MY_MUSIC = 'my-music',
   EXPLORE = 'explore',
+  RADIO = 'radio',
   SEARCH = 'search',
   PLAYLIST = 'playlist',
   ALBUMS = 'albums',
@@ -176,7 +188,7 @@ export enum Theme {
   DARK = 'dark',
 }
 
-export type ClickableContentTabs = ContentTab.CURRENT_PLAYLIST | ContentTab.GENERAL | ContentTab.MY_MUSIC | ContentTab.EXPLORE
+export type ClickableContentTabs = ContentTab.CURRENT_PLAYLIST | ContentTab.GENERAL | ContentTab.MY_MUSIC | ContentTab.EXPLORE | ContentTab.RADIO
 
 export interface ActiveTabUnknown {
   tab: ContentTab.UNKNOWN
@@ -225,6 +237,7 @@ export type ActiveTabs = (
 
 export interface ApplicationControlsState {
   volume: number
+  volumeBeforeMute: number
   shuffle: boolean
   repeat: RepeatMode
   durationMode: DurationMode
@@ -237,7 +250,10 @@ export interface ApplicationSettingsState {
   likeVersion: number
   settingsVersion: number
   equalizerAnnouncementPending: boolean
+  vkMixPreferences: Record<string, MixPreferences>
 }
+
+export type PlaybackSelection = Pick<Playlist, 'id' | 'ownerId' | 'blockId' | 'isVkMix' | 'mixId' | 'mixOptions' | 'mixEntityId'>
 
 export interface ApplicationActiveTrackState {
   played: boolean
@@ -248,6 +264,7 @@ export interface ApplicationActiveTrackState {
   activeTrack: TrackItem | null
   duration: number
   currentPlaylist: Playlist | null
+  playbackSelection: PlaybackSelection | null
 }
 
 export interface ApplicationCurrentTimeState {
@@ -280,7 +297,7 @@ export type ApplicationState =
   ApplicationPlaylistSystemState &
   ApplicationUserState &
   ApplicationActiveTabState &
-  Record<string, string | WebToken | Playlist | TrackItem | number | boolean | AudioTuple[] | ActiveTabs | EqualizerSettings | null | undefined>
+  Record<string, string | WebToken | Playlist | PlaybackSelection | TrackItem | number | boolean | AudioTuple[] | ActiveTabs | EqualizerSettings | Record<string, MixPreferences> | null | undefined>
 
 export enum MessageTarget {
   SERVICE_WORKER = 'service-worker',

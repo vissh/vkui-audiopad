@@ -39,6 +39,7 @@ export const SearchInput = memo(function SearchInput () {
     <Search
       slotProps={{
         input: {
+          'aria-label': 'Поиск музыки',
           getRootRef: inputRef
         }
       }}

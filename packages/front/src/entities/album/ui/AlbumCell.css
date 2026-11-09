@@ -6,3 +6,48 @@
   cursor: pointer;
   max-width: 100%;
 }
+
+.vkap_album_title_button {
+  border: 0;
+  padding: 0;
+  background: transparent;
+  font: inherit;
+  color: inherit;
+  text-align: start;
+}
+.vkap_album_author {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+}
+
+.vkap_album_author > span:last-child {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.vkap_album_author > .vkuiAvatar {
+  flex-shrink: 0;
+}
+
+.vkap_album_stats {
+  position: absolute;
+  bottom: 8px;
+  left: 8px;
+  right: 8px;
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  color: #fff;
+  font-size: 12px;
+  line-height: 16px;
+  pointer-events: none;
+}
+
+.vkap_album_stats > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}

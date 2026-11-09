@@ -9,12 +9,13 @@ Builds and static checks do not establish that prose is up to date or that relea
 | AGENTS.md | Short repository rules for agents/contributors; update with architecture/workflow changes. CI does not rewrite it. |
 | docs/README.md and product/behavior.md | Onboarding/navigation and current user scenarios. Update when entry points, behavior or evidence changes. |
 | ai/architecture.md and ai/state-and-messages.md | Runtime boundaries, storage ownership and command lifecycle. Update in the same PR as affected code. |
+| ai/ui-debugging.md | React MCP setup, profiling comparisons, UI modality diagnosis and production restoration. Update with tooling and UI-debugging behavior. |
 | ai/testing.md | Test harness, browser procedure, console baseline and dated live evidence. Preserve evidence scope/date. |
 | decisions/ | Design rationale/constraints; link rather than copying budgets and invariants into every guide. |
 | ai/readiness-review.md / ai/development-roadmap.md | Historical baseline / current implementation status. Preserve R/T IDs and audit evidence; update progress in the roadmap. |
 | .agents/skills/feature-sliced-design + skills-lock.json | Vendored FSD skill. Monthly Update agent skills action opens a PR; manual update: npx skills update -y -p. Never edit it by hand. |
 | .agents/skills/browser-extension-development | Project-owned extension workflow; update with runtime/tooling contracts. Not managed by skills-lock or the vendor updater. .claude/skills links to the shared directory; OpenCode skills.paths includes it. docs:check rejects separate copies/broken aliases and validates project-skill links. |
-| .mcp.json -> .codex/config.toml + opencode.json mcp | One source for pinned VKUI/Chrome/Firefox DevTools MCP settings. Edit source, run mcp:sync and commit outputs. Doctor/check/tests reject drift. See [MCP](mcp.md). |
+| .mcp.json -> .codex/config.toml + opencode.json mcp | One source for pinned VKUI/Chrome/Firefox DevTools MCP settings, including React third-party discovery. Edit source, run mcp:sync and commit outputs. Doctor/check/tests reject drift. See [MCP](mcp.md). |
 | CLAUDE.md | Imports @AGENTS.md; do not duplicate the rules. |
 | npm dependencies / GitHub Actions | Dependabot opens monthly dependency/action PRs. |
 | releases.md / .github/workflows/release.yml / scripts/*release* | Release version preparation, checks, atomic commit/tag push, assets and retry policy. Update together when delivery changes. |

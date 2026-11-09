@@ -9,7 +9,7 @@ interface SkeletonWrapperProps {
 export const SkeletonWrapper: FC<SkeletonWrapperProps> = ({ isPending, skeleton, children }) => {
   return (
     <>
-      {isPending ? <>{skeleton}</> : <>{children}</>}
+      {isPending ? <div role='status' aria-label='Загрузка' aria-busy='true'><div aria-hidden='true' inert>{skeleton}</div></div> : <>{children}</>}
     </>
   )
 }
