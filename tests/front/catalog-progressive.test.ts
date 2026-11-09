@@ -3,7 +3,7 @@ import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-libra
 import { createElement } from 'react'
 import { afterEach, beforeEach, expect, it, vi } from 'vitest'
 import { type vkPlaylists } from '@vk-audiopad/common'
-import { CatalogBlockDataType, type CatalogBlock, type TracksCatalogBlock } from '@/shared/types'
+import { CatalogBlockDataType, type CatalogBlock, type TracksCatalogBlock, type LinksCatalogBlock } from '@/shared/types'
 import { type TokenCatalogPage } from '@/shared/lib/token-catalog'
 import { type FetchMyMusicResult } from '../../packages/front/src/pages/my-music/model/types'
 import { type FetchExploreResult } from '../../packages/front/src/pages/explore/model/types'
@@ -25,6 +25,8 @@ afterEach(() => {
 
 const tracks = (blockId = 'recent', title = 'Недавно прослушанные', id = '1_1'): TracksCatalogBlock => ({ dataType: CatalogBlockDataType.TRACKS, blockId, playlist: { ...playlist([id]), title } })
 const library = (blockId = 'library', token = true): CatalogBlock => ({ dataType: CatalogBlockDataType.ALBUMS, blockId, title: 'Плейлисты', albums: [], showAllLink: '/music/catalog/library', library: token })
+const promo = (title = 'Вам может быть интересно'): LinksCatalogBlock => ({ blockId: 'token-promo', dataType: CatalogBlockDataType.LINKS, title, links: [], showAllLink: '', layout: 'banners' })
+const legacyPromo: CatalogBlock = { blockId: 'legacy-promo', dataType: CatalogBlockDataType.BANNERS, title: '', albums: [], showAllLink: '' }
 const myPage = (firstBlock: CatalogBlock = tracks()): FetchMyMusicResult => ({ firstBlock, otherBlocks: [library('legacy-library', false)], lastTracksCatalogBlock: null })
 const tokenPage = (blocks: CatalogBlock[] = [tracks('token-recent'), library()]): TokenCatalogPage => ({ blocks, sectionId: 'token', nextFrom: '' })
 const libraryPage = { items: [{ ownerId: '1', id: '10', title: 'Сохранённый плейлист', description: '', count: 2, accessKey: '', editable: true }], nextOffset: null }
@@ -142,16 +144,21 @@ it.each(['my-music', 'explore'] as const)('keeps %s idle until activation and re
   expect(page.fetchHomeHighlights).toHaveBeenCalledOnce()
 })
 
-it('pins the first titled Explore block and matches nonbreaking spaces without duplicate rows', async () => {
+it('keeps early Explore tracks in their original position beneath the loading banner and preserves their DOM and focus', async () => {
   const page = await setup('explore')
-  await page.resolveLegacy({ blocks: [{ blockId: 'promo', dataType: CatalogBlockDataType.BANNERS, title: '', albums: [], showAllLink: '' }, tracks('legacy', 'Сегодня в\u00a0плеере')], sectionId: 'legacy', nextFrom: '' })
+  await page.resolveLegacy({ blocks: [legacyPromo, tracks('legacy', 'Сегодня в\u00a0плеере')], sectionId: 'legacy', nextFrom: '' })
   const first = await screen.findByRole('button', { name: 'Воспроизвести 1_1' })
   act(() => { first.focus() })
-  await act(async () => { page.token.resolve(tokenPage([tracks('token', 'Сегодня в плеере'), tracks('more', 'Новинки', '1_2')])) })
+  const placeholder = screen.getAllByRole('status')[0]
+  expect(placeholder.compareDocumentPosition(first) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+  for (const skeleton of placeholder.querySelectorAll<HTMLElement>('.vkap_catalog_banner .vkuiSkeleton__host')) expect(skeleton.style.display).toBe('block')
+  expect(page.fetchCatalogSection).not.toHaveBeenCalled()
+  await act(async () => { page.token.resolve(tokenPage([promo(), tracks('token', 'Сегодня в плеере'), tracks('more', 'Новинки', '1_2')])) })
   await screen.findByRole('heading', { name: 'Новинки' })
-  expect(screen.getAllByRole('heading').map(element => element.textContent)).toEqual(['Сегодня в\u00a0плеере', 'Новинки'])
+  expect(screen.getAllByRole('heading').map(element => element.textContent)).toEqual(['Вам может быть интересно', 'Сегодня в\u00a0плеере', 'Новинки'])
   expect(screen.getAllByRole('button', { name: 'Воспроизвести 1_1' })[0]).toBe(first)
   expect(document.activeElement).toBe(first)
+  expect(screen.queryByRole('status')).toBeNull()
 })
 
 it('keeps late account responses out of the new music and playlist views', async () => {
@@ -224,4 +231,51 @@ it.each(['my-music', 'explore'] as const)('retains %s content and refreshes inva
   await waitFor(() => { expect(page.fetchLegacy).toHaveBeenCalledTimes(2) })
   expect(page.fetchHomeHighlights).toHaveBeenCalledTimes(2)
   expect(screen.getByRole('button', { name: 'Воспроизвести 1_1' })).toBe(first)
+})
+
+it('keeps the full original Explore order when the token response arrives first', async () => {
+  const page = await setup('explore')
+  await act(async () => { page.token.resolve(tokenPage([promo(), tracks('token', 'Сегодня в плеере'), tracks('more', 'Новинки', '1_2')])) })
+  const first = await screen.findByRole('button', { name: 'Воспроизвести 1_1' })
+  await page.resolveLegacy({ blocks: [legacyPromo, tracks('legacy', 'Сегодня в\u00a0плеере')], sectionId: 'legacy', nextFrom: '' })
+  expect(screen.getAllByRole('heading').map(element => element.textContent)).toEqual(['Вам может быть интересно', 'Сегодня в плеере', 'Новинки'])
+  expect(screen.getAllByRole('button', { name: 'Воспроизвести 1_1' })[0]).toBe(first)
+})
+
+it('uses the authoritative Explore order even when it adds another group ahead of early music', async () => {
+  const page = await setup('explore')
+  await page.resolveLegacy({ blocks: [legacyPromo, tracks('legacy', 'Сегодня в плеере')], sectionId: 'legacy', nextFrom: '' })
+  const first = await screen.findByRole('button', { name: 'Воспроизвести 1_1' })
+  act(() => { first.focus() })
+  const extra: LinksCatalogBlock = { ...promo('События'), blockId: 'events' }
+  await act(async () => { page.token.resolve(tokenPage([promo(), extra, tracks('token', 'Сегодня в плеере')])) })
+  await screen.findByRole('heading', { name: 'События' })
+  expect(screen.getAllByRole('heading').map(element => element.textContent)).toEqual(['Вам может быть интересно', 'События', 'Сегодня в плеере'])
+  expect(screen.getByRole('button', { name: 'Воспроизвести 1_1' })).toBe(first)
+  expect(document.activeElement).toBe(first)
+})
+
+it('retains early Explore music in its original position through failure and retry', async () => {
+  const page = await setup('explore')
+  await page.resolveLegacy({ blocks: [legacyPromo, tracks('legacy', 'Сегодня в плеере')], sectionId: 'legacy', nextFrom: '' })
+  const first = await screen.findByRole('button', { name: 'Воспроизвести 1_1' })
+  act(() => { first.focus() })
+  await act(async () => { page.token.reject(new Error('Synthetic catalog failure')) })
+  const retry = await screen.findByRole('button', { name: 'Повторить' })
+  expect(screen.getByRole('button', { name: 'Воспроизвести 1_1' })).toBe(first)
+  page.fetchHomeHighlights.mockResolvedValueOnce(tokenPage([promo(), tracks('token', 'Сегодня в плеере')]))
+  fireEvent.click(retry)
+  await screen.findByRole('heading', { name: 'Вам может быть интересно' })
+  expect(screen.getAllByRole('heading').map(element => element.textContent)).toEqual(['Вам может быть интересно', 'Сегодня в плеере'])
+  expect(screen.getByRole('button', { name: 'Воспроизвести 1_1' })).toBe(first)
+  expect(page.fetchCatalogSection).not.toHaveBeenCalled()
+})
+
+it('keeps an already usable untitled Explore group visible before the first titled group', async () => {
+  const page = await setup('explore')
+  await page.resolveLegacy({ blocks: [tracks('untitled', '', '1_2'), tracks('legacy', 'Сегодня в плеере')], sectionId: 'legacy', nextFrom: '' })
+  const earlier = await screen.findByRole('button', { name: 'Воспроизвести 1_2' })
+  const titled = screen.getByRole('button', { name: 'Воспроизвести 1_1' })
+  expect(earlier.compareDocumentPosition(titled) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+  expect(page.fetchHomeHighlights).toHaveBeenCalledOnce()
 })

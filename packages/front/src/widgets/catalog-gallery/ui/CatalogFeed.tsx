@@ -14,6 +14,8 @@ const emptyBlocks: CatalogBlock[] = []
 
 const title = (block: CatalogBlock) => (block.dataType === CatalogBlockDataType.TRACKS ? block.playlist.title : block.title).trim().replace(/\s+/g, ' ').toLocaleLowerCase('ru')
 
+const matches = (left: CatalogBlock, right: CatalogBlock) => left.dataType === right.dataType && (left.blockId === right.blockId || (title(left).length > 0 && title(left) === title(right)))
+
 export const CatalogFeed = ({ userId, active, section = 'general', existing = emptyBlocks, renderLibrary, progressive = false, onRetry }: { userId: string, active: boolean, section?: 'general' | 'all' | 'explore' | 'radiostations', existing?: CatalogBlock[], renderLibrary?: (showAllLink: string) => ReactNode, progressive?: boolean, onRetry?: () => void }) => {
   const query = useInfiniteQuery({
     queryKey: ['audioCatalog', userId, section],
@@ -49,23 +51,35 @@ export const CatalogFeed = ({ userId, active, section = 'general', existing = em
   const blocks = useMemo(() => query.data?.pages.reduce<CatalogBlock[]>((previous, page) => mergeCatalogBlocks(previous, page.blocks), []) ?? [], [query.data?.pages])
   const fallback = query.isError && query.data == null
   const displayed = useMemo(() => {
-    const matching = (block: CatalogBlock) => leading != null && block.dataType === leading.dataType && (block.blockId === leading.blockId || (title(block).length > 0 && title(block) === title(leading)))
+    const matching = (block: CatalogBlock) => leading != null && matches(block, leading)
     const catalogLeading = blocks.find(matching)
     const first = leading?.dataType === CatalogBlockDataType.TRACKS && catalogLeading?.dataType === CatalogBlockDataType.TRACKS
       ? { ...leading, playlist: { ...leading.playlist, catalogLink: catalogLeading.playlist.catalogLink } }
       : leading
     const available = fallback ? existing : blocks
-    const source = first != null ? [first, ...available.filter(block => !matching(block))] : available
+    let source = available
+    if (first != null) {
+      if (section === 'explore') {
+        source = available.length > 0 ? available.map(block => matching(block) ? first : block) : existing.slice(0, existing.findIndex(matching) + 1)
+      } else {
+        source = [first, ...available.filter(block => !matching(block))]
+      }
+    }
     return source.map(block => {
-      const legacy = existing.find(item => item.dataType === block.dataType && (item.blockId === block.blockId || (title(block).length > 0 && title(item) === title(block))))
+      const legacy = existing.find(item => matches(item, block))
       return block.dataType === CatalogBlockDataType.TRACKS && legacy?.dataType === CatalogBlockDataType.TRACKS
         ? { ...block, playlist: { ...legacy.playlist, title: block.playlist.title, catalogLink: block.playlist.catalogLink, catalogLayout: block.playlist.catalogLayout } }
         : block
     })
-  }, [blocks, existing, fallback, leading])
+  }, [blocks, existing, fallback, leading, section])
   const pending = active && !query.isError && query.isPending
   const library = blocks.find(isLibrary) ?? existing.find(isLibrary)
-  const galleries = displayed.filter(block => !isLibrary(block)).map((block, index) => <CatalogGallery key={JSON.stringify([block.blockId, leading != null && index === 0])} mode='card' isPending={false} loadingBlock='albums' userId={userId} catalogBlock={block} />)
+  const galleries = displayed.filter(block => !isLibrary(block)).map(block => {
+    const early = leading != null && matches(block, leading)
+    const key = JSON.stringify([block.blockId, early])
+    if (section === 'explore' && pending && leading != null && !early && block.dataType === CatalogBlockDataType.BANNERS) return <SkeletonWrapper key={key} isPending skeleton={<CatalogFeedSkeleton section={section} userId={userId} firstOnly />}>{null}</SkeletonWrapper>
+    return <CatalogGallery key={key} mode='card' isPending={false} loadingBlock='albums' userId={userId} catalogBlock={block} />
+  })
   const errorNotice = query.isError && <Banner title='Некоторые подборки не загрузились' subtitle='Остальная музыка доступна' actions={<Button mode='secondary' onClick={() => { onRetry?.(); void (query.data == null ? query.refetch() : query.fetchNextPage()) }}>Повторить</Button>} />
   return (
     <>
@@ -82,7 +96,7 @@ export const CatalogFeed = ({ userId, active, section = 'general', existing = em
   )
 }
 
-const CatalogFeedSkeleton = ({ section, userId }: { section: string, userId: string }) => {
+const CatalogFeedSkeleton = ({ section, userId, firstOnly = false }: { section: string, userId: string, firstOnly?: boolean }) => {
   if (section === 'radiostations') {
     return (
       <Group header={<ShowAllLinkSkeleton />} aria-label='Загрузка подборок' aria-busy='true'>
@@ -97,20 +111,26 @@ const CatalogFeedSkeleton = ({ section, userId }: { section: string, userId: str
       {section === 'explore'
         ? <Group header={<ShowAllLinkSkeleton />}>
             <HorizontalScroll>
-              <div style={{ display: 'flex', gap: 12, padding: '8px 16px 16px' }}>
+              <div className='vkap_catalog_tiles vkap_catalog_tiles_banners'>
                 {Array.from({ length: 4 }, (_, index) => (
-                  <div key={index}>
-                    <Skeleton width={316} height={174} />
-                    <Skeleton width={200} height={20} style={{ marginTop: 12 }} />
-                    <Skeleton width={280} height={16} style={{ marginTop: 8 }} />
+                  <div key={index} className='vkap_catalog_banner'>
+                    <Skeleton height={174} style={{ display: 'block' }} />
+                    <div className='vkap_catalog_banner_label'>
+                      <Skeleton width={200} height={40} style={{ display: 'block' }} />
+                      <Skeleton width={280} height={20} style={{ display: 'block', marginTop: 4 }} />
+                    </div>
                   </div>
                 ))}
               </div>
             </HorizontalScroll>
           </Group>
         : <CatalogGallery mode='card' userId={userId} isPending loadingBlock='tracks' catalogBlock={null} />}
-      <CatalogGallery mode='card' userId={userId} isPending loadingBlock='albums' catalogBlock={null} />
-      <CatalogGallery mode='card' userId={userId} isPending loadingBlock='albums' catalogBlock={null} />
+      {!firstOnly && (
+        <>
+          <CatalogGallery mode='card' userId={userId} isPending loadingBlock='albums' catalogBlock={null} />
+          <CatalogGallery mode='card' userId={userId} isPending loadingBlock='albums' catalogBlock={null} />
+        </>
+      )}
     </div>
   )
 }
