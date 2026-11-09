@@ -83,6 +83,12 @@ Configuration does not prove a server is connected in the current session. Witho
 - Before rewriting a published PR branch, verify its remote head and preserve unrelated work. Push only the intended PR branch with `--force-with-lease`, never plain `--force`.
 - Before handoff, verify the PR commit count and review whether the change needs new behavior, testing or debugging guidance. Update the owning documentation and link it from these instructions when a new task needs a discovery route.
 
+### Startup performance
+
+Fast opening and first useful rendering are priority product requirements. Preserve the existing critical request path on every tab. Before adding a request or awaited dependency ahead of usable content, waiting for optional enrichment, or replacing a fast source with a slower source, provide comparable before/after production measurements, explain the necessity and obtain explicit user approval. Approval of an unrelated feature does not approve a startup slowdown.
+
+Render independently ready data immediately. Load optional metadata, previews and subsequent catalog groups in the background or near the viewport. Keep loaded controls, focus and geometry stable during enrichment, with a loader where unfinished content belongs. Reuse fresh account-scoped query data on tab returns. Follow [UI debugging](docs/ai/ui-debugging.md) for React recordings and separate production traces, including first usable content and request dependencies. Keep the [startup regressions](tests/front/catalog-progressive.test.ts) and [Home regressions](tests/front/home-progressive.test.ts) in the normal CI suite. A skeleton or static hero alone does not establish usable music arrival.
+
 ### Frontend FSD
 
 - Layers: `app` -> `pages` -> `widgets` -> `features` -> `entities` -> `shared`. Imports go downward; same-layer cross-imports are forbidden. Do not disable `@conarti/eslint-plugin-feature-sliced` to pass lint.

@@ -36,6 +36,16 @@ Start React profiling before the interaction and stop it afterward. Record commi
 
 Repeat the affected interaction in the normal production build using Chrome performance traces. Record paint/interaction/layout metrics, long tasks and request timing independently of React timings. Instrumentation changes execution cost. Use comparable repeated runs to substantiate speedup claims. Heap deltas require repeated controlled collection and equivalent state.
 
+## Startup performance review
+
+Fast startup is a product priority. A new critical-path request, an additional awaited dependency, optional enrichment made blocking, or replacement of a fast source by a slower one requires written justification, comparable production measurements and explicit user approval before implementation. Link that approval and the measurements in the PR. An unrelated feature request does not approve slower startup.
+
+Review changes to application imports/providers, session readiness, page queries, catalog composition and initial loading conditions for added dependencies before the first useful render. Record the previous and proposed request graph and first playable track, playlist or station timing. Keep first frame/skeleton and first usable music measurements separate. Compare fresh popup documents and warm tab returns with matching profile, viewport, foreground visibility, cache and throttling settings. React recordings identify render work, while ordinary production traces and repeated first-content samples establish user-visible latency.
+
+The normal CI suite runs [Home source-order tests](../../tests/front/home-progressive.test.ts) and [My music/Explore startup tests](../../tests/front/catalog-progressive.test.ts). They hold slower reads unresolved and assert immediate request starts, independent visible results, stable DOM/focus, account isolation, freshness, failure/retry and one continuation owner. Preserve these invariants when adding a feature. Run the affected browser comparison for request/source or render-boundary changes. Offline tests control ordering, while the dated browser evidence records actual upstream latency.
+
+My music mounts its library with the initial feed. Check library-first, legacy-first and token-first completion. The stable library slot follows the first music group, whose skeleton reserves its space until data arrives. Token/legacy library groups must not add another library or replace its DOM. Verify the create/edit/open/play/follow controls and show-all destination after enrichment. Explore pins its first titled legacy block, skipping untitled promotional banners when a titled block is available. Normalize whitespace when checking duplicate titles, including VK's nonbreaking spaces. Keep the fast block ahead of error feedback and later groups, including after failure and retry.
+
 ## Track rendering
 
 TrackCell keeps loaded track text and playback controls in the DOM. Normal rows use layout/style containment while keeping all loaded playback controls discoverable in the accessibility tree. The queue editor disables containment to retain native drag geometry.

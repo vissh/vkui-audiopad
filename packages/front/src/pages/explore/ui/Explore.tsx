@@ -1,5 +1,5 @@
 import { Group } from '@vkontakte/vkui'
-import { memo, useState } from 'react'
+import { memo } from 'react'
 import { CatalogFeed } from '@/widgets/catalog-gallery'
 import { Navigation } from '@/widgets/navigation'
 import { Content } from '@/shared/ui/content'
@@ -11,19 +11,14 @@ interface ExploreProps {
 }
 
 export const Explore = memo(function Explore ({ userId, active }: ExploreProps) {
-  const [wasAlreadyOpen, setWasAlreadyOpen] = useState(active)
-  if (active && !wasAlreadyOpen) {
-    setWasAlreadyOpen(true)
-  }
-
-  const { data: fetchResult } = useExploreData(userId, wasAlreadyOpen)
+  const { data: fetchResult, isError, refetch } = useExploreData(userId, active)
 
   return (
     <Content display={active}>
       <Group>
         <Navigation />
       </Group>
-      <CatalogFeed userId={userId} active={active} section='explore' existing={fetchResult?.blocks ?? []} />
+      <CatalogFeed userId={userId} active={active} section='explore' progressive existing={fetchResult?.blocks ?? []} onRetry={() => { if (isError) void refetch() }} />
     </Content>
   )
 })
