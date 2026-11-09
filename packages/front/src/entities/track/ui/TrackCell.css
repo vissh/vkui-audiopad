@@ -1,3 +1,7 @@
+.vkap_track_cell_contained {
+  contain: layout style;
+}
+
 .vkap_track_cell_tail {
   display: grid;
   align-items: center;
