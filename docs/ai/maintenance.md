@@ -45,6 +45,14 @@ Release extension runs only through workflow_dispatch on master, with a new vers
 
 Do not commit private registry URLs. Root .npmrc selects the public registry; CI rejects nonpublic resolved entries. allowScripts retains esbuild's intentional install permission; do not allow all scripts to get past installation. Fix failures introduced by a change instead of disabling checks.
 
+## minimatch security override
+
+The root override pins transitive `minimatch@^10` to `11.0.1` for [GHSA-g3hv-75wg-m249](https://github.com/advisories/GHSA-g3hv-75wg-m249). The affected copies belong to ESLint, `@eslint/config-array`, `@typescript-eslint/typescript-estree` and `eslint-plugin-import-x`. The advisory affects versions `>=7.0.0 <11.0.1` and allows excessive CPU/memory use during glob preprocessing at `optimizationLevel >= 2`.
+
+Version 11 removes `makeRe` and other APIs. Keep `eslint-plugin-import-x` at `4.18.1` or a compatible newer version, which supports minimatch 11. The other affected consumers use the retained `Minimatch`/`match` and `minimatch` APIs. The separate minimatch 3 dependency used by `eslint-plugin-react` is outside this advisory's affected range.
+
+Remove the override once upstream dependency ranges select fixed versions. Revalidate with a clean install, `npm audit`, `npm run check`, `npm test`, the full build and `npm run verify:build`. Review major-version API changes before broadening this override.
+
 ## Updating VKUI
 
 1. Install the selected version with `npm install @vkontakte/vkui@<version> -w @vk-audiopad/front`.
