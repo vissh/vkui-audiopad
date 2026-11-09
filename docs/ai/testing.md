@@ -781,3 +781,34 @@ The production Chrome UI at 780×600 displayed 1:24 over the center of the 167.8
 The real Chrome action popup retained 780×600 CSS pixels. Both hints stayed inside its viewport, with zero document overflow and zero visible circular thumbs. Its warning/error console was empty. An existing Firefox extension tab loaded the same final index-DhETkcln.js frontend and confirmed transparent thumbs, 362/72 px rails and a 50% midpoint preview while its actual volume input stayed at 100. Seeking was disabled there because no duration was loaded. Its live verification covers presentation and volume preview.
 
 Final npm run check, all 784 tests across 85 files, full Chrome/Firefox builds, verify:build and the isolated Firefox 159.0 runtime smoke passed. Normal production assets were retained. Chrome's original time=2, volume=0.5, remembered volume=0.5, default theme and paused queue were restored, the temporary popup closed and emulation reset. The native Firefox viewport was restored after comparison.
+
+## Deferred track actions and scroll (November 9, 2026)
+
+This comparison used a separate headless Chrome MCP session rooted in the task worktree and a temporary unpacked extension stage. The browser profile had no VK login. A synthetic 278-track queue used empty media/image URLs, stable track IDs and a signed-out account. Front networking was offline and the isolated service worker's fetch adapter rejected requests, preserving the queue during session verification. These measurements isolate rendering cost. Authenticated Home/My music/Explore/Radio response latency and playback were outside this run.
+
+Normal production documents used a 780×600 viewport, 4× CPU slowdown and retained HTTP cache. Each of three runs started with a fresh document on Current playlist and the same full queue. A MutationObserver recorded the first track's DOM insertion. This timestamp precedes paint. The initial production asset was index-DhETkcln.js. The final production asset index-CJNyQ4az.js used deferred action preparation and layout/style containment.
+
+| Metric | Before, three samples | After, three samples |
+|---|---|---|
+| First track DOM insertion, ms | 995.5 / 887.7 / 886.3 | 532.5 / 543.3 / 548.2 |
+| First contentful paint, ms | 1108 / 1028 / 1008 | 608 / 616 / 624 |
+| Longest task, ms | 869 / 756 / 757 | 401 / 398 / 401 |
+| Initial DOM elements | 14370 | 9278 |
+| Loaded track rows | 278 | 278 |
+| Initially prepared action buttons | 834 | 30 |
+
+Median first-track insertion fell from 887.7 to 543.3 ms in this fixture. The action count reflects three eligible controls per signed-out synthetic track. Authenticated tracks can expose additional actions. Titles, artists and playback controls remain mounted across all loaded rows.
+
+Rapid scrolling advanced through the entire queue in 30 requestAnimationFrame steps. Baseline maximum frame intervals were 23.4 / 20.4 / 23.0 ms, with total sampled intervals of 483.9 / 474.8 / 476.0 ms. Final cold-pass intervals were 21.1 / 31.3 / 18.6 ms, with totals of 473.6 / 497.9 / 482.7 ms. Every final pass retained all 278 rows, prepared only the nearby action subtrees and recorded zero intervals over 50 ms. These scripted frame samples describe this browser workload.
+
+An intermediate implementation prepared every intersecting action subtree immediately. It improved opening but increased scrolling work. The final callback-only observer schedules preparation after 150 ms of continuous proximity and cancels rows that pass through quickly. Pointer entry/down and focus bypass that wait. The [nine controlled regressions](../../tests/front/deferred-track-actions.test.ts) cover viewport preparation, cancelled preparation, synchronous pointer/keyboard access, retained state/focus, eager editor/restore controls and observer/timer teardown.
+
+Separate instrumented React recordings at default CPU measured the first visit from loaded Radio to Current playlist. The baseline recorded two commits, 128.6 ms total render time, a 101.0 ms largest commit and 31.0 ms layout effects in that commit. The final recording included deferred preparation and recorded eight commits, 47.9 ms total render time, a 41.7 ms largest commit and 19.3 ms layout effects in that commit. Clickable, host elements, TrackCell, Tappable and SvgIconRoot led the final aggregated self-time report. A final first-pass scroll recording, including the settled rows' deferred actions, contained six commits, 11.3 ms total render time and a 5.9 ms largest commit. React instrumentation and production browser timings have separate costs.
+
+Separate normal-production traces with 4× CPU recorded LCP of 2352 ms before and 1352 ms after. Both recorded CLS 0.13 in this offline error-banner fixture. Trace-event totals for Layout fell from 88.0 to 59.2 ms and UpdateLayoutTree from 253.6 to 180.5 ms. Paint totals were 24.3 and 30.7 ms. These single traces supplement the repeated document/scroll samples.
+
+An intermediate content-visibility experiment omitted distant playback buttons from Chrome's accessibility snapshot. Final CSS uses layout/style containment and preserves the complete loaded playback list in that snapshot. The smaller experimental opening times are excluded from the final table.
+
+The actual action popup was identified through extension.getViews and retained 780×600 CSS pixels. Focusing the initially unprepared last row synchronously exposed its three eligible actions. Its height stayed 58 px. The final production accessibility snapshot exposed all 278 loaded playback buttons, including track 278 before scrolling to it. Contained scrolling reached scrollTop 15895. Entering the queue editor preserved all 278 rows and removed containment from every editable row. Cancel retained the stored 278-track queue, with zero document-width overflow. Normal production assets were restored after profiling. This is synthetic UI evidence. Authenticated dialog mutations, spoken assistive technology and personalized catalog startup retain their separate acceptance requirements.
+
+Final npm run check, all 793 offline tests across 86 files with npm test -- --testTimeout=20000, full Chrome/Firefox builds, verify:build and the isolated Firefox 159.0 runtime smoke passed. The final smoke used npm_config_offline=true to start its cached MCP package after an online MCP initialization timeout. Six Git-based release fixtures exceeded the default five-second limit in both full and isolated local runs. Their assertions passed with the 20-second verification override. The signed-out UI console contained the expected offline resource error.

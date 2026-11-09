@@ -1,6 +1,7 @@
 import { commonUtils } from '@vk-audiopad/common'
 import { Cell, Separator, Tappable } from '@vkontakte/vkui'
-import { useMemo, useState, type FC } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState, type FC } from 'react'
+import { useOnInView } from 'react-intersection-observer'
 import { getText } from '@/shared/lib/cast-to-types'
 import { Duration } from '@/shared/ui/duration'
 import { type TrackState } from '../model/types'
@@ -37,17 +38,32 @@ export const TrackCell: FC<TrackCellProps> = ({
 }) => {
   const titleText = useMemo(() => getText(title), [title])
   const [keyboardFocus, setKeyboardFocus] = useState(false)
+  const [actionsActivated, setActionsActivated] = useState(false)
+  const eagerActions = editMode || removed || typeof IntersectionObserver === 'undefined'
+  const preparationTimer = useRef<number | undefined>(undefined)
+  const ref = useOnInView((inView) => {
+    window.clearTimeout(preparationTimer.current)
+    // Fast scrolling cancels preparation without rerendering passing rows.
+    if (inView) preparationTimer.current = window.setTimeout(() => { setActionsActivated(true) }, 150)
+  }, { rootMargin: '300px', skip: eagerActions || actionsActivated })
+  useEffect(() => () => { window.clearTimeout(preparationTimer.current) }, [])
+  const rootRef = useCallback((element: HTMLDivElement | null) => {
+    element?.setAttribute('role', 'listitem')
+    return ref(element)
+  }, [ref])
+  const showActions = eagerActions || actionsActivated
   const disabled = trackState === 'disabled'
   const showOverlay = !editMode || trackState !== 'normal'
 
   return (
     <Cell
       Component='div'
-      getRootRef={element => { element?.setAttribute('role', 'listitem') }}
-      className={`vkap_track_cell${removed ? ' vkap_track_cell_removed' : ''}${keyboardFocus ? ' vkap_track_cell_keyboard_focus' : ''}`}
-      onFocusCapture={event => { setKeyboardFocus(event.target.matches(':focus-visible')) }}
+      getRootRef={rootRef}
+      className={`vkap_track_cell${!editMode ? ' vkap_track_cell_contained' : ''}${removed ? ' vkap_track_cell_removed' : ''}${keyboardFocus ? ' vkap_track_cell_keyboard_focus' : ''}`}
+      onFocusCapture={event => { setActionsActivated(true); setKeyboardFocus(event.target.matches(':focus-visible')) }}
+      onPointerEnter={() => { setActionsActivated(true) }}
       onBlurCapture={() => { setKeyboardFocus(false) }}
-      onPointerDownCapture={() => { setKeyboardFocus(false) }}
+      onPointerDownCapture={() => { setActionsActivated(true); setKeyboardFocus(false) }}
       draggable={editMode}
       mode={editMode ? 'removable' : undefined}
       onDragFinish={onDragFinish}
@@ -66,7 +82,7 @@ export const TrackCell: FC<TrackCellProps> = ({
         <>
           <Separator />
           <span className='vkap_track_cell_tail'>
-            <span className='vkap_track_cell_actions'>{actions}</span>
+            <span className='vkap_track_cell_actions'>{showActions && actions}</span>
             {!removed && (
               <Duration
                 className='vkap_track_cell_duration'

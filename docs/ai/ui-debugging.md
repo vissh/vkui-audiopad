@@ -36,6 +36,14 @@ Start React profiling before the interaction and stop it afterward. Record commi
 
 Repeat the affected interaction in the normal production build using Chrome performance traces. Record paint/interaction/layout metrics, long tasks and request timing independently of React timings. Instrumentation changes execution cost. Use comparable repeated runs to substantiate speedup claims. Heap deltas require repeated controlled collection and equivalent state.
 
+## Track rendering
+
+TrackCell keeps loaded track text and playback controls in the DOM. Normal rows use layout/style containment while keeping all loaded playback controls discoverable in the accessibility tree. The queue editor disables containment to retain native drag geometry.
+
+Action subtrees prepare within a 300 px viewport margin after 150 ms of continuous proximity. The callback-only useOnInView hook avoids React commits as rows pass through the margin. Leaving cancels preparation. Pointer entry/down and focus prepare synchronously, and prepared actions stay mounted to preserve dialog triggers, pending operations and local add/delete state. Removed rows, editable rows and environments without IntersectionObserver prepare eagerly. Ref and timer cleanup follow row teardown.
+
+Compare a fresh long queue, rapid first-pass scrolling and a warm second pass. Verify the accessibility snapshot includes the final loaded track before it has been scrolled into view. Verify keyboard focus on an initially unprepared row, retained action state, editor apply/cancel, restore controls and the actual contained action popup. The [controlled regressions](../../tests/front/deferred-track-actions.test.ts) exercise scheduling and teardown. The [dated benchmark](testing.md#deferred-track-actions-and-scroll-november-9-2026) separates synthetic rendering results from authenticated catalog latency.
+
 ## Hover and dialog diagnosis
 
 Inspect document.activeElement, the row's :hover state, the focused target's :focus-visible state and computed action/duration visibility. Pointer-restored focus can remain in a row after its dialog closes. Track actions use explicit keyboard-focus state plus pointer hover so that mouse departure restores the duration while keyboard users retain reachable controls. Keep the restored focus target mounted.
