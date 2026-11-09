@@ -22,6 +22,7 @@ export const PlaylistTracks: FC<PlaylistTracksProps> = ({ userId, playlist, from
 
   return (
     <InfinityContent
+      initialPending={isPending}
       display={true}
       hasMore={(fetchResult?.playlist.hasMore) ?? false}
       paginationScope={JSON.stringify([userId, 'playlist-tracks', fetchResult?.playlist?.ownerId, fetchResult?.playlist?.id, fetchResult?.playlist?.blockId])}

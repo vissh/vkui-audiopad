@@ -129,3 +129,9 @@ Do not use chrome.storage.local.get(null) as a diagnostic dump: it includes toke
 ## VK Mix preferences
 
 The front owns vkMixPreferences, an account-keyed map of the last common-Mix options and display title. It contains no session credentials and is independent of the active playback queue. Genre/activity selection and the Home settings dialog share the entities/vk-mix owner. Applying/resetting a selection sends the existing ACTIVE_TRACK command with a fresh playlist identity, mixId and mixOptions. The SW retains these options for subsequent recommendations. Pause/resume uses TOGGLE_PLAYBACK and never writes observed playback fields from the UI.
+
+## UI scroll positions
+
+`app/ApplicationScrollRestoration.tsx` owns viewport restoration and account/page identity. `shared/lib/scroll-restoration.ts` lets active pagination boundaries register their current cursor, readiness and existing continuation action. Restoration invokes those actions through their ordinary query or SW append paths. The current queue keeps its background ownership.
+
+The UI owns `vkap-scroll-v1:<userId>` localStorage records, validated by `app/scroll-positions.ts`. An absent or invalid record starts at the top. Up to twenty destinations per account persist across popup closure, browser restart and extension update. Account IDs partition records. Chrome-storage session cleanup does not remove these localStorage records. Runtime-only positions are scoped to the UI instance. [Product behavior](../product/behavior.md#scroll-restoration) defines the supported pages and bounded continuation policy.

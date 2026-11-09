@@ -15,13 +15,14 @@ interface MyMusicProps {
 }
 
 export const MyMusic = memo(function MyMusic ({ userId, active }: MyMusicProps) {
-  const { data: fetchResult, isError, refetch } = useMyMusicData(userId, active)
+  const { data: fetchResult, isPending, isError, refetch } = useMyMusicData(userId, active)
   const loadMoreMutation = useLoadMoreMyMusicTracksMutation()
 
   const blocks = useMemo(() => [fetchResult?.firstBlock, ...(fetchResult?.otherBlocks ?? []), fetchResult?.lastTracksCatalogBlock].filter((block): block is NonNullable<typeof block> => block != null), [fetchResult])
 
   return (
     <InfinityContent
+      initialPending={isPending}
       display={active}
       hasMore={(fetchResult?.lastTracksCatalogBlock?.playlist.hasMore) ?? false}
       paginationScope={JSON.stringify([userId, 'my-music', fetchResult?.lastTracksCatalogBlock?.playlist?.ownerId, fetchResult?.lastTracksCatalogBlock?.playlist?.id, fetchResult?.lastTracksCatalogBlock?.playlist?.blockId])}

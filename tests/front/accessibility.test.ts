@@ -142,7 +142,7 @@ it('offers keyboard-focusable queue reorder actions with boundary guards', async
   createChrome()
   const { EditableTrack } = await import('../../packages/front/src/pages/current-playlist/ui/EditableTrack')
   const move = vi.fn()
-  const view = await mount(createElement('div', { role: 'list' }, createElement(EditableTrack, { track: { ...track('1_10'), title: 'Первый' }, trackIndex: 0, trackCount: 2, onDragFinish: move, onRemove: vi.fn() })))
+  const view = await mount(createElement('div', { role: 'list' }, createElement(EditableTrack, { scrollAnchor: '1_10', track: { ...track('1_10'), title: 'Первый' }, trackIndex: 0, trackCount: 2, onDragFinish: move, onRemove: vi.fn() })))
   const up = screen.getByRole('button', { name: 'Выше: Первый' })
   up.focus()
   expect(document.activeElement).toBe(up)

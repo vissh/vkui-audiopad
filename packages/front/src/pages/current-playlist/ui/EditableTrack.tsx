@@ -9,19 +9,21 @@ import { TrackCell } from '@/entities/track'
 
 interface EditableTrackProps {
   track: commonTypes.TrackItem
+  scrollAnchor: string
   trackIndex: number
   trackCount: number
   onDragFinish: ({ from, to }: { from: number, to: number }) => void
   onRemove: (index: number) => void
 }
 
-export const EditableTrack: FC<EditableTrackProps> = ({ track, trackIndex, trackCount, onDragFinish, onRemove }) => {
+export const EditableTrack: FC<EditableTrackProps> = ({ track, scrollAnchor, trackIndex, trackCount, onDragFinish, onRemove }) => {
   const playback = useTrackPlayback(track.id)
 
   const trackState = getTrackState(track, playback == null ? null : track, playback === 'played')
 
   return (
     <TrackCell
+      scrollAnchor={scrollAnchor}
       title={track.title}
       artist={<SearchArtist track={track} />}
       duration={0}

@@ -97,6 +97,8 @@ Render independently ready data immediately. Load optional metadata, previews an
 - Do not end user-facing UI messages, hints, statuses, notices or helper text with a full stop. Keep punctuation between sentences and dots inside domain names/URLs; preserve user-provided content.
 - State uses [custom atoms](packages/front/src/shared/lib/atom.ts): `atom` for memory, `lsAtom` for localStorage, `storageAtom` for Chrome storage/events. Server data uses react-query.
 
+For scroll restoration, read [the product contract](docs/product/behavior.md#scroll-restoration), [storage ownership](docs/ai/state-and-messages.md#ui-scroll-positions) and [the testing procedure](docs/ai/testing.md#scroll-restoration).
+
 For accessibility changes, follow [the browser and keyboard procedure](docs/ai/testing.md#accessibility-and-collage-checks-november-8-2026). Preserve the normal pointer appearance while fixing semantics, focus and system accessibility preferences.
 
 ### Messages

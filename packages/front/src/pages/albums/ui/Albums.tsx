@@ -22,6 +22,7 @@ export const Albums: FC<AlbumsProps> = ({ userId, showAllLink, title }) => {
 
   return (
     <InfinityContent
+      initialPending={isPending}
       display={true}
       hasMore={(fetchResult?.nextFrom ?? '').length > 0}
       paginationScope={JSON.stringify([userId, 'albums', showAllLink])}

@@ -1,6 +1,7 @@
 import { Banner, Button } from '@vkontakte/vkui'
 import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react'
 import { useInView } from 'react-intersection-observer'
+import { useScrollPagination } from '../../lib/scroll-restoration'
 import { Content } from '../content'
 
 interface PaginationMutation<Args> {
@@ -14,6 +15,7 @@ interface InfinityContentProps<Args> {
   display: boolean
   children: ReactNode
   hasMore: boolean
+  initialPending?: boolean
   paginationScope: string
   pageKey: string
   loadMoreMutation: PaginationMutation<Args>
@@ -25,6 +27,7 @@ export const InfinityContent = <Args,>({
   display,
   children,
   hasMore,
+  initialPending = false,
   paginationScope,
   pageKey,
   loadMoreMutation,
@@ -39,7 +42,7 @@ export const InfinityContent = <Args,>({
   const failed = requested.scope === paginationScope && isError
   const stalled = requested.scope === paginationScope && isSuccess && requested.keys.has(pageKey)
 
-  const request = useCallback((explicit: boolean): void => {
+  const request = useCallback((explicit: boolean): Promise<unknown> | undefined => {
     if (!display || !hasMore || loadMoreArgs == null || error != null || running.current || isPending) return
     const previous = attempts.current.scope === paginationScope ? attempts.current.keys : new Set<string>()
     if (!explicit && (previous.has(pageKey) || failed)) return
@@ -48,12 +51,21 @@ export const InfinityContent = <Args,>({
     running.current = true
     setRequested(next)
     // Mutation state renders the safe retry feedback; never replay automatically.
-    void mutateAsync(loadMoreArgs).catch(() => {}).finally(() => { running.current = false })
+    return mutateAsync(loadMoreArgs).catch(() => {}).finally(() => { running.current = false })
   }, [display, hasMore, loadMoreArgs, error, isPending, paginationScope, pageKey, failed, mutateAsync])
 
+  const restoring = useScrollPagination(display, {
+    key: JSON.stringify([paginationScope, pageKey]),
+    // Queue pages can arrive through storage after the request has completed.
+    pending: initialPending || isPending || stalled,
+    failed: error != null || failed || stalled,
+    hasMore: hasMore && loadMoreArgs != null,
+    loadMore: () => request(false)
+  })
+
   useEffect(() => {
-    if (inView) request(false)
-  }, [inView, request])
+    if (inView && !restoring) void request(false)
+  }, [inView, restoring, request])
 
   return (
     <Content display={display} loading={isPending} error={error}>
