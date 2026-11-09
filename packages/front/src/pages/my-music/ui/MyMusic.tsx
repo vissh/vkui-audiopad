@@ -15,7 +15,7 @@ interface MyMusicProps {
 }
 
 export const MyMusic = memo(function MyMusic ({ userId, active }: MyMusicProps) {
-  const { data: fetchResult } = useMyMusicData(userId, active)
+  const { data: fetchResult, isError, refetch } = useMyMusicData(userId, active)
   const loadMoreMutation = useLoadMoreMyMusicTracksMutation()
 
   const blocks = useMemo(() => [fetchResult?.firstBlock, ...(fetchResult?.otherBlocks ?? []), fetchResult?.lastTracksCatalogBlock].filter((block): block is NonNullable<typeof block> => block != null), [fetchResult])
@@ -32,7 +32,7 @@ export const MyMusic = memo(function MyMusic ({ userId, active }: MyMusicProps) 
       <Group>
         <Navigation />
       </Group>
-      <CatalogFeed userId={userId} active={active} section='all' existing={blocks} renderLibrary={showAllLink => <MyPlaylists userId={userId} active={active} showAllLink={showAllLink} renderAction={playlist => <><FollowIcon album={vkPlaylists.toPlaybackPlaylist(playlist)} /><PlayPlaylistButton userId={userId} album={vkPlaylists.toPlaybackPlaylist(playlist)} /></>} />} />
+      <CatalogFeed userId={userId} active={active} section='all' progressive existing={blocks} onRetry={() => { if (isError) void refetch() }} renderLibrary={showAllLink => <MyPlaylists userId={userId} active={active} showAllLink={showAllLink} renderAction={playlist => <><FollowIcon album={vkPlaylists.toPlaybackPlaylist(playlist)} /><PlayPlaylistButton userId={userId} album={vkPlaylists.toPlaybackPlaylist(playlist)} /></>} />} />
     </InfinityContent>
   )
 })

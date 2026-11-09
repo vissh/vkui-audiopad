@@ -12,7 +12,7 @@ import { CatalogGallery } from './CatalogGallery'
 
 const emptyBlocks: CatalogBlock[] = []
 
-const title = (block: CatalogBlock) => (block.dataType === CatalogBlockDataType.TRACKS ? block.playlist.title : block.title).trim().toLocaleLowerCase('ru')
+const title = (block: CatalogBlock) => (block.dataType === CatalogBlockDataType.TRACKS ? block.playlist.title : block.title).trim().replace(/\s+/g, ' ').toLocaleLowerCase('ru')
 
 export const CatalogFeed = ({ userId, active, section = 'general', existing = emptyBlocks, renderLibrary, progressive = false, onRetry }: { userId: string, active: boolean, section?: 'general' | 'all' | 'explore' | 'radiostations', existing?: CatalogBlock[], renderLibrary?: (showAllLink: string) => ReactNode, progressive?: boolean, onRetry?: () => void }) => {
   const query = useInfiniteQuery({
@@ -26,13 +26,15 @@ export const CatalogFeed = ({ userId, active, section = 'general', existing = em
     networkMode: 'always',
     refetchOnWindowFocus: false
   })
+  const isLibrary = (block: CatalogBlock) => renderLibrary != null && (('library' in block && block.library === true) || ['плейлисты', 'мои плейлисты'].includes(title(block)))
+  const candidates = existing.filter(block => !isLibrary(block))
   const catalogReady = query.data?.pages.some(page => page.blocks.length > 0) === true
   const scope = JSON.stringify([userId, section])
   const [initialSource, setInitialSource] = useState<{ scope: string, legacy: boolean } | null>(null)
-  if (progressive && active && initialSource?.scope !== scope && (catalogReady || existing.length > 0)) {
+  if (progressive && active && initialSource?.scope !== scope && (catalogReady || candidates.length > 0)) {
     setInitialSource({ scope, legacy: !catalogReady })
   }
-  const leading = progressive && initialSource?.scope === scope && initialSource.legacy ? existing[0] : undefined
+  const leading = progressive && initialSource?.scope === scope && initialSource.legacy ? candidates.find(block => title(block).length > 0) ?? candidates[0] : undefined
   const { hasNextPage, isFetching, isError, fetchNextPage } = query
   const { ref, inView } = useInView({ skip: !active || !hasNextPage, fallbackInView: false })
   const attempted = useRef(new Set<string>())
@@ -45,38 +47,35 @@ export const CatalogFeed = ({ userId, active, section = 'general', existing = em
     void fetchNextPage({ cancelRefetch: false })
   }, [active, inView, cursorKey, hasNextPage, isFetching, isError, fetchNextPage])
   const blocks = useMemo(() => query.data?.pages.reduce<CatalogBlock[]>((previous, page) => mergeCatalogBlocks(previous, page.blocks), []) ?? [], [query.data?.pages])
-  const hasLibrary = blocks.some(block => 'library' in block && block.library)
   const fallback = query.isError && query.data == null
-  const libraryRenderer = renderLibrary != null
   const displayed = useMemo(() => {
     const matching = (block: CatalogBlock) => leading != null && block.dataType === leading.dataType && (block.blockId === leading.blockId || (title(block).length > 0 && title(block) === title(leading)))
     const catalogLeading = blocks.find(matching)
     const first = leading?.dataType === CatalogBlockDataType.TRACKS && catalogLeading?.dataType === CatalogBlockDataType.TRACKS
       ? { ...leading, playlist: { ...leading.playlist, catalogLink: catalogLeading.playlist.catalogLink } }
       : leading
-    const source = fallback
-      ? existing.filter(block => !libraryRenderer || !['плейлисты', 'мои плейлисты'].includes(title(block)))
-      : first != null ? [first, ...blocks.filter(block => !matching(block))] : blocks
+    const available = fallback ? existing : blocks
+    const source = first != null ? [first, ...available.filter(block => !matching(block))] : available
     return source.map(block => {
-      const legacy = existing.find(item => item.blockId === block.blockId || title(item) === title(block))
+      const legacy = existing.find(item => item.dataType === block.dataType && (item.blockId === block.blockId || (title(block).length > 0 && title(item) === title(block))))
       return block.dataType === CatalogBlockDataType.TRACKS && legacy?.dataType === CatalogBlockDataType.TRACKS
         ? { ...block, playlist: { ...legacy.playlist, title: block.playlist.title, catalogLink: block.playlist.catalogLink, catalogLayout: block.playlist.catalogLayout } }
         : block
     })
-  }, [blocks, existing, fallback, libraryRenderer, leading])
-  if (active && !query.isError && query.isPending && leading == null) return <SkeletonWrapper isPending skeleton={<CatalogFeedSkeleton section={section} userId={userId} />}>{null}</SkeletonWrapper>
+  }, [blocks, existing, fallback, leading])
+  const pending = active && !query.isError && query.isPending
+  const library = blocks.find(isLibrary) ?? existing.find(isLibrary)
+  const galleries = displayed.filter(block => !isLibrary(block)).map((block, index) => <CatalogGallery key={JSON.stringify([block.blockId, leading != null && index === 0])} mode='card' isPending={false} loadingBlock='albums' userId={userId} catalogBlock={block} />)
   const errorNotice = query.isError && <Banner title='Некоторые подборки не загрузились' subtitle='Остальная музыка доступна' actions={<Button mode='secondary' onClick={() => { onRetry?.(); void (query.data == null ? query.refetch() : query.fetchNextPage()) }}>Повторить</Button>} />
   return (
     <>
       {!progressive && errorNotice}
-      {displayed.map((block, index) => {
-        const key = JSON.stringify([block.blockId, leading != null && index === 0])
-        if ('library' in block && block.library && renderLibrary != null) return <div key={key}>{renderLibrary(block.showAllLink)}</div>
-        return <CatalogGallery key={key} mode='card' isPending={false} loadingBlock='albums' userId={userId} catalogBlock={block} />
-      })}
-      {progressive && leading != null && query.isPending && <SkeletonWrapper isPending skeleton={<CatalogFeedSkeleton section={section} userId={userId} />}>{null}</SkeletonWrapper>}
+      {pending && leading == null && <SkeletonWrapper isPending skeleton={renderLibrary != null ? <CatalogGallery mode='card' userId={userId} isPending loadingBlock='tracks' catalogBlock={null} /> : <CatalogFeedSkeleton section={section} userId={userId} />}>{null}</SkeletonWrapper>}
+      {galleries.slice(0, renderLibrary != null ? 1 : galleries.length)}
+      {renderLibrary != null && <div key='library'>{renderLibrary(library != null && 'showAllLink' in library ? library.showAllLink : '')}</div>}
+      {renderLibrary != null && galleries.slice(1)}
+      {pending && (leading != null || renderLibrary != null) && <SkeletonWrapper isPending skeleton={renderLibrary != null ? <Group><Div><Spinner size='m' aria-label='Загрузка подборок' /></Div></Group> : <CatalogFeedSkeleton section={section} userId={userId} />}>{null}</SkeletonWrapper>}
       {progressive && errorNotice}
-      {!hasLibrary && renderLibrary?.('')}
       {active && query.hasNextPage && <div ref={ref} aria-hidden='true' style={{ height: 1 }} />}
       {query.hasNextPage && !query.isError && <Group mode='card'><Div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: 48 }}>{query.isFetchingNextPage ? <Spinner size='m' aria-label='Загрузка подборок' /> : <Button mode='tertiary' disabled={query.isFetching} onClick={() => { void query.fetchNextPage() }}>Ещё подборки</Button>}</Div></Group>}
     </>
