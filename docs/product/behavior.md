@@ -141,6 +141,16 @@ Installing over the same extension path preserves settings, while the UPDATE han
 
 Library add/delete, album follow and status broadcast actions can change external data or visible user status. Include them in live checks when they are part of the task; ordinary catalog/playback smoke does not require library mutations. Playback itself sends listening notifications to VK and can affect history and recommendations.
 
+## Scroll restoration
+
+The open UI remembers vertical positions separately for each page, including the search query, artist, catalog link or playlist identity. Returning to a visited page restores its visible track and relative offset when available, with the saved pixel offset as fallback. Opening a different destination starts at the top. The fixed player remains outside the content anchor calculation. Modal focus restoration and scroll locking retain their existing behavior.
+
+My music, the current queue and individual playlist/album track pages also retain their positions after the popup closes. The UI writes account-scoped `vkap-scroll-v1:<userId>` localStorage records during scrolling, with a 100 ms write debounce and a final pagehide/unmount flush. Each account retains up to twenty recently saved destinations. Records contain page identities, track IDs and offsets. Missing, malformed or unavailable storage falls back to in-window state. These records survive UI/browser restarts and extension updates while that extension origin retains localStorage. Account identities have separate records. Other page positions live only in the current UI, bounded to fifty destinations.
+
+A reopened list loads its initial data, then requests missing continuation pages sequentially until the saved track is rendered. Restoration permits up to ten continuation reads within eight seconds. Existing source/cursor guards still apply. Failure, cursor stall, exhausted data or reaching the bound restores the available pixel position, clamped by the viewport. Wheel, touch, pointer or scrolling-key input cancels the pending restoration so late data cannot move the user's viewport. An already issued read can finish under its normal query/queue contract. Normal viewport-driven pagination resumes afterward.
+
+Catalog reorderings and removed tracks can prevent finding the original anchor. Deep positions can exceed the restoration budget. There is no persistent catalog cache, and each reopened popup still requests fresh page data. [Controlled scroll checks](../ai/testing.md#scroll-restoration) cover restoration, pagination and cancellation.
+
 ## Interface recovery
 
 React render/lifecycle failures inside the application (including providers) show “Не удалось открыть плеер” with a focused “Перезагрузить интерфейс” button. The fallback uses native HTML/CSS so it does not depend on the failed VKUI/query providers. Activation reloads only the UI document; it does not clear storage, reload the extension or command playback. Background playback has its own lifetime. UI destruction ends transient restoration/edit windows under their existing contracts.

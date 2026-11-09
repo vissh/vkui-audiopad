@@ -144,6 +144,7 @@ export const CurrentPlaylist = memo(function CurrentPlaylist ({ active }: Curren
               <Fragment key={track.id}>
                 {editMode
                   ? <EditableTrack
+                      scrollAnchor={JSON.stringify([(playlist ?? currentPlaylist).ownerId, (playlist ?? currentPlaylist).id, track.id])}
                       track={track}
                       trackIndex={index}
                       trackCount={(playlist ?? currentPlaylist).tracks.length}

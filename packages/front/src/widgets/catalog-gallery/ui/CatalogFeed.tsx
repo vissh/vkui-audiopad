@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import { useInView } from 'react-intersection-observer'
 import { catalogStaleTime, fetchCatalogSection, fetchHomeHighlights } from '@/shared/api'
 import { mergeCatalogBlocks } from '@/shared/lib/pagination'
+import { useScrollPagination } from '@/shared/lib/scroll-restoration'
 import { CatalogBlockDataType, type CatalogBlock } from '@/shared/types'
 import { HorizontalScroll } from '@/shared/ui/horizontal-scroll'
 import { ShowAllLinkSkeleton } from '@/shared/ui/show-all-link'
@@ -41,11 +42,22 @@ export const CatalogFeed = ({ userId, active, section = 'general', existing = em
   const pages = query.data?.pages ?? []
   const last = pages[pages.length - 1]
   const cursorKey = JSON.stringify([userId, section, last?.sectionId, last?.nextFrom])
+  const restoring = useScrollPagination(active, {
+    key: cursorKey,
+    pending: query.isPending || isFetching,
+    failed: isError,
+    hasMore: hasNextPage,
+    loadMore: async () => {
+      if (attempted.current.has(cursorKey)) return
+      attempted.current.add(cursorKey)
+      return await fetchNextPage({ cancelRefetch: false })
+    }
+  })
   useEffect(() => {
-    if (!active || !inView || !hasNextPage || isFetching || isError || attempted.current.has(cursorKey)) return
+    if (restoring || !active || !inView || !hasNextPage || isFetching || isError || attempted.current.has(cursorKey)) return
     attempted.current.add(cursorKey)
     void fetchNextPage({ cancelRefetch: false })
-  }, [active, inView, cursorKey, hasNextPage, isFetching, isError, fetchNextPage])
+  }, [restoring, active, inView, cursorKey, hasNextPage, isFetching, isError, fetchNextPage])
   const blocks = useMemo(() => query.data?.pages.reduce<CatalogBlock[]>((previous, page) => mergeCatalogBlocks(previous, page.blocks), []) ?? [], [query.data?.pages])
   const fallback = query.isError && query.data == null
   const displayed = useMemo(() => {

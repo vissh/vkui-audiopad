@@ -1,23 +1,24 @@
-import { AppRoot, useScroll } from '@vkontakte/vkui'
+import { AppRoot } from '@vkontakte/vkui'
 import { useLayoutEffect, useRef, type ReactNode } from 'react'
 import { useActiveTab } from '@/shared/model'
+import { ApplicationScrollRestoration } from './ApplicationScrollRestoration'
 
 export const ApplicationViewport = ({ children }: { children: ReactNode }) => {
   const popup = chrome.extension?.getViews?.({ type: 'popup' }).includes(window) ?? false
   return (
     <AppRoot scroll={popup ? 'contain' : 'global'} className={popup ? 'vkap_action_popup' : undefined}>
-      <ScrollToTop />
-      {children}
+      <ApplicationScrollRestoration>
+        <RouteFocus />
+        {children}
+      </ApplicationScrollRestoration>
     </AppRoot>
   )
 }
 
-const ScrollToTop = () => {
+const RouteFocus = () => {
   const activeTab = useActiveTab()
-  const { scrollTo } = useScroll()
   const previous = useRef(activeTab)
   useLayoutEffect(() => {
-    scrollTo(0, 0)
     if (previous.current === activeTab) return
     previous.current = activeTab
     const focused = document.activeElement
@@ -27,6 +28,6 @@ const ScrollToTop = () => {
     const heading = Array.from(document.querySelectorAll<HTMLElement>('[data-route-heading]')).find(visible)
     const destination = heading ?? selected
     if (destination != null && (focused === document.body || (focused instanceof Element && focused.closest('main') != null))) destination.focus({ preventScroll: true })
-  }, [activeTab, scrollTo])
+  }, [activeTab])
   return null
 }

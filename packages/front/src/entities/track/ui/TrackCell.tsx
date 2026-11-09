@@ -10,6 +10,7 @@ import { TrackImage } from './TrackImage'
 
 interface TrackCellProps {
   title: string
+  scrollAnchor?: string
   artist: React.ReactNode
   duration: number
   image: string
@@ -25,6 +26,7 @@ interface TrackCellProps {
 
 export const TrackCell: FC<TrackCellProps> = ({
   title,
+  scrollAnchor,
   artist,
   duration,
   image,
@@ -58,6 +60,7 @@ export const TrackCell: FC<TrackCellProps> = ({
   return (
     <Cell
       Component='div'
+      data-scroll-anchor={scrollAnchor}
       getRootRef={rootRef}
       className={`vkap_track_cell${!editMode ? ' vkap_track_cell_contained' : ''}${removed ? ' vkap_track_cell_removed' : ''}${keyboardFocus ? ' vkap_track_cell_keyboard_focus' : ''}`}
       onFocusCapture={event => { setActionsActivated(true); setKeyboardFocus(event.target.matches(':focus-visible')) }}

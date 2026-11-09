@@ -47,6 +47,7 @@ export const Track = memo(function Track ({ playlist, track: originalTrack }: Tr
 
   return (
     <TrackCell
+      scrollAnchor={JSON.stringify([playlist.ownerId, playlist.id, track.id])}
       title={track.title}
       artist={<SearchArtist track={track} />}
       duration={track.duration}
