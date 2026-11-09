@@ -1,4 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { catalogStaleTime } from '@/shared/api'
 import { mergeCatalogBlocks } from '@/shared/lib/pagination'
 import { fetchGeneral, fetchMore } from '../api/fetchers'
 import { type FetchMoreArgs, type FetchResult } from './types'
@@ -9,7 +10,7 @@ export const useGeneralData = (userId: string, enabled: boolean) => {
   return useQuery({
     queryKey: queryKey(userId),
     queryFn: async ({ signal }) => await fetchGeneral(userId, signal),
-    refetchOnMount: false,
+    staleTime: catalogStaleTime,
     refetchOnWindowFocus: false,
     enabled: userId.length > 0 && enabled,
     retry: 2

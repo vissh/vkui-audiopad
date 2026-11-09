@@ -44,6 +44,14 @@ Action subtrees prepare within a 300 px viewport margin after 150 ms of continuo
 
 Compare a fresh long queue, rapid first-pass scrolling and a warm second pass. Verify the accessibility snapshot includes the final loaded track before it has been scrolled into view. Verify keyboard focus on an initially unprepared row, retained action state, editor apply/cancel, restore controls and the actual contained action popup. The [controlled regressions](../../tests/front/deferred-track-actions.test.ts) exercise scheduling and teardown. The [dated benchmark](testing.md#deferred-track-actions-and-scroll-november-9-2026) separates synthetic rendering results from authenticated catalog latency.
 
+## Home startup and system appearance
+
+Compare fresh Home documents against release 3.3.9 at bf64ccb2c72919b8c98f6b4e7aa42d323442ab52 with the same authenticated automation profile, viewport, cache and network settings. Measure the legacy section and token catalog separately. First track insertion identifies usable music arrival, while LCP can identify the earlier static Mix hero.
+
+The two Home reads race for the first nonempty result. Verify legacy-first and token-first completion, empty data, partial failure, retry, fresh tab returns and account retirement. A legacy-first block keeps its DOM identity, layout and focus when token metadata arrives. Scroll before the second response and observe the loader below the pinned block. Keep one token continuation owner and ensure the sentinel cannot request a continuation before the first token page. [Controlled source-order regressions](../../tests/front/home-progressive.test.ts) cover these boundaries.
+
+Record the Mix button's computed foreground/background on animation frames from its first appearance. VKUI's automatic system-scheme hook starts unresolved. An early hero can therefore animate from the default light palette to the dark system palette. Application supplies a synchronously resolved system scheme and subscribes to later media changes. [First-commit theme regressions](../../tests/front/application-theme.test.ts) exercise this through the real ConfigProvider and preserve explicit theme selection.
+
 ## Hover and dialog diagnosis
 
 Inspect document.activeElement, the row's :hover state, the focused target's :focus-visible state and computed action/duration visibility. Pointer-restored focus can remain in a row after its dialog closes. Track actions use explicit keyboard-focus state plus pointer hover so that mouse departure restores the duration while keyboard users retain reachable controls. Keep the restored focus target mounted.
@@ -60,7 +68,7 @@ Check dark and light themes against the original for icon hover changes. Use the
 - A successful install or build leaves catalog/session/Audio behavior to be observed separately in the actual extension origin.
 - Hidden browser documents can delay image loading and intersection callbacks. Verify visibility and viewport geometry before changing lazy loading.
 - An index.html tab and a native action popup have different lifetime/scroll contexts. Record which one was tested.
-- Home normally uses one token-catalog read. A pointer-only root needs getSection, and the legacy HTML fallback starts after an initial token failure. Catalog continuations remain viewport-driven.
+- Home starts legacy and token reads together and preserves the first useful result. A legacy-first block stays pinned while richer groups load below it. A pointer-only token root needs getSection. Catalog continuations remain viewport-driven.
 - A focused hidden arrow, stale tooltip or hover appearance can be a focus/modality defect even when playback and mutation requests succeed.
 
 The [browser testing guide](testing.md#accessibility-and-collage-checks-november-8-2026) and [historical profiling comparison](testing.md#startup-and-interaction-performance-november-8-2026) provide checkpoints and evidence limits.

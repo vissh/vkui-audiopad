@@ -1,5 +1,5 @@
 import { Group } from '@vkontakte/vkui'
-import { memo, useState } from 'react'
+import { memo } from 'react'
 import { Navigation } from '@/widgets/navigation'
 import { VKMix } from '@/widgets/vk-mix'
 import { Content } from '@/shared/ui/content'
@@ -12,8 +12,7 @@ interface GeneralProps {
 }
 
 export const General = memo(function General ({ userId, active }: GeneralProps) {
-  const [needsFallback, setNeedsFallback] = useState(false)
-  const { data: fetchResult } = useGeneralData(userId, active && needsFallback)
+  const { data: fetchResult, isError, refetch } = useGeneralData(userId, active)
 
   return (
     <Content display={active}>
@@ -22,7 +21,7 @@ export const General = memo(function General ({ userId, active }: GeneralProps) 
         <VKMix active={active} isPending={userId.length === 0} userId={userId} />
       </Group>
 
-      <HomeHighlights userId={userId} active={active} existing={fetchResult?.blocks ?? []} onInitialError={setNeedsFallback} />
+      <HomeHighlights userId={userId} active={active} progressive existing={fetchResult?.blocks ?? []} onRetry={() => { if (isError) void refetch() }} />
     </Content>
   )
 })

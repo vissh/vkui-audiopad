@@ -20,18 +20,20 @@ import { ApplicationViewport } from './ApplicationViewport'
 import { Pages } from './Pages'
 import { SessionQueryProvider } from './SessionQueryProvider'
 import { usePlaybackShortcut } from './use-playback-shortcut'
+import { useSystemColorScheme } from './use-system-color-scheme'
 import './base.css'
 
 export const Application: FC = () => {
   usePlaybackShortcut()
   const theme = useAtomValue(themeAtom)
+  const systemColorScheme = useSystemColorScheme()
 
   return (
     <SessionQueryProvider>
       <ConfigProvider
         platform={Platform.ANDROID}
         hasCustomPanelHeaderAfter={false}
-        colorScheme={theme === commonTypes.Theme.SYSTEM ? undefined : theme}
+        colorScheme={theme === commonTypes.Theme.SYSTEM ? systemColorScheme : theme}
       >
         <AdaptivityProvider>
           <ApplicationViewport>

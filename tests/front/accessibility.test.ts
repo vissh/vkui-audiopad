@@ -14,7 +14,7 @@ beforeEach(() => {
   vi.stubGlobal('ResizeObserver', class { observe () {} unobserve () {} disconnect () {} })
   vi.stubGlobal('matchMedia', vi.fn((query: string) => ({ matches: false, media: query, onchange: null, addListener: vi.fn(), removeListener: vi.fn(), addEventListener: vi.fn(), removeEventListener: vi.fn(), dispatchEvent: () => true })))
 })
-afterEach(cleanup)
+afterEach(() => { cleanup(); vi.doUnmock('../../packages/front/src/pages/general/api/fetchers') })
 
 const mount = async (content: ReactNode) => {
   const { ConfigProvider, AdaptivityProvider, Platform } = await import('@vkontakte/vkui')
@@ -102,7 +102,9 @@ it('hides decorative skeletons and retains one loading status', async () => {
   expect(screen.getByRole('button', { name: 'Готово' })).not.toBeNull()
 })
 
-it('renders the first Home catalog without a duplicate legacy read or premature continuation', async () => {
+it('renders an accessible token-first Home while both sources load once without premature continuation', async () => {
+  const legacy = vi.fn(async () => ({ sectionId: 'legacy', nextFrom: '', blocks: [] }))
+  vi.doMock('../../packages/front/src/pages/general/api/fetchers', () => ({ fetchGeneral: legacy, fetchMore: vi.fn() }))
   const browser = createChrome({ userId: '1', activeTab: { tab: 'general' }, webToken: { userId: '1', accessToken: 'synthetic', expires: Number.MAX_SAFE_INTEGER, error: null } })
   const { startSessionService } = await import('../../packages/service-worker/src/session')
   startSessionService()
@@ -116,6 +118,7 @@ it('renders the first Home catalog without a duplicate legacy read or premature 
   const view = await mount(createElement(QueryClientProvider, { client, children: createElement('div', { id: 'tab-content-general', role: 'tabpanel', 'aria-label': 'Главная' }, createElement(General, { userId: '1', active: true })) }))
   await screen.findByRole('heading', { name: 'Жанры' })
   expect(network).toHaveBeenCalledOnce()
+  expect(legacy).toHaveBeenCalledOnce()
   expect(String(network.mock.calls[0]?.[0])).toContain('catalog.getAudio')
   await waitFor(() => { expect(screen.getByRole('button', { name: 'Ещё подборки' })).not.toBeNull() })
   await audit(view.container)
@@ -152,7 +155,7 @@ it('offers keyboard-focusable queue reorder actions with boundary guards', async
   await audit(view.container)
 })
 
-it('starts the legacy Home fallback only after an initial token-catalog failure', async () => {
+it('starts the fast Home source immediately and keeps it available after a token-catalog failure', async () => {
   const browser = createChrome({ userId: '1', activeTab: { tab: 'general' }, webToken: { userId: '1', accessToken: 'synthetic', expires: Number.MAX_SAFE_INTEGER, error: null } })
   const { startSessionService } = await import('../../packages/service-worker/src/session')
   startSessionService()
@@ -166,7 +169,7 @@ it('starts the legacy Home fallback only after an initial token-catalog failure'
     const { General } = await import('@/pages/general')
     const client = new QueryClient()
     await mount(createElement(QueryClientProvider, { client, children: createElement(General, { userId: '1', active: true }) }))
-    expect(fallback).not.toHaveBeenCalled()
+    expect(fallback).toHaveBeenCalledOnce()
     await screen.findByRole('button', { name: 'Повторить' })
     await waitFor(() => { expect(fallback).toHaveBeenCalledOnce() })
     expect(network).toHaveBeenCalledOnce()
