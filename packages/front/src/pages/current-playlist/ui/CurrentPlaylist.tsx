@@ -1,12 +1,13 @@
 import { commonTypes } from '@vk-audiopad/common'
 import { Icon20Cancel, Icon20Check, Icon20ListPenOutline } from '@vkontakte/icons'
-import { Button, ButtonGroup, Group, Header, List } from '@vkontakte/vkui'
+import { Button, ButtonGroup, Group, Header, List, Spinner } from '@vkontakte/vkui'
 import { Fragment, memo, useState } from 'react'
 import { Navigation } from '@/widgets/navigation'
 import { Track } from '@/widgets/track-list'
 import { SaveQueueButton } from '@/features/manage-playlists'
 import { useCurrentPlaylist } from '@/entities/active-track'
 import { sendMessage } from '@/shared/lib/send-message'
+import { useProgressiveCount } from '@/shared/lib/use-progressive-count'
 import { InfinityContent } from '@/shared/ui/infinity-content'
 import { useLoadMorePlaylistTracksMutation } from '../model/hooks'
 import { EditableTrack } from './EditableTrack'
@@ -23,6 +24,10 @@ export const CurrentPlaylist = memo(function CurrentPlaylist ({ active }: Curren
     playlist: currentPlaylist != null ? { ...currentPlaylist, tracks: [...currentPlaylist.tracks] } : null,
     actions: []
   })
+
+  const tracks = (playlist ?? currentPlaylist)?.tracks ?? []
+  const visibleCount = useProgressiveCount(tracks.length, active, JSON.stringify([currentPlaylist?.ownerId, currentPlaylist?.id, currentPlaylist?.blockId]), { size: tracks.length })
+  const rendering = visibleCount < tracks.length
 
   const loadMoreMutation = useLoadMorePlaylistTracksMutation()
 
@@ -85,7 +90,7 @@ export const CurrentPlaylist = memo(function CurrentPlaylist ({ active }: Curren
   return (
     <InfinityContent
       display={active}
-      hasMore={!editMode && ((playlist?.hasMore) ?? false)}
+      hasMore={!editMode && !rendering && ((playlist?.hasMore) ?? false)}
       paginationScope={JSON.stringify(['current-playlist', playlist?.ownerId, playlist?.id, playlist?.blockId])}
       pageKey={playlist?.nextOffset ?? ''}
       loadMoreMutation={loadMoreMutation}
@@ -140,7 +145,7 @@ export const CurrentPlaylist = memo(function CurrentPlaylist ({ active }: Curren
           }
         >
           <List>
-            {currentPlaylist != null && (playlist ?? currentPlaylist).tracks.map((track, index) => (
+            {currentPlaylist != null && tracks.slice(0, visibleCount).map((track, index) => (
               <Fragment key={track.id}>
                 {editMode
                   ? <EditableTrack
@@ -157,6 +162,7 @@ export const CurrentPlaylist = memo(function CurrentPlaylist ({ active }: Curren
               </Fragment>
             ))}
           </List>
+          {rendering && <div role='status' aria-label='Загрузка треков' style={{ display: 'flex', justifyContent: 'center', padding: 12 }}><Spinner size='s' /></div>}
         </Group>
       </Group>
     </InfinityContent>

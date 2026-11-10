@@ -3,6 +3,7 @@ import { Cell, Separator, Tappable } from '@vkontakte/vkui'
 import { useCallback, useEffect, useMemo, useRef, useState, type FC } from 'react'
 import { useOnInView } from 'react-intersection-observer'
 import { getText } from '@/shared/lib/cast-to-types'
+import { hasTextSelection } from '@/shared/lib/text-selection'
 import { Duration } from '@/shared/ui/duration'
 import { type TrackState } from '../model/types'
 import './TrackCell.css'
@@ -68,7 +69,7 @@ export const TrackCell: FC<TrackCellProps> = ({
       mode={editMode ? 'removable' : undefined}
       onDragFinish={onDragFinish}
       onRemove={onRemove}
-      onClick={disabled || removed ? undefined : onClick}
+      onClick={disabled || removed || onClick == null ? undefined : event => { if (!hasTextSelection(event)) onClick() }}
       before={
         <span className={removed ? 'vkap_track_cell_muted' : undefined}>
           <TrackImage
@@ -104,7 +105,7 @@ export const TrackCell: FC<TrackCellProps> = ({
             activeMode='none'
             disabled={disabled}
             aria-label={`${trackState === 'played' ? 'Приостановить' : 'Воспроизвести'} ${titleText}`}
-            onClick={event => { event.stopPropagation(); onClick() }}
+            onClick={event => { event.stopPropagation(); if (!hasTextSelection(event)) onClick() }}
           >{titleText}
           </Tappable>}
     </Cell>

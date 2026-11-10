@@ -1,7 +1,7 @@
 import { type commonTypes } from '@vk-audiopad/common'
 import { Icon36Pause, Icon36Play } from '@vkontakte/icons'
 import { type FC } from 'react'
-import { useCurrentPlaylist, usePlaybackRequested } from '@/entities/active-track'
+import { usePlaylistPlayback } from '@/entities/active-track'
 import { fetchPlaylist } from '@/shared/api'
 import { AsyncTooltipIconButton } from '@/shared/ui/tooltip-icon-button'
 import { usePlaylistSelection } from '../model/selection'
@@ -10,10 +10,9 @@ const PlayIcon: FC<{ className?: string }> = props => <Icon36Play {...props} wid
 const PauseIcon: FC<{ className?: string }> = props => <Icon36Pause {...props} width={48} height={48} />
 
 export const PlayPlaylistButton: FC<{ userId: string, album: commonTypes.Playlist }> = ({ userId, album }) => {
-  const currentPlaylist = useCurrentPlaylist()
-  const requested = usePlaybackRequested()
-  const active = currentPlaylist != null && currentPlaylist.id === album.id && currentPlaylist.ownerId === album.ownerId && currentPlaylist.blockId === album.blockId
-  const pause = active && requested
+  const playback = usePlaylistPlayback(album)
+  const active = playback != null
+  const pause = playback === 'played'
 
   const play = usePlaylistSelection(album, userId, active, async signal => {
     const { playlist } = await fetchPlaylist({ fromId: userId, playlist: album }, signal)

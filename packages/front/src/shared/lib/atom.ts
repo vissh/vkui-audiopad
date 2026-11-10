@@ -11,12 +11,14 @@ interface StorageAtom<AtomType> extends Atom<AtomType> {
   mutate: (mutator: (newValue: AtomType, previousValue: AtomType) => void) => void
 }
 
-export const useAtom = <T>(atom: Atom<T>): [T, (newValue: T) => void] => {
-  return [useSyncExternalStore(atom.subscribe, atom.get), atom.set]
+const noSubscription = () => () => {}
+
+export const useAtom = <T>(atom: Atom<T>, active = true): [T, (newValue: T) => void] => {
+  return [useAtomValue(atom, active), atom.set]
 }
 
-export const useAtomValue = <T>(atom: Atom<T>): T => {
-  return useSyncExternalStore(atom.subscribe, atom.get)
+export const useAtomValue = <T>(atom: Atom<T>, active = true): T => {
+  return useSyncExternalStore(active ? atom.subscribe : noSubscription, atom.get)
 }
 
 export const atom = <T>(initialValue: T): Atom<T> => {

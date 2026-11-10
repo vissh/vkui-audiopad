@@ -31,6 +31,10 @@ Updated November 9, 2026. Links refer to the current implementation; dated brows
 
 Lyrics follow-up: the player now exposes an availability-gated VKUI reader using audio.getLyrics, with cancellation, account/track cache identity and safe retry. [Product contract](../product/behavior.md#track-lyrics), [API tests](../../tests/common/audio-lyrics.test.ts), [Player DOM tests](../../tests/front/lyrics.test.ts) and [Chrome tab/popup evidence](testing.md#lyrics-reader-november-4-2026) describe the implemented scope. Synchronized lyrics are not part of this reader; this does not close the broader T09/T10/T14/T17 items.
 
+The [November 10 queue follow-up](testing.md#selectable-metadata-and-large-queues-november-10-2026) records selection-safe metadata actions, offscreen layout experiments and cooperative initial queue mounting. Controlled focus/state/paging checks and synthetic Chrome runs at 4x/10x CPU cover that scope. Final DOM size, sustained memory use and real low-end hardware acceptance remain open.
+
+The [navigation, search and Mix follow-up](testing.md#navigation-search-and-mix-follow-up-november-10-2026) adds activity-scoped navigation subscriptions, CSS Mix artwork and support for Mix tracks without structured artists. Incremental search groups were subsequently removed after the [three-version comparison](testing.md#three-version-comparison-and-corrections-november-10-2026) confirmed slower full results. Queue rendering now defers the remaining loaded rows in one transition. Physical low-end hardware and Firefox interaction timing remain open.
+
 ## Next implementation increments
 
 Shared session ownership, bounded token methods, catalog/playlist parity, React profiling and the core keyboard/semantic fixes are implemented. Choose the next change from the remaining acceptance work below. Preserve T/R IDs for links to the historical audit.

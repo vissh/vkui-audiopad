@@ -94,6 +94,79 @@ it('retargets a playback observer when the track identity changes', async () => 
   expect(screen.getByText('paused')).not.toBeNull()
 })
 
+it('updates playlist and Mix controls only when their own playback state changes', async () => {
+  const first = playlist(['1_1'], 'first')
+  const second = playlist(['1_2'], 'second')
+  const mix = { ...playlist([], 'mix'), isVkMix: true, mixId: 'artist_mix', mixOptions: 'options', mixEntityId: 'artist' }
+  const browser = createChrome({ currentPlaylist: first, played: false })
+  const { usePlaylistPlayback, useMixPlayback } = await import('@/entities/active-track')
+  const renders: string[] = []
+  const PlaylistProbe = ({ source }: { source: typeof first }) => {
+    const value = usePlaylistPlayback(source)
+    renders.push(source.id)
+    return createElement('span', {}, `${source.id}: ${value}`)
+  }
+  const MixProbe = () => {
+    const value = useMixPlayback('artist_mix', 'options', 'artist')
+    renders.push('mix')
+    return createElement('span', {}, `mix: ${value}`)
+  }
+  render(createElement('div', {}, createElement(PlaylistProbe, { source: first }), createElement(PlaylistProbe, { source: second }), createElement(MixProbe)))
+  await screen.findByText('first: paused')
+  renders.length = 0
+  await act(async () => { await browser.api.storage.local.set({ played: true }) })
+  expect(renders).toEqual(['first'])
+  renders.length = 0
+  await act(async () => { await browser.api.storage.local.set({ currentPlaylist: { ...first, nextOffset: 'next', tracks: [...first.tracks] }, activeTrack: track('1_2'), currentTime: 10 }) })
+  expect(renders).toEqual([])
+  await act(async () => { await browser.api.storage.local.set({ playbackSelection: mix, playbackRequested: true }) })
+  expect(screen.getByText('mix: played')).not.toBeNull()
+  expect(renders).toEqual(['mix'])
+  renders.length = 0
+  await act(async () => { await browser.api.storage.local.set({ playbackSelection: { ...mix, mixEntityId: 'other' } }) })
+  expect(screen.getByText('mix: null')).not.toBeNull()
+  expect(renders).toEqual(['mix'])
+  await act(async () => { await browser.api.storage.local.set({ currentPlaylist: second, playbackRequested: false }) })
+  expect(screen.getByText('first: null')).not.toBeNull()
+  expect(screen.getByText('second: paused')).not.toBeNull()
+})
+
+it('keeps unrelated radio stations out of playback renders while preserving their controls', async () => {
+  vi.stubGlobal('ResizeObserver', class { observe () {} unobserve () {} disconnect () {} })
+  vi.stubGlobal('matchMedia', vi.fn((query: string) => ({ matches: false, media: query, onchange: null, addListener: vi.fn(), removeListener: vi.fn(), addEventListener: vi.fn(), removeEventListener: vi.fn(), dispatchEvent: () => true })))
+  const browser = createChrome({ activeTrack: track('1_1'), played: false })
+  browser.api.runtime.onMessage.addListener(() => {})
+  const renders: string[] = []
+  vi.doMock('@/entities/track', async importOriginal => {
+    const original = await importOriginal<typeof import('@/entities/track')>()
+    return {
+      ...original,
+      getTrackState: (...args: Parameters<typeof original.getTrackState>) => {
+        renders.push(args[0].id)
+        return original.getTrackState(...args)
+      }
+    }
+  })
+  const { CatalogGallery } = await import('@/widgets/catalog-gallery')
+  const { CatalogBlockDataType } = await import('@/shared/types')
+  const { QueryClient, QueryClientProvider } = await import('@tanstack/react-query')
+  const { ConfigProvider, AdaptivityProvider, Platform } = await import('@vkontakte/vkui')
+  const stations = { ...playlist(['radio_1', 'radio_2', 'radio_3']), isRadio: true }
+  render(createElement(QueryClientProvider, { client: new QueryClient(), children: createElement(ConfigProvider, { platform: Platform.ANDROID, children: createElement(AdaptivityProvider, { children: createElement(CatalogGallery, { userId: '1', mode: 'card', isPending: false, loadingBlock: 'tracks', catalogBlock: { dataType: CatalogBlockDataType.TRACKS, blockId: 'radio', playlist: stations } }) }) }) }))
+  await act(async () => { await browser.api.storage.local.get() })
+  renders.length = 0
+  await act(async () => { await browser.api.storage.local.set({ played: true }) })
+  expect(renders).toEqual([])
+  await act(async () => { await browser.api.storage.local.set({ activeTrack: track('radio_1') }) })
+  expect(renders).toEqual(['radio_1'])
+  renders.length = 0
+  await act(async () => { await browser.api.storage.local.set({ activeTrack: track('radio_2') }) })
+  expect(renders.sort()).toEqual(['radio_1', 'radio_2'])
+  expect(screen.getByRole('button', { name: 'Слушать: radio_1' })).not.toBeNull()
+  fireEvent.click(screen.getByRole('button', { name: 'Приостановить: radio_2' }))
+  expect(browser.api.runtime.sendMessage).toHaveBeenLastCalledWith({ target: 'service-worker', type: 'toggle-playback' })
+})
+
 it.each([false, true])('expires restoration after navigation for an isolated row, late deletion %s', async late => {
   vi.stubGlobal('matchMedia', vi.fn((query: string) => ({ matches: false, media: query, onchange: null, addListener: vi.fn(), removeListener: vi.fn(), addEventListener: vi.fn(), removeEventListener: vi.fn(), dispatchEvent: () => true })))
   vi.stubGlobal('ResizeObserver', class { observe () {} unobserve () {} disconnect () {} })

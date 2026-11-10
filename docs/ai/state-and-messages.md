@@ -32,7 +32,11 @@ hlsDebug is an existing internal Chrome storage flag, not a complete safe diagno
 
 UI atoms are defined in [shared/lib/atom.ts](../../packages/front/src/shared/lib/atom.ts): atom uses memory, lsAtom stores a localStorage string, storageAtom asynchronously loads initial data and subscribes to Chrome storage events. lsAtom does not currently subscribe to events from other windows; do not assume live theme synchronization between UI windows.
 
+Retained pages provide their activity through PageActivityContext. Navigation route readers and search value/focus readers unsubscribe while their page is inactive and read the latest snapshot on activation. The underlying atoms continue receiving storage changes. Search drafts remain shared, and hidden search inputs skip focus effects. Readers outside retained pages stay active by default.
+
 Track rows use useTrackPlayback(trackId) to observe only played/paused/inactive for their current local ID, including a new ID returned after adding a track to the library. useHasCurrentPlaylist observes queue existence independently of loaded queue metadata. Both hooks derive snapshots from the existing storage atoms. Pending restore rows separately observe their restore-window generation, so navigation expiry remains reactive under memoization.
+
+Radio station cards also use per-track snapshots. Playlist controls observe a primitive active/paused/requested snapshot keyed by ownerId, id and blockId. Mix controls additionally match mixId, options and entity identity against the requested selection or current playlist. Unrelated playback changes and metadata paging keep these snapshots stable, including in retained hidden pages. Playlist/Mix icons follow requested intent, while radio and ordinary track rows follow observed playback.
 
 Frontend cache identity and page application follow [ADR 0007](../decisions/0007-query-identity-and-pagination.md): per-account client retirement, owner/context-aware page keys, original pagination variables, cursor guards and immutable ID merges. This boundary does not version shared token storage or cancel external mutations.
 

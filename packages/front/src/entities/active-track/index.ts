@@ -1,6 +1,8 @@
 export {
   useActiveTrack,
   useTrackPlayback,
+  usePlaylistPlayback,
+  useMixPlayback,
   useHasCurrentPlaylist,
   useCurrentPlaylist,
   useCurrentTime,

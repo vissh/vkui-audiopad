@@ -69,7 +69,7 @@ export const toTrackItemFromAPIResponse = (response: JSONObject): TrackItem => {
     url: castToString(data.url),
     image: castToString(castToJSONObject(data.thumb).photo_68),
     artist: castToString(data.artist),
-    mainArtists: castToArray(data.main_artists).map(decodeArtist),
+    mainArtists: safeCastToArray(data.main_artists).map(decodeArtist),
     featArtists: safeCastToArray(data.featured_artists).map(decodeArtist),
     title: castToString(data.title),
     duration: castToNumber(data.duration),

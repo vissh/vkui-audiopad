@@ -1,0 +1,19 @@
+.vkap_search_placeholder {
+  padding: 16px;
+}
+
+.vkap_search_placeholder_heading,
+.vkap_search_placeholder_content {
+  border-radius: 4px;
+  background: var(--vkui--color_skeleton_from);
+}
+
+.vkap_search_placeholder_heading {
+  width: 140px;
+  height: 20px;
+}
+
+.vkap_search_placeholder_content {
+  height: 174px;
+  margin-top: 16px;
+}

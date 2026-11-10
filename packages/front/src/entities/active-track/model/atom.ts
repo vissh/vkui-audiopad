@@ -1,6 +1,7 @@
-import { initialState } from '@vk-audiopad/common'
+import { initialState, type commonTypes } from '@vk-audiopad/common'
 import { useSyncExternalStore } from 'react'
 import { storageAtom, useAtomValue } from '@/shared/lib/atom'
+import { samePlaylist } from '@/shared/lib/pagination'
 
 const playedAtom = storageAtom({
   key: 'played',
@@ -111,3 +112,31 @@ export const useTrackPlayback = (trackId: string): 'played' | 'paused' | null =>
 )
 
 export const useHasCurrentPlaylist = (): boolean => useSyncExternalStore(currentPlaylistAtom.subscribe, () => currentPlaylistAtom.get() != null)
+
+const subscribePlaylistPlayback = (listener: () => void) => {
+  const stops = [currentPlaylistAtom, playbackSelectionAtom, playbackRequestedAtom, playedAtom].map(source => source.subscribe(listener))
+  return () => { stops.forEach(stop => { stop() }) }
+}
+
+const requestedPlayback = () => playbackRequestedAtom.get() ?? playedAtom.get()
+
+type PlaylistPlayback = 'played' | 'paused' | null
+
+export const usePlaylistPlayback = (playlist: commonTypes.Playlist | null): PlaylistPlayback => useSyncExternalStore(
+  subscribePlaylistPlayback,
+  () => {
+    const current = currentPlaylistAtom.get()
+    if (playlist == null || current == null || !samePlaylist(current, playlist)) return null
+    return requestedPlayback() ? 'played' : 'paused'
+  }
+)
+
+export const useMixPlayback = (mixId: string | undefined, mixOptions = '', mixEntityId = ''): PlaylistPlayback => useSyncExternalStore(
+  subscribePlaylistPlayback,
+  () => {
+    const requested = requestedPlayback()
+    const current = requested ? playbackSelectionAtom.get() ?? currentPlaylistAtom.get() : currentPlaylistAtom.get()
+    if (current?.isVkMix !== true || current.mixId !== mixId || (current.mixOptions ?? '') !== mixOptions || (current.mixEntityId ?? '') !== mixEntityId) return null
+    return requested ? 'played' : 'paused'
+  }
+)

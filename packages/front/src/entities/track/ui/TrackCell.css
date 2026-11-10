@@ -65,3 +65,8 @@
 .vkap_track_cell_muted {
   opacity: 0.52;
 }
+
+.vkap_track_cell .vkap_track_title_button {
+  -webkit-user-select: text;
+  user-select: text;
+}

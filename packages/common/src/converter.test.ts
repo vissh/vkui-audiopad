@@ -93,6 +93,27 @@ describe('toTracksItems', () => {
 })
 
 describe('toTrackItemFromAPIResponse', () => {
+  it.each([undefined, null])('accepts a Mix track without structured main artists %s', mainArtists => {
+    const track = toTrackItemFromAPIResponse({
+      response: [{
+        owner_id: 1,
+        id: 2,
+        access_key: 'key',
+        url: 'https://audio.invalid/mix.mp3',
+        thumb: { photo_68: '' },
+        artist: 'Plain artist name',
+        title: 'Mix track',
+        duration: 90,
+        track_code: '',
+        ...(mainArtists === undefined ? {} : { main_artists: mainArtists })
+      }]
+    })
+    expect(track.mainArtists).toEqual([])
+    expect(track.artist).toBe('Plain artist name')
+    expect(track.url).toBe('https://audio.invalid/mix.mp3')
+    expect(track.id).toBe('1_2')
+  })
+
   it.each([true, false, undefined])('preserves token API lyrics availability %s', hasLyrics => {
     const raw = {
       owner_id: 1,

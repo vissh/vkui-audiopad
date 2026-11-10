@@ -864,3 +864,157 @@ The actual 780×600 action popup was checked separately with a temporary fronten
 The restored production UI also loaded 100 Radio stations, reused My music/Explore/Radio on quick returns with zero catalog/library reads, and scrolled Explore through one continuation from 54 to 72 track rows with the friends group present. A horizontal rail advanced 400 px and the document had no horizontal overflow. The isolated Firefox 159.0 runtime smoke passed startup, Audio snapshot, repeat modes and validated session replies. Authenticated Firefox UI latency was outside this comparison.
 
 Final verification passed npm run check, all 819 tests across 89 files with npm test -- --maxWorkers=4, full Chrome/Firefox builds, verify:build and smoke:firefox. An initial unbounded-worker run hit existing five-second UI timeouts during concurrent browser profiling. The bounded run retained default test timeouts. The [startup approval requirement](../../AGENTS.md#startup-performance) applies to future changes across all tabs.
+
+
+## Selectable metadata and large queues (November 10, 2026)
+
+[Selection regressions](../../tests/front/text-selection.test.ts) cover artist search, structured main/featured artists, the real Player, track-title/row clicks, unrelated selections and keyboard activation. All four tests fail against the previous click handlers. Artist/button selectors explicitly override VKUI's button.vkuiClickable__realClickable selection rule. Chrome computed styles and native pointer drags confirmed selection in the player and both artist formats in rows, with no navigation or playback commands.
+
+[Queue regressions](../../tests/front/queue-editor.test.ts) cover cooperative row creation, preserved row DOM/input/focus, pause on inactive pages, cleanup, timer fallback, queue-scope replacement and metadata-pagination gating. The first 12 rows mount immediately; eight more are scheduled per idle callback. Existing rows stay mounted. Source queue IDs, metadata and save/playback snapshots are unchanged. Ordinary TrackCell uses content-visibility: auto with an intrinsic block size of 58 px; editable cells opt out. Chrome focused the last of 300 offscreen rows and scrolled it into view. Both metadata buttons and title buttons computed user-select: text, with zero document overflow.
+
+The browser checks used a separate headless Chrome profile at 780x600 and the actual extension origin. A temporary bootstrap supplied synthetic track data and validated-shaped session replies and intercepted all runtime commands/network reads. These are frontend checks, without VK authentication, real playback or library mutations. Normal production traces and instrumented React recordings are separate measurements. CPU throttling emulates less available processing time; it does not reproduce a particular low-end CPU, GPU or memory capacity.
+
+Three production reloads with 300 tracks and 4x CPU showed median combined style/layout work of 395.5 ms before containment and 60.3 ms afterward. This isolates the CSS change; it predates cooperative queue rendering. Queue size, viewport, retained HTTP cache and offline bootstrap were held constant.
+
+A separate 1000-track, 10x CPU stress run exposed the initial whole-queue mount. The following are single lab observations, not FPS or field-user measurements:
+
+| Production configuration | LCP, ms | Largest main-thread task, ms |
+|---|---:|---:|
+| Whole queue, containment disabled | 21363 | 17334 |
+| Whole queue, containment enabled | 17473 | 14726 |
+| Cooperative queue, containment enabled | 3451 | 2130 |
+
+The last row's largest task is initial application work. Later row-creation tasks were mostly much smaller, with the largest remaining listed tasks at 733 and 145 ms. Completing every row took approximately 83 seconds in this deliberately severe throttled run. Cooperative scheduling prioritizes useful initial content and input opportunities; it can increase total completion time and repeated layout work. It does not bound final DOM size or memory. Page search and discovery of the final rows require those rows to have been created.
+
+At default CPU, comparable React recordings mounted the same 1000 synthetic tracks from an empty queue. The original build recorded two commits, 443.7 ms total render time and a 320.3 ms largest commit. The cooperative build recorded 250 commits, 475.6 ms total and a 5.7 ms largest commit. Component reports include CurrentPlaylist, Tooltip and Clickable. Reused fiber timings must not be summed as fresh work for every component in a batch. This is a reduction in individual render blocks, not total React work. Separate five-step playback/time updates on the 300-track intermediate build recorded ten commits, 10.8 ms total and a 3.3 ms largest render.
+
+The final ordinary frontend was restored and its profiling registration was absent. With all 1000 rows mounted and CPU slowed 10x, twenty synthetic active-track/time storage updates took 68.4 ms median and 139.2 ms maximum from dispatch through two animation frames. This includes storage delivery and frame waiting; it is not a playback-start or input-latency measure. Focusing Track 1000 scrolled its existing control into view. The actual toolbar popup reported 780x600, 1000 rows, user-select: text and no document-width overflow. A final screenshot of the production tab was inspected, and its warning/error console was empty before the intentional offline artist-search check. An ordinary artist click updated the search route.
+
+Final npm run check, all 790 tests across 86 files, both full extension builds and verify:build passed. Authenticated playback, Firefox pointer selection, spoken assistive technology, minimum-browser versions, sustained memory use and the reporting user's exact hardware/session remain outside this evidence.
+
+## Interaction performance audit (November 10, 2026)
+
+The follow-up used authenticated Chrome 156.0.8078.74, the real extension frontend, service worker and Audio document at 780x600. CPU throttling was 10x on the inspected frontend page, with ordinary networking. This throttles frontend execution on the host computer. It does not reproduce a specific CPU, GPU, memory capacity or background-worker speed. Traces containing account data remain temporary, and only aggregate timings are recorded here.
+
+The audit exercised first and repeated navigation through Home, My music, Explore and Radio, ordinary-track and radio playback, play/pause, next/previous, settings sections, the playlist picker, lyrics, Mix settings, search and Explore scrolling. Ordinary music reached played=true with advancing time and no playbackError. Radio playback and previous also reached played=true. One next-station observation was still loading after one second. The common Mix command exhausted its preparation budget with the existing unavailable diagnostic on its first attempt. A later attempt was cancelled after eight seconds. Its playing animation therefore has no authenticated runtime result from this audit.
+
+Visiting Radio exposed a playback subscription defect. All 100 station cards subscribed to the complete active track and played state, so later player controls rerendered the entire hidden station grid. In an instrumented transport sequence, RadioStations contributed 119 ms to a 205 ms React commit at 10x CPU. Playlist and Mix controls also rerendered for unrelated playback changes. Station cards now use per-track snapshots, and collection controls use identity-scoped primitive snapshots. Radio creation is cooperative and its images use native lazy loading.
+
+[Render-isolation regressions](../../tests/front/render-isolation.test.ts) assert unrelated-station/collection isolation, affected stations, requested Mix selection, entity identity, metadata paging and legacy played fallback. The station regression fails against the previous grid implementation. Existing radio-following, selection, accessibility and command suites remain part of validation.
+
+For the same play/pause/play/next/previous sequence after all four main pages were visited, the React recordings changed from 21 commits, 1018.5 ms total and a 204.8 ms largest commit to 22 commits, 282.5 ms total and a 56.6 ms largest commit. The updated largest commit contained no radio station work. Both recordings used the same nine-track ordinary queue and a 100-station catalog. These are instrumented observations.
+
+Separate normal-production observations used the same controls, a verified paused starting state, one-second gaps and two animation frames after each click. The original play/pause/play/next/previous UI samples were 102, 275, 90, 18 and 17 ms. Updated samples were 30, 96, 32, 18 and 17 ms. They measure frontend response through frame callbacks, with storage/network timing contributing to variation. They do not measure audible start latency. These are single sequences, without a field-user FPS claim.
+
+A separate first Radio visit from a fresh Home UI produced the first station DOM at 731 ms and all 100 cards at 912 ms, with a 268 ms largest observed task. The cooperative version produced its first cards at 489 ms and all cards at 1009 ms, with a 69 ms largest task. Both had retained browser HTTP cache and normal networking. First DOM insertion precedes paint. All 100 images were already cached and completed in both samples, so these observations establish no image-transfer saving.
+
+Remaining measured costs include first page creation and data arrival. The initial navigation pass produced UI frame samples of approximately 0.5–1.5 seconds, with overlapping catalog requests. Repeated loaded tabs produced samples of approximately 150–330 ms. Search with 37 visible rows had a 329 ms largest React render and 52.5 ms largest layout-effect duration. These costs remain candidates for further scheduling work.
+
+The playlist picker, lyrics and Mix-settings open/close sequence recorded 74 commits, 277 ms total React rendering, a 32.2 ms largest render and 15 ms largest layout-effect duration. Settings-section samples were 63–113 ms through frame callbacks. A diagnostic 60-frame stream of synthetic pointer moves over the timeline in normal production had 22.6 ms median, 29 ms 95th percentile and 39.8 ms maximum frame intervals. The same diagnostic under active React profiling was much slower because the profiler processes the retained tree on commits. Profiling frame rates must be checked separately in ordinary production.
+
+The final ordinary frontend was restored, its asset identity checked and the profiling hook absent. Playback was left paused and CPU/viewport emulation reset. Final npm run check, all 792 tests across 86 files, both extension builds and verify:build passed. Native weak hardware, authenticated playing Mix animation and Firefox interaction timing remain outside this audit.
+
+## Navigation, search and Mix follow-up (November 10, 2026)
+
+This follow-up used the same authenticated Chrome extension at 780x600, normal networking and 10x frontend CPU slowdown. Home, My music, Explore and Radio were loaded before warm interactions, with playback paused. The search query returned 37 track rows. The starting frontend already included the station/collection playback isolation described above. Raw authenticated traces remain temporary.
+
+Retained navigation and search inputs now pause their route/value/focus subscriptions while inactive. Navigation is memoized. Search mounts its first result group immediately and schedules one further group per idle callback, reserving space with static themed placeholders. [Page activity regressions](../../tests/front/page-activity.test.ts) cover reactivation and hidden input focus. [Search rendering regressions](../../tests/front/search-rendering.test.ts) cover incremental groups, preserved controls/focus, replaced queries and failed results.
+
+Comparable instrumented React recordings produced the following observations. Render time includes scheduled work across the full interaction.
+
+| Interaction | Before commits | After commits | Before total render, ms | After total render, ms | Before largest render, ms | After largest render, ms |
+|---|---:|---:|---:|---:|---:|---:|
+| Loaded tab cycle | 14 | 15 | 184.6 | 145.0 | 39.7 | 31.8 |
+| Search, 37 rows | 17 | 18 | 335.3 | 502.9 | 187.6 | 145.1 |
+
+The largest search layout-effect duration changed from 33.7 to 17.1 ms. Search scheduling trades additional total rendering work for shorter individual renders.
+
+Separate ordinary-production traces compared index-BCGQwFpL.js with final index-DCqRw2D7.js. Each fresh document loaded all four pages, primed the search cache, then measured two four-tab cycles and three cached search returns. Search samples included the existing 600 ms input debounce and waited for all 37 rows, all groups and two animation frames. Before samples were 1387, 1543 and 1354 ms. After samples were 1783, 1896 and 1748 ms. The corresponding largest renderer-main-thread tasks were 632, 827 and 645 ms before, and 339, 345 and 352 ms after. Median complete-search time increased from 1387 to 1783 ms while the median largest task decreased from 645 to 345 ms. This establishes shorter blocking intervals for the measured search scenario, with slower full completion.
+
+Ordinary-production tab samples ranged from 128 to 346 ms before and 116 to 394 ms after. Renderer main-thread task totals across the eight transitions were approximately 3384 and 3674 ms. These observations establish no production tab-speedup claim, despite the reduction in measured React work. Retained catalog content and browser layout remain substantial costs. These timings include automation and frame waiting, and do not measure audible start latency or field-user FPS.
+
+The Mix preparation failure came from successful audio.getStreamMixAudios records omitting main_artists. A read-only response contained two such tracks. The converter now accepts an absent/null structured artist list while retaining the plain artist label. [Converter regressions](../../packages/common/src/converter.test.ts) cover both forms. Authenticated playback after the fix reached played=true with an empty mainArtists list. The final frontend also played a later Mix track with advancing time and no playbackError.
+
+Native VK uses an rlottie Canvas animation with four layers, a two-second loop and a declared 60 fps. The extension artwork now uses four static radial-gradient layers animated with CSS transforms. Its geometry/palette follow the previous artwork with a softer presentation. [Animation regressions](../../tests/front/mix-animation.test.ts) verify the four layers, absence of a JavaScript frame loop and pause behavior for playback, page activity, viewport intersection and document visibility. Live checks confirmed advancing animation timelines, scroll-out pause/resume and paused styles with zero running artwork animations under reduced-motion emulation. Refined dark/light screenshots were inspected with no horizontal overflow.
+
+In ordinary-production playing-Mix traces, the old extension renderer recorded 2505 FireAnimationFrame callbacks over approximately 21.6 seconds. The updated renderer recorded zero over five seconds, including a run with all four pages retained. Trace metadata identified the extension renderer separately from native VK. Unequal durations and retained data prevent a total-CPU speedup ratio from these samples. CSS animation removes the artwork's JavaScript drawing loop while compositor/GPU work remains.
+
+Final npm run check, all 798 tests across 89 files, full Chrome/Firefox builds and verify:build passed. The final production asset and absent profiling hook were verified, temporary runtime diagnostics were restored, and the UI warning/error console was empty. Playback was left paused, the original absent theme setting retained and emulation reset. Physical low-end hardware, sustained memory/GPU measurements and Firefox interaction timing remain outside this follow-up.
+
+### Mix motion correction
+
+User feedback identified visible stops in the new artwork. The original CSS applied ease-in-out separately across four keyframe segments. It reached zero velocity at both extremes and at both center crossings. The center pauses were introduced by this CSS rewrite. The corrected curve interpolates only between the two extremes using cubic-bezier(0.37, 0, 0.63, 1), with the previous per-layer periods and a negative three-quarter-period delay to start at the center. The center crossings now retain movement through each half-cycle.
+
+Chrome computed-transform checks sampled the same first layer around its center crossing. The old curve moved approximately 0.154 px over 52.4 ms centered on that crossing. The corrected curve moved approximately 3.172 px over the same interval. Boundary samples confirmed continuous position and smooth reversal at each extreme. During actual Mix playback at 10x frontend CPU slowdown, five seconds of animation-timeline sampling showed advancing playback, four running layers and no repeated currentTime values in consecutive samples. These checks establish the corrected motion curve. They do not measure compositor frame delivery on physical low-end hardware.
+
+A search experiment increased the appended batch from one group to two. Comparable React recordings reduced commits from 17 to 10 and total render time from approximately 335 to 295 ms, while the largest render increased from 88 to 142 ms. In separate normal-production traces, three complete-search samples were 1692, 1603 and 1699 ms before, and 1715, 1768 and 1590 ms in the experiment. Median largest tasks increased from 330 to 347 ms. The experiment therefore supplied no observed production improvement and was reverted. Search retains one group per idle callback and the previously documented full-completion tradeoff.
+
+The full check, 798 tests, both builds and build verification passed during this correction. After reverting the search experiment, the ordinary frontend was rebuilt for both browsers and verified again. Final Chrome loaded index-Cqi6TIoh.js with the corrected curve, four paused layers and no profiling hook. Playback was left paused and emulation reset.
+
+### PR integration with current master
+
+The branch was rebased onto caaa5a2 before opening its PR. The current master already defers track actions and uses layout/style containment to keep loaded playback controls discoverable. Integration retains that rendering approach together with selection-safe metadata and cooperative queue creation. The content-visibility measurements above describe the earlier experimental base. Historical performance numbers precede this integration and are scoped to their recorded builds.
+
+## Three-version comparison and corrections (November 10, 2026)
+
+The comparison used current master caaa5a2, the task before integration at 3665694 (based on d2eaeaa), and the integrated task at d167395. Both baseline source trees were reconstructed from their exact Git revisions. Their declared frontend runtime versions match the installed runtime dependencies. The archived trees reused installed build/test tooling, including current development dependencies. Source trees, normal frontend assets and profiling assets were kept separate. The remote target was fetched again and remained caaa5a2 before final validation.
+
+Current master already contains deferred track actions, layout/style containment and progressive Home/My music/Explore data arrival. Integration preserves those implementations. Earlier queue containment results and older large speedup claims apply to their recorded historical base. The following comparison measures the actual current target and the two task snapshots.
+
+### Controlled production frontend
+
+One isolated extension origin supplied identical synthetic storage, validated-shaped session replies and deterministic legacy/token responses. Playback commands were captured and reflected by a controlled storage adapter. The extension had storage permission and no production background worker. This isolates frontend work. Separate full production extensions provided the authenticated runtime checks below. Controlled fixtures used 300 or 1000 queue tracks, 100 radio stations and a five-group search with 37 track rows and 16 album tiles. Unexpected fixture requests were eliminated before accepted measurements. Builds and tests finished before CPU sampling.
+
+The 300-row queue observations are medians of three fresh documents at 780x600, CPU slowdown 4x, retained HTTP cache and a paused player. Timestamps describe DOM insertion relative to application import. They precede paint. The final candidate uses an immediate 12-row prefix and one background transition for all remaining loaded rows.
+
+| 300-track queue | Current master | Task before integration | Integrated task before correction | Final candidate |
+|---|---:|---:|---:|---:|
+| First rows, ms | 877 | 324 | 312 | 188 |
+| All rows, ms | 877 | 4213 | 2692 | 756 |
+| Largest observed task, ms | 845 | 270 | 243 | 130 |
+| Prepared action buttons | 59 | 1499 | 59 | 59 |
+
+A 1000-row stress observation at 10x CPU produced the following results. The first three columns each contain one stress run. The final column is the median of three runs, whose complete-list samples were 6315, 4041 and 4481 ms. These samples establish the responsiveness/completion tradeoff within this lab setup.
+
+| 1000-track queue | Current master | Task before integration | Integrated task before correction | Final candidate |
+|---|---:|---:|---:|---:|
+| First rows, ms | 3901 | 545 | 448 | 472 |
+| All rows, ms | 3901 | 35712 | 19835 | 4481 |
+| Largest observed task, ms | 3805 | 459 | 356 | 518 |
+| Prepared action buttons | 59 | 4999 | 59 | 59 |
+
+The integrated eight-row batches delayed the complete 1000-row list to almost 20 seconds. A 64-row experiment reduced the median to approximately 9 seconds. A single deferred React transition avoided repeated list commits and reduced it to approximately 4.5 seconds while preserving much shorter blocking intervals. Total completion remains later than master's single stress sample. The final first/all/largest 300-row samples were (205,805,143), (188,756,130) and (145,643,110) ms. The 1000-row samples were (472,6315,664), (444,4041,518) and (474,4481,440) ms. All 1000 final rows were present in the accessibility snapshot, including the last playback button.
+
+Separate instrumented React recordings replaced a one-track queue with 300 tracks at default CPU. Master recorded 8 commits, 64.9 ms total render time and a 57.1 ms largest render. The old task recorded 74 commits, 156.8 ms total and an 8.6 ms largest render. The final candidate recorded 8 commits, 64.7 ms total and a 53.0 ms largest render. These are render durations across a commit. Interruptible transition rendering spans multiple tasks, so the largest React render is distinct from the largest continuous production task.
+
+The same controlled frontend sequence visited Home, My music, Explore and Radio before cached search returns and player actions. At 10x CPU, complete-search samples were 995/1027/965 ms for master, 1661/1556/1764 ms for the old task and 1119/1112/1204 ms for the integrated task. Their median largest search tasks were 319, 73 and 150 ms. A subsequent authenticated comparison confirmed the completion regression, and incremental search groups were removed from the final source.
+
+For play/pause/play/next/previous, the controlled UI response samples through storage delivery and two frame callbacks were 287/169/180/337/228 ms for master, 93/85/85/118/151 ms for the old task and 81/72/120/156/132 ms for the integrated task. The station count was 100 in each case. These are individual frontend observations with a controlled transport. Audible start latency requires the actual media checks below.
+
+### Matched animation traces
+
+Normal-production traces used 10x frontend CPU, the same 54 catalog tracks and 100 stations retained across four pages, a playing-Mix snapshot and one current-time storage update per second. The comparison interval was bounded by explicit marks for five seconds. Renderer attribution used the tested extension frame and CrRendererMain.
+
+| Approximately five seconds | Current master | Task before integration | Integrated task |
+|---|---:|---:|---:|
+| Renderer main-thread RunTask time, ms | 613.8 | 191.6 | 193.2 |
+| FireAnimationFrame callbacks | 598 | 0 | 0 |
+| Time inside animation callbacks, ms | 134.6 | 0 | 0 |
+
+Main-thread busy time fell by approximately 69 percent in this controlled scenario. This ratio describes the measured renderer work and conditions. Compositor/GPU cost and operating-system CPU usage need separate measurements. The final queue/search corrections leave the Home artwork implementation intact.
+
+### Authenticated production extensions
+
+Three independent unpacked extensions ran their full original manifests, service workers, Audio documents and normal frontends in the same authenticated Chrome profile. All opened Home with 27 track rows and no error view. Each selected an enabled My music track after the data arrived, loaded an 18-track queue, played with advancing time, selected Next, returned to the original track with Previous and paused without playbackError.
+
+The common Mix failed preparation on current master during this run. Both task versions played a Mix track with an empty structured artist list, advancing time and no playbackError. The controlled converter probe independently rejected that valid-shaped missing-main_artists response on master and accepted it on both task versions. This distinguishes the parser fix from random live source availability.
+
+Search used the same Daft Punk query, 37 rows, 100 retained stations, a primed per-document cache and 10x frontend CPU. Timing included the 600 ms debounce and two frame callbacks after complete results. Initial master samples were 909/862/848 ms. The old task returned 1187/1241/1128 ms and the integrated task returned 1659/1250/1280 ms. Removing incremental group mounting produced 1018/931/888 ms. A further paired verification returned 952/881/902 ms on master and 897/909/990 ms on the final candidate. Their medians were 902 and 909 ms, with median largest tasks of 240 and 244 ms. The final search therefore restores comparable completion and blocking to current master. It establishes no additional full-search speedup.
+
+A discarded setup probe checked row count before the debounced route change and produced invalid zero-row timing. The corrected probe waits for the visible search route, the expected result count and completion of all loading placeholders. Another setup probe clicked My music before its response arrived. Waiting for an enabled track before activation confirmed working playback in all three versions. These setup failures were excluded from accepted timing and behavior results.
+
+Browser range/click checks and computed styles covered the row artist, row title and player artist on all three source snapshots. Master used user-select none and invoked navigation/playback with a selection. Both task snapshots used user-select text and suppressed those actions while preserving keyboard activation. Focused row DOM and prepared actions remained mounted. Controlled suites also cover structured/featured artists, queue editing/cancellation, account/query replacement, modal behavior and paging.
+
+The archived master suite passed 819 tests, the old task passed 798, and the integrated suite passed 833. Initial simultaneous baseline test warmups caused five-second timeouts and secondary assertions. Serial runs with four workers passed both archived suites. This was test-host contention, with no baseline source edits. Separate ordinary queue traces were saved for current master and the final candidate. Trace instrumentation increased complete-list times to approximately 6.4 and 7.2 seconds, respectively. Raw authenticated traces remain temporary. Their costs are separate from the uninstrumented samples above.
+
+Final validation passed npm run check, all 833 tests across 93 files, both complete extension builds and verify:build. The final authenticated frontend loaded index-hmiGqcyy.js with no profiling hook or warning/error console entries. Its light-theme screenshot was inspected. A final full-runtime play/pause/next/previous check passed again. The actual Chrome toolbar popup measured 780x600, exposed selectable row text, loaded the same normal asset and had no horizontal overflow. The temporary popup was closed, playback paused and emulation reset. Physical low-end hardware, long-session heap/GPU measurements, spoken assistive technology and authenticated Firefox interaction timing remain outside this comparison.

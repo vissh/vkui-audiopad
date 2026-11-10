@@ -1,8 +1,9 @@
 import { useQueryClient } from '@tanstack/react-query'
 import { commonUtils, vkApiClient, type commonTypes } from '@vk-audiopad/common'
 import { Icon28AddOutline, Icon28Done } from '@vkontakte/icons'
-import { Card, Group, Header, Image, Tappable } from '@vkontakte/vkui'
+import { Card, Group, Header, Image, Spinner, Tappable } from '@vkontakte/vkui'
 import { memo, useState } from 'react'
+import { useInView } from 'react-intersection-observer'
 // eslint-disable-next-line @conarti/feature-sliced/layers-slices
 import { AlbumGallery } from '@/widgets/album-list'
 // eslint-disable-next-line @conarti/feature-sliced/layers-slices
@@ -13,8 +14,9 @@ import { RecommendedGallery } from '@/widgets/recommended-gallery'
 import { TrackGallery } from '@/widgets/track-list'
 import { playOrPause } from '@/features/play-or-pause'
 import { PlayMixButton, PlayCatalogButton } from '@/features/play-or-pause-album'
-import { useActiveTrack, usePlayed } from '@/entities/active-track'
+import { useTrackPlayback } from '@/entities/active-track'
 import { getTrackState } from '@/entities/track'
+import { useProgressiveCount } from '@/shared/lib/use-progressive-count'
 import { openAlbumsPage, openPlaylistPage, openArtistPage } from '@/shared/model'
 import { CatalogBlockDataType, type CatalogBlock } from '@/shared/types'
 import { CatalogTiles } from '@/shared/ui/catalog-tiles'
@@ -116,28 +118,32 @@ export const CatalogGallery = memo(function CatalogGallery ({
 })
 
 const RadioStations = ({ userId, playlist }: { userId: string, playlist: commonTypes.Playlist }) => {
-  const active = useActiveTrack()
-  const played = usePlayed()
+  const { ref, inView } = useInView({ fallbackInView: true })
+  const count = useProgressiveCount(playlist.tracks.length, inView, JSON.stringify([playlist.ownerId, playlist.id, playlist.blockId]))
   return (
-    <Group header={<Header>{playlist.title}</Header>}>
+    <Group getRootRef={ref} header={<Header>{playlist.title}</Header>}>
       <div className='vkap_radio_grid' role='list' aria-label={playlist.title}>
-        {playlist.tracks.map(track => {
-          const state = getTrackState(track, active, played)
-          return (
-            <Card key={track.id} className='vkap_radio_card' mode='outline-tint'>
-              <Tappable Component='button' type='button' className='vkap_radio_station' aria-label={`${state === 'played' ? 'Приостановить' : 'Слушать'}: ${track.title}`} style={track.radioBackground == null ? undefined : { background: `linear-gradient(180deg, ${track.radioBackground}66, transparent 70%)` }} onClick={() => { playOrPause(state, track.id, playlist) }}>
-                <Image size={72} src={track.image || undefined} alt='' style={{ backgroundColor: '#fff', padding: 10, boxSizing: 'border-box' }} />
-                <span>{track.title}</span>
-                {state === 'played' && <span className='vkap_radio_playing'>В эфире</span>}
-              </Tappable>
-              <FollowRadioButton userId={userId} track={track} />
-            </Card>
-          )
-        })}
+        {playlist.tracks.slice(0, count).map(track => <RadioStation key={track.id} userId={userId} track={track} playlist={playlist} />)}
       </div>
+      {count < playlist.tracks.length && <Spinner size='s' aria-label='Загрузка радиостанций' />}
     </Group>
   )
 }
+
+const RadioStation = memo(function RadioStation ({ userId, track, playlist }: { userId: string, track: commonTypes.TrackItem, playlist: commonTypes.Playlist }) {
+  const playback = useTrackPlayback(track.id)
+  const state = getTrackState(track, playback == null ? null : track, playback === 'played')
+  return (
+    <Card className='vkap_radio_card' mode='outline-tint'>
+      <Tappable Component='button' type='button' className='vkap_radio_station' aria-label={`${state === 'played' ? 'Приостановить' : 'Слушать'}: ${track.title}`} style={track.radioBackground == null ? undefined : { background: `linear-gradient(180deg, ${track.radioBackground}66, transparent 70%)` }} onClick={() => { playOrPause(state, track.id, playlist) }}>
+        <Image size={72} src={track.image || undefined} loading='lazy' alt='' style={{ backgroundColor: '#fff', padding: 10, boxSizing: 'border-box' }} />
+        <span>{track.title}</span>
+        {state === 'played' && <span className='vkap_radio_playing'>В эфире</span>}
+      </Tappable>
+      <FollowRadioButton userId={userId} track={track} />
+    </Card>
+  )
+})
 
 const FollowRadioButton = ({ userId, track }: { userId: string, track: commonTypes.TrackItem }) => {
   const client = useQueryClient()
