@@ -1,19 +1,17 @@
 import { catalogLink, type commonTypes } from '@vk-audiopad/common'
 import { Icon20Pause, Icon20Play } from '@vkontakte/icons'
 import { useState } from 'react'
-import { useCurrentPlaylist, usePlaybackRequested } from '@/entities/active-track'
+import { usePlaylistPlayback } from '@/entities/active-track'
 import { fetchCatalogSection, fetchPlaylist } from '@/shared/api'
-import { samePlaylist } from '@/shared/lib/pagination'
 import { CatalogBlockDataType, type CatalogLinkItem } from '@/shared/types'
 import { AsyncTooltipIconButton } from '@/shared/ui/tooltip-icon-button'
 import { usePlaylistSelection } from '../model/selection'
 
 export const PlayCatalogButton = ({ userId, item }: { userId: string, item: CatalogLinkItem }) => {
-  const current = useCurrentPlaylist()
-  const requested = usePlaybackRequested()
   const [selection, setSelection] = useState<{ userId: string, href: string, playlist: commonTypes.Playlist } | null>(null)
-  const active = selection?.userId === userId && selection.href === item.href && current != null && samePlaylist(current, selection.playlist)
-  const pause = active && requested
+  const playback = usePlaylistPlayback(selection?.userId === userId && selection.href === item.href ? selection.playlist : null)
+  const active = playback != null
+  const pause = playback === 'played'
   const sectionId = catalogLink.sectionIdFromShowAllLink(item.href)
   const play = usePlaylistSelection(item.href, userId, active, async signal => {
     if (sectionId == null) throw new Error('Unsupported catalog destination')

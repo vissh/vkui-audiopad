@@ -1,6 +1,6 @@
 import { commonUtils } from '@vk-audiopad/common'
 import { Div, Flex, VisuallyHidden } from '@vkontakte/vkui'
-import { memo, type FC, type ReactNode } from 'react'
+import { memo, type ReactNode } from 'react'
 import { SearchInput } from '@/features/search'
 import { useActiveTab } from '@/shared/model'
 import { getTabName } from '../lib/utils'
@@ -14,7 +14,7 @@ interface NavigationProps {
   noPaddingBottom?: boolean
 }
 
-export const Navigation: FC<NavigationProps> = ({ children, after, noPaddingBottom = false }) => {
+export const Navigation = memo(function Navigation ({ children, after, noPaddingBottom = false }: NavigationProps) {
   const activeTab = useActiveTab()
 
   return (
@@ -34,7 +34,7 @@ export const Navigation: FC<NavigationProps> = ({ children, after, noPaddingBott
       )}
     </nav>
   )
-}
+})
 
 const ApplicationTabs = memo(function ApplicationTabs () {
   return (

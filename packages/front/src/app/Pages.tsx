@@ -10,6 +10,7 @@ import { PlaylistTracks } from '@/pages/playlist-tracks'
 import { Radio } from '@/pages/radio'
 import { SearchResult } from '@/pages/search-result'
 import { useSessionUserId } from '@/entities/session'
+import { PageActivityContext } from '@/shared/lib/page-activity'
 import { useActiveTab } from '@/shared/model'
 
 export const Pages: FC = () => {
@@ -79,5 +80,5 @@ export const Pages: FC = () => {
 const RetainedPage = ({ active, tab, label, children }: { active: boolean, tab: commonTypes.ClickableContentTabs, label: string, children: ReactNode }) => {
   const [opened, setOpened] = useState(active)
   if (active && !opened) setOpened(true)
-  return <div id={'tab-content-' + tab} role='tabpanel' aria-label={label} hidden={!active} inert={!active}>{(active || opened) && children}</div>
+  return <div id={'tab-content-' + tab} role='tabpanel' aria-label={label} hidden={!active} inert={!active}><PageActivityContext.Provider value={active}>{(active || opened) && children}</PageActivityContext.Provider></div>
 }

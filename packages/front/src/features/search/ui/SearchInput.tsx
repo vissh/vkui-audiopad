@@ -3,6 +3,7 @@ import { Search } from '@vkontakte/vkui'
 import { memo, useEffect, useRef } from 'react'
 import { atom, useAtom } from '@/shared/lib/atom'
 import { useDebounce } from '@/shared/lib/hooks'
+import { usePageActive } from '@/shared/lib/page-activity'
 import { onActiveTabChanged, openSearchPage } from '@/shared/model'
 
 const autoFocusAtom = atom(false)
@@ -20,9 +21,10 @@ onActiveTabChanged((activeTab) => {
 })
 
 export const SearchInput = memo(function SearchInput () {
-  const [autoFocus, setAutoFocus] = useAtom(autoFocusAtom)
+  const active = usePageActive()
+  const [autoFocus, setAutoFocus] = useAtom(autoFocusAtom, active)
 
-  const [value, setValue] = useAtom(valueAtom)
+  const [value, setValue] = useAtom(valueAtom, active)
   const inputRef = useRef<HTMLInputElement>(null)
 
   const setSearchValueToStorage = useDebounce((value: string) => {
@@ -32,8 +34,9 @@ export const SearchInput = memo(function SearchInput () {
   }, 600)
 
   useEffect(() => {
+    if (!active) return
     autoFocus ? inputRef.current?.focus() : inputRef.current?.blur()
-  }, [autoFocus])
+  }, [active, autoFocus])
 
   return (
     <Search

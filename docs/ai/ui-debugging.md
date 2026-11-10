@@ -26,6 +26,8 @@ When finished, overlay the ordinary frontend from dist/<browser>_extension back 
 
 For a performance-sensitive UI change, capture the affected scenarios before and after with the same browser, viewport, data size, initial route, cache state and CPU/network settings.
 
+Choose the acceptance metrics before editing. Measure first useful content, the longest blocking task and completion of all results separately. Also observe total main-thread work and final DOM size when rendering is spread across batches. An idle callback can shorten one blocking interval while adding repeated rendering/layout and delaying the complete result. Report each affected metric and retain an experiment only when its measured tradeoff fits the intended interaction. Compare against the fetched current target branch as well as any older task baseline. Repeat normal-build measurements after integrating upstream changes. [Search evidence](testing.md#navigation-search-and-mix-follow-up-november-10-2026)
+
 - Cold opening on Home, My music, Explore, Radio and Current playlist. Separate the fixed-size startup skeleton, account hydration, first usable response and later catalog data.
 - Warm tab returns. Retained pages should preserve drafts and reuse fresh data while inactive pages stay hidden/inert.
 - Scroll every affected vertical feed and horizontal rail. Observe IntersectionObserver callbacks, cursor progress, preview requests and friends/curator groups. Confirm document visibility when lazy loading stalls.
@@ -35,6 +37,8 @@ For a performance-sensitive UI change, capture the affected scenarios before and
 Start React profiling before the interaction and stop it afterward. Record commit count, total/largest render durations, affected component names and the relevant commit report. Review library semantics before interpreting counters such as componentsChanged. State exactly which interaction and build were measured. Component props/hooks and raw traces can contain account data, credentials and signed media URLs. Persist aggregate counts, names and timings with sanitized observations.
 
 Repeat the affected interaction in the normal production build using Chrome performance traces. Record paint/interaction/layout metrics, long tasks and request timing independently of React timings. Instrumentation changes execution cost. Use comparable repeated runs to substantiate speedup claims. Heap deltas require repeated controlled collection and equivalent state.
+
+Build/type/lint checks, behavioral tests, React profiling and production browser checks establish different properties. A component can preserve its command behavior while becoming slower or developing visible motion defects. Acceptance for a performance or animation change therefore includes the actual interaction and its user-visible result in the ordinary build. The Mix timing-curve defect was discovered through browser observation after passing tests. [Mix motion evidence](testing.md#mix-motion-correction)
 
 ## Startup performance review
 
@@ -61,6 +65,38 @@ Compare fresh Home documents against release 3.3.9 at bf64ccb2c72919b8c98f6b4e7a
 The two Home reads race for the first nonempty result. Verify legacy-first and token-first completion, empty data, partial failure, retry, fresh tab returns and account retirement. A legacy-first block keeps its DOM identity, layout and focus when token metadata arrives. Scroll before the second response and observe the loader below the pinned block. Keep one token continuation owner and ensure the sentinel cannot request a continuation before the first token page. [Controlled source-order regressions](../../tests/front/home-progressive.test.ts) cover these boundaries.
 
 Record the Mix button's computed foreground/background on animation frames from its first appearance. VKUI's automatic system-scheme hook starts unresolved. An early hero can therefore animate from the default light palette to the dark system palette. Application supplies a synchronously resolved system scheme and subscribes to later media changes. [First-commit theme regressions](../../tests/front/application-theme.test.ts) exercise this through the real ConfigProvider and preserve explicit theme selection.
+
+## Reproducible throttled interactions
+
+Use frontend CPU slowdown, including 10x for stress scenarios, to expose expensive clicks on a fast host. Record the throttle target and rate. An inspected UI page, its service worker and its Audio document have separate execution contexts. GPU capacity, memory pressure and background-worker speed require their own observations.
+
+Before a warm comparison, visit the same pages and wait for fetches and cooperative mounting to finish. Record aggregate row/card/group counts. A retained Radio grid can add work to later player clicks even while hidden. Inspect subscriptions of inactive components and prefer snapshots that change only for the affected track or collection. A component-level timing reduction needs a separate whole-interaction production result.
+
+Verify a paused starting state through observed played state and the visible player control before issuing a play/pause sequence. Allow storage/media delivery to settle. Fast repeated setup toggles can leave playback running and invalidate the comparison.
+
+Prime the same search query, then perform repeated returns in one bounded browser script so that tool round trips do not change cache freshness. Wait for both the expected row count and completion of remaining group placeholders. State whether timing includes the search debounce, network requests and frame waiting. A request cache hit can still require an expensive new UI mount.
+
+For first visits, capture network/data arrival separately from DOM insertion and paint. Keep single observations labeled as such. For repeated comparisons, retain the individual samples and their median. Run CPU benchmarks after builds and test suites have finished. Parallel test-suite warmups can exhaust short test timeouts and contaminate later cases, so retry those setup failures in isolated, bounded-worker runs before attributing them to a source revision. Save only sanitized aggregates from authenticated sessions.
+
+## Extension trace attribution
+
+Find the tested extension frame in TracingStartedInBrowser.args.data.frames using its URL and processId. Match that process to the thread_name event naming CrRendererMain before aggregating main-thread work. For reload traces whose initial frame metadata precedes the tested document, verify the renderer against the committed navigation or EvaluateScript/FunctionCall events for the tested extension asset. Native VK can have its own animation loop in the same trace. Selecting the busiest animation thread can attribute website work to the extension.
+
+Scope events to the recorded interaction bounds and the selected process/thread. Metadata timestamps can fall outside those bounds. Sum complete-duration events by category and keep parent/child durations separate to avoid counting the same work twice. FireAnimationFrame records JavaScript animation callbacks. CSS animation can continue through compositor/GPU work when that callback count is zero. A percentage reduction in total CPU requires comparable durations, retained data and execution conditions.
+
+## Concurrent rendering and batching
+
+React render duration and a continuous main-thread block are separate metrics. A background transition can render many components across interruptible tasks and commit them together. Splitting the same list into many state updates can repeatedly run layout/effects and delay full completion even when individual React commits are shorter. Compare one deferred transition with fixed batches after expensive action subtrees have already been deferred upstream. Verify first content, full completion, input opportunities, focus, paging and inactive-page behavior. [Three-version evidence](testing.md#three-version-comparison-and-corrections-november-10-2026)
+
+## Animation correctness and cost
+
+Inspect motion over several complete cycles in the production build, including active playback, pause/resume, page return and scrolling out of view. Check both themes, document visibility and reduced-motion preferences. Screenshots establish appearance at one instant. Observe the transition through the middle and across the loop boundary as well.
+
+CSS easing applies to each interval between keyframes. Adding intermediate keyframes with ease-in-out introduces zero velocity at each interval boundary, including center crossings. For floating motion, interpolate smoothly between the two extremes and use a phase offset when the initial pose should be centered. Preserve position and velocity continuity at the loop boundary.
+
+Use an element's getAnimations() results and computed transforms to sample exact phases when diagnosing a stall. Preserve and restore animation.currentTime and any temporary timing overrides. Compare displacement over equal time intervals around the suspected pause. Advancing animation timelines establish motion state, while frame-delivery and CPU claims require separate production measurements.
+
+Static gradient layers animated through transforms can remove per-frame Canvas drawing work. Inspect clipping, blending and the gradient's visible boundary after this replacement. For a circular glow inside a square layer, radial-gradient(circle closest-side, ...) reaches transparency at the intended edge. Verify the visual result in both themes and at popup dimensions.
 
 ## Hover and dialog diagnosis
 
