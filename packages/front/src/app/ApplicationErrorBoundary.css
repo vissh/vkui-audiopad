@@ -31,6 +31,19 @@
   outline-offset: 3px;
 }
 
+.vkap_ui_recovery details {
+  margin-top: 16px;
+}
+
+.vkap_ui_recovery textarea {
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 180px;
+  margin-top: 8px;
+  color: inherit;
+  background: transparent;
+}
+
 @media (prefers-color-scheme: dark) {
   .vkap_ui_recovery {
     background: #191919;

@@ -1,11 +1,12 @@
 import { Component, type ReactNode } from 'react'
+import { createErrorReport } from '@/shared/lib/error-report'
 import './ApplicationErrorBoundary.css'
 
-export class ApplicationErrorBoundary extends Component<{ children: ReactNode }, { failed: boolean }> {
-  state = { failed: false }
+export class ApplicationErrorBoundary extends Component<{ children: ReactNode }, { failed: boolean, error?: unknown }> {
+  state: { failed: boolean, error?: unknown } = { failed: false }
 
-  static getDerivedStateFromError (): { failed: boolean } {
-    return { failed: true }
+  static getDerivedStateFromError (error: unknown): { failed: boolean, error: unknown } {
+    return { failed: true, error }
   }
 
   render (): ReactNode {
@@ -19,6 +20,10 @@ export class ApplicationErrorBoundary extends Component<{ children: ReactNode },
         <button autoFocus type='button' onClick={() => { location.reload() }}>
           Перезагрузить интерфейс
         </button>
+        <details>
+          <summary>Информация об ошибке</summary>
+          <textarea aria-label='Информация об ошибке' readOnly value={JSON.stringify(createErrorReport(this.state.error), null, 2)} />
+        </details>
       </main>
     )
   }

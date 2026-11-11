@@ -3,8 +3,10 @@ import { Banner, Button, Div, Group, Skeleton, Spinner } from '@vkontakte/vkui'
 import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import { useInView } from 'react-intersection-observer'
 import { catalogStaleTime, fetchCatalogSection, fetchHomeHighlights } from '@/shared/api'
+import { errorHint } from '@/shared/lib/error-report'
 import { mergeCatalogBlocks } from '@/shared/lib/pagination'
 import { CatalogBlockDataType, type CatalogBlock } from '@/shared/types'
+import { ErrorReport } from '@/shared/ui/error-report'
 import { HorizontalScroll } from '@/shared/ui/horizontal-scroll'
 import { ShowAllLinkSkeleton } from '@/shared/ui/show-all-link'
 import { SkeletonWrapper } from '@/shared/ui/skeleton-wrapper'
@@ -66,7 +68,12 @@ export const CatalogFeed = ({ userId, active, section = 'general', existing = em
   const pending = active && !query.isError && query.isPending
   const library = blocks.find(isLibrary) ?? existing.find(isLibrary)
   const galleries = displayed.filter(block => !isLibrary(block)).map((block, index) => <CatalogGallery key={JSON.stringify([block.blockId, leading != null && index === 0])} mode='card' isPending={false} loadingBlock='albums' userId={userId} catalogBlock={block} />)
-  const errorNotice = query.isError && <Banner title='Некоторые подборки не загрузились' subtitle='Остальная музыка доступна' actions={<Button mode='secondary' onClick={() => { onRetry?.(); void (query.data == null ? query.refetch() : query.fetchNextPage()) }}>Повторить</Button>} />
+  const errorNotice = query.isError && (
+    <>
+      <Banner title='Некоторые подборки не загрузились' subtitle={errorHint(query.error)} actions={<Button mode='secondary' onClick={() => { onRetry?.(); void (query.data == null ? query.refetch() : query.fetchNextPage()) }}>Повторить</Button>} />
+      <ErrorReport error={query.error} />
+    </>
+  )
   return (
     <>
       {!progressive && errorNotice}

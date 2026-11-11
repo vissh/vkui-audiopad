@@ -27,7 +27,7 @@ const actDelete = async (track: commonTypes.TrackItem, restore: boolean): Promis
     restore: restore ? '1' : '0',
     hash: track.deleteHash,
     track_code: track.trackCode
-  }, undefined, { requireOk: true, retryAfterReconnect: false })
+  }, undefined, { retryAfterReconnect: false })
   vkClient.assertMutationResponse(result)
 }
 

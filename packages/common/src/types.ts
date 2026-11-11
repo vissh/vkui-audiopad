@@ -1,4 +1,5 @@
 import { type ErrorObject } from 'serialize-error'
+import { type describeError } from './error-diagnostics'
 import { type Settings as EqualizerSettings, type Status as EqualizerStatus } from './equalizer'
 import { type MixPreferences } from './vk-mix'
 
@@ -10,7 +11,7 @@ export type VKApiResponse = JSONValue
 
 export interface WebTokenError {
   type: 'unauthorized' | 'exception'
-  serializedError: ErrorObject | null
+  serializedError: ErrorObject | ReturnType<typeof describeError> | null
 }
 
 export interface WebToken {

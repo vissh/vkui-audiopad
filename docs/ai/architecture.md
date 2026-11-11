@@ -63,7 +63,7 @@ The entrypoint wraps Application (including its providers) in app/ApplicationErr
 Both clients live in common:
 
 - vk-api-client.ts uses token-based api.vk.ru/method/* endpoints (app ID 6287487), typed safe errors and a shared 15-second request budget with one auth refresh/retry; [ADR 0008](../decisions/0008-vk-api-errors.md). Credentials come from the background session owner. Token methods capture/check userId plus sessionEpoch and reject retired-account completion; legacy/account-wide invalidation remains T09/T10.
-- vk-client.ts scrapes internal vk.ru endpoints, preserving FormData and windows-1251 -> UTF-8 handling. Its legacy reconnect refreshes cookies via vk.ru before retrying a 401.
+- vk-client.ts scrapes internal vk.ru endpoints, preserving FormData and windows-1251 -> UTF-8 handling. Its bounded legacy reconnect visits vk.ru before retrying a malformed successful-HTTP response or reconnect envelope; HTTP failures reject immediately. See [diagnostics and recovery](error-diagnostics.md).
 - Front features/sign-in requests verification through common/session-client.ts and renders safe retry/sign-in outcomes. service-worker/session.ts owns token/profile checks, shared refresh, session epochs and serialized cleanup/persistence. [ADR 0005](../decisions/0005-session-verification.md) preserves transient/confirmed outcomes; [ADR 0009](../decisions/0009-session-owner.md) defines cross-context ownership and remaining account/cache limits.
 - service-worker/src/fetchers/unmask.js is vendored minified audio_api_unavailable URL decoding. Do not edit/format it.
 

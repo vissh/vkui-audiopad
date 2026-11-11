@@ -1,9 +1,9 @@
-import { sessionClient, type commonTypes } from '@vk-audiopad/common'
+import { sessionClient, errorDiagnostics, type commonTypes } from '@vk-audiopad/common'
 
 export const fetchWebToken = async (signal?: AbortSignal): Promise<commonTypes.WebToken> => {
   try {
     return (await sessionClient.requestSession({ kind: 'verify' }, signal)).token
-  } catch {
+  } catch (error) {
     signal?.throwIfAborted()
     return {
       userId: '',
@@ -12,7 +12,7 @@ export const fetchWebToken = async (signal?: AbortSignal): Promise<commonTypes.W
       logoutHash: '',
       error: {
         type: 'exception',
-        serializedError: { name: 'Error', message: 'VK session check failed' }
+        serializedError: errorDiagnostics.describeError(error)
       }
     }
   }

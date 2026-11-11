@@ -23,6 +23,7 @@ A small reproducible UI defect or a pure function with a test is a useful first 
 | How should a change be implemented, verified and handed over? | [Workflow and change routes](ai/agent-workflow.md) |
 | How do vk.ru data sources work, and how are format changes investigated? | [VK integration](ai/vkru-scraping.md) |
 | How are offline tests, browser connections and smoke checks run? | [Testing](ai/testing.md) |
+| How are support errors reported and when may session data be cleared? | [Diagnostics and recovery](ai/error-diagnostics.md) |
 | How should safe parser/network test data be constructed and updated? | [Fixtures](ai/fixtures.md) |
 | How are React renders, startup, scrolling and dialog focus investigated? | [UI debugging and profiling](ai/ui-debugging.md) |
 | Where is MCP configured, and how is client drift prevented? | [MCP](ai/mcp.md) |

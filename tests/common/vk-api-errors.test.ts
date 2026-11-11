@@ -22,7 +22,7 @@ it.each([
   const api = await setup()
   const network = vi.fn(async () => new Response(JSON.stringify(payload), { status }))
   vi.stubGlobal('fetch', network)
-  await expect(api.request('https://api.vk.ru/method/audio.delete', 'POST', {})).rejects.toMatchObject({ name: 'VKApiError', kind })
+  await expect(api.request('https://api.vk.ru/method/audio.delete', 'POST', {})).rejects.toMatchObject({ name: 'VKApiError', kind, status, operation: 'audio.delete', stage: 'request', attempt: 1 })
   expect(network).toHaveBeenCalledOnce()
   expect(api.snapshot().webToken).toEqual(token)
 })

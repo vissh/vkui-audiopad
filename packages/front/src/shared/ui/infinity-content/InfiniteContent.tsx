@@ -2,8 +2,10 @@ import { Banner, Button } from '@vkontakte/vkui'
 import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react'
 import { useInView } from 'react-intersection-observer'
 import { Content } from '../content'
+import { ErrorReport } from '../error-report'
 
 interface PaginationMutation<Args> {
+  error?: unknown
   isPending: boolean
   isError: boolean
   isSuccess: boolean
@@ -66,6 +68,7 @@ export const InfinityContent = <Args,>({
           actions={<Button mode='secondary' onClick={() => { request(true) }}>Повторить</Button>}
         />
       )}
+      {failed && loadMoreMutation.error != null && <ErrorReport error={loadMoreMutation.error} />}
       {display && hasMore && <div ref={ref} aria-hidden='true' />}
       {display && hasMore && !isPending && !failed && !stalled && <div className='vkap_keyboard_load_more'><Button mode='tertiary' onClick={() => { request(true) }}>Показать ещё</Button></div>}
     </Content>

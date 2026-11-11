@@ -9,7 +9,7 @@ export const vkApiFollow = async (playlist: commonTypes.Playlist): Promise<boole
     playlist_id: playlist.id,
     playlist_owner_id: playlist.ownerId,
     showcase: '0'
-  }, undefined, { requireOk: true, retryAfterReconnect: false })
+  }, undefined, { retryAfterReconnect: false })
   vkClient.assertMutationResponse(resp)
   const payload = vkClient.parseResponsePayload(resp, [1, 0])
   if (typeof payload !== 'object' || payload == null || Array.isArray(payload)) throw new Error('VK playlist update failed')

@@ -140,7 +140,7 @@ it('bounds a missing reply and sends cancellation instead of retrying the reques
   vi.useFakeTimers()
   const page = await setup()
   page.api.runtime.sendMessage.mockImplementationOnce(async () => await new Promise(() => {}))
-  const pending = expect(page.remote.requestSession({ kind: 'verify' })).rejects.toMatchObject({ name: 'TimeoutError' })
+  const pending = expect(page.remote.requestSession({ kind: 'verify' })).rejects.toMatchObject({ kind: 'timeout', operation: 'session', stage: 'transport' })
   await vi.advanceTimersByTimeAsync(15_000)
   await pending
   expect(page.api.runtime.sendMessage).toHaveBeenCalledTimes(2)
@@ -214,7 +214,7 @@ it('serializes safe failures without upstream secret/error details', async () =>
   const page = await setup()
   page.fetch.mockRejectedValueOnce(new Error('synthetic-private-token'))
   const pending: unknown = await page.remote.requestSession({ kind: 'verify' }).catch((error: unknown) => error)
-  expect(pending).toMatchObject({ kind: 'unavailable' })
+  expect(pending).toMatchObject({ kind: 'network', operation: 'web_token', stage: 'request' })
   expect(JSON.stringify(pending)).not.toContain('synthetic-private-token')
   expect(page.snapshot()).toEqual(initial())
 })

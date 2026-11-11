@@ -36,7 +36,7 @@ it('propagates a network failure instead of completing the request successfully'
   const network = controlledFetch()
   const { request } = await import('../../packages/common/src/vk-client')
   const pending = request('https://vk.ru/al_audio.php?act=queue_params', { audio_id: '123' })
-  const failure = expect(pending).rejects.toThrow('Offline')
+  const failure = expect(pending).rejects.toMatchObject({ kind: 'network', operation: 'queue_params', stage: 'request' })
   network.requests[0].reject(new Error('Offline'))
   await failure
 })

@@ -1,22 +1,39 @@
 import { castToArray } from './cast'
 import { type JSONValue, type VKApiResponse } from './types'
+import { VKApiError, requestOperation, responseDetails, type VKApiErrorDetails } from './vk-api-error'
+import { withTimeout } from './with-timeout'
 
-export const request = async (url: string, params: Record<string, string>, signal?: AbortSignal, { requireOk = false, retryAfterReconnect = true } = {}): Promise<VKApiResponse> => {
+export const request = async (url: string, params: Record<string, string>, signal?: AbortSignal, { retryAfterReconnect = true } = {}): Promise<VKApiResponse> => {
   signal?.throwIfAborted()
+  let details: VKApiErrorDetails = { operation: requestOperation(url), stage: 'request', attempt: 1 }
   const formData = new FormData()
   Object.keys(params).forEach(key => { formData.set(key, params[key]) })
 
-  const fetchPayload = async (): Promise<[JSONValue, boolean]> => {
-    const resp = await fetch(url, {
+  const fetchResponse = async (target: string, options: RequestInit, requestSignal: AbortSignal): Promise<Response> => {
+    let resp: Response
+    try { resp = await fetch(target, options) } catch {
+      requestSignal.throwIfAborted()
+      throw new VKApiError('network', details)
+    }
+    requestSignal.throwIfAborted()
+    details = { ...details, ...responseDetails(resp) }
+    // Legacy HTTP failures do not establish logout, even at the token endpoint.
+    if (!resp.ok) throw new VKApiError(resp.status === 429 ? 'rate-limit' : 'http', details)
+    return resp
+  }
+  const fetchPayload = async (requestSignal: AbortSignal): Promise<[JSONValue, boolean]> => {
+    const resp = await fetchResponse(url, {
       method: 'POST',
-      signal,
+      signal: requestSignal,
       body: formData,
       headers: { 'x-requested-with': 'XMLHttpRequest' }
-    })
-
-    if (requireOk && !resp.ok) throw new Error('VK HTTP request failed')
-
-    const content = await win1251ResponseToUTF8String(resp)
+    }, requestSignal)
+    let content: string
+    try { content = await win1251ResponseToUTF8String(resp) } catch {
+      requestSignal.throwIfAborted()
+      throw new VKApiError('network', details)
+    }
+    requestSignal.throwIfAborted()
 
     try {
       return [JSON.parse(content), false]
@@ -25,22 +42,23 @@ export const request = async (url: string, params: Record<string, string>, signa
     }
   }
 
-  const [resp, parseError] = await fetchPayload()
-  signal?.throwIfAborted()
-
-  if (parseError || needRetry(resp)) {
-    if (!retryAfterReconnect) throw new Error('VK request failed')
-    await fetch('https://vk.ru', { signal })
+  try {
+    return await withTimeout(async requestSignal => {
+      const [resp, parseError] = await fetchPayload(requestSignal)
+      if (!parseError && !needRetry(resp)) return resp
+      if (!retryAfterReconnect) throw new VKApiError(parseError ? 'format' : 'unavailable', details)
+      details = { operation: details.operation, stage: 'reconnect', attempt: 1 }
+      await fetchResponse('https://vk.ru', { signal: requestSignal }, requestSignal)
+      details = { operation: details.operation, stage: 'retry', attempt: 2 }
+      const [retried, retryParseError] = await fetchPayload(requestSignal)
+      if (retryParseError || needRetry(retried)) throw new VKApiError(retryParseError ? 'format' : 'unavailable', details)
+      return retried
+    }, 15_000, signal)
+  } catch (error) {
     signal?.throwIfAborted()
-    const [respAfterReconnect, retryParseError] = await fetchPayload()
-    signal?.throwIfAborted()
-    if (retryParseError) {
-      throw new Error('respAfterReconnect')
-    }
-    return respAfterReconnect
+    if (error instanceof VKApiError) throw error
+    throw new VKApiError(error instanceof DOMException && error.name === 'TimeoutError' ? 'timeout' : 'unavailable', details)
   }
-
-  return resp
 }
 
 export const assertMutationResponse = (resp: VKApiResponse): void => {

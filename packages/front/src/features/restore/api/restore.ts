@@ -21,6 +21,6 @@ export const vkApiRestore = async (track: commonTypes.TrackItem): Promise<void> 
     oid: ownerId,
     hash: track.restoreHash,
     track_code: track.trackCode
-  }, undefined, { requireOk: true, retryAfterReconnect: false })
+  }, undefined, { retryAfterReconnect: false })
   vkClient.assertMutationResponse(result)
 }
