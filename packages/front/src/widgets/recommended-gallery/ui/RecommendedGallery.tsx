@@ -1,9 +1,10 @@
-import { CardScroll, Group, Header, Skeleton } from '@vkontakte/vkui'
+import { CardScroll, Group, Header } from '@vkontakte/vkui'
 import { type FC } from 'react'
 import { PlayPlaylistButton } from '@/features/play-or-pause-album'
 import { RecommendedPlaylist, RecommendedPlaylistSkeleton } from '@/entities/recommended-playlist'
 import { openPlaylistPage } from '@/shared/model'
 import { type Album } from '@/shared/types'
+import { LoadingPlaceholder as Skeleton } from '@/shared/ui/loading-placeholder'
 import { SkeletonWrapper } from '@/shared/ui/skeleton-wrapper'
 
 interface RecommendedGalleryProps {

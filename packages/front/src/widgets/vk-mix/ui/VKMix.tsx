@@ -1,5 +1,6 @@
-import { Div, Flex, Group, Headline, Skeleton, Spacing, Title } from '@vkontakte/vkui'
+import { Div, Flex, Group, Headline, Spacing, Title } from '@vkontakte/vkui'
 import { type FC } from 'react'
+import { LoadingPlaceholder as Skeleton } from '@/shared/ui/loading-placeholder'
 import { SkeletonWrapper } from '@/shared/ui/skeleton-wrapper'
 import { VKMixBalls } from './VKMixBalls'
 import { VKMixButton } from './VKMixButton'

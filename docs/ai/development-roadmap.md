@@ -233,6 +233,10 @@ The [repeated-click follow-up](testing.md#repeated-clicks-and-mode-ordering-nove
 
 The [interaction render-isolation follow-up](testing.md#player-interaction-render-isolation-november-14-2026) removes unchanged artist/action, requested-intent acknowledgement and invisible press-feedback renders. It retains VKUI controls/focus and immediate CSS press feedback, with exact text-decoding regressions. Browser measurements show reduced React/script work but do not establish a universal CPU or latency speedup across every control.
 
+The [popup startup follow-up](testing.md#popup-startup-work-november-14-2026) removes the optional counter from document loading, batches initial UI storage reads and replaces active Skeleton machinery with passive placeholders. It preserves the existing primary-route request graph and records comparable cold-profile, React, production-trace and delayed-counter measurements. It does not identify an authenticated five-second catalog regression.
+
+The [runtime merge review](testing.md#runtime-merge-and-startup-compatibility-november-15-2026) integrates the command/storage boundary changes with batched hydration, preserving failed-write rollback and readiness. Comparable recordings do not demonstrate a new mass-rendering regression from PR 63. The inherited shuffle hotkey now shares the ordered button action; mixed hotkey/button regressions cover both transports.
+
 **Acceptance:** actions are keyboard-accessible; component failures have a recoverable screen; visual changes have baseline/current screenshots; optimization claims have measurements.
 
 ## T18 Complete context and autonomous-work guidance

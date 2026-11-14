@@ -1,6 +1,11 @@
 import { createRoot } from 'react-dom/client'
 import { Application } from '@/app/Application'
 import { ApplicationErrorBoundary } from '@/app/ApplicationErrorBoundary'
+import { registerUsageCounter } from '@/app/usage-counter'
+import { flushStorageReads } from '@/shared/lib/atom'
+
+registerUsageCounter()
+flushStorageReads()
 
 const container = document.getElementById('root')
 

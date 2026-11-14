@@ -1167,3 +1167,77 @@ Fresh paused UI documents with retained cache at 10x CPU gave first-row samples 
 All 1000 playback buttons, including track 1000 before scrolling, remained in Chrome's accessibility tree. Dark/light screenshots and the held transport press were inspected. The pressed overlay had opacity 1 with the existing theme color, returned to 0 on release, and Tab/Shift+Tab preserved a visible VKUI focus outline; Enter activated Next. A row playlist dialog stayed open across a playback update, retained its trigger, closed with Escape and restored focus to that same node. An eight-track editor moved its first item down and restored the original order on cancel. The full fixture queue and ordinary assets were restored, playback paused, emulation reset and the isolated browser closed.
 
 Validation passed npm run check, all 887 tests across 98 files, full Chrome/Firefox builds, verify:build and Firefox 160 smoke (startup, snapshot, ordered shuffle/repeat and session replies). The final style refinement also received the focused interaction/appearance checks. Physical low-end hardware, authenticated catalog/media timing, long-session heap/GPU usage and spoken assistive technology remain outside this fixture.
+
+## Popup startup work (November 14, 2026)
+
+Started in a new managed worktree from freshly fetched origin/master 4ab75c3d8250f8783ecd967f137b6c36ee41d5f9. PR 61 was still open; this task does not include its interaction changes. The final remote refresh retained that base. Baseline normal frontend was index-BAmIQiH-.js (755,746 bytes). Final normal frontend was index-fz1Eo-wr.js (755,769 bytes), with index-symt_k8y.css. No bundle-size reduction is claimed. Runtime/audio bundles were unchanged.
+
+### Findings and retained changes
+
+Unvisited primary pages already mount only on demand. Their request sources, activation, session gate and cache freshness remain unchanged. Experiments splitting selected routes introduced another wait. Deferred closed-dialog hosts reduced initial JS but delayed the first settings activation in the real popup (about 732 ms versus immediate on master), despite a fast tab check; those imports were removed too. Modal managers and dialog code remain eager. Rendering the 1000-track queue in 128-row portions reduced the longest task but nearly doubled full completion, so that experiment was also removed.
+
+Initial storageAtom reads share one deduplicated, key-limited batch: 24 startup get calls became one in the queue fixture. The entrypoint flushes before root.render so microtask batching does not postpone dispatch behind React scheduling. A later-created atom reads current storage rather than a permanent bootstrap cache. Local writes, external updates and removals beat a delayed initial snapshot. This change alone did not establish a consistent timing gain in exploratory measurements.
+
+The pending Home tree contained VKUI Skeleton position reads, resize observers and per-item synchronization timers, including placeholders outside the initial viewport. Passive LoadingPlaceholder spans retain sizes, line-height, border radii and theme colors, with static fill. Track/album placeholder containers retain VKUI typography without interactive Cell/HorizontalCell state. The loaded music UI stays unchanged. With catalog responses held, pending DOM nodes fell from 701 to 595. Three measured track rows retained 354x58 px at y=610/668/726; album placeholders retained 164x196 px at y=852. The regression advances three animation periods and observes no timers or additional React commits.
+
+The HTML also contained a parser-discovered external Mail.ru counter image. Git history dates that dependency to 2023, so it is not evidence of a newly introduced post-3.3.8 regression. The same single image request now starts in idle time after window.load, with a timer fallback. It no longer holds document loading open. A controlled ordinary-build experiment delayed only that response by five seconds: master first tracks arrived at 70 ms but load at 5023 ms; the candidate first tracks arrived at 73 ms and load at 38 ms. The request started once in each build, before load on master and after load on the candidate. This proves a document-load dependency, not the cause or exact visible-popup delay of a customer report.
+
+### Comparable startup measurements
+
+Chrome 156 used a fresh isolated profile for each cold run, 780x600 UI tab, CPU slowdown 10x, synthetic cached account, unchanged full SW/offscreen runtime, local queue covers and a 24-track Home response with a fixed 100 ms fetch delay. The legacy source returned an empty valid result. Builds/tests were stopped during recordings. Three master/candidate pairs alternated ordering. Times are milliseconds:
+
+| Metric | Master samples | Final samples |
+|---|---|---|
+| First track DOM / all 24 tracks | 1014 / 975 / 958 | 1018 / 943 / 876 |
+| Two-frame presentation opportunity | 1040 / 999 / 983 | 1049 / 971 / 901 |
+| Largest observed long task | 413 / 392 / 382 | 383 / 336 / 316 |
+| Renderer TaskDuration | 995 / 947 / 927 | 1029 / 923 / 880 |
+| ScriptDuration | 558 / 537 / 529 | 568 / 511 / 493 |
+
+Median first-track time fell about 3%, script work about 5% and largest task about 14%, with overlapping ranges. Startup/whole-renderer gains are modest; these are not OS CPU percentages or authenticated VK timings. All 24 tracks completed at the first-track observation in this fixture. Two animation frames identify a presentation opportunity, not a formal paint metric or field INP.
+
+A separate bounded opt-in React recording, from hook registration through all rows plus 600 ms settling, recorded 10 versus 12 commits: total render 382.9 to 376.9 ms and largest render 213.8 to 215.2 ms. These results do not establish fewer total React commits or a substantial render-time reduction. Placeholder-owned timers/updates were removed, while library/query/hydration work remains. Component hierarchy durations were not summed. Separate ordinary production traces observed first tracks at 1263 versus 1087 ms and largest tasks 586 versus 442 ms under instrumentation; repeated untraced cold runs above own the latency claim. Normal assets were restored afterward.
+
+### Behavior and limits
+
+The real toolbar action was triggered in a separate fresh automation profile. Chrome identified its view as a popup, mounted all 1000 queue rows, opened settings in both themes, returned focus to the same trigger with Escape and left playback paused without playbackError. Master and the final build inserted the settings dialog within the same clock tick as the recorded click; this is a DOM observation, not zero-latency presentation. The final automation window allowed a 780x498 native view rather than the tab fixture's 780x600; all physical-window sizing behavior is not established. Pending geometry and dark/light screenshots were compared separately in the 780x600 UI tab.
+
+The authenticated Chrome MCP profile had a VK session, but install_extension rejected both the temporary stage and the attached-workspace stage as outside its configured roots. No extension was installed there. Authenticated catalog timing was therefore unavailable; the isolated synthetic browser did not reuse that profile. Minimum-browser behavior, physical low-end hardware, long-session memory/GPU usage and customer-specific network delays remain unverified.
+
+Validation passed npm run check, all 872 tests across 99 files, full Chrome/Firefox builds, verify:build and Firefox 160 runtime smoke (startup, Audio snapshot, ordered repeat/shuffle and session replies). Counter tests cover post-load scheduling, one request, an already complete document and the missing-idle-API fallback. Ordinary assets were restored and test playback left paused.
+
+## Runtime merge and startup compatibility (November 15, 2026)
+
+PR 62 was rebased onto freshly fetched origin/master 70dfd8230235e50a659281e744df224719e6d742 after PRs 61 and 63 merged. The November 14 measurements above describe their original builds. The comparisons below use three separate worktrees: before PR 63 at 4ce2cf592bcac83d245032080c53b66890ec4cd2, current master at 70dfd8230235e50a659281e744df224719e6d742, and rebased PR 62 (95ca371 plus the shuffle-hotkey correction). Normal frontend assets respectively were index-DHOe3wmv.js, index-DzKqE-Sz.js and index-BIC4C4Fx.js.
+
+### Merge and correctness review
+
+The storageAtom conflict retains PR 63's subscribe-before-read revision guard, explicit default writes before readiness, failed-write rollback and per-atom readiness. Concurrent initial reads share one native Promise get with deduplicated keys. Shared read failure rejects every waiting atom, completes every readiness callback and permits a later fresh batch. The entrypoint still dispatches the read before root.render. [Atom regressions](../../tests/front/atom.test.ts) cover delayed shared hydration, default writes, removal, rollback and failed-batch recovery.
+
+Runtime validation, correlated bounded command replies, session-epoch retirement, serialized account cleanup and queue-preserving UPDATE migration remain intact. The readiness queue orders asynchronous preparation/start, without awaiting each entire handler: newer playback intent can still cancel earlier source preparation. Correlated SW commands add two key-limited identity reads, but no new VK request or popup hydration dependency. Migration traverses legacy queues only for schema zero; schema one returns before that validation. The current router validates a valid player payload twice, including its playlist, which remains avoidable worker work; the sampled 1000-track worker recording did not establish it as the dominant cost. No validator or deadline was weakened to improve the benchmark.
+
+Review also found an inherited correctness hole: the shuffle hotkey directly wrote !applicationState.shuffle outside the shared writer. A controlled mixed series of 36 hotkey/button activations, with its first write held, started 24 concurrent writes in Chrome and 18 in the Firefox bridge instead of one. The hotkey now calls toggleShuffle. [Transport regressions](../../tests/service-worker/playback-command-transport.test.ts) require exactly one started write while blocked, all 36 alternating values after release, disabled final shuffle and restored queue order in both transports. This defect predates PR 63.
+
+### Repeated production comparison
+
+Chrome 156 used independent synthetic profiles, full real SW/offscreen runtimes, a cached synthetic account, 1000 radio tracks, local covers and a valid HTTP WAV from a loopback server. HTTPS requests were blocked; no personal VK session was used. The UI ran in a 780x600 extension tab with 10x CPU slowdown; worker/Audio contexts were not throttled. Builds/tests were stopped during recordings. Every burst began from the second track playing, issued 18 native clicks with counts 1/2/3 and requested 80 ms gaps, then settled for one second. Browser dispatch can stretch those gaps.
+
+The first series ran before/master/PR 62; a second focused series reversed that order. Next and cover have five samples per build; repeat has three. Median renderer TaskDuration and ScriptDuration per complete burst, in milliseconds:
+
+| Control | Before PR 63 task / script | Master task / script | Rebased PR 62 task / script |
+|---|---|---|---|
+| Next | 2618 / 375 | 2475 / 388 | 2675 / 358 |
+| Repeat | 990 / 136 | 722 / 131 | 910 / 135 |
+| Row cover | 4144 / 172 | 3798 / 188 | 4299 / 182 |
+
+Ranges overlap substantially and changed with run order. These samples do not establish a new PR 63 renderer regression or a universal speedup from PR 62. All bursts delivered 18 commands, with all Next/repeat transitions applied, no failed correlated reply and no playbackError. Cover bursts selected the inactive source and then toggled it; repeated selection before its metadata commits can emit another ACTIVE_TRACK. The pre-63 transport Promise and the newer applied-command reply have different completion semantics, so their round-trip durations are not a comparable latency metric.
+
+Six queue-document startup samples per build (one initial navigation and two warm reloads in each series) gave first-row ranges of 305–725 / 325–830 / 308–740 ms, full-1000-row ranges of 1125–1855 / 1132–2753 / 1145–2132 ms, and largest observed task ranges of 448–534 / 443–583 / 443–552 ms, respectively. Initial UI storage reads were 24 / 24 / 1. This verifies merged batching but does not establish a reliable startup speedup for the loaded queue. It does not repeat the held-Home-placeholder or delayed-counter experiments above.
+
+### Separate profiling and traces
+
+Comparable opt-in React recordings captured startup through all rows plus 700 ms settling, then a separately reset three-Next sequence with 200 ms gaps and one-second settling. Before/master/PR 62 each recorded seven startup commits (total root render 999.8 / 976.3 / 983.6 ms; largest 670.2 / 669.8 / 677.4 ms) and ten Next commits (total 38.8 / 53.7 / 51.8 ms; largest 9.5 / 10.5 / 12.0 ms). This is one instrumented sample per build, not a significant render-time increase or reduction. The largest-commit component report contained IconButton/Tappable entries. Reports also retain cached component timings, so the hierarchy was not summed or interpreted as proof that every reported row rerendered.
+
+Separate ordinary production traces for the same three-Next sequence identified CrRendererMain through the tested extension's frontend FunctionCall asset, excluding the worker and Audio renderer. They recorded 1598 / 1321 / 1280 ms of top-level task wall duration, largest tasks 47.1 / 44.2 / 42.4 ms, and no tasks above 50 ms in these bounded traces. Layout totals were 243 / 249 / 247 ms and paint 62 / 55 / 58 ms. These diagnostic traces include recording overhead and are separate from the repeated untraced samples; no whole-process CPU percentage or audible-start claim follows from them. Normal stage assets were restored, playback paused and isolated browsers closed afterward.
+
+The final remote refresh retained master 70dfd8230235e50a659281e744df224719e6d742. Validation passed npm run check, all 953 tests across 109 files, full Chrome/Firefox builds, verify:build and docs:check. Firefox 160 smoke passed startup, migration schema one, Audio snapshot, repeat, ordered shuffle, correlated runtime/bridge replies, malformed-command rejection and validated session replies. Authenticated catalog/media timing, minimum browser versions, physical low-end devices and long-session heap/GPU behavior remain outside this fixture.
