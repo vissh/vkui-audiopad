@@ -1,7 +1,8 @@
 import { Icon24ExternalLinkOutline, Icon56ErrorOutline } from '@vkontakte/icons'
-import { FormItem, Group, Link, Panel, PanelSpinner, Placeholder, Textarea } from '@vkontakte/vkui'
+import { Button, Group, Link, Panel, PanelSpinner, Placeholder } from '@vkontakte/vkui'
 import { type FC, type ReactNode } from 'react'
-import { serializeError } from 'serialize-error'
+import { createErrorReport, errorHint } from '../../lib/error-report'
+import { ErrorReport } from '../error-report'
 
 interface ContentProps {
   display: boolean
@@ -41,7 +42,7 @@ interface ErrorProps {
 }
 
 const ErrorResult: FC<ErrorProps> = ({ error }) => {
-  console.error(error)
+  console.error(createErrorReport(error))
   const link = (
     <Link
       href='https://vk.me/vkaudiopad'
@@ -57,16 +58,18 @@ const ErrorResult: FC<ErrorProps> = ({ error }) => {
 
   return (
     <Group>
-      <Placeholder icon={<Icon56ErrorOutline />}>
-        К сожалению, получение данных завершилось с ошибкой, повторите попытку позже.
+      <Placeholder
+        icon={<Icon56ErrorOutline />}
+        action={
+          <>
+            <Button mode='secondary' onClick={() => { location.reload() }}>Обновить интерфейс</Button>
+            <ErrorReport error={error} />
+          </>
+        }
+      >
+        {errorHint(error)}
         <br />
-        Если ошибка не пропадает, скопируйте данные и отправьте сообщение в {link}. Спасибо!
-        <br />
-
-        <FormItem top='Скопируйте информацию об ошибке' topComponent='h5'>
-          <Textarea value={JSON.stringify(serializeError(error))} />
-        </FormItem>
-
+        Если ошибка не пропадает, скопируйте информацию об ошибке и отправьте сообщение в {link}
       </Placeholder>
     </Group>
   )

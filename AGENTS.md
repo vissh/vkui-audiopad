@@ -61,6 +61,8 @@ Before equalizer changes, read [ADR 0010](docs/decisions/0010-equalizer.md) for 
 
 Before session/token changes, read [ADR 0009](docs/decisions/0009-session-owner.md): the background session owner is the credential writer; UI and token-method clients use its bounded, validated request/reply contract. Do not add per-popup refresh writers or replay a request after its account/epoch changes.
 
+Before error-report or automatic-recovery changes, read [diagnostics and recovery](docs/ai/error-diagnostics.md): allowlisted technical context, build identity, bounded legacy reconnect and preservation of session/queue on inconclusive failures.
+
 For query keys, account changes and pagination, read [ADR 0007](docs/decisions/0007-query-identity-and-pagination.md): per-account caches, original mutation variables, cursor guards and immutable merges.
 
 Before server-playlist, catalog-group, friend-library or radio changes, read [the product contracts](docs/product/behavior.md#home-discovery-tiles), [current VK formats](docs/ai/vkru-scraping.md#home-catalog-tiles) and [the parity follow-up](docs/ai/testing.md#catalog-and-playlist-parity-follow-up-november-7-2026). Creation and edit order differ, cover persistence has multiple stages, and editable playlists must exclude followed copies and albums.

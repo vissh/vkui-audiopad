@@ -1,6 +1,8 @@
 import { Banner, Button, Group } from '@vkontakte/vkui'
 import { useEffect, type FC } from 'react'
 import { setRequestPermissionModal, setSignInModal } from '@/entities/modal'
+import { errorHint } from '@/shared/lib/error-report'
+import { ErrorReport } from '@/shared/ui/error-report'
 import { useUpdateWebToken } from '../model/hooks'
 
 export const SignIn: FC = () => {
@@ -25,7 +27,7 @@ export const SignIn: FC = () => {
       <Banner
         role='status'
         title='Не удалось проверить подключение к VK'
-        subtitle='Проверьте соединение и повторите попытку'
+        subtitle={webToken?.error?.serializedError != null ? errorHint(webToken.error.serializedError) : 'Проверьте соединение и повторите попытку'}
         actions={
           <Button
             mode='secondary'
@@ -38,6 +40,7 @@ export const SignIn: FC = () => {
           </Button>
         }
       />
+      {webToken?.error?.serializedError != null && <ErrorReport error={webToken.error.serializedError} />}
     </Group>
   )
 }

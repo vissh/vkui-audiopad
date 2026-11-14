@@ -16,7 +16,7 @@ The background session owner performs verification/persistence; the sign-in feat
 - Inconclusive checks make no session/queue writes. Show a safe status below the player and an explicit “Повторить” action. Disable it during the request. There is no automatic session-query retry; retries are read-only verification, not replay of VK mutations.
 - Verified same-account refresh awaits persistence and keeps deviceId and associated data. A different account clears old associated data before publishing the new identity, retains settings and generates a deviceId. Confirmed logout retains the existing settings-preserving cleanup policy.
 - Await cleanup and persistence, propagate their failures to the retry UI, and serialize session writes in the shared background owner. An aborted queued write does not begin; an already-issued storage mutation cannot be cancelled or rolled back.
-- Session UI errors and token-parser errors contain no upstream response payload or credentials. Preserve legacy FormData, windows-1251 decoding and the one reconnect attempt. HTTP status enforcement is opt-in for the token endpoint; it does not change all legacy scraping calls.
+- Session UI errors and token-parser errors contain no upstream response payload or credentials. Preserve legacy FormData, windows-1251 decoding and the one reconnect attempt. All legacy HTTP failures now reject before parsing/reconnect; a token-endpoint HTTP failure remains inconclusive. [Diagnostics and recovery](../ai/error-diagnostics.md) defines the safe context and shared legacy deadline.
 
 ## Limits
 

@@ -13,7 +13,10 @@ export const createSessionOwner = () => {
   let writing: Promise<unknown> = Promise.resolve()
 
   const read = async (): Promise<StoredSnapshot> => {
-    const stored = await chrome.storage.local.get(['sessionEpoch', 'userId', 'webToken', 'deviceId'])
+    let stored: Record<string, unknown>
+    try { stored = await chrome.storage.local.get(['sessionEpoch', 'userId', 'webToken', 'deviceId']) } catch {
+      throw new vkApiClient.VKApiError('unavailable', { operation: 'session', stage: 'storage' })
+    }
     const userId = typeof stored.userId === 'string' ? stored.userId : ''
     const epoch = typeof stored.sessionEpoch === 'string' && stored.sessionEpoch.length > 0 ? stored.sessionEpoch : 'legacy'
     const candidate: unknown = sessionClient.isObject(stored.webToken) ? { ...stored.webToken, logoutHash: typeof stored.webToken.logoutHash === 'string' ? stored.webToken.logoutHash : '' } : stored.webToken
@@ -54,7 +57,11 @@ export const createSessionOwner = () => {
       return { identity: { epoch, userId: nextUser }, token }
     })
     writing = result.catch(() => {})
-    return await result
+    try { return await result } catch (error) {
+      signal.throwIfAborted()
+      if (error instanceof vkApiClient.VKApiError) throw error
+      throw new vkApiClient.VKApiError('unavailable', { operation: 'session', stage: 'storage' })
+    }
   }
   const start = (identity: Identity, verified: boolean): Flight => {
     const controller = new AbortController()
@@ -67,7 +74,7 @@ export const createSessionOwner = () => {
       } else {
         if (token.error != null || token.userId.length === 0 || token.accessToken.length === 0) throw new vkApiClient.VKApiError('format')
         if (!verified && token.userId !== identity.userId) throw new vkApiClient.VKApiError('session-changed')
-        if (verified && !await checkProfile(token, signal)) return await write(identity, vkApiClient.UnauthorizedWebToken, true, signal)
+        if (verified && !await vkApiClient.checkProfile(token, signal)) return await write(identity, vkApiClient.UnauthorizedWebToken, true, signal)
       }
       return await write(identity, token, verified, signal)
     }, 15_000, controller.signal).finally(() => {
@@ -135,23 +142,6 @@ export const createSessionOwner = () => {
       return { identity: result.identity, token: result.token }
     }, 15_000, callerSignal)
   }
-}
-
-const checkProfile = async (token: commonTypes.WebToken, signal: AbortSignal): Promise<boolean> => {
-  const params = new URLSearchParams({ app_id: vkApiClient.VK_APP_ID, v: vkApiClient.API_VERSION, access_token: token.accessToken })
-  const response = await fetch(`https://api.vk.ru/method/account.getProfileNavigationInfo?v=${vkApiClient.QUERY_API_VERSION}&client_id=${vkApiClient.VK_APP_ID}`, { method: 'POST', body: params, signal })
-  signal.throwIfAborted()
-  if (response.status === 401) return false
-  if (!response.ok) throw new vkApiClient.VKApiError('unavailable')
-  const payload: unknown = await response.json()
-  signal.throwIfAborted()
-  if (!sessionClient.isObject(payload)) throw new vkApiClient.VKApiError('format')
-  if ('error' in payload) {
-    if (sessionClient.isObject(payload.error) && payload.error.error_code === 5) return false
-    throw new vkApiClient.VKApiError('unavailable')
-  }
-  if (!sessionClient.isObject(payload.response)) throw new vkApiClient.VKApiError('format')
-  return true
 }
 
 const validOperation = (operation: unknown): operation is commonTypes.SessionOperation => {

@@ -15,7 +15,7 @@ const actMode = async (track: commonTypes.TrackItem): Promise<commonTypes.TrackI
     group_id: '0',
     hash: track.addHash,
     track_code: track.trackCode
-  }, undefined, { requireOk: true, retryAfterReconnect: false })
+  }, undefined, { retryAfterReconnect: false })
   vkClient.assertMutationResponse(resp)
   try {
     const added = converter.toTrackItem(cast.castToArray(vkClient.parseResponsePayload(resp, [1, 0])))

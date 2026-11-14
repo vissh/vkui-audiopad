@@ -2,7 +2,7 @@ import { castToJSONObject, castToNumber, castToString, safeCastToString } from '
 import { toTrackItemFromAPIResponse } from './converter'
 import { type JSONObject, type TrackItem, type WebToken } from './types'
 import { request as vkClientRequest } from './vk-client'
-import { VKApiError } from './vk-api-error'
+import { VKApiError, requestOperation, responseDetails, withVKApiErrorDetails, type VKApiErrorDetails } from './vk-api-error'
 import { withTimeout } from './with-timeout'
 import { getSessionToken, requestSession } from './session-client'
 import { type SessionIdentity } from './types'
@@ -169,6 +169,7 @@ const isJSONObjectValue = (value: unknown): value is JSONObject => {
 
 export const request = async (url: string, method: 'GET' | 'POST', params: Record<string, string>, signal?: AbortSignal, expectedUserId?: string, expectedIdentity?: SessionIdentity): Promise<JSONObject> => {
   signal?.throwIfAborted()
+  let details: VKApiErrorDetails = { operation: requestOperation(url), stage: 'token' }
   const controller = new AbortController()
   const cancel = (): void => { controller.abort(signal?.reason) }
   let identity: SessionIdentity | undefined
@@ -198,12 +199,14 @@ export const request = async (url: string, method: 'GET' | 'POST', params: Recor
         if (method === 'GET') body.forEach((value, key) => { target.searchParams.set(key, value) })
         else options.body = body
         try {
-          const result = await performRequest(target.toString(), options, requestSignal)
+          details = { operation: requestOperation(url), stage: attempt === 0 ? 'request' : 'retry', attempt: attempt + 1 }
+          const result = await performRequest(target.toString(), options, requestSignal, details)
           await requestSession({ kind: 'assert', identity }, requestSignal)
           return result
         } catch (error) {
           requestSignal.throwIfAborted()
           if (!(error instanceof VKApiError) || error.kind !== 'unauthorized' || attempt !== 0) throw error
+          details = { operation: requestOperation(url), stage: 'refresh', attempt: 1 }
           session = await requestSession({ kind: 'refresh', identity, rejectedToken: token.accessToken }, requestSignal)
         }
       }
@@ -211,40 +214,41 @@ export const request = async (url: string, method: 'GET' | 'POST', params: Recor
     }, 15_000, controller.signal)
   } catch (error) {
     signal?.throwIfAborted()
-    if (error instanceof VKApiError) throw error
-    if (error instanceof DOMException && error.name === 'TimeoutError') throw new VKApiError('timeout')
-    throw new VKApiError('unavailable')
+    if (error instanceof VKApiError) throw withVKApiErrorDetails(error, details)
+    if (error instanceof DOMException && error.name === 'TimeoutError') throw new VKApiError('timeout', details)
+    throw new VKApiError('unavailable', details)
   } finally {
     signal?.removeEventListener('abort', cancel)
     chrome.storage.onChanged.removeListener(changed)
   }
 }
 
-const performRequest = async (url: string, options: RequestInit, signal: AbortSignal): Promise<JSONObject> => {
+const performRequest = async (url: string, options: RequestInit, signal: AbortSignal, context: VKApiErrorDetails): Promise<JSONObject> => {
   let response: Response
   try {
     response = await fetch(url, options)
   } catch {
     signal.throwIfAborted()
-    throw new VKApiError('network')
+    throw new VKApiError('network', context)
   }
   signal.throwIfAborted()
-  if (!response.ok) throw new VKApiError(response.status === 401 ? 'unauthorized' : response.status === 429 ? 'rate-limit' : 'http', { status: response.status })
+  const details = { ...context, ...responseDetails(response) }
+  if (!response.ok) throw new VKApiError(response.status === 401 ? 'unauthorized' : response.status === 429 ? 'rate-limit' : 'http', details)
   let payload: unknown
   try {
     payload = await response.json()
   } catch {
     signal.throwIfAborted()
-    throw new VKApiError('format')
+    throw new VKApiError('format', details)
   }
   signal.throwIfAborted()
-  if (!isJSONObjectValue(payload)) throw new VKApiError('format')
+  if (!isJSONObjectValue(payload)) throw new VKApiError('format', details)
   if (payload.error != null) {
-    if (!isJSONObjectValue(payload.error) || typeof payload.error.error_code !== 'number') throw new VKApiError('format')
+    if (!isJSONObjectValue(payload.error) || typeof payload.error.error_code !== 'number') throw new VKApiError('format', details)
     const code = payload.error.error_code
-    throw new VKApiError(code === 5 ? 'unauthorized' : code === 6 || code === 9 ? 'rate-limit' : 'vk', { code, status: response.status })
+    throw new VKApiError(code === 5 ? 'unauthorized' : code === 6 || code === 9 ? 'rate-limit' : 'vk', { ...details, code })
   }
-  if (!('response' in payload)) throw new VKApiError('format')
+  if (!('response' in payload)) throw new VKApiError('format', details)
   return payload
 }
 
@@ -253,7 +257,7 @@ export const fetchAppWebToken = async (signal?: AbortSignal): Promise<WebToken> 
     version: '1',
     app_id: VK_APP_ID,
     access_token: ''
-  }, signal, { requireOk: true })
+  }, signal)
 
   try {
     const jsonResp = castToJSONObject(resp)
@@ -274,7 +278,21 @@ export const fetchAppWebToken = async (signal?: AbortSignal): Promise<WebToken> 
       error: null
     }
   } catch {
-    throw new Error('Invalid VK web token response')
+    throw new VKApiError('format', { operation: 'web_token', stage: 'token' })
+  }
+}
+
+export const checkProfile = async (token: WebToken, signal: AbortSignal): Promise<boolean> => {
+  const details = { operation: 'account.getProfileNavigationInfo', stage: 'profile', attempt: 1 }
+  const params = new URLSearchParams({ app_id: VK_APP_ID, v: API_VERSION, access_token: token.accessToken })
+  try {
+    const payload = await performRequest(`https://api.vk.ru/method/account.getProfileNavigationInfo?v=${QUERY_API_VERSION}&client_id=${VK_APP_ID}`, { method: 'POST', body: params, signal }, signal, details)
+    if (!isJSONObjectValue(payload.response)) throw new VKApiError('format', details)
+    return true
+  } catch (error) {
+    signal.throwIfAborted()
+    if (error instanceof VKApiError && error.kind === 'unauthorized') return false
+    throw error
   }
 }
 
