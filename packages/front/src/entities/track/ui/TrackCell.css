@@ -2,6 +2,62 @@
   contain: layout style;
 }
 
+.vkap_track_cell_native {
+  display: flex;
+  align-items: center;
+  min-height: 48px;
+  padding-inline: var(--vkui--size_base_padding_horizontal--regular);
+  color: var(--vkui--color_text_primary);
+  cursor: pointer;
+}
+
+.vkap_track_cell_native[data-disabled] {
+  cursor: default;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .vkap_track_cell_native:not([data-disabled]):hover {
+    background-color: var(--vkui--color_background_content--hover);
+  }
+}
+
+.vkap_track_cell_native:not([data-disabled]):active {
+  background-color: var(--vkui--color_background_content--active);
+}
+
+.vkap_track_cell_artwork {
+  display: flex;
+  align-items: center;
+  align-self: stretch;
+  flex-shrink: 0;
+  padding-block: 4px;
+  padding-inline-end: var(--vkui--spacing_size_xl);
+}
+
+.vkap_track_cell_metadata {
+  flex: 1;
+  min-width: 0;
+  padding-block: var(--vkui--spacing_size_l);
+  overflow: hidden;
+}
+
+.vkap_track_cell_heading,
+.vkap_track_cell_subtitle {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.vkap_track_cell_subtitle {
+  margin-block-start: var(--vkui--spacing_size_2xs);
+  color: var(--vkui--color_text_secondary);
+}
+
+.vkap_track_cell_after {
+  flex-shrink: 0;
+  padding-inline-start: var(--vkui--spacing_size_xl);
+}
+
 .vkap_track_cell_tail {
   display: grid;
   align-items: center;
@@ -17,13 +73,15 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  font: inherit;
+  font-family: inherit;
   color: inherit;
   text-align: start;
+  cursor: pointer;
 }
 
 .vkap_track_title_button:disabled {
   color: var(--vkui--color_text_secondary);
+  cursor: default;
 }
 
 .vkap_track_cell_actions,

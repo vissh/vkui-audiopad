@@ -1026,3 +1026,48 @@ Browser range/click checks and computed styles covered the row artist, row title
 The archived master suite passed 819 tests, the old task passed 798, and the integrated suite passed 833. Initial simultaneous baseline test warmups caused five-second timeouts and secondary assertions. Serial runs with four workers passed both archived suites. This was test-host contention, with no baseline source edits. Separate ordinary queue traces were saved for current master and the final candidate. Trace instrumentation increased complete-list times to approximately 6.4 and 7.2 seconds, respectively. Raw authenticated traces remain temporary. Their costs are separate from the uninstrumented samples above.
 
 Final validation passed npm run check, all 833 tests across 93 files, both complete extension builds and verify:build. The final authenticated frontend loaded index-hmiGqcyy.js with no profiling hook or warning/error console entries. Its light-theme screenshot was inspected. A final full-runtime play/pause/next/previous check passed again. The actual Chrome toolbar popup measured 780x600, exposed selectable row text, loaded the same normal asset and had no horizontal overflow. The temporary popup was closed, playback paused and emulation reset. Physical low-end hardware, long-session heap/GPU measurements, spoken assistive technology and authenticated Firefox interaction timing remain outside this comparison.
+
+## Track rendering and responsiveness (November 14, 2026)
+
+The repeated feedback describes delayed click/hover/tooltip feedback, seeking and roughly five-second opening after updates following 3.3.8 (0810db2). The optimization baseline is the fetched current origin/master, 4d94ebaf6c4c25fac9d444bea613e0c231f23c2c. The task branch started at that commit; another fetch before final validation found no newer base commits. This baseline already includes the November 9/10 startup, queue and animation improvements above. These results do not assign the reported regression to a particular release or reproduce the full seconds-long freeze.
+
+Normal rows now use a smaller native surface/title button and memoized decorative covers with VKUI typography, icons and theme tokens. The editor retains VKUI Cell and its drag machinery. Listening previews subscribe to their own track playback state, avoiding unrelated updates in retained hidden cards. Slider hover previews perform one geometry read/update per animation frame, with cancellation and a memoized range control. No startup requests, media protocol, background polling or critical data dependencies were added. [Rendering contracts](ui-debugging.md#track-rendering) describe the boundaries.
+
+### Controlled full-runtime production comparison
+
+An isolated Chrome 156 automation profile ran the actual extension manifest, service worker, offscreen Audio document and ordinary production frontend at 780x600. The same extension installation retained a synthetic account, 1000-track radio queue and local silent WAV. HTTPS requests were rejected by the fixture, so VK authentication/network arrival and remote covers are outside these results. Frontend assets were overlaid and the UI reloaded without reinstalling/resetting the runtime. Baseline assets were index-C9qna2cq.js; candidate assets were index-Ba_OwavX.js. Builds/tests finished before accepted performance samples. The toolbar popup remained closed during tab benchmarks.
+
+Fresh UI document samples used retained cache, a paused player and 10x frontend CPU slowdown. First rows is DOM arrival of playable controls, not a skeleton. The two-animation-frame observation after insertion is an approximation of a presentation opportunity, not a formal browser paint metric. Times are relative to document navigation. Each column below is the median of three runs.
+
+| 1000-track queue, 10x CPU | Current master | Candidate |
+|---|---:|---:|
+| First track controls in DOM, ms | 637 | 644 |
+| Two frames after first controls, ms | 677 | 678 |
+| All loaded rows in DOM, ms | 3005 | 1709 |
+| Largest observed JS long task, ms | 505 | 261 |
+| Final DOM elements | 32463 | 18463 |
+
+The first/all/largest individual samples were (637,3791,535), (620,2783,505), (765,3005,492) ms on master and (915,2111,268), (644,1709,261), (536,1457,250) ms on the candidate. Complete-list arrival improved by approximately 43% and the median largest JS task by 48%; first usable content stayed comparable. Full-list rendering still has a substantial blocking task under this stress throttle.
+
+Ordinary production traces measured three marked 5.5-second windows during real local-WAV playback, resetting position to ten seconds and settling before each window. Playback remained active and time advanced from ten to sixteen seconds in every window. Events were attributed to the extension frame's process and CrRendererMain. RunTask totals describe renderer main-thread work, including rendering, rather than JavaScript-only long tasks or total operating-system CPU.
+
+| Playing a loaded 1000-track queue | Current master samples, ms | Candidate samples, ms |
+|---|---|---|
+| Main-thread work per window, 10x CPU | 622 / 619 / 617 | 466 / 846 / 478 |
+| Largest task per window, 10x CPU | 97 / 103 / 99 | 72 / 219 / 76 |
+| Main-thread work per window, default CPU | 64 / 91 / 62 | 46 / 101 / 46 |
+| Largest task per window, default CPU | 9.6 / 9.9 / 9.7 | 6.7 / 22.8 / 6.1 |
+
+Median main-thread work fell approximately 23% under 10x slowdown and 27% at default CPU. The candidate's second window had an outlier at both rates; all samples are retained. Neither build had tasks over 50 ms in the default-CPU playback windows. These lab figures do not establish an equivalent reduction in total extension CPU, GPU cost or behavior on physical low-end hardware. An earlier trace collected concurrently with check was discarded and excluded.
+
+A trusted pointer sequence paused, selected Next, selected Previous, sought at the timeline midpoint, then paused again. EventTiming click durations were 32/88/64/120/80 ms on master and 24/32/32/88/40 ms on the candidate, at 10x slowdown. The sequence median was 80 versus 32 ms; seeking was 120 versus 88 ms. These are individual interaction observations, not a field INP percentile. Both sequences ended paused near 62 seconds without playbackError. Handler processing itself remained short; input delay and presentation account for most of the measured latency.
+
+### React recordings and behavior
+
+Separate opt-in profiling builds replaced a one-track queue with the same 1000 tracks at 10x CPU. Master recorded eight commits, 1272 ms total render time and a largest render of 1186 ms. The candidate recorded seven commits, 636 ms total and a largest render of 593 ms. The largest candidate commit report attributed the tree to CurrentPlaylist, InfinityContent and List, including the track subtree. These render durations span React work and do not represent continuous production blocking. The profiling library retains cached durations for unchanged fibers: component totals/ancestors and componentsChanged must not be summed or interpreted as exclusive work or exact rerender counts.
+
+The normal candidate preserved the original 58 px row, 48 px cover, 15/20 px regular title and 13/16 px subtitle in browser computed styles. Light/dark screenshots were inspected. All 1000 loaded playback buttons, including track 1000, appeared in Chrome's accessibility snapshot before scrolling. Focusing the last title scrolled it into view and prepared its action controls; metadata retained user-select text. An experimental content-visibility variant exposed only 20 playback buttons and was rejected. Render grouping and additional compositor/containment experiments did not show a reliable overall-work improvement and were removed.
+
+The actual toolbar popup measured 780x600 with eight fixture tracks, no horizontal overflow and working focus on its final track. An eight-track queue entered the unchanged VKUI editor, moved its first track down and restored the original order on cancel. Native keyboard range changes emitted seek commands and Escape dismissed the preview without moving focus. The ordinary frontend had no profiling registration and no warning/error console entries after the final reload. Playback was paused, the temporary popup closed and emulation reset before closing the isolated browser.
+
+[Render-isolation regressions](../../tests/front/render-isolation.test.ts) verify zero preview renders for unrelated playback/time changes and only the affected previews after selection. [Slider regressions](../../tests/front/player-slider.test.ts) cover latest-pointer coalescing, geometry reads, cancellation, native command behavior and preview isolation. [Cover regressions](../../tests/front/track-image.test.ts) cover geometry, lazy loading, source/failure retirement and overlay/editor states. Existing selection, accessibility, deferred-action and queue suites remain in the full run. Validation passed npm run check, all 854 tests across 97 files, full Chrome/Firefox builds and verify:build. Firefox 160 smoke also passed temporary-addon startup, Audio snapshot, repeat and validated session reply checks; the first sandboxed MCP connection timed out, and the isolated retry outside the sandbox passed. Authenticated catalog timing, remote-cover loading, spoken assistive technology, long-session heap/GPU measurements and authenticated Firefox interaction timing remain unverified by this fixture.

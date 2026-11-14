@@ -1,13 +1,13 @@
 import { useQuery } from '@tanstack/react-query'
-import { commonUtils } from '@vk-audiopad/common'
+import { commonUtils, type commonTypes } from '@vk-audiopad/common'
 import { Icon16User } from '@vkontakte/icons'
 import { Avatar, Button, Card, Div, Footnote, Group, Header, Link, SimpleCell, Skeleton, Tappable } from '@vkontakte/vkui'
-import { useState } from 'react'
+import { memo, useState } from 'react'
 import { useInView } from 'react-intersection-observer'
 import { FollowIcon } from '@/features/follow-album'
 import { playOrPause } from '@/features/play-or-pause'
 import { PlayPlaylistButton } from '@/features/play-or-pause-album'
-import { useActiveTrack, usePlayed } from '@/entities/active-track'
+import { useTrackPlayback } from '@/entities/active-track'
 import { getTrackState, TrackImage } from '@/entities/track'
 import { fetchPlaylist } from '@/shared/api'
 import { openAlbumsPage, openPlaylistPage } from '@/shared/model'
@@ -43,8 +43,6 @@ export const ListeningGallery = ({ userId, title, showAllLink, albums }: Listeni
 const ListeningCard = ({ userId, album }: { userId: string, album: Album }) => {
   const { ref, inView } = useInView({ rootMargin: '200px', triggerOnce: true, skip: album.tracks.length > 0, fallbackInView: true })
   const [failedCover, setFailedCover] = useState<string | null>(null)
-  const activeTrack = useActiveTrack()
-  const played = usePlayed()
   const query = useQuery({
     queryKey: ['listeningPreview', userId, album.ownerId, album.id, album.blockId],
     queryFn: async ({ signal }) => await fetchPlaylist({ fromId: userId, playlist: album }, signal),
@@ -71,24 +69,7 @@ const ListeningCard = ({ userId, album }: { userId: string, album: Album }) => {
       </Tappable>
       <div className='vkap_listening_actions'><FollowIcon album={album} /><PlayPlaylistButton userId={userId} album={album} /></div>
       <div className='vkap_listening_tracks'>
-        {tracks.map(track => {
-          const state = getTrackState(track, activeTrack, played)
-          return (
-            <SimpleCell
-              key={track.id}
-              Component='button'
-              type='button'
-              className='vkap_listening_track'
-              before={<TrackImage imageSrc={track.image} trackState={state} />}
-              subtitle={track.artist}
-              after={<Footnote className='vkap_listening_duration'>{commonUtils.toHHMMSS(track.duration)}</Footnote>}
-              disabled={state === 'disabled'}
-              onClick={() => { playOrPause(state, track.id, playlist) }}
-            >
-              {track.title}
-            </SimpleCell>
-          )
-        })}
+        {tracks.map(track => <ListeningTrack key={track.id} track={track} playlist={playlist} />)}
         {tracks.length === 0 && query.isPending && <div className='vkap_listening_skeleton' aria-label='Загрузка треков'>{Array.from({ length: 3 }, (_, index) => <Skeleton key={index} height={48} />)}</div>}
         {tracks.length === 0 && query.isError && <Div><Footnote>Треки не загрузились</Footnote><Button mode='tertiary' onClick={() => { void query.refetch() }}>Повторить</Button></Div>}
         {tracks.length === 0 && !query.isPending && !query.isError && <Div><Footnote>В плейлисте пока нет треков</Footnote></Div>}
@@ -96,3 +77,22 @@ const ListeningCard = ({ userId, album }: { userId: string, album: Album }) => {
     </Card>
   )
 }
+
+const ListeningTrack = memo(function ListeningTrack ({ track, playlist }: { track: commonTypes.TrackItem, playlist: commonTypes.Playlist }) {
+  const playback = useTrackPlayback(track.id)
+  const state = getTrackState(track, playback == null ? null : track, playback === 'played')
+  return (
+    <SimpleCell
+      Component='button'
+      type='button'
+      className='vkap_listening_track'
+      before={<TrackImage imageSrc={track.image} trackState={state} />}
+      subtitle={track.artist}
+      after={<Footnote className='vkap_listening_duration'>{commonUtils.toHHMMSS(track.duration)}</Footnote>}
+      disabled={state === 'disabled'}
+      onClick={() => { playOrPause(state, track.id, playlist) }}
+    >
+      {track.title}
+    </SimpleCell>
+  )
+})

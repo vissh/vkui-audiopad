@@ -1,0 +1,70 @@
+.vkap_track_cover {
+  position: relative;
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 4px;
+  color: var(--vkui--color_icon_secondary);
+  background-color: var(--vkui--color_background_secondary);
+  isolation: isolate;
+}
+
+.vkap_track_cover_loaded {
+  background-color: transparent;
+}
+
+.vkap_track_cover::after {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  border: var(--vkui--size_border--regular) solid var(--vkui--color_image_border_alpha);
+  border-radius: inherit;
+  pointer-events: none;
+  content: '';
+}
+
+.vkap_track_cover img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: inherit;
+  object-fit: cover;
+  color: transparent;
+  text-indent: 10000px;
+}
+
+.vkap_track_cover_failed {
+  visibility: hidden;
+}
+
+.vkap_track_cover_overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: inherit;
+  color: var(--vkui--color_icon_contrast);
+  background-color: var(--vkui--color_avatar_overlay);
+  opacity: 0;
+  transition: opacity 0.3s ease-in-out;
+}
+
+.vkap_track_cover_overlay_disabled {
+  color: var(--vkui--color_icon_accent);
+  background-color: var(--vkui--color_avatar_overlay_inverse_alpha);
+}
+
+.vkap_track_cover_overlay_visible {
+  opacity: 1;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .vkap_track_cover_overlay:hover {
+    opacity: 1;
+  }
+}

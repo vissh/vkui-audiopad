@@ -167,6 +167,62 @@ it('keeps unrelated radio stations out of playback renders while preserving thei
   expect(browser.api.runtime.sendMessage).toHaveBeenLastCalledWith({ target: 'service-worker', type: 'toggle-playback' })
 })
 
+it('isolates playback updates in retained listening cards to the affected preview tracks', async () => {
+  vi.stubGlobal('ResizeObserver', class { observe () {} unobserve () {} disconnect () {} })
+  vi.stubGlobal('matchMedia', vi.fn((media: string) => ({ matches: false, media, onchange: null, addListener: vi.fn(), removeListener: vi.fn(), addEventListener: vi.fn(), removeEventListener: vi.fn(), dispatchEvent: () => true })))
+  const browser = createChrome({ activeTrack: track('9_1'), played: false })
+  browser.api.runtime.onMessage.addListener(() => {})
+  const renders: string[] = []
+  vi.doMock('@/entities/track', async importOriginal => {
+    const original = await importOriginal<typeof import('@/entities/track')>()
+    return {
+      ...original,
+      getTrackState: (...args: Parameters<typeof original.getTrackState>) => {
+        renders.push(args[0].id)
+        return original.getTrackState(...args)
+      }
+    }
+  })
+  const { CatalogGallery } = await import('@/widgets/catalog-gallery')
+  const { CatalogBlockDataType } = await import('@/shared/types')
+  const { QueryClient, QueryClientProvider } = await import('@tanstack/react-query')
+  const { ConfigProvider, AdaptivityProvider, Platform } = await import('@vkontakte/vkui')
+  const albums = Array.from({ length: 10 }, (_, index) => ({
+    ...playlist([`1_${index * 3 + 1}`, `1_${index * 3 + 2}`, `1_${index * 3 + 3}`], `album-${index}`),
+    coverUrl: '',
+    gridCoverUrls: [],
+    authorLine: '',
+    authorName: '',
+    infoLine: ''
+  }))
+  const client = new QueryClient()
+  const view = render(createElement(QueryClientProvider, {
+    client,
+    children: createElement(ConfigProvider, {
+      platform: Platform.ANDROID,
+      children: createElement(AdaptivityProvider, {
+        children: createElement('div', { hidden: true, inert: true }, createElement(CatalogGallery, {
+          userId: '1', mode: 'card', isPending: false, loadingBlock: 'albums', catalogBlock: { dataType: CatalogBlockDataType.ALBUMS, blockId: 'listening', title: 'Слушайте друг друга', showAllLink: '', albums }
+        }))
+      })
+    })
+  }))
+  await act(async () => { await browser.api.storage.local.get() })
+  renders.length = 0
+  await act(async () => { await browser.api.storage.local.set({ played: true, currentTime: 10 }) })
+  expect(renders).toEqual([])
+  await act(async () => { await browser.api.storage.local.set({ activeTrack: track('9_2') }) })
+  expect(renders).toEqual([])
+  await act(async () => { await browser.api.storage.local.set({ activeTrack: track('1_1') }) })
+  expect(renders).toEqual(['1_1'])
+  renders.length = 0
+  await act(async () => { await browser.api.storage.local.set({ activeTrack: track('1_2') }) })
+  expect(renders.sort()).toEqual(['1_1', '1_2'])
+  fireEvent.click(Array.from(view.container.querySelectorAll<HTMLButtonElement>('.vkap_listening_track')).find(button => button.textContent?.includes('1_2'))!)
+  expect(browser.api.runtime.sendMessage).toHaveBeenLastCalledWith({ target: 'service-worker', type: 'toggle-playback' })
+  client.clear()
+})
+
 it.each([false, true])('expires restoration after navigation for an isolated row, late deletion %s', async late => {
   vi.stubGlobal('matchMedia', vi.fn((query: string) => ({ matches: false, media: query, onchange: null, addListener: vi.fn(), removeListener: vi.fn(), addEventListener: vi.fn(), removeEventListener: vi.fn(), dispatchEvent: () => true })))
   vi.stubGlobal('ResizeObserver', class { observe () {} unobserve () {} disconnect () {} })

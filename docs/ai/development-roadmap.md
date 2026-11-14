@@ -227,6 +227,8 @@ The [startup and interaction comparison](testing.md#startup-and-interaction-perf
 
 The [November 8 accessibility/collage follow-up](testing.md#accessibility-and-collage-checks-november-8-2026) covers named independent controls, valid list/panel structure, route focus, keyboard queue ordering, native seek input, hidden skeletons and system accessibility preferences. It preserves the normal pointer appearance. Home now uses legacy HTML only after an initial token-catalog failure, and collage parsing retains all server thumbnails even when `photo` repeats their first tile.
 
+The [November 14 responsiveness follow-up](testing.md#track-rendering-and-responsiveness-november-14-2026) compares fetched master 4d94eba with smaller native track rows/covers, isolated listening previews and frame-coalesced slider previews. The controlled 1000-track production fixture reduces full-list arrival, blocking and median playback main-thread work while retaining all loaded playback buttons in the accessibility tree. It does not reproduce the reported seconds-long freeze or establish field/operating-system CPU improvements; authenticated and long-session measurements remain follow-up work.
+
 **Acceptance:** actions are keyboard-accessible; component failures have a recoverable screen; visual changes have baseline/current screenshots; optimization claims have measurements.
 
 ## T18 Complete context and autonomous-work guidance
