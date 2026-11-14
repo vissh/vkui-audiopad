@@ -54,6 +54,7 @@ export const toAlbum = (raw: commonTypes.JSONValue): Album => {
 }
 
 export const getText = (str: string) => {
+  if (!/[<&\r]|^[\t\n\f ]/.test(str) && !str.includes('\0')) return str
   const doc = parseFromString(str)
   return doc.documentElement.textContent ?? ''
 }

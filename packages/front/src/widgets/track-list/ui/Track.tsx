@@ -1,5 +1,5 @@
 import { commonTypes } from '@vk-audiopad/common'
-import { memo, useRef, useState } from 'react'
+import { memo, useMemo, useRef, useState } from 'react'
 import { AddToMyMusicButton } from '@/features/add-to-my-music'
 import { AddToQueueButton } from '@/features/add-to-queue'
 import { DeleteFromMyMusicButton, DeleteFromMyMusicWithRestoreButton } from '@/features/delete-from-my-music'
@@ -33,87 +33,90 @@ export const Track = memo(function Track ({ playlist, track: originalTrack }: Tr
   const deleteWindow = useRef(deletedTrackForRestore.window())
   const trackState = getTrackState(track, playback == null ? null : track, playback === 'played')
 
-  const actionButtons = getActionButtons({
+  // Only play-next availability depends on the selected track.
+  const actionButtons = useMemo(() => getActionButtons({
     userId,
     track,
-    trackState,
-    activeTrack: playback == null ? null : track,
+    trackState: getTrackState(track, null, false),
+    activeTrack: null,
     currentPlaylistExists,
     addedToMyMusic,
     deletedFromMyMusic
-  })
+  }), [userId, track, currentPlaylistExists, addedToMyMusic, deletedFromMyMusic])
+
+  const artist = useMemo(() => <SearchArtist track={track} />, [track])
+  const actions = useMemo(() => (
+    <>
+      {!deletedFromMyMusic && !playlist.isRadio && <TrackMixButton track={track} size='s' />}
+      {actionButtons.has('similar') && (
+        <SimilarButton
+          size='s'
+          userId={userId}
+          track={track}
+        />
+      )}
+
+      {!deletedFromMyMusic && <AddTrackToPlaylistButton track={track} size='s' />}
+
+      {actionButtons.has('add') && (
+        <AddToMyMusicButton
+          size='s'
+          track={track}
+          onAfterAdd={(newTrack) => {
+            setAddedToMyMusic(true)
+            setTrack(newTrack)
+          }}
+        />
+      )}
+
+      {actionButtons.has('delete') && (
+        <DeleteFromMyMusicButton
+          size='s'
+          track={track}
+          onAfterDelete={() => {
+            deletedTrackForRestore.remove(track)
+            setAddedToMyMusic(false)
+            setTrack(originalTrack)
+          }}
+        />
+      )}
+
+      {actionButtons.has('deleteWithRestore') && (
+        <DeleteFromMyMusicWithRestoreButton
+          track={track}
+          onBeforeDelete={() => { deleteWindow.current = deletedTrackForRestore.window() }}
+          onAfterDelete={() => {
+            deletedTrackForRestore.add(track, deleteWindow.current)
+            setTrack({ ...track, flags: track.flags | commonTypes.TrackFlagBit.CLAIMED })
+            setDeletedInWindow(deleteWindow.current)
+          }}
+        />
+      )}
+
+      {actionButtons.has('restore') && (
+        <RestoreButton
+          track={track}
+          onAfterRestore={() => {
+            setTrack(originalTrack)
+            setDeletedInWindow(null)
+          }}
+        />
+      )}
+    </>
+  ), [actionButtons, playlist.isRadio, userId, track, originalTrack, deletedFromMyMusic])
 
   if (deletedInWindow != null && deletedInWindow !== restoreWindow) return null
 
   return (
     <TrackCell
       title={track.title}
-      artist={<SearchArtist track={track} />}
+      artist={artist}
       duration={track.duration}
       image={track.image}
       trackState={trackState}
       removed={deletedFromMyMusic}
       onClick={() => { playOrPause(trackState, track.id, playlist) }}
-      actions={
-        <>
-          {actionButtons.has('addToQueue') && <AddToQueueButton track={track} />}
-          {!deletedFromMyMusic && !playlist.isRadio && <TrackMixButton track={track} size='s' />}
-          {actionButtons.has('similar') && (
-            <SimilarButton
-              size='s'
-              userId={userId}
-              track={track}
-            />
-          )}
-
-          {!deletedFromMyMusic && <AddTrackToPlaylistButton track={track} size='s' />}
-
-          {actionButtons.has('add') && (
-            <AddToMyMusicButton
-              size='s'
-              track={track}
-              onAfterAdd={(newTrack) => {
-                setAddedToMyMusic(true)
-                setTrack(newTrack)
-              }}
-            />
-          )}
-
-          {actionButtons.has('delete') && (
-            <DeleteFromMyMusicButton
-              size='s'
-              track={track}
-              onAfterDelete={() => {
-                deletedTrackForRestore.remove(track)
-                setAddedToMyMusic(false)
-                setTrack(originalTrack)
-              }}
-            />
-          )}
-
-          {actionButtons.has('deleteWithRestore') && (
-            <DeleteFromMyMusicWithRestoreButton
-              track={track}
-              onBeforeDelete={() => { deleteWindow.current = deletedTrackForRestore.window() }}
-              onAfterDelete={() => {
-                deletedTrackForRestore.add(track, deleteWindow.current)
-                setTrack({ ...track, flags: track.flags | commonTypes.TrackFlagBit.CLAIMED })
-                setDeletedInWindow(deleteWindow.current)
-              }}
-            />
-          )}
-
-          {actionButtons.has('restore') && (
-            <RestoreButton
-              track={track}
-              onAfterRestore={() => {
-                setTrack(originalTrack)
-                setDeletedInWindow(null)
-              }}
-            />
-          )}
-        </>
-      }
+      actions={<>{playback == null && actionButtons.has('addToQueue') && <AddToQueueButton track={track} />}{actions}</>}
     />
   )
 })

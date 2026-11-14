@@ -60,6 +60,14 @@ Action subtrees prepare within a 300 px viewport margin after 150 ms of continuo
 
 Compare a fresh long queue, rapid first-pass scrolling and a warm second pass. Verify the accessibility snapshot includes the final loaded track before it has been scrolled into view. Verify keyboard focus on an initially unprepared row, retained action state, editor apply/cancel, restore controls and the actual contained action popup. The [controlled regressions](../../tests/front/deferred-track-actions.test.ts) exercise scheduling and teardown. The [dated benchmark](testing.md#deferred-track-actions-and-scroll-november-9-2026) separates synthetic rendering results from authenticated catalog latency.
 
+## Interaction render isolation
+
+Keep row artist and non-queue action elements stable while only playback changes. Track memoizes these trees by track/user/library/restore inputs; play-next visibility separately follows active-track selection. Real metadata, account, add/delete/restore and radio changes must still invalidate the relevant tree. Preserve mounted dialog triggers and local action state across pause/play. The header cover memoizes by image source, while requested playback uses one derived external-store snapshot so observed media acknowledgements cannot rerender unchanged intent controls.
+
+For IconButton modes set to none, disable the corresponding hasHover/hasActive state machinery as well. An empty visual class alone still allows VKUI press state and its delayed reset to commit React work. Transport controls keep VKUI semantics/focus and use CSS :active opacity for immediate press feedback. The compositing hint is restricted to three small transport overlays; do not promote every loaded row or action.
+
+getText avoids HTML-document creation for ordinary names. Markup, entities, leading HTML whitespace, CR and NUL retain parser normalization. [Text regressions](../../tests/front/track-text.test.ts) compare the decoder with DOMParser; [render regressions](../../tests/front/render-isolation.test.ts) and [press regressions](../../tests/front/playback-controls.test.ts) distinguish real state updates from redundant work. [Dated evidence](testing.md#player-interaction-render-isolation-november-14-2026) separates React timing, browser work and native click observations.
+
 ## Repeated pointer activation
 
 Use trusted native down/up events with click counts 1, 2 and 3 to reproduce double/triple clicks. Programmatic element.click() uses detail=0 and bypasses the selection guard as keyboard activation does. Count DOM click events, emitted commands and applied settings separately; transport delivery alone is not an applied mode. Wait for the initial queue and media state before recording a burst, then observe that input still works without blur and background work settles after the burst.
