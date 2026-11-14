@@ -327,6 +327,7 @@ export enum MessageType {
   PLAY_TRACK = 'play-track',
   PLAY_OR_PAUSE = 'play-or-pause',
   TOGGLE_PLAYBACK = 'toggle-playback',
+  TOGGLE_SHUFFLE = 'toggle-shuffle',
   GET_PLAYER_SNAPSHOT = 'get-player-snapshot',
   PLAYER_SNAPSHOT = 'player-snapshot',
   CHANGE_VOLUME = 'change-volume',
@@ -362,6 +363,10 @@ export interface RepeatMessage extends IServiceWorkerMessage {
 export interface PlaybackControlMessage extends IServiceWorkerMessage {
   type: MessageType.PLAY_OR_PAUSE
   played: boolean
+}
+
+export interface ToggleShuffleMessage extends IServiceWorkerMessage {
+  type: MessageType.TOGGLE_SHUFFLE
 }
 
 export interface TogglePlaybackMessage extends IServiceWorkerMessage {
@@ -497,6 +502,7 @@ export type ServiceWorkerMessage = (
   | SessionCancelMessage
   | PlaybackControlMessage
   | TogglePlaybackMessage
+  | ToggleShuffleMessage
   | AddToQueueMessage
   | CurrentTimeMessage
   | NextTrackMessage

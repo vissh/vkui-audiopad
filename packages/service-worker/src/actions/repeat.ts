@@ -1,6 +1,6 @@
 import { commonTypes } from '@vk-audiopad/common'
 import { applicationState } from '../state'
-import { storage } from '../storage'
+import { commitPlayback } from '../playback-operation'
 import { sendListenedData } from '../utils'
 import { playNewTrack } from './play-new-track'
 
@@ -10,8 +10,7 @@ export const repeat = async (): Promise<void> => {
     [commonTypes.RepeatMode.REPEAT]: commonTypes.RepeatMode.REPEAT_ONE,
     [commonTypes.RepeatMode.REPEAT_ONE]: commonTypes.RepeatMode.NONE
   }
-  const value = applicationState.repeat ?? commonTypes.RepeatMode.NONE
-  await storage.repeat.set(nextMode[value])
+  await commitPlayback(() => true, () => ({ repeat: nextMode[applicationState.repeat ?? commonTypes.RepeatMode.NONE] }))
 }
 
 export const playCurrentTrack = async (): Promise<void> => {

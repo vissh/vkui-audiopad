@@ -12,6 +12,7 @@ import { onTimeUpdate } from '../actions/on-audio-timeupdate'
 import { playNewTrack } from '../actions/play-new-track'
 import { reloadTrack } from '../actions/reload-track'
 import { repeat } from '../actions/repeat'
+import { toggleShuffle } from '../actions/shuffle'
 import { closeOffscreenDocument } from '../offscreen/setup'
 import { updateEqualizer } from '../offscreen/update-equalizer'
 import { updateCurrentTime } from '../offscreen/update-current-time'
@@ -64,6 +65,9 @@ const messageHandler = async (message: commonTypes.Message): Promise<void> => {
       break
     case commonTypes.MessageType.CURRENT_TIME:
       await updateCurrentTime(message.value ?? 0)
+      break
+    case commonTypes.MessageType.TOGGLE_SHUFFLE:
+      await toggleShuffle()
       break
     case commonTypes.MessageType.REPEAT:
       await repeat()

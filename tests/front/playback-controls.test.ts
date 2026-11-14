@@ -60,6 +60,46 @@ it('sends toggles without deriving intent from delayed media state', async () =>
   expect(result.current).toEqual({ played: false, error: 'Нет доступных треков' })
 })
 
+it('sends every shuffle click without deriving the next setting from delayed UI state', async () => {
+  const { commonTypes } = await import('@vk-audiopad/common')
+  const browser = createChrome({ shuffle: false })
+  const commands = vi.fn()
+  browser.api.runtime.onMessage.addListener(message => commands(message))
+  const { ShuffleButton } = await import('@/features/shuffle')
+  await renderWithVKUI(createElement(ShuffleButton))
+  await act(async () => { await browser.api.storage.local.get() })
+  browser.api.storage.local.set.mockClear()
+  const button = screen.getByRole('button', { name: 'Перемешать' })
+  await act(async () => {
+    for (let index = 0; index < 18; index++) button.click()
+  })
+  expect(commands).toHaveBeenCalledTimes(18)
+  expect(commands.mock.calls.every(([message]) => message.type === commonTypes.MessageType.TOGGLE_SHUFFLE)).toBe(true)
+  expect(browser.api.storage.local.set).not.toHaveBeenCalled()
+  await act(async () => { await browser.api.storage.local.set({ shuffle: true }) })
+  expect(button.getAttribute('aria-pressed')).toBe('true')
+})
+
+it('retains the repeat control and keyboard focus across every mode', async () => {
+  const { commonTypes } = await import('@vk-audiopad/common')
+  const browser = createChrome({ repeat: commonTypes.RepeatMode.NONE })
+  const commands = vi.fn()
+  browser.api.runtime.onMessage.addListener(message => commands(message))
+  const { RepeatButton } = await import('@/features/repeat')
+  await renderWithVKUI(createElement(RepeatButton))
+  await act(async () => { await browser.api.storage.local.get() })
+  const button = screen.getByRole('button', { name: 'Повторять' })
+  button.focus()
+  for (const mode of [commonTypes.RepeatMode.REPEAT, commonTypes.RepeatMode.REPEAT_ONE, commonTypes.RepeatMode.NONE]) {
+    fireEvent.click(button)
+    await act(async () => { await browser.api.storage.local.set({ repeat: mode }) })
+    expect(screen.getByRole('button')).toBe(button)
+    expect(document.activeElement).toBe(button)
+  }
+  expect(commands).toHaveBeenCalledTimes(3)
+  expect(commands).toHaveBeenLastCalledWith({ target: commonTypes.MessageTarget.SERVICE_WORKER, type: commonTypes.MessageType.REPEAT })
+})
+
 it('shows the pause action during loading while keeping observed playback false', async () => {
   const browser = createChrome({ played: false })
   const { usePlayed } = await import('@/entities/active-track')

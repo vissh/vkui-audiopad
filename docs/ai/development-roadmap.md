@@ -229,6 +229,8 @@ The [November 8 accessibility/collage follow-up](testing.md#accessibility-and-co
 
 The [November 14 responsiveness follow-up](testing.md#track-rendering-and-responsiveness-november-14-2026) compares fetched master 4d94eba with smaller native track rows/covers, isolated listening previews and frame-coalesced slider previews. The controlled 1000-track production fixture reduces full-list arrival, blocking and median playback main-thread work while retaining all loaded playback buttons in the accessibility tree. It does not reproduce the reported seconds-long freeze or establish field/operating-system CPU improvements; authenticated and long-session measurements remain follow-up work.
 
+The [repeated-click follow-up](testing.md#repeated-clicks-and-mode-ordering-november-14-2026) reproduces and fixes cover command suppression by selection, repeat focus loss and dropped shuffle transitions. Mode settings now use ordered SW commands, with delayed-write and dual-transport regressions. Matched production repeat bursts reduce total renderer work; stress-throttled long tasks and wider authenticated/long-session measurements remain separate follow-up work.
+
 **Acceptance:** actions are keyboard-accessible; component failures have a recoverable screen; visual changes have baseline/current screenshots; optimization claims have measurements.
 
 ## T18 Complete context and autonomous-work guidance

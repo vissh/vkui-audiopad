@@ -81,6 +81,36 @@ it('does not play on a title or row selection, and ignores selections elsewhere'
   expect(play).toHaveBeenCalledTimes(3)
 })
 
+it.each(['', ' \n\t\u00a0'])('keeps repeated cover clicks responsive with an empty or whitespace selection %j', async text => {
+  createChrome()
+  const { TrackCell } = await import('@/entities/track')
+  const play = vi.fn()
+  const view = render(createElement(TrackCell, { title: 'Track title', artist: 'Artist', duration: 180, image: '', trackState: 'paused', onClick: play }))
+  const cover = view.container.querySelector('.vkap_track_cover')!
+  cover.append(document.createTextNode(text))
+  select(cover)
+  expect(window.getSelection()?.isCollapsed).toBe(false)
+  expect(window.getSelection()?.toString()).toBe(text)
+  for (const detail of [2, 3, 1, 1]) fireEvent.click(cover, { detail })
+  expect(play).toHaveBeenCalledTimes(4)
+})
+
+it.each([false, true])('keeps explicit cover playback available with selected metadata, whole row %s', async wholeRow => {
+  createChrome()
+  const { TrackCell } = await import('@/entities/track')
+  const play = vi.fn()
+  const view = render(createElement(TrackCell, { title: 'Track title', artist: 'Artist', duration: 180, image: '', trackState: 'paused', onClick: play }))
+  const title = screen.getByRole('button', { name: 'Воспроизвести Track title' })
+  select(wholeRow ? title.closest('.vkap_track_cell')! : title)
+  const selected = window.getSelection()?.toString()
+  const cover = view.container.querySelector('.vkap_track_cover')!
+  for (const detail of [1, 2, 3, 1]) fireEvent.click(cover.querySelector('svg')!, { detail })
+  expect(play).toHaveBeenCalledTimes(4)
+  expect(window.getSelection()?.toString()).toBe(selected)
+  fireEvent.click(title.closest('.vkap_track_cell')!, { detail: 1 })
+  expect(play).toHaveBeenCalledTimes(4)
+})
+
 it('keeps player artist selection on the current page without playback commands', async () => {
   const browser = createChrome({ activeTrack: { ...track('1_1'), artist: 'Player artist' }, activeTab: { tab: 'current-playlist' } })
   const { Player } = await import('@/widgets/player')

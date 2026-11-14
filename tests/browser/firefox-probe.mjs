@@ -36,6 +36,19 @@ export const runFirefoxSmoke = async ({ targets, types, repeatModes }) => {
     await waitFor(() => extension.storage.local.get('repeat'), state => state.repeat === mode)
     modes.push(mode)
   }
+  const shuffleBefore = (await extension.storage.local.get('shuffle')).shuffle ?? false
+  const shuffleValues = []
+  const observeShuffle = changes => { if (changes.shuffle != null) shuffleValues.push(changes.shuffle.newValue) }
+  extension.storage.onChanged.addListener(observeShuffle)
+  try {
+    await Promise.all(Array.from({ length: 36 }, async () => {
+      await extension.runtime.sendMessage({ target: targets.SERVICE_WORKER, type: types.TOGGLE_SHUFFLE })
+    }))
+    await waitFor(() => extension.storage.local.get('shuffle'), state => shuffleValues.length === 36 && state.shuffle === shuffleBefore)
+    if (shuffleValues.some((value, index) => value !== (index % 2 === 0 ? !shuffleBefore : shuffleBefore))) throw new Error('Firefox shuffle commands lost their order')
+  } finally {
+    extension.storage.onChanged.removeListener(observeShuffle)
+  }
   const identity = { userId: '1', epoch: 'synthetic-smoke-epoch' }
   const token = { userId: identity.userId, accessToken: 'synthetic-smoke-token', expires: Number.MAX_SAFE_INTEGER, logoutHash: '', error: null }
   await extension.storage.local.set({ userId: identity.userId, sessionEpoch: identity.epoch, webToken: token })
@@ -59,6 +72,7 @@ export const runFirefoxSmoke = async ({ targets, types, repeatModes }) => {
     emptyAudio: true,
     snapshotRoundTrip: true,
     repeatModes: modes,
+    shuffleRoundTrip: true,
     sessionRoundTrip: true,
     sessionRejectsStale: true,
     sessionRejectsMalformed: true,
