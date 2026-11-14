@@ -1110,3 +1110,44 @@ Separate React profiling of 18 repeat clicks at 10x CPU, with the queue mounted 
 Final validation passed npm run check, all 864 tests across 97 files, full Chrome/Firefox builds and verify:build. Firefox 160 smoke passed startup, Audio snapshot, repeat, all 36 ordered shuffle transitions and validated session replies. The final remote refresh remained aaf5f3e.
 
 The normal frontend was restored after profiling, test playback paused and isolated browsers closed. These checks establish the reproduced selection/focus/mode failures and the scoped burst results. They do not establish authenticated Home/catalog timing, remote-cover/network behavior, long-session heap/GPU bounds, screen-reader speech or timing on physical low-end hardware.
+
+
+## Player interaction render isolation (November 14, 2026)
+
+This task started from freshly fetched origin/master 4ab75c3d8250f8783ecd967f137b6c36ee41d5f9 after PR 60 merged, in a new dedicated worktree. Baseline normal/profile builds were saved before edits. The final remote check found the same base. Normal master frontend was index-BAmIQiH-.js; final frontend was index-DHOe3wmv.js with index-C943LVDR.css. No startup requests, media protocol, queue writers or background scheduling changed.
+
+### Findings and implementation
+
+Next/Previous already update the old/new active rows rather than rendering all 1000 rows. Calibrated profile observations and the existing row tests confirmed that distinction. Chrome also omits an unchanged currentPlaylist from storage change events, although SW still supplies full queue values to storage. A diagnostic that stripped those unchanged fixture values, plus inline/header containment experiments, did not establish a sufficient consistent whole-renderer improvement; none of those runtime/CSS experiments is retained.
+
+Playback changes did rerender artist links and non-queue action subtrees inside the affected rows. Track now retains those element trees while track/user/library/restore inputs remain equal. Play-next availability follows selection separately. The header cover retains its Image subtree when the source is unchanged. Requested playback is one derived snapshot with a legacy played fallback; media acknowledgements do not rerender an unchanged explicit intent control.
+
+VKUI IconButton still ran hover/press state machinery when hoverMode/activeMode were none. A controlled Profiler observed two redundant press commits, including the delayed reset, on both a transport button and a shared action button. The new regressions record zero commits for that press sequence. Shared controls disable the corresponding invisible state handlers; explicit custom modes retain their handlers. Next/Previous/Play keep VKUI buttons, accessible names and focus. Their immediate CSS :active feedback uses three small opacity overlays. A direct host-background experiment added paint work; paired tests supported the scoped overlay instead. No layer hint is applied to the track list.
+
+Ordinary names no longer allocate HTML Documents through getText. Markup/entities and parser-normalized leading whitespace, CR and NUL still use the original inert parser. Nineteen decoder cases cover HTML, whitespace, Unicode and plain-name parsing avoidance. There is no global text cache. Row memoized values have the row's lifetime; mutation/account/restore inputs still invalidate them. Controlled tests failed before the artist/intent/press fixes and pass with them.
+
+### Comparable production and React measurements
+
+An isolated Chrome 156 profile ran the full unchanged SW/offscreen runtime, 780x600 viewport, a synthetic account, 1000 radio tracks with local covers and a local silent WAV. HTTPS requests were rejected; authenticated VK/network timing is outside these results. Builds/tests finished before accepted recordings. Profile assets were separate from ordinary builds.
+
+A bounded React comparison started with all rows mounted, the same second track playing, 10x CPU slowdown, three trusted Next clicks at 200 ms requested intervals and one second of settling. Master recorded 11 commits and 172.5 ms total render time; the candidate recorded 10 commits and 110.9 ms, approximately 36% less render work. Largest renders were 47.5 versus 52.2 ms: the reduction is in total work, not the largest render. Cached unchanged-fiber durations in detailed reports were not summed. Earlier recordings bounded by separate tool round trips were excluded from this comparison.
+
+A separate ordinary-build comparison reset to the same second track before each 18-click Next series, used 80 ms requested gaps, 10x CPU slowdown and one second of settling. CDP Performance metrics, without concurrent tracing/profiling, produced these three samples in milliseconds:
+
+| Per-series metric | Master | Final |
+|---|---|---|
+| Renderer TaskDuration | 3048 / 3661 / 3385 | 3202 / 3417 / 3245 |
+| ScriptDuration | 521 / 577 / 537 | 475 / 470 / 429 |
+| LayoutDuration | 149 / 161 / 167 | 169 / 173 / 141 |
+
+Median script work fell about 13%; median total renderer work fell about 4%, with overlapping ranges and no layout improvement. This does not establish a large whole-application CPU speedup. Earlier marked production traces also showed layout/paint/native media work beyond React. Input dispatch, source changes and rendering remain real work; a lower React duration is not a zero-latency media start.
+
+A broader diagnostic matrix exercised 18 clicks each on header play/pause, Next, Previous, repeat, shuffle, seek, volume, mute, row cover and time format at default and 10x CPU. Costs varied by control and sample, so no universal improvement percentage is inferred. The final ordinary frontend then completed another 180 trusted clicks at default CPU, all ten controls receiving 18 events without playbackError. Recorded click-to-next-paint durations were at most 24 ms (EventTiming threshold 16 ms; shorter entries were not reported). This is a local click observation, not field INP, audible start latency or an OS CPU percentage. The inactive cover's first click selected its source and subsequent clicks toggled it correctly.
+
+Fresh paused UI documents with retained cache at 10x CPU gave first-row samples of 387/350/358 ms on master and 590/414/380 ms on the candidate, and full-row samples of 2097/2073/2202 versus 2292/2012/2099 ms. Full completion stayed comparable; the candidate first-prefix median was later in these variable samples. No startup speedup is claimed. The two-frame observations were presentation opportunities rather than a formal browser paint metric. Existing startup data-source/ordering regressions remain unchanged.
+
+### Behavior and validation
+
+All 1000 playback buttons, including track 1000 before scrolling, remained in Chrome's accessibility tree. Dark/light screenshots and the held transport press were inspected. The pressed overlay had opacity 1 with the existing theme color, returned to 0 on release, and Tab/Shift+Tab preserved a visible VKUI focus outline; Enter activated Next. A row playlist dialog stayed open across a playback update, retained its trigger, closed with Escape and restored focus to that same node. An eight-track editor moved its first item down and restored the original order on cancel. The full fixture queue and ordinary assets were restored, playback paused, emulation reset and the isolated browser closed.
+
+Validation passed npm run check, all 887 tests across 98 files, full Chrome/Firefox builds, verify:build and Firefox 160 smoke (startup, snapshot, ordered shuffle/repeat and session replies). The final style refinement also received the focused interaction/appearance checks. Physical low-end hardware, authenticated catalog/media timing, long-session heap/GPU usage and spoken assistive technology remain outside this fixture.
