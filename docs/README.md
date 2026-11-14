@@ -27,6 +27,7 @@ A small reproducible UI defect or a pure function with a test is a useful first 
 | How are React renders, startup, scrolling and dialog focus investigated? | [UI debugging and profiling](ai/ui-debugging.md) |
 | Where is MCP configured, and how is client drift prevented? | [MCP](ai/mcp.md) |
 | Which extension skills/tools were reviewed, and how should browser-specific guidance be used? | [Extension tooling](ai/extension-tooling.md) and [project runtime skill](../.agents/skills/browser-extension-development/SKILL.md) |
+| How do contributors install and discover the shared browser skills? | [Shared skill setup](ai/extension-tooling.md#shared-skill-setup) |
 | How are dependencies, tools and documentation updated? | [Maintenance](ai/maintenance.md) |
 | How are versions, tags and verified Chrome/Firefox/source packages prepared? | [Release runbook](releases.md) |
 | What is complete, and what comes next? | [Development roadmap](ai/development-roadmap.md) |

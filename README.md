@@ -64,6 +64,8 @@ New contributors and agents: start with [the project guide](./docs/README.md) an
 
 Instructions for AI agents: [AGENTS.md](./AGENTS.md), architecture details: [docs/ai/architecture.md](./docs/ai/architecture.md). Claude Code imports the same instructions through `CLAUDE.md`.
 
+Shared agent skills are included in the checkout under `.agents/skills`: the project extension workflow, FSD, and official GoogleChrome Chrome-extension/web-platform guidance. No global skill installation is required. Restart/rescan your agent after pulling skill changes; see [skill setup and compatibility boundaries](./docs/ai/extension-tooling.md#shared-skill-setup). Skills provide instructions; browser control and extension installation require a connected, permitted browser tool.
+
 MCP tools (VKUI docs, Chrome/Firefox extension debugging and opt-in React inspection/profiling) have one source: [`.mcp.json`](./.mcp.json), read directly by Claude Code. The committed [`.codex/config.toml`](./.codex/config.toml) and `mcp` section in [`opencode.json`](./opencode.json) are generated for Codex and OpenCode 1.x. After changing the source, run `npm run mcp:sync`; `npm run mcp:check`, doctor and CI reject configuration drift. Open the repository root, trust the project in Codex, approve project servers if Claude Code asks, and restart the client after config changes. See [MCP setup and maintenance](./docs/ai/mcp.md) for commands and supported formats.
 
 Check the actual connection in your agent session. Without VKUI MCP, use the installed `@vkontakte/vkui` type declarations and existing components as API references; a missing MCP connection does not block local checks.
