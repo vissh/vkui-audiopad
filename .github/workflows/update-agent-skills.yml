@@ -31,9 +31,11 @@ jobs:
           title: 'chore: update AI agent skills'
           commit-message: 'chore: update vendored AI agent skills'
           body: |
-            Automated update of the vendored agent skill (`.agents/skills/`)
+            Automated update of the vendored agent skills and reference files (`.agents/skills/`)
             via `npx skills update` — see docs/ai/maintenance.md.
 
-            Review the diff: methodology changes may affect AGENTS.md rules
-            (eslint is the mechanical enforcement, this skill is advisory).
+            Review FSD methodology and GoogleChrome guidance against AGENTS.md:
+            preserve Firefox support, strict TypeScript, minimum-browser fallbacks
+            and the existing runtime/security contracts. Skill content is advisory;
+            passing lint does not establish browser compatibility.
           delete-branch: true

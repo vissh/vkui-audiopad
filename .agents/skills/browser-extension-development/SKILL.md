@@ -7,6 +7,12 @@ description: Develop and debug VK Audiopad browser-extension runtime, manifest, 
 
 Use the repository root. Read only the contracts needed for the affected boundary. This skill is project-owned; it routes to maintained documentation instead of duplicating it.
 
+## Shared upstream skills
+
+The vendored [chrome-extensions](../chrome-extensions/SKILL.md) skill supplies Chrome API/topic references. [modern-web-guidance](../modern-web-guidance/SKILL.md) supplies web-platform search and local guides. Apply the relevant reference after identifying the project contract; they do not replace this workflow or provide browser-control tools. [Shared setup and compatibility boundaries](../../../docs/ai/extension-tooling.md#shared-skill-setup) owns installation, discovery and update instructions.
+
+Retain Firefox's background page, strict TypeScript without explicit any, VKUI and the declared minimum browser versions. Generic Chrome-only service-worker, timer, permission or CSP examples do not authorize architecture/permission changes here. Do not raise the build target or add a polyfill just to satisfy a generic guide. A blocked browser installation remains blocked; skills cannot grant access or bypass a browser policy.
+
 ## Choose the runtime and owning contract
 
 - Cross-context changes: [architecture](../../../docs/ai/architecture.md) and [state/messages](../../../docs/ai/state-and-messages.md). Identify the UI, orchestrator and actual Audio owner before editing.
@@ -36,7 +42,7 @@ For frontend startup, scrolling or render cost, follow [UI debugging and profili
 
 Consult these primary sources when a changed API/version needs verification:
 
-- [Official Chrome extension skill](https://github.com/GoogleChrome/modern-web-guidance/tree/main/skills/chrome-extensions): consult relevant Chrome API/build guidance; its new-project/publishing scope does not replace repository contracts.
+- [Vendored official Chrome extension skill](../chrome-extensions/SKILL.md): consult relevant Chrome API/build guidance; its new-project/publishing scope does not replace repository contracts. Upstream: [GoogleChrome/modern-web-guidance](https://github.com/GoogleChrome/modern-web-guidance/tree/main/skills/chrome-extensions).
 - [Chrome worker lifetime](https://developer.chrome.com/docs/extensions/develop/concepts/service-workers/lifecycle)
 - [Chrome messaging](https://developer.chrome.com/docs/extensions/develop/concepts/messaging)
 - [Chrome offscreen API](https://developer.chrome.com/docs/extensions/reference/api/offscreen)

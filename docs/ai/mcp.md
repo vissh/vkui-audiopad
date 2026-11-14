@@ -44,6 +44,14 @@ For automated installation, use a build path under the client's advertised works
 
 A successful build is not evidence of a browser connection. See [testing](testing.md#chrome-smoke-with-an-authenticated-account) for fresh/upgrade checks and console baseline.
 
+## Built-in browser and extension tools
+
+Skills supply instructions and references; they do not connect a browser, add extension APIs or grant browser permissions. Use the shared [skill setup](extension-tooling.md#shared-skill-setup), then discover the tools actually exposed in the current agent session.
+
+The desktop app's built-in browser may support ordinary website/local-preview navigation while restricting browser-internal URLs or extension installation. In the November 14, 2026 check, direct `chrome://extensions/` navigation was blocked by an HTTP/HTTPS-only URL policy. A queued request to open a browser panel is not evidence that the page loaded or that an extension was installed. If the interface denies an action, report the exact limit; do not bypass it with native UI, raw CDP, another scheme or an indirect browser command.
+
+The documented Chrome DevTools extension tools and Firefox addon tools operate their own authorized browser profiles. Their availability must be checked independently; installing a skill does not enable an absent MCP server. When using an extension-capable browser, load the full build at a permitted stable path and verify its manifest/assets, UI and background contexts as described in [testing](testing.md). Real VK catalog/playback checks additionally need a VK login in that profile. A localhost rendering with mocked Chrome APIs proves only that preview's behavior.
+
 ## React inspection and profiling
 
 The front workspace pins react-devtools-cdt-mcp as a development dependency. Chrome MCP discovers its page-side React group when the profiling frontend is loaded. The shared server flag is enabled for Codex, Claude Code and OpenCode through the generated settings. Restart an existing client after changing this configuration. Check list_3p_developer_tools and execute_3p_developer_tool in the connected session.
