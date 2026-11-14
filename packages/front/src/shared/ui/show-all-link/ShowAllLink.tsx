@@ -1,5 +1,6 @@
-import { Header, Link, Skeleton } from '@vkontakte/vkui'
+import { Header, Link } from '@vkontakte/vkui'
 import { type FC } from 'react'
+import { LoadingPlaceholder as Skeleton } from '../loading-placeholder'
 
 interface ShowAllLinkProps {
   title: string
