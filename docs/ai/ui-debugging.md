@@ -52,7 +52,9 @@ My music mounts its library with the initial feed. Check library-first, legacy-f
 
 ## Track rendering
 
-TrackCell keeps loaded track text and playback controls in the DOM. Normal rows use layout/style containment while keeping all loaded playback controls discoverable in the accessibility tree. The queue editor disables containment to retain native drag geometry.
+TrackCell keeps loaded track text and playback controls in the DOM. Normal rows use a native list-item surface, a native title button styled through VKUI Headline, VKUI typography and layout/style containment. The queue editor retains VKUI Cell and disables containment to preserve native drag geometry. TrackImage is a memoized, fixed 48 px decorative cover using native lazy images, VKUI icon/color tokens and CSS overlays; it does not need Image's badge, resize and clickable-overlay machinery for every loaded track. Preserve image failure/source replacement, both themes and playing/paused/disabled/editor appearance when changing this boundary.
+
+PlayerSlider coalesces pointer previews to one geometry read/update per animation frame and cancels pending work on pointer departure, cancellation, keyboard navigation and teardown. Its memoized VKUI range does not rerender solely because the preview moves. Verify Escape dismissal, pointer capture/release, native keyboard changes, touch and disabled ranges separately. [Slider regressions](../../tests/front/player-slider.test.ts) and [cover regressions](../../tests/front/track-image.test.ts) cover these boundaries.
 
 Action subtrees prepare within a 300 px viewport margin after 150 ms of continuous proximity. The callback-only useOnInView hook avoids React commits as rows pass through the margin. Leaving cancels preparation. Pointer entry/down and focus prepare synchronously, and prepared actions stay mounted to preserve dialog triggers, pending operations and local add/delete state. Removed rows, editable rows and environments without IntersectionObserver prepare eagerly. Ref and timer cleanup follow row teardown.
 

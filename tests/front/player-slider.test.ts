@@ -79,6 +79,46 @@ it('shows the current value for keyboard focus and keeps the native range withou
   await waitFor(() => { expect(screen.queryByRole('tooltip', { hidden: true })).toBeNull() })
 })
 
+it('coalesces pointer previews into one geometry read per frame and cancels pending work on departure', async () => {
+  const { root, input, change, unmount } = await mount()
+  fireEvent.pointerEnter(root, { clientX: 100 })
+  await screen.findByRole('tooltip', { hidden: true })
+  const frames = new Map<number, FrameRequestCallback>()
+  let nextFrame = 0
+  vi.spyOn(window, 'requestAnimationFrame').mockImplementation(callback => {
+    const id = ++nextFrame
+    frames.set(id, callback)
+    return id
+  })
+  vi.spyOn(window, 'cancelAnimationFrame').mockImplementation(id => { frames.delete(id) })
+  const geometry = vi.mocked(root.getBoundingClientRect)
+  geometry.mockClear()
+  fireEvent.pointerMove(root, { clientX: 110 })
+  fireEvent.pointerMove(root, { clientX: 150 })
+  fireEvent.pointerMove(root, { clientX: 200 })
+  expect(geometry).not.toHaveBeenCalled()
+  act(() => {
+    const pending = [...frames.values()]
+    frames.clear()
+    pending.forEach(onFrame => { onFrame(16) })
+  })
+  expect(geometry).toHaveBeenCalledOnce()
+  await waitFor(() => { expect(screen.getByRole('tooltip', { hidden: true }).textContent).toContain('75%') })
+  expect((input as HTMLInputElement).value).toBe('25')
+  expect(change).not.toHaveBeenCalled()
+  geometry.mockClear()
+  fireEvent.pointerMove(root, { clientX: 250 })
+  fireEvent.pointerLeave(root)
+  act(() => { frames.forEach(onFrame => { onFrame(32) }) })
+  expect(geometry).not.toHaveBeenCalled()
+  fireEvent.pointerEnter(root, { clientX: 100 })
+  fireEvent.pointerMove(root, { clientX: 250 })
+  geometry.mockClear()
+  unmount()
+  act(() => { frames.forEach(onFrame => { onFrame(48) }) })
+  expect(geometry).not.toHaveBeenCalled()
+})
+
 it('keeps a disabled range and touch hover free of preview hints', async () => {
   const disabled = await mount(100, true)
   fireEvent.pointerEnter(disabled.root, { clientX: 150 })

@@ -65,7 +65,7 @@ it('does not play on a title or row selection, and ignores selections elsewhere'
   const play = vi.fn()
   render(createElement('div', {}, createElement('p', {}, 'Unrelated text'), createElement(TrackCell, { title: 'Track title', artist: 'Artist', duration: 180, image: '', trackState: 'normal', onClick: play })))
   const button = screen.getByRole('button', { name: 'Воспроизвести Track title' })
-  const row = button.closest('.vkuiCell__content')
+  const row = button.closest('.vkap_track_cell')
   if (row == null) throw new Error('Missing track row')
   select(button)
   fireEvent.click(button, { detail: 1 })
