@@ -9,38 +9,18 @@ import { repeatAtom } from '../model/atom'
 export const RepeatButton: FC = () => {
   const repeat = useAtomValue(repeatAtom)
 
+  const enabled = repeat !== commonTypes.RepeatMode.NONE
+  const singleTrack = repeat === commonTypes.RepeatMode.REPEAT_ONE
+
   return (
-    <>
-      {repeat === commonTypes.RepeatMode.NONE && (
-        <TooltipIconButton
-          padding
-          text='Повторять'
-          description='Повтор выключен'
-          icon={Icon24RepeatOutline}
-          onClick={setRepeat}
-        />
-      )}
-      {repeat === commonTypes.RepeatMode.REPEAT && (
-        <TooltipIconButton
-          accent
-          padding
-          text='Повторять композицию'
-          description='Повтор плейлиста включён'
-          icon={Icon24RepeatOutline}
-          onClick={setRepeat}
-        />
-      )}
-      {repeat === commonTypes.RepeatMode.REPEAT_ONE && (
-        <TooltipIconButton
-          accent
-          padding
-          text='Не повторять композицию'
-          description='Повтор одного трека включён'
-          icon={Icon24Repeat1Outline}
-          onClick={setRepeat}
-        />
-      )}
-    </>
+    <TooltipIconButton
+      accent={enabled}
+      padding
+      text={singleTrack ? 'Не повторять композицию' : enabled ? 'Повторять композицию' : 'Повторять'}
+      description={singleTrack ? 'Повтор одного трека включён' : enabled ? 'Повтор плейлиста включён' : 'Повтор выключен'}
+      icon={singleTrack ? Icon24Repeat1Outline : Icon24RepeatOutline}
+      onClick={setRepeat}
+    />
   )
 }
 

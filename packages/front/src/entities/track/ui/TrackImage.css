@@ -10,6 +10,8 @@
   color: var(--vkui--color_icon_secondary);
   background-color: var(--vkui--color_background_secondary);
   isolation: isolate;
+  -webkit-user-select: none;
+  user-select: none;
 }
 
 .vkap_track_cover_loaded {

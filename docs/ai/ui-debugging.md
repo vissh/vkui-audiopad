@@ -60,6 +60,14 @@ Action subtrees prepare within a 300 px viewport margin after 150 ms of continuo
 
 Compare a fresh long queue, rapid first-pass scrolling and a warm second pass. Verify the accessibility snapshot includes the final loaded track before it has been scrolled into view. Verify keyboard focus on an initially unprepared row, retained action state, editor apply/cancel, restore controls and the actual contained action popup. The [controlled regressions](../../tests/front/deferred-track-actions.test.ts) exercise scheduling and teardown. The [dated benchmark](testing.md#deferred-track-actions-and-scroll-november-9-2026) separates synthetic rendering results from authenticated catalog latency.
 
+## Repeated pointer activation
+
+Use trusted native down/up events with click counts 1, 2 and 3 to reproduce double/triple clicks. Programmatic element.click() uses detail=0 and bypasses the selection guard as keyboard activation does. Count DOM click events, emitted commands and applied settings separately; transport delivery alone is not an applied mode. Wait for the initial queue and media state before recording a burst, then observe that input still works without blur and background work settles after the burst.
+
+Chrome can leave a noncollapsed range containing only a visual newline after double-clicking a decorative SVG. Text-selection guards ignore empty/whitespace ranges and nontext click targets, and check intersection with the actual target rather than the entire row. Keep decorative covers nonselectable. Explicit cover controls must work while a title or the whole row remains selected; a text selection or drag ending on row metadata must still suppress navigation/playback. Retain keyboard activation with selected text. [Selection regressions](../../tests/front/text-selection.test.ts) cover these boundaries.
+
+Mode changes must preserve the repeat button's DOM node and focus. Update its label, icon, accent and description in place instead of mounting a different Tooltip/IconButton subtree per mode. Separate instrumented React recordings from ordinary production traces, and compare input delay, handler duration, layout/style/paint and main-thread work. [Dated repeated-click evidence](testing.md#repeated-clicks-and-mode-ordering-november-14-2026) records the reproduction, burst scenarios and limitations.
+
 ## Home startup and system appearance
 
 Compare fresh Home documents against release 3.3.9 at bf64ccb2c72919b8c98f6b4e7aa42d323442ab52 with the same authenticated automation profile, viewport, cache and network settings. Measure the legacy section and token catalog separately. First track insertion identifies usable music arrival, while LCP can identify the earlier static Mix hero.
