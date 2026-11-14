@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
 import { commonUtils, type commonTypes } from '@vk-audiopad/common'
 import { Icon16User } from '@vkontakte/icons'
-import { Avatar, Button, Card, Div, Footnote, Group, Header, Link, SimpleCell, Skeleton, Tappable } from '@vkontakte/vkui'
+import { Avatar, Button, Card, Div, Footnote, Group, Header, Link, SimpleCell, Tappable } from '@vkontakte/vkui'
 import { memo, useState } from 'react'
 import { useInView } from 'react-intersection-observer'
 import { FollowIcon } from '@/features/follow-album'
@@ -13,6 +13,7 @@ import { fetchPlaylist } from '@/shared/api'
 import { openAlbumsPage, openPlaylistPage } from '@/shared/model'
 import { type Album } from '@/shared/types'
 import { HorizontalScroll } from '@/shared/ui/horizontal-scroll'
+import { LoadingPlaceholder as Skeleton } from '@/shared/ui/loading-placeholder'
 import './ListeningGallery.css'
 
 interface ListeningGalleryProps {

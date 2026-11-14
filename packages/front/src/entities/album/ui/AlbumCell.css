@@ -51,3 +51,23 @@
   align-items: center;
   gap: 4px;
 }
+
+.vkap_album_skeleton {
+  inline-size: 164px;
+  flex-shrink: 0;
+}
+
+.vkap_album_skeleton_cover {
+  display: flex;
+  justify-content: center;
+  padding-block: 4px;
+  padding-inline: var(--vkui--spacing_size_s);
+}
+
+.vkap_album_skeleton_text {
+  padding: 2px 6px 8px;
+}
+
+.vkap_album_skeleton_text > :last-child {
+  margin-block-start: 2px;
+}

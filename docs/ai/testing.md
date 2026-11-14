@@ -1110,3 +1110,42 @@ Separate React profiling of 18 repeat clicks at 10x CPU, with the queue mounted 
 Final validation passed npm run check, all 864 tests across 97 files, full Chrome/Firefox builds and verify:build. Firefox 160 smoke passed startup, Audio snapshot, repeat, all 36 ordered shuffle transitions and validated session replies. The final remote refresh remained aaf5f3e.
 
 The normal frontend was restored after profiling, test playback paused and isolated browsers closed. These checks establish the reproduced selection/focus/mode failures and the scoped burst results. They do not establish authenticated Home/catalog timing, remote-cover/network behavior, long-session heap/GPU bounds, screen-reader speech or timing on physical low-end hardware.
+
+
+## Popup startup work (November 14, 2026)
+
+Started in a new managed worktree from freshly fetched origin/master 4ab75c3d8250f8783ecd967f137b6c36ee41d5f9. PR 61 was still open; this task does not include its interaction changes. The final remote refresh retained that base. Baseline normal frontend was index-BAmIQiH-.js (755,746 bytes). Final normal frontend was index-fz1Eo-wr.js (755,769 bytes), with index-symt_k8y.css. No bundle-size reduction is claimed. Runtime/audio bundles were unchanged.
+
+### Findings and retained changes
+
+Unvisited primary pages already mount only on demand. Their request sources, activation, session gate and cache freshness remain unchanged. Experiments splitting selected routes introduced another wait. Deferred closed-dialog hosts reduced initial JS but delayed the first settings activation in the real popup (about 732 ms versus immediate on master), despite a fast tab check; those imports were removed too. Modal managers and dialog code remain eager. Rendering the 1000-track queue in 128-row portions reduced the longest task but nearly doubled full completion, so that experiment was also removed.
+
+Initial storageAtom reads share one deduplicated, key-limited batch: 24 startup get calls became one in the queue fixture. The entrypoint flushes before root.render so microtask batching does not postpone dispatch behind React scheduling. A later-created atom reads current storage rather than a permanent bootstrap cache. Local writes, external updates and removals beat a delayed initial snapshot. This change alone did not establish a consistent timing gain in exploratory measurements.
+
+The pending Home tree contained VKUI Skeleton position reads, resize observers and per-item synchronization timers, including placeholders outside the initial viewport. Passive LoadingPlaceholder spans retain sizes, line-height, border radii and theme colors, with static fill. Track/album placeholder containers retain VKUI typography without interactive Cell/HorizontalCell state. The loaded music UI stays unchanged. With catalog responses held, pending DOM nodes fell from 701 to 595. Three measured track rows retained 354x58 px at y=610/668/726; album placeholders retained 164x196 px at y=852. The regression advances three animation periods and observes no timers or additional React commits.
+
+The HTML also contained a parser-discovered external Mail.ru counter image. Git history dates that dependency to 2023, so it is not evidence of a newly introduced post-3.3.8 regression. The same single image request now starts in idle time after window.load, with a timer fallback. It no longer holds document loading open. A controlled ordinary-build experiment delayed only that response by five seconds: master first tracks arrived at 70 ms but load at 5023 ms; the candidate first tracks arrived at 73 ms and load at 38 ms. The request started once in each build, before load on master and after load on the candidate. This proves a document-load dependency, not the cause or exact visible-popup delay of a customer report.
+
+### Comparable startup measurements
+
+Chrome 156 used a fresh isolated profile for each cold run, 780x600 UI tab, CPU slowdown 10x, synthetic cached account, unchanged full SW/offscreen runtime, local queue covers and a 24-track Home response with a fixed 100 ms fetch delay. The legacy source returned an empty valid result. Builds/tests were stopped during recordings. Three master/candidate pairs alternated ordering. Times are milliseconds:
+
+| Metric | Master samples | Final samples |
+|---|---|---|
+| First track DOM / all 24 tracks | 1014 / 975 / 958 | 1018 / 943 / 876 |
+| Two-frame presentation opportunity | 1040 / 999 / 983 | 1049 / 971 / 901 |
+| Largest observed long task | 413 / 392 / 382 | 383 / 336 / 316 |
+| Renderer TaskDuration | 995 / 947 / 927 | 1029 / 923 / 880 |
+| ScriptDuration | 558 / 537 / 529 | 568 / 511 / 493 |
+
+Median first-track time fell about 3%, script work about 5% and largest task about 14%, with overlapping ranges. Startup/whole-renderer gains are modest; these are not OS CPU percentages or authenticated VK timings. All 24 tracks completed at the first-track observation in this fixture. Two animation frames identify a presentation opportunity, not a formal paint metric or field INP.
+
+A separate bounded opt-in React recording, from hook registration through all rows plus 600 ms settling, recorded 10 versus 12 commits: total render 382.9 to 376.9 ms and largest render 213.8 to 215.2 ms. These results do not establish fewer total React commits or a substantial render-time reduction. Placeholder-owned timers/updates were removed, while library/query/hydration work remains. Component hierarchy durations were not summed. Separate ordinary production traces observed first tracks at 1263 versus 1087 ms and largest tasks 586 versus 442 ms under instrumentation; repeated untraced cold runs above own the latency claim. Normal assets were restored afterward.
+
+### Behavior and limits
+
+The real toolbar action was triggered in a separate fresh automation profile. Chrome identified its view as a popup, mounted all 1000 queue rows, opened settings in both themes, returned focus to the same trigger with Escape and left playback paused without playbackError. Master and the final build inserted the settings dialog within the same clock tick as the recorded click; this is a DOM observation, not zero-latency presentation. The final automation window allowed a 780x498 native view rather than the tab fixture's 780x600; all physical-window sizing behavior is not established. Pending geometry and dark/light screenshots were compared separately in the 780x600 UI tab.
+
+The authenticated Chrome MCP profile had a VK session, but install_extension rejected both the temporary stage and the attached-workspace stage as outside its configured roots. No extension was installed there. Authenticated catalog timing was therefore unavailable; the isolated synthetic browser did not reuse that profile. Minimum-browser behavior, physical low-end hardware, long-session memory/GPU usage and customer-specific network delays remain unverified.
+
+Validation passed npm run check, all 872 tests across 99 files, full Chrome/Firefox builds, verify:build and Firefox 160 runtime smoke (startup, Audio snapshot, ordered repeat/shuffle and session replies). Counter tests cover post-load scheduling, one request, an already complete document and the missing-idle-API fallback. Ordinary assets were restored and test playback left paused.

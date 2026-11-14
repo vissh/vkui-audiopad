@@ -1,6 +1,7 @@
-import { Card, Skeleton, Tappable, Text, Title } from '@vkontakte/vkui'
+import { Card, Tappable, Text, Title } from '@vkontakte/vkui'
 import { useState, type FC, type ReactNode } from 'react'
 import { type Album } from '@/shared/types'
+import { LoadingPlaceholder as Skeleton } from '@/shared/ui/loading-placeholder'
 import './RecommendedPlaylist.css'
 
 const width = '198px'

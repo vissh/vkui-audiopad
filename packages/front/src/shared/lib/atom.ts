@@ -78,6 +78,29 @@ export const lsAtom = <T extends string>(keyName: string, initialValue: T): Atom
   }
 }
 
+interface StorageRead {
+  key: string
+  receive: (items: Record<string, unknown>) => void
+}
+
+let pendingReads: StorageRead[] = []
+
+const readStorage = (read: StorageRead) => {
+  pendingReads.push(read)
+  if (pendingReads.length !== 1) return
+  queueMicrotask(flushStorageReads)
+}
+
+export const flushStorageReads = () => {
+  const batch = pendingReads
+  pendingReads = []
+  if (batch.length === 0) return
+  chrome.storage.local.get([...new Set(batch.map(read => read.key))], items => {
+    if (chrome.runtime.lastError != null) console.warn('Could not read initial UI state')
+    for (const read of batch) read.receive(items ?? {})
+  })
+}
+
 export const storageAtom = <T>({
   key: keyName,
   initial: initialValue,
@@ -98,14 +121,19 @@ export const storageAtom = <T>({
   const mutators = new Set<(newValue: T, previousValue: T) => void>()
   const watchers = new Set<(newValue: T) => void>()
 
-  chrome.storage.local.get(keyName, (items) => {
-    memorySet(items[keyName] as T | undefined, true)
-    onReady?.()
+  let changedBeforeRead = false
+  readStorage({
+    key: keyName,
+    receive: items => {
+      if (!changedBeforeRead) memorySet(items[keyName] as T | undefined, true)
+      onReady?.()
+    }
   })
 
   chrome.storage.local.onChanged.addListener((changes: Record<string, chrome.storage.StorageChange>) => {
     const change = changes[keyName]
     if (change != null) {
+      changedBeforeRead = true
       memorySet(change.newValue as T | undefined, true)
     }
   })
@@ -137,6 +165,7 @@ export const storageAtom = <T>({
     get: () => value,
     set: (newValue) => {
       if (memorySet(newValue, false)) {
+        changedBeforeRead = true
         void chrome.storage.local.set({ [keyName]: newValue })
       }
     },

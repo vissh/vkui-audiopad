@@ -231,6 +231,8 @@ The [November 14 responsiveness follow-up](testing.md#track-rendering-and-respon
 
 The [repeated-click follow-up](testing.md#repeated-clicks-and-mode-ordering-november-14-2026) reproduces and fixes cover command suppression by selection, repeat focus loss and dropped shuffle transitions. Mode settings now use ordered SW commands, with delayed-write and dual-transport regressions. Matched production repeat bursts reduce total renderer work; stress-throttled long tasks and wider authenticated/long-session measurements remain separate follow-up work.
 
+The [popup startup follow-up](testing.md#popup-startup-work-november-14-2026) removes the optional counter from document loading, batches initial UI storage reads and replaces active Skeleton machinery with passive placeholders. It preserves the existing primary-route request graph and records comparable cold-profile, React, production-trace and delayed-counter measurements. It does not identify an authenticated five-second catalog regression.
+
 **Acceptance:** actions are keyboard-accessible; component failures have a recoverable screen; visual changes have baseline/current screenshots; optimization claims have measurements.
 
 ## T18 Complete context and autonomous-work guidance

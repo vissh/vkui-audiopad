@@ -1,6 +1,7 @@
-import { HorizontalCell, Skeleton, Tappable } from '@vkontakte/vkui'
+import { Footnote, HorizontalCell, Subhead, Tappable } from '@vkontakte/vkui'
 import { type FC } from 'react'
 import { type Album } from '@/shared/types'
+import { LoadingPlaceholder as Skeleton } from '@/shared/ui/loading-placeholder'
 import { MediaCover } from '@/shared/ui/media-cover'
 import { AlbumAuthor } from './AlbumAuthor'
 import './AlbumCell.css'
@@ -30,16 +31,12 @@ export const AlbumCell: FC<AlbumCellProps> = ({ album, overlay, onClick }) => {
   )
 }
 
-export const AlbumSkeleton: FC = () => {
-  return (
-    <HorizontalCell
-      size={size + 20}
-      noPadding
-      className='vkap_album_cell'
-      title={<Skeleton width={110} />}
-      subtitle={<Skeleton width={80} />}
-    >
-      <Skeleton width={size} height={size} />
-    </HorizontalCell>
-  )
-}
+export const AlbumSkeleton: FC = () => (
+  <div className='vkap_album_cell vkap_album_skeleton'>
+    <div className='vkap_album_skeleton_cover'><Skeleton width={size} height={size} /></div>
+    <div className='vkap_album_skeleton_text'>
+      <Subhead Component='div'><Skeleton width={110} /></Subhead>
+      <Footnote Component='div'><Skeleton width={80} /></Footnote>
+    </div>
+  </div>
+)

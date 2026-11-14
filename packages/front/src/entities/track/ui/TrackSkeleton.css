@@ -1,0 +1,30 @@
+.vkap_track_skeleton {
+  display: flex;
+  align-items: center;
+  min-block-size: 48px;
+  padding-inline: var(--vkui--size_base_padding_horizontal--regular);
+}
+
+.vkap_track_skeleton_cover {
+  display: flex;
+  flex-shrink: 0;
+  padding-block: 4px;
+  padding-inline-end: var(--vkui--spacing_size_xl);
+}
+
+.vkap_track_skeleton_text {
+  flex: 1;
+  min-inline-size: 0;
+  padding-block: var(--vkui--spacing_size_l);
+  padding-inline-end: var(--vkui--spacing_size_xl);
+}
+
+.vkap_track_skeleton_text > :last-child {
+  margin-block-start: var(--vkui--spacing_size_2xs);
+}
+
+.vkap_track_skeleton_duration {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+}
