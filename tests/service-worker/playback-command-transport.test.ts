@@ -90,3 +90,39 @@ it('releases the settings writer after a failed mode commit', async () => {
   await toggleShuffle()
   expect(player.snapshot().shuffle).toBe(true)
 })
+
+it.each([true, false])('orders mixed shuffle hotkeys and button commands with offscreen=%s', async offscreen => {
+  document.body.replaceChildren(Object.assign(document.createElement('div'), { id: 'custom-events' }))
+  const player = await playbackHarness({ shuffle: false, currentPlaylist: playlist(['1_1', '1_2']), activeTrack: track('1_1'), audiosIds: [['1_1', ''], ['1_2', '']] })
+  const { deferred } = await import('../helpers/deferred')
+  const gate = deferred<void>()
+  const started = deferred<void>()
+  const save = player.api.storage.local.set.getMockImplementation()!
+  player.api.storage.local.set.mockImplementationOnce(async (values, callback) => {
+    started.resolve()
+    await gate.promise
+    await save(values, callback)
+  })
+  const { startListeningMessages } = await import('../../packages/service-worker/src/listeners/messages')
+  const { startListeningCommandEvents } = await import('../../packages/service-worker/src/listeners/command')
+  const { startListeningStorageEvents } = await import('../../packages/service-worker/src/listeners/storage')
+  const { immediateReadiness } = await import('../../packages/service-worker/src/readiness')
+  const { commonUtils } = await import('@vk-audiopad/common')
+  await startListeningMessages(immediateReadiness, offscreen)
+  startListeningCommandEvents(immediateReadiness)
+  startListeningStorageEvents(immediateReadiness)
+  const message: commonTypes.ToggleShuffleMessage = { target: commonTypes.MessageTarget.SERVICE_WORKER, type: commonTypes.MessageType.TOGGLE_SHUFFLE }
+  for (let index = 0; index < 36; index++) {
+    if (index % 2 === 0) player.api.commands.onCommand.emit('050-shuffle')
+    else if (offscreen) await player.api.runtime.sendMessage(message)
+    else commonUtils.sendBackgroundMessage(message)
+  }
+  await started.promise
+  const blockedWrites = player.api.storage.local.set.mock.calls.filter(([changes]) => 'shuffle' in changes).length
+  gate.resolve()
+  await vi.waitFor(() => { expect(player.api.storage.local.set.mock.calls.filter(([changes]) => 'shuffle' in changes)).toHaveLength(36) })
+  expect(blockedWrites).toBe(1)
+  const values = player.api.storage.local.set.mock.calls.flatMap(([changes]) => 'shuffle' in changes ? [changes.shuffle] : [])
+  expect(values).toEqual(Array.from({ length: 36 }, (_, index) => index % 2 === 0))
+  await vi.waitFor(() => { expect(player.snapshot()).toMatchObject({ shuffle: false, originalAudiosIds: [], audiosIds: [['1_1', ''], ['1_2', '']] }) })
+})

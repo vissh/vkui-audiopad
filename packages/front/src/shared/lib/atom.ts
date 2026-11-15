@@ -78,6 +78,33 @@ export const lsAtom = <T extends string>(keyName: string, initialValue: T): Atom
   }
 }
 
+interface StorageRead {
+  key: string
+  resolve: (items: Record<string, unknown>) => void
+  reject: (error: unknown) => void
+}
+
+let pendingReads: StorageRead[] = []
+
+const readStorage = (key: string): Promise<Record<string, unknown>> => new Promise((resolve, reject) => {
+  pendingReads.push({ key, resolve, reject })
+  if (pendingReads.length === 1) queueMicrotask(flushStorageReads)
+})
+
+export const flushStorageReads = () => {
+  const batch = pendingReads
+  pendingReads = []
+  if (batch.length === 0) return
+  void (async () => {
+    try {
+      const items = await chrome.storage.local.get([...new Set(batch.map(read => read.key))])
+      for (const read of batch) read.resolve(items)
+    } catch (error) {
+      for (const read of batch) read.reject(error)
+    }
+  })()
+}
+
 export const storageAtom = <T>({
   key: keyName,
   initial: initialValue,
@@ -132,7 +159,7 @@ export const storageAtom = <T>({
   }
 
   const initialRevision = revision
-  void chrome.storage.local.get(keyName).then(items => {
+  void readStorage(keyName).then(items => {
     if (revision === initialRevision) memorySet(items[keyName] as T | undefined, true)
   }).catch(() => {
     console.warn('Stored value could not be loaded')

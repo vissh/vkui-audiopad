@@ -1,10 +1,11 @@
 import { useQuery } from '@tanstack/react-query'
 import { vkApiClient, vkMix } from '@vk-audiopad/common'
 import { Icon16Cancel, Icon20SlidersOutline } from '@vkontakte/icons'
-import { AppRootPortal, Button, ButtonGroup, Caption, ModalCard, Placeholder, Skeleton, SubnavigationBar, SubnavigationButton } from '@vkontakte/vkui'
+import { AppRootPortal, Button, ButtonGroup, Caption, ModalCard, Placeholder, SubnavigationBar, SubnavigationButton } from '@vkontakte/vkui'
 import { useState } from 'react'
 import { useCurrentPlaylist } from '@/entities/active-track'
 import { useMixPreferences } from '@/entities/vk-mix'
+import { LoadingPlaceholder as Skeleton } from '@/shared/ui/loading-placeholder'
 import { playMix } from '../model/play-mix'
 import './VKMixSettings.css'
 
