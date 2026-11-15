@@ -3,11 +3,12 @@ import { audioPlaybackId, listenToAudio } from '../audio-element'
 import { sendMessage } from '../send-message'
 
 let reportedError: string | null = null
+const finiteTime = (value: number): number => Number.isFinite(value) && value >= 0 ? value : 0
 
 export const reportPlayerError = (playbackId: string): void => {
   if (audioPlaybackId !== playbackId || reportedError === playbackId) return
   reportedError = playbackId
-  void sendMessage({ target: commonTypes.MessageTarget.SERVICE_WORKER, type: commonTypes.MessageType.AUDIO_PLAYER_ERROR, playbackId })
+  void sendMessage({ target: commonTypes.MessageTarget.SERVICE_WORKER, type: commonTypes.MessageType.AUDIO_PLAYER_ERROR, playbackId }).catch(() => { console.warn('Media error could not be delivered') })
 }
 
 export const startListeningPlayerEvents = (): void => {
@@ -20,8 +21,8 @@ export const startListeningPlayerEvents = (): void => {
           type: commonTypes.MessageType.AUDIO_PLAYER_PLAYING,
           playbackId,
           volume: audio.volume,
-          duration: audio.duration,
-          currentTime: audio.currentTime
+          duration: finiteTime(audio.duration),
+          currentTime: finiteTime(audio.currentTime)
         })
       },
       pause: () => {
@@ -40,8 +41,8 @@ export const startListeningPlayerEvents = (): void => {
           type: commonTypes.MessageType.AUDIO_PLAYER_TIMEUPDATED,
           playbackId,
           paused: audio.paused,
-          duration: audio.duration,
-          currentTime: audio.currentTime
+          duration: finiteTime(audio.duration),
+          currentTime: finiteTime(audio.currentTime)
         })
       }
     }

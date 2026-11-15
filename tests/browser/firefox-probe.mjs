@@ -32,7 +32,9 @@ export const runFirefoxSmoke = async ({ targets, types, repeatModes }) => {
   if (snapshot.hasSource || snapshot.playbackId != null || !snapshot.paused || snapshot.playing) throw new Error('Fresh audio snapshot was not empty and paused')
   const modes = []
   for (const mode of [repeatModes.REPEAT, repeatModes.REPEAT_ONE, repeatModes.NONE]) {
-    await extension.runtime.sendMessage({ target: targets.SERVICE_WORKER, type: types.REPEAT })
+    const requestId = crypto.randomUUID()
+    const reply = await extension.runtime.sendMessage({ target: targets.SERVICE_WORKER, type: types.REPEAT, requestId, expiresAt: Date.now() + 2000 })
+    if (reply?.requestId !== requestId || reply.ok !== true || reply.outcome !== 'handled') throw new Error('Firefox command result missing')
     await waitFor(() => extension.storage.local.get('repeat'), state => state.repeat === mode)
     modes.push(mode)
   }
@@ -49,6 +51,26 @@ export const runFirefoxSmoke = async ({ targets, types, repeatModes }) => {
   } finally {
     extension.storage.onChanged.removeListener(observeShuffle)
   }
+  const commandBridge = await new Promise((resolve, reject) => {
+    const requestId = crypto.randomUUID()
+    const cleanup = () => { clearTimeout(timer); bridge.removeEventListener(types.COMMAND_REPLY, receive) }
+    const receive = event => {
+      if (event.detail.reply?.requestId !== requestId) return
+      cleanup()
+      resolve(event.detail.reply)
+    }
+    const timer = setTimeout(() => { cleanup(); reject(new Error('Firefox command bridge reply missing')) }, 2000)
+    bridge.addEventListener(types.COMMAND_REPLY, receive)
+    const request = { target: targets.SERVICE_WORKER, type: types.REPEAT, requestId, expiresAt: Date.now() + 2000 }
+    const detail = background.JSON.parse(JSON.stringify(request))
+    bridge.dispatchEvent(new background.CustomEvent(types.REPEAT, { detail }))
+  })
+  if (commandBridge.ok !== true) throw new Error('Firefox command bridge failed')
+  const applied = await extension.storage.local.get(['repeat', 'schemaVersion'])
+  if (applied.repeat !== repeatModes.REPEAT || applied.schemaVersion !== 1) throw new Error('Firefox command/migration was not applied')
+  await extension.storage.local.set({ repeat: repeatModes.NONE })
+  const invalid = await extension.runtime.sendMessage({ target: targets.OFFSCREEN, type: types.CHANGE_VOLUME, value: 2, requestId: crypto.randomUUID(), expiresAt: Date.now() + 2000 })
+  if (invalid?.ok !== false) throw new Error('Firefox accepted malformed player command')
   const identity = { userId: '1', epoch: 'synthetic-smoke-epoch' }
   const token = { userId: identity.userId, accessToken: 'synthetic-smoke-token', expires: Number.MAX_SAFE_INTEGER, logoutHash: '', error: null }
   await extension.storage.local.set({ userId: identity.userId, sessionEpoch: identity.epoch, webToken: token })
@@ -73,6 +95,10 @@ export const runFirefoxSmoke = async ({ targets, types, repeatModes }) => {
     snapshotRoundTrip: true,
     repeatModes: modes,
     shuffleRoundTrip: true,
+    commandReplies: true,
+    commandBridgeReply: true,
+    commandRejectsMalformed: true,
+    schemaVersion: applied.schemaVersion,
     sessionRoundTrip: true,
     sessionRejectsStale: true,
     sessionRejectsMalformed: true,

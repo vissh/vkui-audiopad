@@ -16,7 +16,7 @@ An unfinished full-queue hydration for the same playlist transfers to the next o
 
 Front toggle controls send TOGGLE_PLAYBACK to SERVICE_WORKER; the hotkey calls the same action. SW alone flips a synchronous requested intent before awaiting any storage/network work. Keep it separate from applicationState/storage snapshots, whose older writes/events can arrive after a newer command. Intent revisions guard control sends even when the operation identity does not change. PLAY_OR_PAUSE with a boolean remains available for explicit set commands and SW-to-offscreen control.
 
-The playbackRequested snapshot lets action icons show pause during loading; played remains the playback observation (with the existing pause shortcut publishing false before the media acknowledgement). UI observers never write either field to command playback. Missing playbackRequested falls back to played in legacy UI storage. Startup reconciles intent from existing media without replay/autoplay; UPDATE/account switching removes it with runtime state. See ADR 0002 for readiness/reconciliation.
+The playbackRequested snapshot lets action icons show pause during loading; played remains the playback observation (with the existing pause shortcut publishing false before the media acknowledgement). UI observers never write either field to command playback. Missing playbackRequested falls back to played in legacy UI storage. Startup reconciles intent from existing media without replay/autoplay; Account switching removes it with runtime state; UPDATE preserves the queue snapshot for reconciliation under ADR 0011. See ADR 0002 for readiness/reconciliation.
 
 Pause cancels loading and scheduled retries. An operation records whether source dispatch completed: a subsequent play resumes launched media, preserving Audio/position, or restarts the cancelled pending selection. Do not infer dispatch completion from loading=false, which also occurs on cancellation/failure. Terminal failure clears playbackRequested as well as played. A repeated ACTIVE_TRACK before its metadata commits still selects/restarts that source; only TOGGLE_PLAYBACK changes intent.
 
@@ -46,7 +46,7 @@ A current preparation exception logs a fixed message and the safe VKApiError kin
 - Playback IDs/errors default to null; requested intent defaults to false. Chrome and Firefox use the same commands/IDs; Firefox retains its CustomEvent bridge.
 - Existing natural-end/repeat/shuffle behavior is preserved. This change does not adopt a new end-of-queue product policy.
 - Operation/budget state is SW memory only. ADR 0002 restores ownership from matching live media after startup. Retry budgets/unfinished requests are not persisted; durable recovery remains T11.
-- Runtime unknown-message validation, request/response envelopes and sender policy remain T12. ADR 0003 defines the implemented offscreen listener readiness and close/create coordination; live/browser evidence limits remain in testing.
+- [ADR 0011](0011-runtime-command-and-storage-boundaries.md) adds runtime validation, sender checks, bounded command outcomes and user/epoch ownership. Session retirement cancels playback/hydration before serialized cleanup. ADR 0003 defines the implemented offscreen listener readiness and close/create coordination; live/browser evidence limits remain in testing.
 
 ## Verification
 

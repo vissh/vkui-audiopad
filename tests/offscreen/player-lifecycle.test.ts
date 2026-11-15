@@ -16,6 +16,16 @@ const setup = async () => {
   return { playTrack, received }
 }
 
+it('publishes finite media times for live or not-yet-known duration', async () => {
+  const audios = installAudio(audio => { audio.duration = Infinity })
+  const { playTrack, received } = await setup()
+  await playTrack('live.mp3', 0.5, 'live')
+  await vi.waitFor(() => { expect(received).toHaveBeenCalledWith(expect.objectContaining({ type: 'audio-player-playing', duration: 0 })) })
+  audios[1].duration = NaN
+  audios[1].dispatchEvent(new Event('timeupdate'))
+  await vi.waitFor(() => { expect(received).toHaveBeenCalledWith(expect.objectContaining({ type: 'audio-player-timeupdate', duration: 0, currentTime: 0 })) })
+})
+
 it('detaches old audio listeners so late events cannot be attributed to a new track', async () => {
   const audios = installAudio()
   const { playTrack, received } = await setup()

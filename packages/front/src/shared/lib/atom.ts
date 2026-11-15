@@ -93,19 +93,17 @@ export const storageAtom = <T>({
 }
 ): StorageAtom<T> => {
   let value = initialValue
+  let revision = 0
+  let ready = false
 
   const subscribes = new Set<(newValue: T) => void>()
   const mutators = new Set<(newValue: T, previousValue: T) => void>()
   const watchers = new Set<(newValue: T) => void>()
 
-  chrome.storage.local.get(keyName, (items) => {
-    memorySet(items[keyName] as T | undefined, true)
-    onReady?.()
-  })
-
   chrome.storage.local.onChanged.addListener((changes: Record<string, chrome.storage.StorageChange>) => {
     const change = changes[keyName]
     if (change != null) {
+      revision++
       memorySet(change.newValue as T | undefined, true)
     }
   })
@@ -133,11 +131,28 @@ export const storageAtom = <T>({
     return true
   }
 
+  const initialRevision = revision
+  void chrome.storage.local.get(keyName).then(items => {
+    if (revision === initialRevision) memorySet(items[keyName] as T | undefined, true)
+  }).catch(() => {
+    console.warn('Stored value could not be loaded')
+  }).finally(() => {
+    ready = true
+    onReady?.()
+  })
+
   return {
     get: () => value,
     set: (newValue) => {
-      if (memorySet(newValue, false)) {
-        void chrome.storage.local.set({ [keyName]: newValue })
+      if (memorySet(newValue, false) || !ready) {
+        const writeRevision = ++revision
+        void chrome.storage.local.set({ [keyName]: newValue }).catch(async () => {
+          console.warn('Stored value could not be saved')
+          try {
+            const items = await chrome.storage.local.get(keyName)
+            if (revision === writeRevision) memorySet(items[keyName] as T | undefined, true)
+          } catch { console.warn('Stored value could not be restored') }
+        })
       }
     },
     subscribe: (callback) => {

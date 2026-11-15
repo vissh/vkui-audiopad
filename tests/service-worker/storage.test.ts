@@ -2,6 +2,23 @@ import { expect, it, vi } from 'vitest'
 import { createChrome } from '../helpers/chrome'
 import { deferred } from '../helpers/deferred'
 
+it('rejects failed control writes without reporting success or changing storage', async () => {
+  const browser = createChrome({ repeat: 0 })
+  const { storage } = await import('../../packages/service-worker/src/storage')
+  browser.failNextStorageOperation('Quota exceeded')
+  await expect(storage.repeat.set(1)).rejects.toThrow('Quota exceeded')
+  expect(browser.snapshot().repeat).toBe(0)
+  await storage.repeat.set(2)
+  expect(await storage.repeat.get()).toBe(2)
+})
+
+it('rejects failed control reads instead of leaving a pending callback wrapper', async () => {
+  const browser = createChrome()
+  const { storage } = await import('../../packages/service-worker/src/storage')
+  browser.api.storage.local.get.mockRejectedValueOnce(new Error('Read unavailable'))
+  await expect(storage.repeat.get()).rejects.toThrow('Read unavailable')
+})
+
 it('restores stored playback controls and observes cross-context updates and removal', async () => {
   const browser = createChrome({ volume: 0.5, played: false })
   const { storage } = await import('../../packages/service-worker/src/storage')
@@ -30,8 +47,8 @@ it.each([{}, { played: true }, { played: true, playbackRequested: true }])('load
   const { loadState, applicationState } = await import('../../packages/service-worker/src/state')
   await loadState()
   expect(applicationState.played).toBe('played' in saved ? saved.played : false)
-  expect(browser.snapshot()).toEqual(saved)
-  expect(browser.api.storage.local.set).not.toHaveBeenCalled()
+  expect(browser.snapshot()).toEqual({ ...saved, schemaVersion: 1 })
+  expect(browser.api.storage.local.set).toHaveBeenCalledExactlyOnceWith({ schemaVersion: 1 })
 })
 
 it('merges changes and removals arriving after a startup read took its snapshot', async () => {

@@ -1,7 +1,7 @@
 import { commonTypes } from '@vk-audiopad/common'
 import { afterEach, expect, it, vi } from 'vitest'
 import { deferred } from '../helpers/deferred'
-import { answerSnapshots, snapshot } from '../helpers/offscreen'
+import { answerPlayerCommands, answerSnapshots, snapshot } from '../helpers/offscreen'
 import { clearPlaybackMocks, playbackHarness, playlist, track } from '../helpers/playback'
 
 afterEach(clearPlaybackMocks)
@@ -14,13 +14,14 @@ const setup = async () => {
   let current = snapshot({ documentId: 'old-document', playbackId: 'media', hasSource: true, idle: true, currentTime: 12 })
   let beforeSnapshot = async (): Promise<void> => {}
   const commands: commonTypes.OffscreenMessage[] = []
+  answerPlayerCommands(player)
   answerSnapshots(player, async () => {
     await beforeSnapshot()
     return { ...current }
   })
   player.api.runtime.onMessage.addListener((input: unknown) => {
     const message = input as commonTypes.Message
-    if (message.target !== commonTypes.MessageTarget.OFFSCREEN || message.type === commonTypes.MessageType.GET_PLAYER_SNAPSHOT) return
+    if (message.target !== commonTypes.MessageTarget.OFFSCREEN || message.type === commonTypes.MessageType.GET_PLAYER_SNAPSHOT || message.type === commonTypes.MessageType.COMMAND_REPLY) return
     commands.push(message)
     current.activityRevision++
     current.idle = false

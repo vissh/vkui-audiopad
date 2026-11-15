@@ -61,6 +61,8 @@ Before equalizer changes, read [ADR 0010](docs/decisions/0010-equalizer.md) for 
 
 Before session/token changes, read [ADR 0009](docs/decisions/0009-session-owner.md): the background session owner is the credential writer; UI and token-method clients use its bounded, validated request/reply contract. Do not add per-popup refresh writers or replay a request after its account/epoch changes.
 
+Before command-result, runtime validation, session retirement or stored-state upgrade changes, read [ADR 0011](docs/decisions/0011-runtime-command-and-storage-boundaries.md): correlated bounded replies, sender checks, the shared writer and queue-preserving migration v1.
+
 Before error-report or automatic-recovery changes, read [diagnostics and recovery](docs/ai/error-diagnostics.md): allowlisted technical context, build identity, bounded legacy reconnect and preservation of session/queue on inconclusive failures.
 
 For query keys, account changes and pagination, read [ADR 0007](docs/decisions/0007-query-identity-and-pagination.md): per-account caches, original mutation variables, cursor guards and immutable merges.
@@ -111,7 +113,7 @@ For accessibility changes, follow [the browser and keyboard procedure](docs/ai/t
 - Communication uses discriminated unions from `common/src/types.ts`: `MessageTarget` + `MessageType`, with Chrome runtime or the Firefox bridge as transport.
 - A new message requires a branch in the receiving router: `service-worker/src/listeners/messages.ts` or `offscreen/src/listeners/messages.ts`. Keep exhaustive switches and `assertUnreachable`.
 - Serialize errors crossing a message boundary with `serialize-error`.
-- Static message types do not validate unknown runtime input. Validation and command responses remain planned work; see the state/message guide.
+- Static types do not validate runtime input. Use common message validators and the bounded requestCommand result protocol described in ADR 0011; keep session/snapshot protocols separate. A handled reply does not confirm that media is playing.
 
 ### Chrome and Firefox
 

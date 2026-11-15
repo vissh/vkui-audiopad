@@ -306,6 +306,7 @@ export enum MessageTarget {
 }
 
 export enum MessageType {
+  COMMAND_REPLY = 'command-reply',
   SESSION_REQUEST = 'session-request',
   SESSION_CANCEL = 'session-cancel',
   REPEAT = 'repeat',
@@ -564,4 +565,15 @@ export type OffscreenMessage = (
 export type Message = (
   ServiceWorkerMessage
   | OffscreenMessage
+  | CommandReplyMessage
 )
+
+export type PlayerCommand = Exclude<ServiceWorkerMessage, SessionRequestMessage | SessionCancelMessage | PlayerSnapshotMessage | AudioPlayerPlayingMessage | AudioPlayerPauseMessage | AudioPlayerEndedMessage | AudioPlayerErrorMessage | AudioPlayerTimeupdateMessage | EqualizerStatusMessage | CloseOffscreenDocumentMessage> | Exclude<OffscreenMessage, GetPlayerSnapshotMessage>
+
+export type CommandRequest = PlayerCommand & { requestId: string, expiresAt: number }
+export type CommandReply = { requestId: string, ok: true, outcome: 'handled' | 'applied' | 'ignored' } | { requestId: string, ok: false, error: ErrorObject }
+export interface CommandReplyMessage {
+  target: MessageTarget
+  type: MessageType.COMMAND_REPLY
+  reply: CommandReply
+}

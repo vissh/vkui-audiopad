@@ -17,6 +17,7 @@ export const toHHMMSS = (seconds: number): string => {
 }
 
 const saveSettingsKeys = new Set([
+  'schemaVersion',
   ...Object.keys(ApplicationControls),
   ...Object.keys(ApplicationSettings)
 ])

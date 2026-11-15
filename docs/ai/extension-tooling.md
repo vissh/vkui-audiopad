@@ -52,6 +52,10 @@ Review and commit `.agents/skills` and `skills-lock.json` together, then run `np
 - Do not add permissions or weaken CSP from a generic example. Use the existing messaging/session/storage owners and release runbook. Consulting a skill does not authorize publication, a framework migration, or a startup slowdown.
 - Vendored guidance describes APIs; MCP/Computer Use supplies actual browser capabilities and permissions. Discover the live tools before claiming browser access. Browser policies take precedence; never try another scheme, raw protocol command or indirect route to bypass a blocked action.
 
+### Verified upstream caveats
+
+The adopted snapshot incorrectly labels Promise-returning runtime.onMessage responses as Chrome 99+. [Current Chrome messaging guidance](https://developer.chrome.com/docs/extensions/develop/concepts/messaging) describes gradual support from Chrome 148; use sendResponse plus return true for our minimum Chrome 116. The snapshot also suggests that opening a port alone keeps workers alive, whereas [Chrome lifecycle guidance](https://developer.chrome.com/docs/extensions/develop/concepts/service-workers/lifecycle) says opening a port no longer resets the timers from Chrome 114. Do not apply these examples or hand-edit vendored snapshots; maintain these compatibility decisions here.
+
 ### Built-in browser installation check
 
 On November 14, 2026, the internal-browser control became available and a direct request to open `chrome://extensions/` was rejected by its URL policy: only HTTP/HTTPS navigation was allowed. No extension was installed there. This is an observed limitation of that session, not a claim that every embedded browser permanently lacks extension support. The new skill files cannot grant this missing permission or change the browser engine.
