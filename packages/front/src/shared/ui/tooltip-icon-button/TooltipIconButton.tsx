@@ -46,6 +46,8 @@ export const TooltipIconButton: FC<TooltipIconButtonProps> = (props) => {
       <IconButton
         label={props.text}
         disabled={props.disabled}
+        hasHover={props.hoverMode != null && props.hoverMode !== 'none'}
+        hasActive={props.activeMode != null && props.activeMode !== 'none'}
         hoverMode={props.hoverMode ?? 'none'}
         activeMode={props.activeMode ?? 'none'}
         aria-disabled={props.disabled || props.busy || undefined}

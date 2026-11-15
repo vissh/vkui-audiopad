@@ -9,6 +9,8 @@ export const NextButton: FC = () => {
     <IconButton
       label='Следующий трек'
       hasHover={false}
+      hasActive={false}
+      activeMode='none'
       onClick={() => {
         sendMessage({
           target: commonTypes.MessageTarget.SERVICE_WORKER,

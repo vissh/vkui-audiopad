@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import { act, cleanup, fireEvent, render, renderHook, screen, within } from '@testing-library/react'
-import { createElement, type ReactNode } from 'react'
+import { createElement, Profiler, type ReactNode } from 'react'
 import { readFileSync } from 'node:fs'
 import { afterEach, beforeEach, expect, it, vi } from 'vitest'
 import { createChrome } from '../helpers/chrome'
@@ -324,4 +324,22 @@ it.each(['1_1', '-2_20'])('keeps queue, discovery and saving actions ordered on 
   await act(async () => { await browser.api.storage.local.get() })
   const actions = [...view.container.querySelectorAll('.vkap_track_cell_actions button')].map(button => button.getAttribute('aria-label') ?? button.textContent)
   expect(actions).toEqual(['Воспроизвести следующей', 'Микс по треку', 'Показать похожие', 'Добавить в плейлист', id === '1_1' ? 'Удалить из моей музыки' : 'Добавить в мою музыку'])
+})
+
+it.each(['transport', 'action'] as const)('does not schedule React press feedback for a %s control', async kind => {
+  const browser = createChrome()
+  browser.api.runtime.onMessage.addListener(() => {})
+  const commits: string[] = []
+  const { NextButton } = await import('@/features/play-next-track')
+  const { TooltipIconButton } = await import('@/shared/ui/tooltip-icon-button')
+  const icon = () => createElement('svg')
+  const content = kind === 'transport' ? createElement(NextButton) : createElement(TooltipIconButton, { text: 'Action', icon, onClick: vi.fn() })
+  await renderWithVKUI(createElement(Profiler, { id: 'control', onRender: (_id, phase) => { commits.push(phase) }, children: content }))
+  const button = screen.getByRole('button')
+  await act(async () => { await new Promise(resolve => setTimeout(resolve, 220)) })
+  commits.length = 0
+  fireEvent.pointerDown(button, { pointerType: 'mouse', pointerId: 1, button: 0 })
+  fireEvent.pointerUp(button, { pointerType: 'mouse', pointerId: 1, button: 0 })
+  await act(async () => { await new Promise(resolve => setTimeout(resolve, 220)) })
+  expect(commits).toEqual([])
 })

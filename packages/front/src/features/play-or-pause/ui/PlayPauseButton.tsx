@@ -12,6 +12,8 @@ export const PlayPauseButton: FC = () => {
     <IconButton
       aria-label={playbackRequested ? 'Приостановить' : 'Воспроизвести'}
       hasHover={false}
+      hasActive={false}
+      activeMode='none'
       onClick={() => {
         sendMessage({
           target: commonTypes.MessageTarget.SERVICE_WORKER,

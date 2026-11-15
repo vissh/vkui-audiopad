@@ -15,11 +15,13 @@ const playbackRequestedAtom = storageAtom<boolean | undefined>({
   compareObjects: false
 })
 
-export const usePlaybackRequested = (): boolean => {
-  const requested = useAtomValue(playbackRequestedAtom)
-  const played = usePlayed()
-  return requested ?? played
+const subscribeRequestedPlayback = (listener: () => void) => {
+  const stopRequested = playbackRequestedAtom.subscribe(listener)
+  const stopPlayed = playedAtom.subscribe(listener)
+  return () => { stopRequested(); stopPlayed() }
 }
+
+export const usePlaybackRequested = (): boolean => useSyncExternalStore(subscribeRequestedPlayback, requestedPlayback)
 
 const playbackInitializationAtom = storageAtom({
   key: 'playbackInitialization',

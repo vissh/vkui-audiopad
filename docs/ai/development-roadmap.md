@@ -231,6 +231,8 @@ The [November 14 responsiveness follow-up](testing.md#track-rendering-and-respon
 
 The [repeated-click follow-up](testing.md#repeated-clicks-and-mode-ordering-november-14-2026) reproduces and fixes cover command suppression by selection, repeat focus loss and dropped shuffle transitions. Mode settings now use ordered SW commands, with delayed-write and dual-transport regressions. Matched production repeat bursts reduce total renderer work; stress-throttled long tasks and wider authenticated/long-session measurements remain separate follow-up work.
 
+The [interaction render-isolation follow-up](testing.md#player-interaction-render-isolation-november-14-2026) removes unchanged artist/action, requested-intent acknowledgement and invisible press-feedback renders. It retains VKUI controls/focus and immediate CSS press feedback, with exact text-decoding regressions. Browser measurements show reduced React/script work but do not establish a universal CPU or latency speedup across every control.
+
 **Acceptance:** actions are keyboard-accessible; component failures have a recoverable screen; visual changes have baseline/current screenshots; optimization claims have measurements.
 
 ## T18 Complete context and autonomous-work guidance

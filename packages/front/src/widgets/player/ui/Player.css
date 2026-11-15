@@ -89,6 +89,22 @@
   color: var(--vkui--color_icon_primary);
 }
 
+.vkap_player_transport button::after {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  border-radius: inherit;
+  background-color: var(--vkui--color_transparent--active);
+  opacity: 0;
+  pointer-events: none;
+  will-change: opacity;
+  content: '';
+}
+
+.vkap_player_transport button:active::after {
+  opacity: 1;
+}
+
 .vkap_player_transport button:hover {
   color: var(--vkui--color_icon_primary);
 }

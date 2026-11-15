@@ -22,6 +22,8 @@ afterEach(() => {
   for (const [path] of pageModules) vi.doUnmock(path)
   vi.doUnmock('@/entities/track')
   vi.doUnmock('@/features/delete-from-my-music')
+  vi.doUnmock('@/features/search-artist')
+  vi.doUnmock('@/features/similar')
 })
 
 it('mounts a main page on its first visit and retains its draft when returning', async () => {
@@ -257,4 +259,45 @@ it.each([false, true])('expires restoration after navigation for an isolated row
   }
   expect(screen.queryByTestId('row')).toBeNull()
   expect(browser.api.runtime.sendMessage).toHaveBeenCalledExactlyOnceWith(expect.objectContaining({ type: commonTypes.MessageType.DELETE_TRACK, track: source.tracks[0] }))
+})
+
+it('keeps row metadata and non-queue actions out of playback-only renders', async () => {
+  vi.stubGlobal('ResizeObserver', class { observe () {} unobserve () {} disconnect () {} })
+  vi.stubGlobal('matchMedia', vi.fn((media: string) => ({ matches: false, media, onchange: null, addListener: vi.fn(), removeListener: vi.fn(), addEventListener: vi.fn(), removeEventListener: vi.fn(), dispatchEvent: () => true })))
+  const source = playlist(['1_1', '1_2', '1_3'])
+  const browser = createChrome({ userId: '1', currentPlaylist: source, activeTrack: source.tracks[0], played: false, playbackRequested: true })
+  const artists: string[] = []
+  const actions: string[] = []
+  vi.doMock('@/features/search-artist', () => ({ SearchArtist: ({ track }: { track: { id: string } }) => { artists.push(track.id); return createElement('span', {}, track.id) } }))
+  vi.doMock('@/features/similar', () => ({ SimilarButton: ({ track }: { track: { id: string } }) => { actions.push(track.id); return createElement('button', {}, 'Similar ' + track.id) } }))
+  const { Track } = await import('@/widgets/track-list')
+  const { ConfigProvider, AdaptivityProvider } = await import('@vkontakte/vkui')
+  render(createElement(ConfigProvider, { children: createElement(AdaptivityProvider, { children: source.tracks.map(item => createElement(Track, { key: item.id, track: item, playlist: source })) }) }))
+  await act(async () => { await browser.api.storage.local.get() })
+  artists.length = 0
+  actions.length = 0
+  await act(async () => { await browser.api.storage.local.set({ played: true }) })
+  await act(async () => { await browser.api.storage.local.set({ played: false, activeTrack: source.tracks[1] }) })
+  await act(async () => { await browser.api.storage.local.set({ played: true, currentTime: 1 }) })
+  expect(artists).toEqual([])
+  expect(actions).toEqual([])
+  expect(screen.getByRole('button', { name: 'Приостановить 1_2' })).not.toBeNull()
+})
+
+it('observes requested playback without rerendering on media acknowledgements', async () => {
+  const browser = createChrome({ played: false, playbackRequested: true })
+  const { usePlaybackRequested } = await import('@/entities/active-track')
+  const renders: boolean[] = []
+  const Probe = () => { const requested = usePlaybackRequested(); renders.push(requested); return createElement('span', {}, String(requested)) }
+  render(createElement(Probe))
+  await act(async () => { await browser.api.storage.local.get() })
+  renders.length = 0
+  await act(async () => { await browser.api.storage.local.set({ played: true }) })
+  await act(async () => { await browser.api.storage.local.set({ played: false }) })
+  expect(renders).toEqual([])
+  await act(async () => { await browser.api.storage.local.set({ playbackRequested: false }) })
+  expect(renders).toEqual([false])
+  await act(async () => { await browser.api.storage.local.remove('playbackRequested') })
+  await act(async () => { await browser.api.storage.local.set({ played: true }) })
+  expect(renders.at(-1)).toBe(true)
 })
