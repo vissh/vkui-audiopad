@@ -1,4 +1,4 @@
-import { commonTypes, commonUtils } from '@vk-audiopad/common'
+import { commonTypes, commonUtils, messageValidation, sessionClient } from '@vk-audiopad/common'
 
 const SNAPSHOT_TIMEOUT_MS = 2000
 
@@ -30,14 +30,15 @@ export const requestPlayerSnapshot = async (offscreen: boolean, acceptMedia: () 
     const cleanup = (): void => {
       clearTimeout(timer)
       clearInterval(retry)
-      chrome.runtime.onMessage.removeListener(receive)
+      chrome.runtime.onMessage.removeListener(runtimeReceive)
       removeBridge()
     }
     const fail = (): void => {
       cleanup()
       reject(new Error('Player snapshot unavailable'))
     }
-    const receive = (message: commonTypes.Message): void => {
+    const receive = (message: unknown): void => {
+      if (!sessionClient.isObject(message)) return
       if (message.target !== commonTypes.MessageTarget.SERVICE_WORKER || message.type !== commonTypes.MessageType.PLAYER_SNAPSHOT || message.requestId !== requestId) return
       if (!validSnapshot(message.snapshot)) {
         fail()
@@ -48,7 +49,10 @@ export const requestPlayerSnapshot = async (offscreen: boolean, acceptMedia: () 
       resolve(message.snapshot)
     }
     const timer = setTimeout(fail, SNAPSHOT_TIMEOUT_MS)
-    chrome.runtime.onMessage.addListener(receive)
+    const runtimeReceive = (message: unknown, sender: chrome.runtime.MessageSender): void => {
+      if (messageValidation.isTrustedSender(sender)) receive(message)
+    }
+    chrome.runtime.onMessage.addListener(runtimeReceive)
     const message: commonTypes.GetPlayerSnapshotMessage = {
       target: commonTypes.MessageTarget.OFFSCREEN,
       type: commonTypes.MessageType.GET_PLAYER_SNAPSHOT,

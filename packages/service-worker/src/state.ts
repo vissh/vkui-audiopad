@@ -1,5 +1,6 @@
 import { initialState, type commonTypes } from '@vk-audiopad/common'
 import { storage } from './storage'
+import { migrateStoredState } from './storage-migrations'
 
 export const applicationState: commonTypes.ApplicationState = Object.assign({}, initialState.Application)
 
@@ -23,7 +24,7 @@ const restoreState = async (): Promise<void> => {
     if (loaded) applyChanges(changes)
     else Object.assign(duringLoad, changes)
   })
-  applyChanges(await storage.load())
+  applyChanges(await migrateStoredState())
   applyChanges(duringLoad)
   loaded = true
   await chrome.action.setBadgeBackgroundColor({ color: '#0077FF' })

@@ -8,17 +8,12 @@ class State<T> {
   }
 
   async get (): Promise<T | undefined> {
-    return await new Promise((resolve) => {
-      chrome.storage.local.get([this.stateName], (result) => {
-        resolve(result[this.stateName] as T | undefined)
-      })
-    })
+    const result = await chrome.storage.local.get([this.stateName])
+    return result[this.stateName] as T | undefined
   }
 
   async set (value: T): Promise<void> {
-    await new Promise((resolve) => {
-      chrome.storage.local.set({ [this.stateName]: value }, () => { resolve(null) })
-    })
+    await chrome.storage.local.set({ [this.stateName]: value })
   }
 
   listen (callback: (value: T | undefined) => void): void {

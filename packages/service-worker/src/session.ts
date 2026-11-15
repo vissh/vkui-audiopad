@@ -1,5 +1,7 @@
-import { commonUtils, sessionClient, vkApiClient, commonTypes } from '@vk-audiopad/common'
+import { commonUtils, sessionClient, vkApiClient, commonTypes, messageValidation } from '@vk-audiopad/common'
 import { serializeError } from 'serialize-error'
+import { serializeStateWrite } from './state-writer'
+import { retireSessionPlayback } from './session-playback'
 
 type Snapshot = commonTypes.SessionSnapshot
 type Identity = commonTypes.SessionIdentity
@@ -7,7 +9,7 @@ type StoredSnapshot = Snapshot & { deviceId: unknown }
 type Flight = { identity: Identity, controller: AbortController, promise: Promise<Snapshot>, users: number }
 const sameIdentity = (a: Identity, b: Identity): boolean => a.epoch === b.epoch && a.userId === b.userId
 
-export const createSessionOwner = () => {
+export const createSessionOwner = (retire: (signal: AbortSignal) => Promise<void> = async () => {}) => {
   let verification: Flight | undefined
   let refresh: Flight | undefined
   let writing: Promise<unknown> = Promise.resolve()
@@ -31,7 +33,7 @@ export const createSessionOwner = () => {
     return current
   }
   const write = async (identity: Identity, token: commonTypes.WebToken, verified: boolean, signal: AbortSignal): Promise<Snapshot> => {
-    const result = writing.then(async () => {
+    const result = writing.then(async () => await serializeStateWrite(async () => {
       const current = await assert(identity, signal)
       const unauthorized = token.error?.type === 'unauthorized'
       const nextUser = unauthorized ? '' : token.userId
@@ -39,6 +41,8 @@ export const createSessionOwner = () => {
       if (changed && !verified) throw new vkApiClient.VKApiError('session-changed')
       const epoch = changed ? crypto.randomUUID() : current.identity.epoch
       if (unauthorized || changed) {
+        await retire(signal)
+        signal.throwIfAborted()
         await commonUtils.clearStorage(['sessionEpoch'])
         signal.throwIfAborted()
       }
@@ -55,7 +59,7 @@ export const createSessionOwner = () => {
       }
       signal.throwIfAborted()
       return { identity: { epoch, userId: nextUser }, token }
-    })
+    }))
     writing = result.catch(() => {})
     try { return await result } catch (error) {
       signal.throwIfAborted()
@@ -154,7 +158,7 @@ const validOperation = (operation: unknown): operation is commonTypes.SessionOpe
 }
 
 export const startSessionService = (): void => {
-  const owner = createSessionOwner()
+  const owner = createSessionOwner(retireSessionPlayback)
   sessionClient.setLocalSessionHandler(owner.request)
   const pending = new Map<string, { controller: AbortController, sender: string }>()
   chrome.runtime.onMessage.addListener((message: unknown, sender, sendResponse): boolean | undefined => {
@@ -162,7 +166,7 @@ export const startSessionService = (): void => {
     const requestId = typeof message.requestId === 'string' && message.requestId.length > 0 && message.requestId.length <= 100 ? message.requestId : ''
     const respond = (reply: commonTypes.SessionReply): void => { try { sendResponse(reply) } catch {} }
     const fail = (kind: 'format' | 'unavailable'): void => { respond({ requestId, ok: false, error: serializeError(new vkApiClient.VKApiError(kind)) }) }
-    const trusted = sender.id === chrome.runtime.id && typeof sender.url === 'string' && sender.url.startsWith(chrome.runtime.getURL(''))
+    const trusted = messageValidation.isTrustedSender(sender)
     if (!trusted || requestId === '') { fail('format'); return undefined }
     const senderKey = JSON.stringify([sender.documentId, sender.url, sender.frameId, sender.tab?.id])
     if (message.type === commonTypes.MessageType.SESSION_CANCEL) {

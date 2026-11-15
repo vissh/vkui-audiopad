@@ -44,17 +44,17 @@ it('sends toggles without deriving intent from delayed media state', async () =>
   await renderWithVKUI(createElement(PlayPauseButton))
   await act(async () => { await browser.api.storage.local.get() })
   fireEvent.click(screen.getByRole('button'))
-  expect(commands).toHaveBeenLastCalledWith({ target: commonTypes.MessageTarget.SERVICE_WORKER, type: commonTypes.MessageType.TOGGLE_PLAYBACK })
+  expect(commands).toHaveBeenLastCalledWith(expect.objectContaining({ target: commonTypes.MessageTarget.SERVICE_WORKER, type: commonTypes.MessageType.TOGGLE_PLAYBACK }))
   expect(browser.api.storage.local.set).not.toHaveBeenCalled()
   expect(result.current.played).toBe(false)
   fireEvent.click(screen.getByRole('button'))
   expect(commands).toHaveBeenCalledTimes(2)
-  expect(commands).toHaveBeenLastCalledWith({ target: commonTypes.MessageTarget.SERVICE_WORKER, type: commonTypes.MessageType.TOGGLE_PLAYBACK })
+  expect(commands).toHaveBeenLastCalledWith(expect.objectContaining({ target: commonTypes.MessageTarget.SERVICE_WORKER, type: commonTypes.MessageType.TOGGLE_PLAYBACK }))
   await act(async () => { await browser.api.storage.local.set({ played: true }) })
   expect(result.current.played).toBe(true)
   browser.api.storage.local.set.mockClear()
   fireEvent.click(screen.getByRole('button'))
-  expect(commands).toHaveBeenLastCalledWith({ target: commonTypes.MessageTarget.SERVICE_WORKER, type: commonTypes.MessageType.TOGGLE_PLAYBACK })
+  expect(commands).toHaveBeenLastCalledWith(expect.objectContaining({ target: commonTypes.MessageTarget.SERVICE_WORKER, type: commonTypes.MessageType.TOGGLE_PLAYBACK }))
   expect(browser.api.storage.local.set).not.toHaveBeenCalled()
   await act(async () => { await browser.api.storage.local.set({ played: false, playbackError: 'Нет доступных треков' }) })
   expect(result.current).toEqual({ played: false, error: 'Нет доступных треков' })
@@ -97,7 +97,7 @@ it('retains the repeat control and keyboard focus across every mode', async () =
     expect(document.activeElement).toBe(button)
   }
   expect(commands).toHaveBeenCalledTimes(3)
-  expect(commands).toHaveBeenLastCalledWith({ target: commonTypes.MessageTarget.SERVICE_WORKER, type: commonTypes.MessageType.REPEAT })
+  expect(commands).toHaveBeenLastCalledWith(expect.objectContaining({ target: commonTypes.MessageTarget.SERVICE_WORKER, type: commonTypes.MessageType.REPEAT, requestId: expect.any(String), expiresAt: expect.any(Number) }))
 })
 
 it('shows the pause action during loading while keeping observed playback false', async () => {
@@ -151,7 +151,7 @@ it('cancels a delayed header play from the album control before media starts', a
   expect(player.snapshot()).toMatchObject({ played: false, playbackRequested: false, playbackError: null })
   expect(screen.getByRole('button', { name: 'Воспроизвести' })).toBeTruthy()
   expect(player.api.runtime.sendMessage).toHaveBeenCalledTimes(2)
-  expect(player.api.runtime.sendMessage).toHaveBeenLastCalledWith({ target: commonTypes.MessageTarget.SERVICE_WORKER, type: commonTypes.MessageType.TOGGLE_PLAYBACK })
+  expect(player.api.runtime.sendMessage).toHaveBeenLastCalledWith(expect.objectContaining({ target: commonTypes.MessageTarget.SERVICE_WORKER, type: commonTypes.MessageType.TOGGLE_PLAYBACK }))
 })
 
 it.each(['played', 'paused'] as const)('sends an explicit command for a %s track row', async trackState => {
@@ -161,10 +161,10 @@ it.each(['played', 'paused'] as const)('sends an explicit command for a %s track
   const { playOrPause } = await import('@/features/play-or-pause')
   const { commonTypes } = await import('@vk-audiopad/common')
   playOrPause(trackState, '1_1', playlist(['1_1']))
-  expect(commands).toHaveBeenCalledExactlyOnceWith({
+  expect(commands).toHaveBeenCalledExactlyOnceWith(expect.objectContaining({
     target: commonTypes.MessageTarget.SERVICE_WORKER,
     type: commonTypes.MessageType.TOGGLE_PLAYBACK
-  })
+  }))
   expect(browser.api.storage.local.set).not.toHaveBeenCalled()
 })
 
@@ -176,12 +176,12 @@ it('keeps selecting a different track as an ACTIVE_TRACK command', async () => {
   const { commonTypes } = await import('@vk-audiopad/common')
   const queue = playlist(['1_1'])
   playOrPause('normal', '1_1', queue)
-  expect(commands).toHaveBeenCalledExactlyOnceWith({
+  expect(commands).toHaveBeenCalledExactlyOnceWith(expect.objectContaining({
     target: commonTypes.MessageTarget.SERVICE_WORKER,
     type: commonTypes.MessageType.ACTIVE_TRACK,
     trackId: '1_1',
     playlist: queue
-  })
+  }))
 })
 
 it('sends pause from the active album without triggering the parent card', async () => {
@@ -202,10 +202,10 @@ it('sends pause from the active album without triggering the parent card', async
   const icon = container.querySelector('svg')
   expect(icon).not.toBeNull()
   fireEvent.click(icon!)
-  expect(commands).toHaveBeenCalledExactlyOnceWith({
+  expect(commands).toHaveBeenCalledExactlyOnceWith(expect.objectContaining({
     target: commonTypes.MessageTarget.SERVICE_WORKER,
     type: commonTypes.MessageType.TOGGLE_PLAYBACK
-  })
+  }))
   expect(onParentClick).not.toHaveBeenCalled()
   expect(onPlayNewAlbum).not.toHaveBeenCalled()
   expect(browser.api.storage.local.set).not.toHaveBeenCalled()
@@ -220,10 +220,10 @@ it('pauses the active VK Mix through the playback feature', async () => {
   await renderWithVKUI(createElement(VKMixButton))
   await act(async () => { await browser.api.storage.local.get() })
   fireEvent.click(screen.getByRole('button'))
-  expect(commands).toHaveBeenCalledExactlyOnceWith({
+  expect(commands).toHaveBeenCalledExactlyOnceWith(expect.objectContaining({
     target: commonTypes.MessageTarget.SERVICE_WORKER,
     type: commonTypes.MessageType.TOGGLE_PLAYBACK
-  })
+  }))
   expect(browser.api.storage.local.set).not.toHaveBeenCalled()
 })
 
@@ -247,7 +247,7 @@ it('retries explicitly and dismisses feedback without changing playback storage'
   await act(async () => { await browser.api.storage.local.get() })
   browser.api.storage.local.set.mockClear()
   fireEvent.click(screen.getByRole('button', { name: 'Попробовать снова' }))
-  expect(commands).toHaveBeenCalledExactlyOnceWith({ target: commonTypes.MessageTarget.SERVICE_WORKER, type: commonTypes.MessageType.PLAY_OR_PAUSE, played: true })
+  expect(commands).toHaveBeenCalledExactlyOnceWith(expect.objectContaining({ target: commonTypes.MessageTarget.SERVICE_WORKER, type: commonTypes.MessageType.PLAY_OR_PAUSE, played: true }))
   expect(browser.api.storage.local.set).not.toHaveBeenCalled()
   fireEvent.click(screen.getByRole('button', { name: 'Скрыть сообщение' }))
   expect(screen.queryByRole('status')).toBeNull()

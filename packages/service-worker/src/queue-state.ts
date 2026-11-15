@@ -3,15 +3,16 @@ import { commitPlayback, getPlaybackOperation } from './playback-operation'
 import { sameQueue, type QueueEdit, type QueueUpdate } from './queue'
 import { applicationState } from './state'
 
-export const mutateQueue = async (transform: (state: commonTypes.ApplicationState) => QueueUpdate | null, ownsCommand: () => boolean = () => true): Promise<void> => {
+export const mutateQueue = async (transform: (state: commonTypes.ApplicationState) => QueueUpdate | null, ownsCommand: () => boolean = () => true): Promise<boolean> => {
   const queue = applicationState.currentPlaylist
   const userId = applicationState.userId
+  const epoch = applicationState.sessionEpoch
   const isCurrent = (): boolean => {
     const operation = getPlaybackOperation()
-    return ownsCommand() && applicationState.userId === userId && sameQueue(applicationState.currentPlaylist, queue) && (operation == null || sameQueue(operation.playlist, queue))
+    return ownsCommand() && applicationState.userId === userId && applicationState.sessionEpoch === epoch && sameQueue(applicationState.currentPlaylist, queue) && (operation == null || sameQueue(operation.playlist, queue))
   }
   let edits: QueueEdit[] = []
-  await commitPlayback(isCurrent, () => {
+  return await commitPlayback(isCurrent, () => {
     const result = transform(applicationState)
     if (result == null) return null
     edits = result.edits

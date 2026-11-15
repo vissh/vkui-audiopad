@@ -20,7 +20,7 @@ The background session owner performs verification/persistence; the sign-in feat
 
 ## Limits
 
-Shared session writes, refresh single-flight, per-caller cancellation and userId/sessionEpoch checks for token methods now follow ADR 0009. This is not a transaction across legacy requests, every playback/storage writer or all cached personal data. Broader invalidation and storage migrations remain T09/T10/T11. Existing UPDATE cleanup still removes runtime/session data while retaining settings; no queue migration policy is introduced.
+Shared session writes, refresh single-flight, per-caller cancellation and userId/sessionEpoch checks for token methods now follow ADR 0009. This is not a transaction across legacy requests, every playback/storage writer or all cached personal data. Broader invalidation and storage migrations remain T09/T10/T11. [ADR 0011](0011-runtime-command-and-storage-boundaries.md) subsequently adds queue-preserving UPDATE migration v1 and serialized session/playback retirement; inconclusive verification still preserves data.
 
 Token-method safe failures and bounded auth refresh are implemented in [ADR 0008](0008-vk-api-errors.md); delete/restore result validation and app-ID consistency are covered by [ADR 0006](0006-library-delete-restore.md), whose live A/B accepted both client_id values. Other legacy mutations and safe errors in other parsers remain open. The banner reports session verification/persistence failure, not the state of every catalog query. A successful retry does not refresh unrelated failed queries.
 

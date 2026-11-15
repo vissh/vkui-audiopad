@@ -34,7 +34,7 @@ Firefox UI-to-background session requests use runtime request/reply across those
 
 Only the current session owner should write session keys. Storage is not transactional: an already-issued mutation cannot be cancelled/rolled back, and a stalled write can block later writes until the worker is recreated. Owner memory is not a durable job queue; callers have deadlines and explicit retry after worker loss.
 
-Legacy cookie requests, arbitrary direct storage writers, all pending playback/hydration operations, cross-window catalog invalidation and every account-scoped atom are not made transactional by this change. Their cleanup/epochs need their own scenarios under T09/T10/T11/T12. UPDATE still uses the existing settings-preserving cleanup. The new epoch field is backward-compatible metadata, not a complete schemaVersion/migration system.
+Legacy cookie requests, arbitrary direct storage writers, all pending playback/hydration operations, cross-window catalog invalidation and every account-scoped atom are not made transactional by this change. Their cleanup/epochs need their own scenarios under T09/T10/T11/T12. [ADR 0011](0011-runtime-command-and-storage-boundaries.md) subsequently binds playback/hydration to the epoch, serializes playback/session writes, retires media before account cleanup and adds queue-preserving UPDATE migration v1. Arbitrary legacy requests and UI storage writers remain outside that transaction.
 
 ## Evidence
 

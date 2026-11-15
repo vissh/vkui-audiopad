@@ -26,7 +26,7 @@ it('toggles from a tab, prevents scrolling and ignores held-key repeats without 
   const { commonTypes } = await import('@vk-audiopad/common')
   expect(space().defaultPrevented).toBe(true)
   expect(space(document.body, { repeat: true }).defaultPrevented).toBe(true)
-  expect(page.api.runtime.sendMessage).toHaveBeenCalledExactlyOnceWith({ target: commonTypes.MessageTarget.SERVICE_WORKER, type: commonTypes.MessageType.TOGGLE_PLAYBACK })
+  expect(page.api.runtime.sendMessage).toHaveBeenCalledExactlyOnceWith(expect.objectContaining({ target: commonTypes.MessageTarget.SERVICE_WORKER, type: commonTypes.MessageType.TOGGLE_PLAYBACK }))
   space()
   expect(page.api.runtime.sendMessage).toHaveBeenCalledTimes(2)
   expect(page.api.storage.local.set).not.toHaveBeenCalled()
@@ -38,7 +38,7 @@ it('toggles from a tab, prevents scrolling and ignores held-key repeats without 
 it('handles the first Space immediately after opening the popup without clicking', async () => {
   const page = await setup(null)
   expect(space().defaultPrevented).toBe(true)
-  expect(page.api.runtime.sendMessage).toHaveBeenCalledExactlyOnceWith({ target: 'service-worker', type: 'toggle-playback' })
+  expect(page.api.runtime.sendMessage).toHaveBeenCalledExactlyOnceWith(expect.objectContaining({ target: 'service-worker', type: 'toggle-playback' }))
 })
 
 it.each([

@@ -166,7 +166,7 @@ it('keeps unrelated radio stations out of playback renders while preserving thei
   expect(renders.sort()).toEqual(['radio_1', 'radio_2'])
   expect(screen.getByRole('button', { name: 'Слушать: radio_1' })).not.toBeNull()
   fireEvent.click(screen.getByRole('button', { name: 'Приостановить: radio_2' }))
-  expect(browser.api.runtime.sendMessage).toHaveBeenLastCalledWith({ target: 'service-worker', type: 'toggle-playback' })
+  expect(browser.api.runtime.sendMessage).toHaveBeenLastCalledWith(expect.objectContaining({ target: 'service-worker', type: 'toggle-playback' }))
 })
 
 it('isolates playback updates in retained listening cards to the affected preview tracks', async () => {
@@ -221,7 +221,7 @@ it('isolates playback updates in retained listening cards to the affected previe
   await act(async () => { await browser.api.storage.local.set({ activeTrack: track('1_2') }) })
   expect(renders.sort()).toEqual(['1_1', '1_2'])
   fireEvent.click(Array.from(view.container.querySelectorAll<HTMLButtonElement>('.vkap_listening_track')).find(button => button.textContent?.includes('1_2'))!)
-  expect(browser.api.runtime.sendMessage).toHaveBeenLastCalledWith({ target: 'service-worker', type: 'toggle-playback' })
+  expect(browser.api.runtime.sendMessage).toHaveBeenLastCalledWith(expect.objectContaining({ target: 'service-worker', type: 'toggle-playback', requestId: expect.any(String), expiresAt: expect.any(Number) }))
   client.clear()
 })
 

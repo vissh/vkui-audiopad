@@ -1,10 +1,46 @@
 // @vitest-environment jsdom
 import { act, cleanup, renderHook } from '@testing-library/react'
-import { afterEach, expect, it } from 'vitest'
+import { afterEach, expect, it, vi } from 'vitest'
 import { createChrome } from '../helpers/chrome'
 import { playlist } from '../helpers/playback'
+import { deferred } from '../helpers/deferred'
 
 afterEach(() => { cleanup() })
+
+it.each(['event', 'removal', 'local'])('does not overwrite a newer %s with a delayed initial read', async change => {
+  const browser = createChrome({ volume: 0.2 })
+  const read = browser.api.storage.local.get.getMockImplementation()!
+  const release = deferred<void>()
+  browser.api.storage.local.get.mockImplementationOnce(async (keys, callback) => {
+    const items = await read(keys)
+    await release.promise
+    callback?.(items)
+    return items
+  })
+  const { storageAtom } = await import('@/shared/lib/atom')
+  const ready = vi.fn()
+  const value = storageAtom({ key: 'volume', initial: 0, compareObjects: false, onReady: ready })
+  await browser.api.storage.local.get()
+  if (change === 'local') value.set(0.8)
+  else if (change === 'event') await browser.api.storage.local.set({ volume: 0.8 })
+  else await browser.api.storage.local.remove('volume')
+  release.resolve()
+  await vi.waitFor(() => { expect(ready).toHaveBeenCalledOnce() })
+  expect(value.get()).toBe(change === 'removal' ? 0 : 0.8)
+})
+
+it('recovers from an initial read failure and rolls back a failed optimistic write', async () => {
+  const browser = createChrome({ volume: 0.2 })
+  const { storageAtom } = await import('@/shared/lib/atom')
+  browser.failNextStorageOperation('Read unavailable')
+  const ready = vi.fn()
+  const value = storageAtom({ key: 'volume', initial: 0, compareObjects: false, onReady: ready })
+  await vi.waitFor(() => { expect(ready).toHaveBeenCalledOnce() })
+  browser.failNextStorageOperation('Quota exceeded')
+  value.set(0.8)
+  await vi.waitFor(() => { expect(value.get()).toBe(0.2) })
+  expect(browser.snapshot().volume).toBe(0.2)
+})
 
 it('hydrates a React subscriber and synchronizes local and external storage changes', async () => {
   const browser = createChrome({ volume: 0.4 })

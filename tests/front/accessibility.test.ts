@@ -87,7 +87,7 @@ it('exposes playback modes and meaningful seek/volume values without announcing 
   const seek = screen.getByRole('slider', { name: 'Позиция воспроизведения' })
   expect(seek.getAttribute('aria-valuetext')).toBe('0:30 из 3:00')
   fireEvent.change(seek, { target: { value: '31' } })
-  expect(commands).toHaveBeenLastCalledWith({ target: 'service-worker', type: 'current-time', value: 31 })
+  expect(commands).toHaveBeenLastCalledWith(expect.objectContaining({ target: 'service-worker', type: 'current-time', value: 31 }))
   expect(screen.getByRole('slider', { name: 'Громкость' }).getAttribute('aria-valuetext')).toBe('50%')
   expect(seek.closest('[aria-live]')).toBeNull()
 })
@@ -151,7 +151,7 @@ it('offers keyboard-focusable queue reorder actions with boundary guards', async
   const down = screen.getByRole('button', { name: 'Ниже: Первый' })
   down.focus()
   fireEvent.click(down)
-  expect(move).toHaveBeenCalledExactlyOnceWith({ from: 0, to: 1 })
+  expect(move).toHaveBeenCalledExactlyOnceWith(expect.objectContaining({ from: 0, to: 1 }))
   await audit(view.container)
 })
 

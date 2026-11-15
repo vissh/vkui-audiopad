@@ -24,8 +24,8 @@ The snapshot reply is the media-event boundary: earlier arrivals are superseded;
 
 - [ADR 0003](0003-offscreen-lifecycle.md) adds bounded readiness probes before media commands and serializes Chrome close/create/send. This is listener readiness, not acknowledgement that media actually started.
 - Retry budgets, pending selection and unfinished VK requests are not durable. Matching media gets a fresh operation budget; durable storage/migrations remain T11.
-- Message-port lifetime, sender policy and general command validation/results remain T12. Current sendMessage completion is not playback acknowledgement.
-- UPDATE/account-switch cleanup still removes runtime state. The startup status has the same lifetime and is republished on startup; this is not schema-versioned migration.
+- [ADR 0011](0011-runtime-command-and-storage-boundaries.md) adds bounded command replies, sender/payload validation and safe closed-port handling. A handled reply is not media-playback acknowledgement.
+- ADR 0011 replaces UPDATE cleanup with queue-preserving migration v1; account switching still removes associated state. Startup republishes its status and reconciles existing media without autoplay.
 - Snapshot arrival order is the boundary for this protocol. Broader delivery/duplicate policies and multi-context command envelopes remain T12.
 
 ## Evidence

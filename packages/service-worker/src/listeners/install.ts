@@ -1,4 +1,5 @@
-import { commonUtils, equalizer } from '@vk-audiopad/common'
+import { equalizer } from '@vk-audiopad/common'
+import { migrateStoredState } from '../storage-migrations'
 
 export const startListeningOnInstalled = (): void => {
   chrome.runtime.onInstalled.addListener((details: chrome.runtime.InstalledDetails) => {
@@ -9,7 +10,7 @@ export const startListeningOnInstalled = (): void => {
 }
 
 const update = async (previousVersion: string | undefined): Promise<void> => {
-  await commonUtils.clearStorage()
+  await migrateStoredState()
   if (equalizer.shouldAnnounceUpgrade(previousVersion, chrome.runtime.getManifest().version)) {
     await chrome.storage.local.set({ equalizerAnnouncementPending: true })
   }

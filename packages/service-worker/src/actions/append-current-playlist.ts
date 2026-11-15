@@ -3,8 +3,8 @@ import { getPlaybackOperation } from '../playback-operation'
 import { applyQueueEdits, sameQueue } from '../queue'
 import { mutateQueue } from '../queue-state'
 
-export const appendCurrentPlaylist = async (base: commonTypes.Playlist, page: commonTypes.Playlist): Promise<void> => {
-  await mutateQueue(state => {
+export const appendCurrentPlaylist = async (base: commonTypes.Playlist, page: commonTypes.Playlist): Promise<boolean> => {
+  return await mutateQueue(state => {
     const current = state.currentPlaylist
     if (!sameQueue(current, base) || !sameQueue(current, page) || current == null || current.nextOffset !== base.nextOffset) return null
     const operation = getPlaybackOperation()

@@ -91,7 +91,7 @@ it('keeps the playback Space shortcut available while the non-modal hint is show
   await mount()
   expect(screen.getByText('Доступен эквалайзер')).toBeTruthy()
   await act(async () => { fireEvent.keyDown(window, { key: ' ', code: 'Space' }) })
-  expect(browser.api.runtime.sendMessage).toHaveBeenCalledWith({ target: 'service-worker', type: 'toggle-playback' })
+  expect(browser.api.runtime.sendMessage).toHaveBeenCalledWith(expect.objectContaining({ target: 'service-worker', type: 'toggle-playback' }))
 })
 
 const mix = { equalizer: { ...equalizer.defaults, enabled: true }, equalizerStatus: 'unavailable', played: true, activeTrack: { id: 'current', url: 'https://vd123.okcdn.ru/track.mp3' } }

@@ -1,4 +1,5 @@
-import { commonTypes, commonUtils } from '@vk-audiopad/common'
+import { commonTypes, commonUtils, messageValidation, sessionClient } from '@vk-audiopad/common'
+import { serializeError } from 'serialize-error'
 import { addToQueue } from '../actions/add-to-queue'
 import { deleteTrack } from '../actions/delete-track'
 import { editCurrentPlaylist } from '../actions/edit-current-playlist'
@@ -30,20 +31,44 @@ const mediaMessages = new Set([
 ])
 
 export const startListeningMessages = async (readiness: Readiness, offscreen: boolean): Promise<void> => {
-  const receive = (message: commonTypes.Message): void => {
-    if (message == null || typeof message !== 'object') return
-    if (message.target !== commonTypes.MessageTarget.SERVICE_WORKER || message.type === commonTypes.MessageType.PLAYER_SNAPSHOT || message.type === commonTypes.MessageType.SESSION_REQUEST || message.type === commonTypes.MessageType.SESSION_CANCEL) return
+  const receive = (message: unknown, respond?: (reply: commonTypes.CommandReply) => void): boolean | undefined => {
+    if (!sessionClient.isObject(message) || message.target !== commonTypes.MessageTarget.SERVICE_WORKER || message.type === commonTypes.MessageType.PLAYER_SNAPSHOT || message.type === commonTypes.MessageType.SESSION_REQUEST || message.type === commonTypes.MessageType.SESSION_CANCEL || message.type === commonTypes.MessageType.COMMAND_REPLY) return
+    const requestId = typeof message.requestId === 'string' && message.requestId.length > 0 && message.requestId.length <= 100 ? message.requestId : ''
+    const fail = (): void => { respond?.({ requestId, ok: false, error: serializeError(new Error('Command could not be applied')) }) }
+    if (!messageValidation.isRuntimeMessage(message)) { if (requestId !== '') fail(); return }
+    if (requestId !== '' && messageValidation.isPlayerCommand(message)) {
+      const expiresAt = 'expiresAt' in message ? message.expiresAt : undefined
+      if (typeof expiresAt !== 'number' || !Number.isFinite(expiresAt) || expiresAt < Date.now() || expiresAt > Date.now() + 31_000) { fail(); return }
+      const identity = chrome.storage.local.get(['userId', 'sessionEpoch']).then(value => ({ value }), () => ({ value: null }))
+      void readiness.execute(async () => {
+        const outcome = await messageHandler(message)
+        respond?.({ requestId, ok: true, outcome: outcome === undefined ? 'handled' : outcome ? 'applied' : 'ignored' })
+      }, async () => {
+        await commonUtils.withTimeout(async () => {
+          const { value: before } = await identity
+          const now = await chrome.storage.local.get(['userId', 'sessionEpoch'])
+          if (before == null || Date.now() >= expiresAt || before.userId !== now.userId || before.sessionEpoch !== now.sessionEpoch) throw new Error('Command retired')
+        }, Math.max(1, expiresAt - Date.now()))
+      }).catch(fail)
+      return true
+    }
     if (mediaMessages.has(message.type) && !readiness.acceptsMedia()) return
     readiness.run(async () => { await messageHandler(message) })
+    return undefined
   }
-  chrome.runtime.onMessage.addListener(receive)
+  chrome.runtime.onMessage.addListener((message: unknown, sender, respond) => {
+    if (!messageValidation.isTrustedSender(sender)) return
+    return receive(message, reply => { try { respond(reply) } catch {} })
+  })
   if (!offscreen) {
-    commonUtils.addBackgroundMessageListener(receive)
+    commonUtils.addBackgroundMessageListener(message => {
+      receive(message, reply => { commonUtils.sendBackgroundMessage({ target: commonTypes.MessageTarget.OFFSCREEN, type: commonTypes.MessageType.COMMAND_REPLY, reply }) })
+    })
   }
 }
 
-const messageHandler = async (message: commonTypes.Message): Promise<void> => {
-  if (message.target !== commonTypes.MessageTarget.SERVICE_WORKER) {
+const messageHandler = async (message: commonTypes.Message): Promise<boolean | undefined> => {
+  if (message.target !== commonTypes.MessageTarget.SERVICE_WORKER || message.type === commonTypes.MessageType.COMMAND_REPLY) {
     return
   }
 
@@ -73,17 +98,13 @@ const messageHandler = async (message: commonTypes.Message): Promise<void> => {
       await repeat()
       break
     case commonTypes.MessageType.EDIT_CURRENT_PLAYLIST:
-      await editCurrentPlaylist(message.playlist, message.oldPlaylist, message.actions)
-      break
+      return await editCurrentPlaylist(message.playlist, message.oldPlaylist, message.actions)
     case commonTypes.MessageType.APPEND_CURRENT_PLAYLIST:
-      await appendCurrentPlaylist(message.basePlaylist, message.playlist)
-      break
+      return await appendCurrentPlaylist(message.basePlaylist, message.playlist)
     case commonTypes.MessageType.DELETE_TRACK:
-      await deleteTrack(message.track)
-      break
+      return await deleteTrack(message.track)
     case commonTypes.MessageType.ADD_TO_QUEUE:
-      await addToQueue(message.track)
-      break
+      return await addToQueue(message.track)
     case commonTypes.MessageType.RELOAD_TRACK:
       await reloadTrack()
       break
@@ -120,4 +141,5 @@ const messageHandler = async (message: commonTypes.Message): Promise<void> => {
     default:
       commonUtils.assertUnreachable(message)
   }
+  return undefined
 }

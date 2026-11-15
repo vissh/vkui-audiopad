@@ -36,7 +36,7 @@ build.sh installs the appropriate public/environment-{chrome,firefox}.json as en
 
 Front sends through shared/lib/send-message.ts. Toggle controls send TOGGLE_PLAYBACK to SERVICE_WORKER; SW flips synchronous intent and publishes playbackRequested separately from played. Boolean PLAY_OR_PAUSE still expresses an explicit state. PLAY_TRACK and AUDIO_PLAYER_* carry playbackId, allowing obsolete events to be discarded. [ADR 0001](../decisions/0001-playback-operations.md) owns the concurrency contract.
 
-Serialize errors across message boundaries with serialize-error. Static types are not runtime validation. Startup uses a correlated, timed snapshot exchange over both transports. Current wrappers/routers do not provide a unified command completion response or sender policy; see T12 and [the state guide](state-and-messages.md).
+Serialize errors across message boundaries with serialize-error. Static types are not runtime validation. Startup uses a correlated, timed snapshot exchange over both transports. [ADR 0011](../decisions/0011-runtime-command-and-storage-boundaries.md) adds runtime payload/sender checks, correlated command outcomes and safe bounded failure. Handled commands do not prove media playback; see [the state guide](state-and-messages.md).
 
 ## State and frontend composition
 

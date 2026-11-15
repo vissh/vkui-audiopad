@@ -23,6 +23,26 @@ const setup = async () => {
   return { ...browser, ...network, local, remote, types }
 }
 
+it('does not clear account storage if verification is cancelled while media retirement is pending', async () => {
+  const page = await setup()
+  const entered = deferred<void>()
+  const release = deferred<void>()
+  const { createSessionOwner } = await import('../../packages/service-worker/src/session')
+  const owner = createSessionOwner(async () => { entered.resolve(); await release.promise })
+  const controller = new AbortController()
+  const verifying = owner.request({ kind: 'verify' }, controller.signal).catch((error: unknown) => error)
+  await vi.waitFor(() => { expect(page.requests).toHaveLength(1) })
+  page.requests[0].resolve(fresh('2'))
+  await vi.waitFor(() => { expect(page.requests).toHaveLength(2) })
+  page.requests[1].resolve(new Response('{"response":{}}'))
+  await entered.promise
+  controller.abort()
+  expect(await verifying).toMatchObject({ name: 'AbortError' })
+  release.resolve()
+  await vi.advanceTimersByTimeAsync(0)
+  expect(page.snapshot()).toEqual(initial())
+})
+
 it('shares one refresh between the worker and a separate UI client', async () => {
   const page = await setup()
   const background = page.local.requestSession(refresh)

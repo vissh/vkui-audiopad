@@ -47,7 +47,7 @@ it('starts the recommendation from its card without navigating, preserving focus
   expect(page.api.storage.local.set).not.toHaveBeenCalled()
   await act(async () => { page.response.resolve({ playlist: page.loaded }) })
   const { commonTypes } = await import('@vk-audiopad/common')
-  expect(page.api.runtime.sendMessage).toHaveBeenCalledExactlyOnceWith({ target: commonTypes.MessageTarget.SERVICE_WORKER, type: commonTypes.MessageType.ACTIVE_TRACK, trackId: null, playlist: page.loaded })
+  expect(page.api.runtime.sendMessage).toHaveBeenCalledExactlyOnceWith(expect.objectContaining({ target: commonTypes.MessageTarget.SERVICE_WORKER, type: commonTypes.MessageType.ACTIVE_TRACK, trackId: null, playlist: page.loaded }))
   expect(button.getAttribute('aria-busy')).toBeNull()
   expect(document.activeElement).toBe(button)
   expect(page.api.storage.local.set).not.toHaveBeenCalled()
@@ -88,7 +88,7 @@ it('pauses and resumes the active recommendation through shared intent without f
   fireEvent.click(screen.getByRole('button', { name: 'Воспроизвести: Для вас' }))
   const { commonTypes } = await import('@vk-audiopad/common')
   expect(page.api.runtime.sendMessage).toHaveBeenCalledTimes(2)
-  expect(page.api.runtime.sendMessage).toHaveBeenLastCalledWith({ target: commonTypes.MessageTarget.SERVICE_WORKER, type: commonTypes.MessageType.TOGGLE_PLAYBACK })
+  expect(page.api.runtime.sendMessage).toHaveBeenLastCalledWith(expect.objectContaining({ target: commonTypes.MessageTarget.SERVICE_WORKER, type: commonTypes.MessageType.TOGGLE_PLAYBACK }))
   expect(page.fetchPlaylist).not.toHaveBeenCalled()
 })
 

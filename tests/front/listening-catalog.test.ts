@@ -68,7 +68,7 @@ it('keeps category navigation and playback as separate sibling buttons and toggl
   expect(message.playlist.tracks.map(track => track.id)).toEqual(['2_10', '2_11'])
   await act(async () => { await browser.api.storage.local.set({ currentPlaylist: message.playlist, playbackRequested: true }) })
   fireEvent.click(screen.getByRole('button', { name: 'Приостановить: Поп' }))
-  expect(browser.api.runtime.sendMessage).toHaveBeenLastCalledWith({ target: commonTypes.MessageTarget.SERVICE_WORKER, type: commonTypes.MessageType.TOGGLE_PLAYBACK })
+  expect(browser.api.runtime.sendMessage).toHaveBeenLastCalledWith(expect.objectContaining({ target: commonTypes.MessageTarget.SERVICE_WORKER, type: commonTypes.MessageType.TOGGLE_PLAYBACK }))
   expect(network).toHaveBeenCalledOnce()
   fireEvent.click(open)
   await waitFor(() => { expect(browser.snapshot().activeTab).toMatchObject({ tab: 'albums', showAllLink: '/music/catalog/synthetic-pop' }) })
